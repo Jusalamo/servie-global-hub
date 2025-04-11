@@ -1,5 +1,6 @@
 
 import { useState } from "react"
+import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "./ui/ThemeToggle"
 import { Menu, X } from "lucide-react"
@@ -11,9 +12,9 @@ export default function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
-          <a href="/" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <span className="text-2xl font-bold text-servie">Servie</span>
-          </a>
+          </Link>
         </div>
 
         {/* Mobile menu button */}
@@ -27,24 +28,24 @@ export default function Header() {
 
         {/* Desktop navigation */}
         <nav className="hidden lg:flex items-center space-x-6">
-          <a href="#services" className="text-sm font-medium transition-colors hover:text-servie">
+          <Link to="/#services" className="text-sm font-medium transition-colors hover:text-servie">
             Services
-          </a>
-          <a href="#how-it-works" className="text-sm font-medium transition-colors hover:text-servie">
+          </Link>
+          <Link to="/#how-it-works" className="text-sm font-medium transition-colors hover:text-servie">
             How It Works
-          </a>
-          <a href="#testimonials" className="text-sm font-medium transition-colors hover:text-servie">
+          </Link>
+          <Link to="/#testimonials" className="text-sm font-medium transition-colors hover:text-servie">
             Testimonials
-          </a>
-          <a href="#become-provider" className="text-sm font-medium transition-colors hover:text-servie">
+          </Link>
+          <Link to="/#become-provider" className="text-sm font-medium transition-colors hover:text-servie">
             Become a Provider
-          </a>
+          </Link>
           <div className="flex items-center space-x-2">
-            <Button variant="outline" className="rounded-full">
-              Sign In
+            <Button variant="outline" className="rounded-full" asChild>
+              <Link to="/signin">Sign In</Link>
             </Button>
-            <Button className="rounded-full bg-servie hover:bg-servie-600">
-              Sign Up
+            <Button className="rounded-full bg-servie hover:bg-servie-600" asChild>
+              <Link to="/signup">Sign Up</Link>
             </Button>
             <ThemeToggle />
           </div>
@@ -54,24 +55,24 @@ export default function Header() {
         {isMenuOpen && (
           <div className="fixed inset-0 top-16 z-50 grid h-[calc(100vh-4rem)] grid-flow-row auto-rows-max overflow-auto bg-background p-6 pb-32 shadow-lg animate-in slide-in-from-top lg:hidden">
             <div className="flex flex-col space-y-4">
-              <a href="#services" className="text-lg font-medium" onClick={() => setIsMenuOpen(false)}>
+              <Link to="/#services" className="text-lg font-medium" onClick={() => setIsMenuOpen(false)}>
                 Services
-              </a>
-              <a href="#how-it-works" className="text-lg font-medium" onClick={() => setIsMenuOpen(false)}>
+              </Link>
+              <Link to="/#how-it-works" className="text-lg font-medium" onClick={() => setIsMenuOpen(false)}>
                 How It Works
-              </a>
-              <a href="#testimonials" className="text-lg font-medium" onClick={() => setIsMenuOpen(false)}>
+              </Link>
+              <Link to="/#testimonials" className="text-lg font-medium" onClick={() => setIsMenuOpen(false)}>
                 Testimonials
-              </a>
-              <a href="#become-provider" className="text-lg font-medium" onClick={() => setIsMenuOpen(false)}>
+              </Link>
+              <Link to="/#become-provider" className="text-lg font-medium" onClick={() => setIsMenuOpen(false)}>
                 Become a Provider
-              </a>
+              </Link>
               <div className="flex flex-col space-y-2 pt-4">
-                <Button variant="outline" className="w-full rounded-full">
-                  Sign In
+                <Button variant="outline" className="w-full rounded-full" asChild onClick={() => setIsMenuOpen(false)}>
+                  <Link to="/signin">Sign In</Link>
                 </Button>
-                <Button className="w-full rounded-full bg-servie hover:bg-servie-600">
-                  Sign Up
+                <Button className="w-full rounded-full bg-servie hover:bg-servie-600" asChild onClick={() => setIsMenuOpen(false)}>
+                  <Link to="/signup">Sign Up</Link>
                 </Button>
                 <div className="flex justify-center py-2">
                   <ThemeToggle />
