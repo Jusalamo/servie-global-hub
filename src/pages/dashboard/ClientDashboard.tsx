@@ -277,7 +277,7 @@ const ClientDashboard = () => {
                     <Input 
                       placeholder="Search bookings..." 
                       className="max-w-xs"
-                      startIcon={<Search className="h-4 w-4" />}
+                      leftIcon={<Search className="h-4 w-4" />}
                     />
                   </div>
                 </div>
@@ -415,7 +415,7 @@ const ClientDashboard = () => {
                     <Input 
                       placeholder="Search favorites..." 
                       className="max-w-xs"
-                      startIcon={<Search className="h-4 w-4" />}
+                      leftIcon={<Search className="h-4 w-4" />}
                     />
                   </div>
                 </div>

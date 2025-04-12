@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Star, ChevronRight, Bell, MessageSquare, User, CalendarDays, Settings, Plus, DollarSign, PieChart, BarChart2, ListPlus, Calendar as CalendarIcon, Search } from "lucide-react";
+import { Calendar, Clock, Star, ChevronRight, Bell, MessageSquare, User, CalendarDays, Settings, DollarSign, PieChart, BarChart2, ListPlus, Calendar as CalendarIcon, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -152,211 +152,207 @@ const ProviderDashboard = () => {
           {/* Main Content Area */}
           <div className="space-y-6">
             {/* Overview Tab */}
-            {activeTab === "overview" && (
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h1 className="text-3xl font-bold">Dashboard</h1>
-                  <Button variant="outline" size="sm">
-                    <Bell className="w-4 h-4 mr-2" />
-                    Notifications
-                  </Button>
-                </div>
-                
-                {/* Quick Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardDescription>Active Bookings</CardDescription>
-                      <CardTitle className="text-2xl">
-                        {providerBookings.filter(b => b.status === "scheduled" || b.status === "in-progress").length}
-                      </CardTitle>
-                    </CardHeader>
-                  </Card>
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardDescription>Completed Services</CardDescription>
-                      <CardTitle className="text-2xl">
-                        {providerBookings.filter(b => b.status === "completed").length}
-                      </CardTitle>
-                    </CardHeader>
-                  </Card>
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardDescription>Total Services</CardDescription>
-                      <CardTitle className="text-2xl">
-                        {providerServices.length}
-                      </CardTitle>
-                    </CardHeader>
-                  </Card>
-                </div>
-                
-                {/* Upcoming Bookings */}
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h1 className="text-3xl font-bold">Dashboard</h1>
+                <Button variant="outline" size="sm">
+                  <Bell className="w-4 h-4 mr-2" />
+                  Notifications
+                </Button>
+              </div>
+              
+              {/* Quick Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Card>
                   <CardHeader className="pb-2">
-                    <div className="flex justify-between items-center">
-                      <CardTitle>Upcoming Bookings</CardTitle>
-                      <Button variant="link" size="sm" asChild>
-                        <Link to="#" onClick={() => setActiveTab("bookings")}>
-                          View All
-                          <ChevronRight className="ml-1 w-4 h-4" />
-                        </Link>
-                      </Button>
-                    </div>
+                    <CardDescription>Active Bookings</CardDescription>
+                    <CardTitle className="text-2xl">
+                      {providerBookings.filter(b => b.status === "scheduled" || b.status === "in-progress").length}
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    {providerBookings.filter(b => b.status === "scheduled" || b.status === "in-progress").length > 0 ? (
-                      <div className="space-y-4">
-                        {providerBookings
-                          .filter(b => b.status === "scheduled" || b.status === "in-progress")
-                          .map((booking) => {
-                            const service = services.find(s => s.id === booking.serviceId);
-                            return (
-                              <div key={booking.id} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
-                                <div className="flex items-center gap-3">
-                                  <img
-                                    src={service?.imageUrl}
-                                    alt={service?.title}
-                                    className="w-12 h-12 rounded-md object-cover"
-                                  />
-                                  <div>
-                                    <h4 className="font-medium">{service?.title}</h4>
-                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                      <Calendar className="w-3 h-3" />
-                                      {booking.date}
-                                      <Clock className="w-3 h-3 ml-2" />
-                                      {booking.time}
-                                    </div>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardDescription>Completed Services</CardDescription>
+                    <CardTitle className="text-2xl">
+                      {providerBookings.filter(b => b.status === "completed").length}
+                    </CardTitle>
+                  </CardHeader>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardDescription>Total Services</CardDescription>
+                    <CardTitle className="text-2xl">
+                      {providerServices.length}
+                    </CardTitle>
+                  </CardHeader>
+                </Card>
+              </div>
+              
+              {/* Upcoming Bookings */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between items-center">
+                    <CardTitle>Upcoming Bookings</CardTitle>
+                    <Button variant="link" size="sm" asChild>
+                      <Link to="#" onClick={() => setActiveTab("bookings")}>
+                        View All
+                        <ChevronRight className="ml-1 w-4 h-4" />
+                      </Link>
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {providerBookings.filter(b => b.status === "scheduled" || b.status === "in-progress").length > 0 ? (
+                    <div className="space-y-4">
+                      {providerBookings
+                        .filter(b => b.status === "scheduled" || b.status === "in-progress")
+                        .map((booking) => {
+                          const service = services.find(s => s.id === booking.serviceId);
+                          return (
+                            <div key={booking.id} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
+                              <div className="flex items-center gap-3">
+                                <img
+                                  src={service?.imageUrl}
+                                  alt={service?.title}
+                                  className="w-12 h-12 rounded-md object-cover"
+                                />
+                                <div>
+                                  <h4 className="font-medium">{service?.title}</h4>
+                                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <Calendar className="w-3 h-3" />
+                                    {booking.date}
+                                    <Clock className="w-3 h-3 ml-2" />
+                                    {booking.time}
                                   </div>
                                 </div>
-                                <Badge variant={booking.status === "in-progress" ? "default" : "outline"}>
-                                  {booking.status === "scheduled" ? "Upcoming" : "In Progress"}
-                                </Badge>
                               </div>
-                            );
-                          })}
-                      </div>
-                    ) : (
-                      <div className="text-center py-6">
-                        <p className="text-muted-foreground">No upcoming bookings</p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-                
-                {/* Recent Earnings */}
-                <Card>
-                  <CardHeader className="pb-2">
+                              <Badge variant={booking.status === "in-progress" ? "default" : "outline"}>
+                                {booking.status === "scheduled" ? "Upcoming" : "In Progress"}
+                              </Badge>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-6">
+                      <p className="text-muted-foreground">No upcoming bookings</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+              
+              {/* Recent Earnings */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between items-center">
+                    <CardTitle>Recent Earnings</CardTitle>
+                    <Button variant="link" size="sm" asChild>
+                      <Link to="#" onClick={() => setActiveTab("earnings")}>
+                        View All
+                        <ChevronRight className="ml-1 w-4 h-4" />
+                      </Link>
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {/* This would connect to actual earning data in a real app */}
                     <div className="flex justify-between items-center">
-                      <CardTitle>Recent Earnings</CardTitle>
-                      <Button variant="link" size="sm" asChild>
-                        <Link to="#" onClick={() => setActiveTab("earnings")}>
-                          View All
-                          <ChevronRight className="ml-1 w-4 h-4" />
-                        </Link>
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {/* This would connect to actual earning data in a real app */}
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                          <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
-                            <DollarSign className="w-5 h-5 text-green-600 dark:text-green-400" />
-                          </div>
-                          <div>
-                            <p className="font-medium">Website Development</p>
-                            <p className="text-sm text-muted-foreground">Nov 15, 2023</p>
-                          </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
+                          <DollarSign className="w-5 h-5 text-green-600 dark:text-green-400" />
                         </div>
-                        <span className="font-bold text-green-600 dark:text-green-400">+$350.00</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                          <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
-                            <DollarSign className="w-5 h-5 text-green-600 dark:text-green-400" />
-                          </div>
-                          <div>
-                            <p className="font-medium">Service Commission</p>
-                            <p className="text-sm text-muted-foreground">Nov 15, 2023</p>
-                          </div>
+                        <div>
+                          <p className="font-medium">Website Development</p>
+                          <p className="text-sm text-muted-foreground">Nov 15, 2023</p>
                         </div>
-                        <span className="font-bold text-red-600 dark:text-red-400">-$24.50</span>
                       </div>
+                      <span className="font-bold text-green-600 dark:text-green-400">+$350.00</span>
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
+                          <DollarSign className="w-5 h-5 text-green-600 dark:text-green-400" />
+                        </div>
+                        <div>
+                          <p className="font-medium">Service Commission</p>
+                          <p className="text-sm text-muted-foreground">Nov 15, 2023</p>
+                        </div>
+                      </div>
+                      <span className="font-bold text-red-600 dark:text-red-400">-$24.50</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
             
             {/* Services Tab */}
-            {activeTab === "services" && (
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h1 className="text-3xl font-bold">My Services</h1>
-                  <Button>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add New Service
-                  </Button>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {providerServices.map((service) => (
-                    <Card key={service.id} className="overflow-hidden">
-                      <div className="relative h-40">
-                        <img 
-                          src={service.imageUrl} 
-                          alt={service.title} 
-                          className="w-full h-full object-cover"
-                        />
-                        <Badge className="absolute top-3 left-3 bg-background/80 text-foreground">
-                          {service.category}
-                        </Badge>
-                        {service.featured && (
-                          <Badge className="absolute top-3 right-3 bg-servie">Featured</Badge>
-                        )}
-                      </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-semibold text-lg mb-2">{service.title}</h3>
-                        <div className="flex items-center gap-1 mb-2">
-                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          <span className="text-sm font-medium">{service.rating.toFixed(1)}</span>
-                          <span className="text-sm text-muted-foreground">({service.reviewCount} reviews)</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium">
-                            From {service.currency}{Math.min(...service.packages.map(p => p.price))}
-                          </span>
-                          <span className="text-sm text-muted-foreground">
-                            {service.packages.length} packages
-                          </span>
-                        </div>
-                      </CardContent>
-                      <CardFooter className="p-4 pt-0 flex gap-2">
-                        <Button variant="outline" className="flex-1" asChild>
-                          <Link to={`/service/${service.id}`}>Preview</Link>
-                        </Button>
-                        <Button className="flex-1">Edit</Button>
-                      </CardFooter>
-                    </Card>
-                  ))}
-                  
-                  {/* Add New Service Card */}
-                  <Card className="border-dashed border-2 flex flex-col justify-center items-center h-[330px]">
-                    <CardContent className="flex flex-col items-center justify-center text-center p-6">
-                      <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
-                        <Plus className="h-8 w-8 text-muted-foreground" />
-                      </div>
-                      <h3 className="font-medium text-lg mb-2">Add a New Service</h3>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Create a new service listing to reach more clients
-                      </p>
-                      <Button>Create Service</Button>
-                    </CardContent>
-                  </Card>
-                </div>
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h1 className="text-3xl font-bold">My Services</h1>
+                <Button>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add New Service
+                </Button>
               </div>
-            )}
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {providerServices.map((service) => (
+                  <Card key={service.id} className="overflow-hidden">
+                    <div className="relative h-40">
+                      <img 
+                        src={service.imageUrl} 
+                        alt={service.title} 
+                        className="w-full h-full object-cover"
+                      />
+                      <Badge className="absolute top-3 left-3 bg-background/80 text-foreground">
+                        {service.category}
+                      </Badge>
+                      {service.featured && (
+                        <Badge className="absolute top-3 right-3 bg-servie">Featured</Badge>
+                      )}
+                    </div>
+                    <CardContent className="p-4">
+                      <h3 className="font-semibold text-lg mb-2">{service.title}</h3>
+                      <div className="flex items-center gap-1 mb-2">
+                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                        <span className="text-sm font-medium">{service.rating.toFixed(1)}</span>
+                        <span className="text-sm text-muted-foreground">({service.reviewCount} reviews)</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">
+                          From {service.currency}{Math.min(...service.packages.map(p => p.price))}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {service.packages.length} packages
+                        </span>
+                      </div>
+                    </CardContent>
+                    <CardFooter className="p-4 pt-0 flex gap-2">
+                      <Button variant="outline" className="flex-1" asChild>
+                        <Link to={`/service/${service.id}`}>Preview</Link>
+                      </Button>
+                      <Button className="flex-1">Edit</Button>
+                    </CardFooter>
+                  </Card>
+                ))}
+                
+                {/* Add New Service Card */}
+                <Card className="border-dashed border-2 flex flex-col justify-center items-center h-[330px]">
+                  <CardContent className="flex flex-col items-center justify-center text-center p-6">
+                    <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
+                      <Plus className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="font-medium text-lg mb-2">Add a New Service</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Create a new service listing to reach more clients
+                    </p>
+                    <Button>Create Service</Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
             
             {/* Bookings Tab */}
             {activeTab === "bookings" && (
@@ -367,7 +363,7 @@ const ProviderDashboard = () => {
                     <Input 
                       placeholder="Search bookings..." 
                       className="max-w-xs"
-                      startIcon={<Search className="h-4 w-4" />}
+                      leftIcon={<Search className="h-4 w-4" />}
                     />
                   </div>
                 </div>
