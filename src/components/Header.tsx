@@ -1,31 +1,39 @@
 
-import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-import { ThemeToggle } from "./ui/ThemeToggle"
-import { Menu, X } from "lucide-react"
+import { useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "./ui/ThemeToggle";
+import { Menu, X } from "lucide-react";
 
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const navigate = useNavigate()
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const scrollToSection = (sectionId: string) => {
     // Close the mobile menu if it's open
     if (isMenuOpen) {
-      setIsMenuOpen(false)
+      setIsMenuOpen(false);
     }
 
     // If we're on the home page, scroll to the section
-    if (window.location.pathname === '/') {
-      const element = document.getElementById(sectionId)
+    if (location.pathname === '/') {
+      const element = document.getElementById(sectionId);
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth' })
+        element.scrollIntoView({ behavior: 'smooth' });
       }
     } else {
       // If we're not on the home page, navigate to the home page with the section as a hash
-      navigate(`/#${sectionId}`)
+      navigate(`/#${sectionId}`);
     }
-  }
+  };
+
+  const handleNavigation = (path: string) => {
+    if (isMenuOpen) {
+      setIsMenuOpen(false);
+    }
+    navigate(path);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -72,11 +80,11 @@ export default function Header() {
             Become a Provider
           </button>
           <div className="flex items-center space-x-2">
-            <Button variant="outline" className="rounded-full" asChild>
-              <Link to="/signin">Sign In</Link>
+            <Button variant="outline" className="rounded-full" onClick={() => handleNavigation('/signin')}>
+              Sign In
             </Button>
-            <Button className="rounded-full bg-servie hover:bg-servie-600" asChild>
-              <Link to="/signup">Sign Up</Link>
+            <Button className="rounded-full bg-servie hover:bg-servie-600" onClick={() => handleNavigation('/signup')}>
+              Sign Up
             </Button>
             <ThemeToggle />
           </div>
@@ -111,11 +119,11 @@ export default function Header() {
                 Become a Provider
               </button>
               <div className="flex flex-col space-y-2 pt-4">
-                <Button variant="outline" className="w-full rounded-full" asChild>
-                  <Link to="/signin">Sign In</Link>
+                <Button variant="outline" className="w-full rounded-full" onClick={() => handleNavigation('/signin')}>
+                  Sign In
                 </Button>
-                <Button className="w-full rounded-full bg-servie hover:bg-servie-600" asChild>
-                  <Link to="/signup">Sign Up</Link>
+                <Button className="w-full rounded-full bg-servie hover:bg-servie-600" onClick={() => handleNavigation('/signup')}>
+                  Sign Up
                 </Button>
                 <div className="flex justify-center py-2">
                   <ThemeToggle />
@@ -126,5 +134,5 @@ export default function Header() {
         )}
       </div>
     </header>
-  )
+  );
 }

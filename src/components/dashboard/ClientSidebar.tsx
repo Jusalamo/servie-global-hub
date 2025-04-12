@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,6 +14,12 @@ interface ClientSidebarProps {
 }
 
 export const ClientSidebar = ({ activeTab, setActiveTab, clientUser }: ClientSidebarProps) => {
+  const navigate = useNavigate();
+  
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+  };
+
   return (
     <div className="space-y-6">
       {/* User Profile Card */}
@@ -22,7 +28,7 @@ export const ClientSidebar = ({ activeTab, setActiveTab, clientUser }: ClientSid
           <div className="flex flex-col items-center space-y-4">
             <Avatar className="h-20 w-20">
               <AvatarImage src={clientUser?.avatar} alt={clientUser?.name} />
-              <AvatarFallback>{clientUser?.name.charAt(0)}</AvatarFallback>
+              <AvatarFallback>{clientUser?.name?.charAt(0) || "U"}</AvatarFallback>
             </Avatar>
             <div className="text-center space-y-1">
               <h2 className="font-semibold text-lg">{clientUser?.name}</h2>
@@ -41,7 +47,7 @@ export const ClientSidebar = ({ activeTab, setActiveTab, clientUser }: ClientSid
         <Button 
           variant={activeTab === "overview" ? "secondary" : "ghost"} 
           className="w-full justify-start" 
-          onClick={() => setActiveTab("overview")}
+          onClick={() => handleTabChange("overview")}
         >
           <User className="w-4 h-4 mr-2" />
           Overview
@@ -49,7 +55,7 @@ export const ClientSidebar = ({ activeTab, setActiveTab, clientUser }: ClientSid
         <Button 
           variant={activeTab === "bookings" ? "secondary" : "ghost"} 
           className="w-full justify-start" 
-          onClick={() => setActiveTab("bookings")}
+          onClick={() => handleTabChange("bookings")}
         >
           <CalendarDays className="w-4 h-4 mr-2" />
           My Bookings
@@ -57,7 +63,7 @@ export const ClientSidebar = ({ activeTab, setActiveTab, clientUser }: ClientSid
         <Button 
           variant={activeTab === "favorites" ? "secondary" : "ghost"} 
           className="w-full justify-start"
-          onClick={() => setActiveTab("favorites")}
+          onClick={() => handleTabChange("favorites")}
         >
           <Heart className="w-4 h-4 mr-2" />
           Favorites
@@ -65,7 +71,7 @@ export const ClientSidebar = ({ activeTab, setActiveTab, clientUser }: ClientSid
         <Button 
           variant={activeTab === "messages" ? "secondary" : "ghost"} 
           className="w-full justify-start"
-          onClick={() => setActiveTab("messages")}
+          onClick={() => handleTabChange("messages")}
         >
           <MessageSquare className="w-4 h-4 mr-2" />
           Messages
@@ -73,7 +79,7 @@ export const ClientSidebar = ({ activeTab, setActiveTab, clientUser }: ClientSid
         <Button 
           variant={activeTab === "payments" ? "secondary" : "ghost"} 
           className="w-full justify-start"
-          onClick={() => setActiveTab("payments")}
+          onClick={() => handleTabChange("payments")}
         >
           <CreditCard className="w-4 h-4 mr-2" />
           Payment Methods
@@ -81,7 +87,7 @@ export const ClientSidebar = ({ activeTab, setActiveTab, clientUser }: ClientSid
         <Button 
           variant={activeTab === "settings" ? "secondary" : "ghost"} 
           className="w-full justify-start"
-          onClick={() => setActiveTab("settings")}
+          onClick={() => handleTabChange("settings")}
         >
           <Settings className="w-4 h-4 mr-2" />
           Settings
@@ -90,18 +96,18 @@ export const ClientSidebar = ({ activeTab, setActiveTab, clientUser }: ClientSid
       
       {/* Mobile Navigation */}
       <div className="lg:hidden">
-        <Tabs defaultValue="overview" onValueChange={setActiveTab}>
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
           <TabsList className="grid grid-cols-3 mb-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="bookings">Bookings</TabsTrigger>
             <TabsTrigger value="favorites">Favorites</TabsTrigger>
           </TabsList>
           <div className="flex justify-between mb-6">
-            <Button variant="outline" size="sm" onClick={() => setActiveTab("messages")}>
+            <Button variant="outline" size="sm" onClick={() => handleTabChange("messages")}>
               <MessageSquare className="w-4 h-4 mr-2" />
               Messages
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setActiveTab("settings")}>
+            <Button variant="outline" size="sm" onClick={() => handleTabChange("settings")}>
               <Settings className="w-4 h-4 mr-2" />
               Settings
             </Button>
