@@ -9,6 +9,11 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import ForgotPassword from "./pages/ForgotPassword";
 import NotFound from "./pages/NotFound";
+import ServiceCategories from "./pages/ServiceCategories";
+import ServiceDetail from "./pages/ServiceDetail";
+import ClientDashboard from "./pages/dashboard/ClientDashboard";
+import ProviderDashboard from "./pages/dashboard/ProviderDashboard";
+import BookingPage from "./pages/BookingPage";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +28,11 @@ const App = () => (
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/categories" element={<ServiceCategories />} />
+          <Route path="/service/:id" element={<ServiceDetail />} />
+          <Route path="/dashboard/client" element={<ClientDashboard />} />
+          <Route path="/dashboard/provider" element={<ProviderDashboard />} />
+          <Route path="/booking/:serviceId" element={<BookingPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
