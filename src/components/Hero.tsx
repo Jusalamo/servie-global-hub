@@ -1,9 +1,45 @@
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Search } from "lucide-react"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Search, MapPin } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Hero() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [location, setLocation] = useState("");
+  const navigate = useNavigate();
+  
+  const popularSearches = [
+    "Home Cleaning", 
+    "Web Development", 
+    "Electrical Repairs", 
+    "Tutoring", 
+    "Graphic Design"
+  ];
+  
+  const handleSearch = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    
+    if (searchQuery.trim()) {
+      toast.info("Searching for services", {
+        description: `Looking for "${searchQuery}" services`
+      });
+      navigate(`/categories?search=${encodeURIComponent(searchQuery)}${location ? `&location=${encodeURIComponent(location)}` : ''}`);
+    } else {
+      toast.warning("Please enter a search term");
+    }
+  };
+
+  const handlePopularSearch = (term: string) => {
+    setSearchQuery(term);
+    toast.info(`Searching for ${term}`, {
+      description: "Finding the best service providers"
+    });
+    navigate(`/categories?search=${encodeURIComponent(term)}`);
+  };
+
   return (
     <section className="relative py-24 md:py-32 overflow-hidden">
       {/* Background elements */}
@@ -23,25 +59,58 @@ export default function Hero() {
                 Connect with skilled professionals across Africa and globally. Get quotes, book services, and get things done - all in one platform.
               </p>
             </div>
-            <div className="flex flex-col gap-2 min-[400px]:flex-row">
-              <div className="relative flex-1">
-                <Search className="absolute left-2.5 top-2.5 h-5 w-5 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search for any service..."
-                  className="pl-10 rounded-full w-full"
-                />
+            <form onSubmit={handleSearch} className="space-y-3">
+              <div className="flex flex-col md:flex-row gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-2.5 top-2.5 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    placeholder="What service are you looking for?"
+                    className="pl-10 rounded-full w-full"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <div className="relative flex-1 md:max-w-[220px]">
+                  <MapPin className="absolute left-2.5 top-2.5 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder="Location (optional)"
+                    className="pl-10 rounded-full w-full"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                  />
+                </div>
+                <Button type="submit" size="lg" className="rounded-full bg-servie hover:bg-servie-600">
+                  Search
+                </Button>
               </div>
-              <Button size="lg" className="rounded-full bg-servie hover:bg-servie-600">
-                Search
-              </Button>
-            </div>
+            </form>
             <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
               <span>Popular:</span>
-              <a href="#" className="underline hover:text-servie">Home Cleaning</a>
-              <a href="#" className="underline hover:text-servie">Web Development</a>
-              <a href="#" className="underline hover:text-servie">Electrical Repairs</a>
-              <a href="#" className="underline hover:text-servie">Tutoring</a>
+              {popularSearches.map((term) => (
+                <button 
+                  key={term} 
+                  className="underline hover:text-servie transition-colors"
+                  onClick={() => handlePopularSearch(term)}
+                >
+                  {term}
+                </button>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-3 pt-4">
+              <div className="flex items-center text-sm">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-servie/10 text-servie mr-2">10K+</span>
+                <span>Verified Providers</span>
+              </div>
+              <div className="flex items-center text-sm">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-servie/10 text-servie mr-2">4.8</span>
+                <span>Average Rating</span>
+              </div>
+              <div className="flex items-center text-sm">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-servie/10 text-servie mr-2">50+</span>
+                <span>Countries Served</span>
+              </div>
             </div>
           </div>
           <div className="mx-auto flex items-center justify-center">

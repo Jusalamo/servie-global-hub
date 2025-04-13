@@ -72,7 +72,8 @@ export default function ServiceCategories() {
   const navigate = useNavigate();
   
   const handleCategoryClick = (categoryName: string) => {
-    navigate(`/categories?category=${categoryName}`);
+    console.log("Navigating to category:", categoryName);
+    navigate(`/categories?category=${encodeURIComponent(categoryName)}`);
   };
 
   return (
