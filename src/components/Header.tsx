@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ui/ThemeToggle";
-import { Menu, X, User, Bell, MessageSquare } from "lucide-react";
+import { Menu, X, User, Bell, MessageSquare, Briefcase } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Header() {
