@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ui/ThemeToggle";
-import { Menu, X, User, Bell, MessageSquare, Briefcase } from "lucide-react";
+import { Menu, X, User, Bell, MessageSquare, Briefcase, LogIn } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Header() {
@@ -112,9 +112,11 @@ export default function Header() {
           </button>
           <div className="flex items-center space-x-2">
             <Button variant="outline" className="rounded-full" onClick={() => handleNavigation('/signin')}>
+              <LogIn className="mr-2 h-4 w-4" />
               Sign In
             </Button>
             <Button className="rounded-full bg-servie hover:bg-servie-600" onClick={() => handleNavigation('/signup')}>
+              <User className="mr-2 h-4 w-4" />
               Sign Up
             </Button>
             {/* Dashboard access buttons with tooltips */}
@@ -178,15 +180,19 @@ export default function Header() {
               </button>
               <div className="flex flex-col space-y-2 pt-4">
                 <Button variant="outline" className="w-full rounded-full" onClick={() => handleNavigation('/signin')}>
+                  <LogIn className="mr-2 h-4 w-4" />
                   Sign In
                 </Button>
                 <Button className="w-full rounded-full bg-servie hover:bg-servie-600" onClick={() => handleNavigation('/signup')}>
+                  <User className="mr-2 h-4 w-4" />
                   Sign Up
                 </Button>
                 <Button variant="outline" className="w-full rounded-full" onClick={() => handleNavigation('/dashboard/client')}>
+                  <User className="mr-2 h-4 w-4" />
                   Client Dashboard
                 </Button>
                 <Button variant="outline" className="w-full rounded-full" onClick={() => handleNavigation('/dashboard/provider')}>
+                  <Briefcase className="mr-2 h-4 w-4" />
                   Provider Dashboard
                 </Button>
                 <div className="flex justify-center py-2">
