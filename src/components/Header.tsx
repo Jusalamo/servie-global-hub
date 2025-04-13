@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ui/ThemeToggle";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -56,10 +56,10 @@ export default function Header() {
         {/* Desktop navigation */}
         <nav className="hidden lg:flex items-center space-x-6">
           <button 
-            onClick={() => scrollToSection('services')} 
+            onClick={() => handleNavigation('/categories')}
             className="text-sm font-medium transition-colors hover:text-servie"
           >
-            Services
+            Browse Services
           </button>
           <button 
             onClick={() => scrollToSection('how-it-works')} 
@@ -86,6 +86,16 @@ export default function Header() {
             <Button className="rounded-full bg-servie hover:bg-servie-600" onClick={() => handleNavigation('/signup')}>
               Sign Up
             </Button>
+            {/* Quick access to dashboard for demo */}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="rounded-full" 
+              onClick={() => handleNavigation('/dashboard/client')}
+              title="Demo: Client Dashboard"
+            >
+              <User size={20} />
+            </Button>
             <ThemeToggle />
           </div>
         </nav>
@@ -95,10 +105,10 @@ export default function Header() {
           <div className="fixed inset-0 top-16 z-50 grid h-[calc(100vh-4rem)] grid-flow-row auto-rows-max overflow-auto bg-background p-6 pb-32 shadow-lg animate-in slide-in-from-top lg:hidden">
             <div className="flex flex-col space-y-4">
               <button 
-                onClick={() => scrollToSection('services')}
+                onClick={() => handleNavigation('/categories')}
                 className="text-lg font-medium"
               >
-                Services
+                Browse Services
               </button>
               <button 
                 onClick={() => scrollToSection('how-it-works')}
@@ -124,6 +134,9 @@ export default function Header() {
                 </Button>
                 <Button className="w-full rounded-full bg-servie hover:bg-servie-600" onClick={() => handleNavigation('/signup')}>
                   Sign Up
+                </Button>
+                <Button variant="outline" className="w-full rounded-full" onClick={() => handleNavigation('/dashboard/client')}>
+                  Demo: Client Dashboard
                 </Button>
                 <div className="flex justify-center py-2">
                   <ThemeToggle />

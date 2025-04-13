@@ -3,6 +3,7 @@ import {
   Home, Briefcase, Scissors, CalendarClock, Truck, GraduationCap, 
   Heart, Palette, Wrench, Hammer 
 } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 
 const categories = [
   {
@@ -68,6 +69,12 @@ const categories = [
 ]
 
 export default function ServiceCategories() {
+  const navigate = useNavigate();
+  
+  const handleCategoryClick = (categoryName: string) => {
+    navigate(`/categories?category=${categoryName}`);
+  };
+
   return (
     <section id="services" className="py-16 md:py-24 bg-secondary/50 dark:bg-secondary/20">
       <div className="container px-4 md:px-6">
@@ -86,6 +93,7 @@ export default function ServiceCategories() {
             <div 
               key={category.name} 
               className="flex flex-col items-center p-6 bg-background rounded-xl border hover:shadow-md transition-all hover:scale-[1.02] cursor-pointer"
+              onClick={() => handleCategoryClick(category.name)}
             >
               <div className={`p-3 rounded-full mb-4 ${category.color}`}>
                 <category.icon className="h-6 w-6" />

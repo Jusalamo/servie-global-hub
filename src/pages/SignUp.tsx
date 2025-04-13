@@ -1,6 +1,5 @@
-
-import { useState } from "react"
-import { Link } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { Link, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,6 +13,7 @@ import Footer from "@/components/Footer"
 type UserRole = "client" | "provider"
 
 export default function SignUp() {
+  const location = useLocation();
   const [userRole, setUserRole] = useState<UserRole>("client")
   const [formData, setFormData] = useState({
     firstName: "",
@@ -25,6 +25,15 @@ export default function SignUp() {
   })
   const [showPassword, setShowPassword] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  // Set default tab based on URL parameter
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const tab = searchParams.get('tab');
+    if (tab === 'provider') {
+      setUserRole('provider');
+    }
+  }, [location]);
 
   // Password strength indicators
   const requirements = [
@@ -118,7 +127,7 @@ export default function SignUp() {
             </p>
           </div>
           
-          <Tabs defaultValue="client" className="w-full" onValueChange={(value) => setUserRole(value as UserRole)}>
+          <Tabs value={userRole} onValueChange={(value) => setUserRole(value as UserRole)}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="client">I need services</TabsTrigger>
               <TabsTrigger value="provider">I provide services</TabsTrigger>

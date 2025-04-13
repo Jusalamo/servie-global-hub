@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button"
 import { CheckCircle } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 
 const benefits = [
   "Showcase your skills and build a strong online presence",
@@ -11,6 +12,12 @@ const benefits = [
 ]
 
 export default function ProviderCTA() {
+  const navigate = useNavigate();
+  
+  const handleRegisterClick = () => {
+    navigate('/signup?tab=provider');
+  };
+
   return (
     <section id="become-provider" className="py-16 md:py-24 relative">
       {/* Background accent */}
@@ -38,7 +45,7 @@ export default function ProviderCTA() {
               ))}
             </ul>
             <div>
-              <Button size="lg" className="rounded-full bg-servie hover:bg-servie-600 mt-4">
+              <Button size="lg" className="rounded-full bg-servie hover:bg-servie-600 mt-4" onClick={handleRegisterClick}>
                 Register as a Provider
               </Button>
             </div>
