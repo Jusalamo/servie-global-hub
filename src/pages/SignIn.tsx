@@ -1,16 +1,17 @@
 
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, Navigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { toast } from "@/hooks/use-toast"
 import { Eye, EyeOff } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
+import { useAuth } from "@/context/AuthContext"
 
 export default function SignIn() {
+  const { signIn, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -18,6 +19,12 @@ export default function SignIn() {
   })
   const [showPassword, setShowPassword] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Redirect if already authenticated
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
@@ -52,16 +59,17 @@ export default function SignIn() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     if (validateForm()) {
-      // Here we would typically make an API call to authenticate the user
-      // For now, we'll just show a success message
-      toast({
-        title: "Sign in successful",
-        description: "Welcome back to Servie!",
-      })
+      setIsSubmitting(true);
+      
+      try {
+        await signIn(formData.email, formData.password);
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   }
 
@@ -91,6 +99,7 @@ export default function SignIn() {
                   value={formData.email}
                   onChange={handleInputChange}
                   className={errors.email ? "border-destructive" : ""}
+                  disabled={isSubmitting}
                 />
                 {errors.email && (
                   <p className="text-sm text-destructive">{errors.email}</p>
@@ -115,12 +124,14 @@ export default function SignIn() {
                     value={formData.password}
                     onChange={handleInputChange}
                     className={errors.password ? "border-destructive pr-10" : "pr-10"}
+                    disabled={isSubmitting}
                   />
                   <button 
                     type="button" 
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                     aria-label={showPassword ? "Hide password" : "Show password"}
+                    disabled={isSubmitting}
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -140,6 +151,7 @@ export default function SignIn() {
                   checked={formData.rememberMe}
                   onChange={handleInputChange}
                   className="h-4 w-4 rounded border-gray-300 text-servie focus:ring-servie"
+                  disabled={isSubmitting}
                 />
                 <Label 
                   htmlFor="rememberMe" 
@@ -151,8 +163,12 @@ export default function SignIn() {
             </div>
             
             <div>
-              <Button type="submit" className="w-full bg-servie hover:bg-servie-600 text-white">
-                Sign in
+              <Button 
+                type="submit" 
+                className="w-full bg-servie hover:bg-servie-600 text-white"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Signing in..." : "Sign in"}
               </Button>
             </div>
           </form>
@@ -173,6 +189,7 @@ export default function SignIn() {
               <button
                 type="button"
                 className="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50"
+                disabled={isSubmitting}
               >
                 <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12.545 10.239v3.821h5.445c-0.712 2.315-2.647 3.972-5.445 3.972-3.332 0-6.033-2.701-6.033-6.032s2.701-6.032 6.033-6.032c1.498 0 2.866 0.549 3.921 1.453l2.814-2.814c-1.79-1.677-4.184-2.702-6.735-2.702-5.522 0-10 4.478-10 10s4.478 10 10 10c5.523 0 10-4.478 10-10 0-0.617-0.056-1.225-0.166-1.817h-9.834z"></path>
@@ -183,6 +200,7 @@ export default function SignIn() {
               <button
                 type="button"
                 className="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50"
+                disabled={isSubmitting}
               >
                 <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385h-3.047v-3.47h3.047v-2.641c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953h-1.514c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385c5.738-.9 10.126-5.864 10.126-11.854z"></path>
