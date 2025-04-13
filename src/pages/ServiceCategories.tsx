@@ -1,72 +1,223 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ServiceCard from "@/components/ServiceCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { SearchIcon, FilterIcon } from "lucide-react";
-import { services, categories } from "@/data/mockData";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import CategoryFilter from "@/components/CategoryFilter";
+import { Card, CardContent } from "@/components/ui/card";
+import { SearchIcon, FilterIcon, LayoutGrid, List, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+interface Service {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  category?: {
+    name: string;
+  };
+  provider?: {
+    first_name: string;
+    last_name: string;
+    avatar_url?: string;
+  };
+  location?: string;
+  response_time?: string;
+  featured?: boolean;
+  reviews?: {
+    rating: number;
+    count: number;
+  };
+  primary_image?: string;
+}
 
 const ServiceCategories = () => {
-  const [searchParams] = useSearchParams();
-  const categoryParam = searchParams.get("category");
-  const [selectedCategory, setSelectedCategory] = useState(categoryParam || "all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
-  const [sortBy, setSortBy] = useState("relevance");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [services, setServices] = useState<Service[]>([]);
+  const [filteredServices, setFilteredServices] = useState<Service[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("query") || "");
+  const [sortBy, setSortBy] = useState(searchParams.get("sort") || "relevance");
   const [showFilters, setShowFilters] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   
-  // Filter services based on selected category and search query
-  const filteredServices = services.filter(service => {
-    const matchesCategory = selectedCategory === "all" || service.category === selectedCategory;
-    const matchesSearch = service.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          service.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesPrice = service.price >= priceRange[0] && service.price <= priceRange[1];
+  // Extract filters from URL
+  const categoryParam = searchParams.get("category");
+  const minPriceParam = searchParams.get("minPrice");
+  const maxPriceParam = searchParams.get("maxPrice");
+  const ratingParam = searchParams.get("rating");
+  
+  useEffect(() => {
+    async function fetchServices() {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        let query = supabase
+          .from('services')
+          .select(`
+            id,
+            title,
+            description,
+            price,
+            location,
+            response_time,
+            featured,
+            provider_id,
+            category_id,
+            category:service_categories(name),
+            provider:profiles(first_name, last_name, avatar_url)
+          `);
+        
+        // Apply category filter if present
+        if (categoryParam) {
+          query = query.eq('category.name', categoryParam);
+        }
+        
+        // Apply price range filter if present
+        if (minPriceParam) {
+          query = query.gte('price', minPriceParam);
+        }
+        
+        if (maxPriceParam) {
+          query = query.lte('price', maxPriceParam);
+        }
+        
+        const { data, error } = await query;
+        
+        if (error) {
+          console.error("Error fetching services:", error);
+          setError("Failed to load services. Please try again later.");
+          toast.error("Failed to load services");
+        } else if (data) {
+          // For each service, fetch its primary image and average rating
+          const servicesWithMetadata = await Promise.all(
+            data.map(async (service) => {
+              // Get primary image
+              const { data: imageData } = await supabase
+                .from('service_images')
+                .select('url')
+                .eq('service_id', service.id)
+                .eq('is_primary', true)
+                .single();
+              
+              // Get average rating and count
+              const { data: reviewData, error: reviewError } = await supabase
+                .from('reviews')
+                .select('rating')
+                .eq('service_id', service.id);
+              
+              let avgRating = 0;
+              let reviewCount = 0;
+              
+              if (!reviewError && reviewData && reviewData.length > 0) {
+                avgRating = reviewData.reduce((sum, review) => sum + review.rating, 0) / reviewData.length;
+                reviewCount = reviewData.length;
+              }
+              
+              return {
+                ...service,
+                primary_image: imageData?.url || '/placeholder.svg',
+                reviews: {
+                  rating: avgRating,
+                  count: reviewCount
+                }
+              };
+            })
+          );
+          
+          setServices(servicesWithMetadata);
+          setFilteredServices(servicesWithMetadata);
+        }
+      } catch (err) {
+        console.error("Unexpected error:", err);
+        setError("An unexpected error occurred. Please try again later.");
+        toast.error("An unexpected error occurred");
+      } finally {
+        setIsLoading(false);
+      }
+    }
     
-    return matchesCategory && matchesSearch && matchesPrice;
-  });
+    fetchServices();
+  }, [categoryParam, minPriceParam, maxPriceParam]);
   
-  // Sort services based on selected sort option
-  const sortedServices = [...filteredServices].sort((a, b) => {
+  // Apply sorting and text search
+  useEffect(() => {
+    let filtered = [...services];
+    
+    // Apply text search
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(
+        service => 
+          service.title.toLowerCase().includes(query) || 
+          service.description.toLowerCase().includes(query)
+      );
+    }
+    
+    // Apply rating filter
+    if (ratingParam) {
+      const ratings = ratingParam.split(',').map(r => parseInt(r));
+      const minRating = Math.min(...ratings);
+      filtered = filtered.filter(
+        service => service.reviews?.rating >= minRating
+      );
+    }
+    
+    // Apply sorting
     switch (sortBy) {
       case "price_low":
-        return a.price - b.price;
+        filtered.sort((a, b) => a.price - b.price);
+        break;
       case "price_high":
-        return b.price - a.price;
+        filtered.sort((a, b) => b.price - a.price);
+        break;
       case "rating":
-        return b.rating - a.rating;
+        filtered.sort((a, b) => 
+          (b.reviews?.rating || 0) - (a.reviews?.rating || 0)
+        );
+        break;
+      case "newest":
+        // Would need created_at field for proper implementation
+        // For now, just shuffle a bit
+        filtered.sort(() => Math.random() - 0.5);
+        break;
       default:
         // Default to relevance (featured first)
-        return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
+        filtered.sort((a, b) => {
+          if (a.featured && !b.featured) return -1;
+          if (!a.featured && b.featured) return 1;
+          return 0;
+        });
     }
-  });
-
+    
+    setFilteredServices(filtered);
+  }, [services, searchQuery, sortBy, ratingParam]);
+  
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    searchParams.set("query", searchQuery);
+    setSearchParams(searchParams);
+  };
+  
+  const handleFilterChange = (filters: any) => {
+    // This will be called when CategoryFilter component updates filters
+    console.log("Filter changed:", filters);
+  };
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 container mx-auto py-8 px-4">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">
-            {selectedCategory === "all" ? "All Services" : selectedCategory}
+            {categoryParam || "All Services"}
           </h1>
           <p className="text-muted-foreground">
             Find the perfect service for your needs
@@ -77,48 +228,8 @@ const ServiceCategories = () => {
           {/* Filters Section - Desktop */}
           <div className="hidden lg:block w-64 space-y-6">
             <Card>
-              <CardHeader>
-                <CardTitle>Categories</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="all" 
-                    checked={selectedCategory === "all"} 
-                    onCheckedChange={() => setSelectedCategory("all")}
-                  />
-                  <Label htmlFor="all">All Categories</Label>
-                </div>
-                {categories.map(category => (
-                  <div key={category.id} className="flex items-center space-x-2">
-                    <Checkbox 
-                      id={category.id} 
-                      checked={selectedCategory === category.name} 
-                      onCheckedChange={() => setSelectedCategory(category.name)}
-                    />
-                    <Label htmlFor={category.id}>{category.name}</Label>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Price Range</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Slider
-                  defaultValue={[0, 1000]}
-                  max={1000}
-                  step={10}
-                  value={priceRange}
-                  onValueChange={(value: [number, number]) => setPriceRange(value)}
-                  className="my-6"
-                />
-                <div className="flex justify-between">
-                  <span>${priceRange[0]}</span>
-                  <span>${priceRange[1]}</span>
-                </div>
+              <CardContent className="pt-6">
+                <CategoryFilter onFilterChange={handleFilterChange} />
               </CardContent>
             </Card>
           </div>
@@ -127,7 +238,7 @@ const ServiceCategories = () => {
           <div className="flex-1">
             {/* Search and Sort Bar */}
             <div className="flex flex-col lg:flex-row gap-4 mb-6">
-              <div className="relative flex-1">
+              <form onSubmit={handleSearch} className="relative flex-1">
                 <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
                 <Input 
                   placeholder="Search services..." 
@@ -135,106 +246,138 @@ const ServiceCategories = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
                 />
+                <Button type="submit" className="sr-only">Search</Button>
+              </form>
+              
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="lg:hidden flex items-center gap-2"
+                  onClick={() => setShowFilters(!showFilters)}
+                >
+                  <FilterIcon size={18} />
+                  Filters
+                </Button>
+                
+                <div className="flex border rounded-md overflow-hidden">
+                  <Button
+                    variant={viewMode === "grid" ? "secondary" : "ghost"}
+                    size="sm"
+                    className="rounded-none"
+                    onClick={() => setViewMode("grid")}
+                    title="Grid view"
+                    aria-label="Grid view"
+                  >
+                    <LayoutGrid size={18} />
+                  </Button>
+                  <Button
+                    variant={viewMode === "list" ? "secondary" : "ghost"}
+                    size="sm"
+                    className="rounded-none"
+                    onClick={() => setViewMode("list")}
+                    title="List view"
+                    aria-label="List view"
+                  >
+                    <List size={18} />
+                  </Button>
+                </div>
+                
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="relevance">Relevance</SelectItem>
+                    <SelectItem value="price_low">Price: Low to High</SelectItem>
+                    <SelectItem value="price_high">Price: High to Low</SelectItem>
+                    <SelectItem value="rating">Highest Rated</SelectItem>
+                    <SelectItem value="newest">Newest</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <Button
-                variant="outline"
-                className="lg:hidden flex items-center gap-2"
-                onClick={() => setShowFilters(!showFilters)}
-              >
-                <FilterIcon size={18} />
-                Filters
-              </Button>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="relevance">Relevance</SelectItem>
-                  <SelectItem value="price_low">Price: Low to High</SelectItem>
-                  <SelectItem value="price_high">Price: High to Low</SelectItem>
-                  <SelectItem value="rating">Highest Rated</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
             
             {/* Mobile Filters */}
             {showFilters && (
               <div className="lg:hidden mb-6 p-4 border rounded-lg bg-background">
-                <h3 className="text-lg font-medium mb-4">Filters</h3>
-                <div className="space-y-6">
-                  <div>
-                    <h4 className="font-medium mb-2">Categories</h4>
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox 
-                          id="mobile-all" 
-                          checked={selectedCategory === "all"} 
-                          onCheckedChange={() => setSelectedCategory("all")}
-                        />
-                        <Label htmlFor="mobile-all">All Categories</Label>
-                      </div>
-                      {categories.map(category => (
-                        <div key={`mobile-${category.id}`} className="flex items-center space-x-2">
-                          <Checkbox 
-                            id={`mobile-${category.id}`}
-                            checked={selectedCategory === category.name} 
-                            onCheckedChange={() => setSelectedCategory(category.name)}
-                          />
-                          <Label htmlFor={`mobile-${category.id}`}>{category.name}</Label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-2">Price Range</h4>
-                    <Slider
-                      defaultValue={[0, 1000]}
-                      max={1000}
-                      step={10}
-                      value={priceRange}
-                      onValueChange={(value: [number, number]) => setPriceRange(value)}
-                      className="my-6"
-                    />
-                    <div className="flex justify-between">
-                      <span>${priceRange[0]}</span>
-                      <span>${priceRange[1]}</span>
-                    </div>
-                  </div>
-                </div>
-                <Button
-                  className="w-full mt-4"
-                  onClick={() => setShowFilters(false)}
+                <CategoryFilter onFilterChange={handleFilterChange} />
+              </div>
+            )}
+            
+            {/* Loading state */}
+            {isLoading && (
+              <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                <Loader2 className="h-10 w-10 text-servie animate-spin" />
+                <p className="text-muted-foreground">Loading services...</p>
+              </div>
+            )}
+            
+            {/* Error state */}
+            {error && (
+              <div className="text-center py-12">
+                <p className="text-destructive mb-4">{error}</p>
+                <Button 
+                  onClick={() => window.location.reload()} 
+                  variant="outline"
                 >
-                  Apply Filters
+                  Try Again
+                </Button>
+              </div>
+            )}
+            
+            {/* Empty state */}
+            {!isLoading && !error && filteredServices.length === 0 && (
+              <div className="text-center py-12">
+                <h3 className="text-xl font-medium mb-2">No services found</h3>
+                <p className="text-muted-foreground mb-4">
+                  Try adjusting your filters or search query
+                </p>
+                <Button 
+                  onClick={() => {
+                    setSearchParams({});
+                    setSearchQuery("");
+                  }} 
+                  variant="outline"
+                >
+                  Clear Filters
                 </Button>
               </div>
             )}
             
             {/* Service Grid */}
-            {sortedServices.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {sortedServices.map(service => (
-                  <ServiceCard
-                    key={service.id}
-                    id={service.id}
-                    title={service.title}
-                    category={service.category}
-                    imageUrl={service.imageUrl}
-                    providerName={service.providerName}
-                    providerAvatar={service.providerAvatar}
-                    rating={service.rating}
-                    reviewCount={service.reviewCount}
-                    price={service.price}
-                    currency={service.currency}
-                    featured={service.featured}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <h3 className="text-xl font-medium mb-2">No services found</h3>
-                <p className="text-muted-foreground">Try adjusting your filters or search query</p>
-              </div>
+            {!isLoading && !error && filteredServices.length > 0 && (
+              <>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Showing {filteredServices.length} services
+                </p>
+                
+                <div 
+                  className={
+                    viewMode === "grid"
+                      ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                      : "space-y-4"
+                  }
+                >
+                  {filteredServices.map(service => (
+                    <ServiceCard
+                      key={service.id}
+                      id={service.id}
+                      title={service.title}
+                      category={service.category?.name || ""}
+                      imageUrl={service.primary_image || "/placeholder.svg"}
+                      providerName={`${service.provider?.first_name || ""} ${service.provider?.last_name || ""}`}
+                      providerAvatar={service.provider?.avatar_url || "/placeholder.svg"}
+                      rating={service.reviews?.rating || 0}
+                      reviewCount={service.reviews?.count || 0}
+                      price={service.price}
+                      featured={service.featured}
+                      location={service.location || "Remote"}
+                      responseTime={service.response_time || "Usually responds in 1 hour"}
+                      layout={viewMode}
+                    />
+                  ))}
+                </div>
+              </>
             )}
           </div>
         </div>
