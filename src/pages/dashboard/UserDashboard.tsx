@@ -30,6 +30,10 @@ const UserDashboard = () => {
   if (userRole === "provider") {
     return <Navigate to="/dashboard/provider" replace />;
   }
+
+  if (userRole === "seller") {
+    return <Navigate to="/dashboard/seller" replace />;
+  }
   
   // Default to client dashboard for any other role (client or undefined)
   return <Navigate to="/dashboard/client" replace />;

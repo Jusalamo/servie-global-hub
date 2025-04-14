@@ -57,7 +57,7 @@ export default function ProviderCTA() {
   
   const handleRegisterClick = () => {
     console.log("Navigating to provider signup");
-    navigate('/signup?tab=provider');
+    navigate('/become-seller');
     toast.success("Provider registration page loaded", {
       description: "Choose a plan that fits your needs"
     });

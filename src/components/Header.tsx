@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,8 @@ import {
   LogIn,
   ShoppingCart,
   Store,
-  Package
+  Package,
+  ShoppingBag
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
@@ -130,6 +132,14 @@ export default function Header() {
                   Manage Products
                 </button>
               )}
+              {userRole === "seller" && (
+                <button 
+                  onClick={() => handleNavigation('/dashboard/seller?tab=products')}
+                  className="block w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted"
+                >
+                  Manage Products
+                </button>
+              )}
               <button 
                 onClick={() => handleNavigation('/cart')}
                 className="block w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted flex items-center"
@@ -151,6 +161,12 @@ export default function Header() {
             className="text-sm font-medium transition-colors hover:text-servie"
           >
             Testimonials
+          </button>
+          <button 
+            onClick={() => handleNavigation('/become-seller')}
+            className="text-sm font-medium transition-colors hover:text-servie"
+          >
+            Become a Seller
           </button>
           <button 
             onClick={() => scrollToSection('become-provider')} 
@@ -190,9 +206,11 @@ export default function Header() {
                   onClick={() => handleNavigation('/dashboard')}
                   title="My Dashboard"
                 >
-                  {userRole === "provider" ? <Briefcase size={20} /> : <User size={20} />}
+                  {userRole === "provider" ? <Briefcase size={20} /> : 
+                   userRole === "seller" ? <ShoppingBag size={20} /> : <User size={20} />}
                   <span className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-foreground text-background text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                    {userRole === "provider" ? "Provider Dashboard" : "My Dashboard"}
+                    {userRole === "provider" ? "Provider Dashboard" : 
+                     userRole === "seller" ? "Seller Dashboard" : "My Dashboard"}
                   </span>
                 </Button>
               </>
@@ -228,9 +246,20 @@ export default function Header() {
                 <ShoppingCart className="w-5 h-5 mr-2" />
                 View Cart
               </button>
+              
               {userRole === "provider" && (
                 <button 
                   onClick={() => handleNavigation('/dashboard/provider?tab=products')}
+                  className="text-lg font-medium flex items-center ml-4"
+                >
+                  <Package className="w-5 h-5 mr-2" />
+                  Manage Products
+                </button>
+              )}
+              
+              {userRole === "seller" && (
+                <button 
+                  onClick={() => handleNavigation('/dashboard/seller?tab=products')}
                   className="text-lg font-medium flex items-center ml-4"
                 >
                   <Package className="w-5 h-5 mr-2" />
@@ -249,6 +278,12 @@ export default function Header() {
                 className="text-lg font-medium"
               >
                 Testimonials
+              </button>
+              <button 
+                onClick={() => handleNavigation('/become-seller')}
+                className="text-lg font-medium"
+              >
+                Become a Seller
               </button>
               <button 
                 onClick={() => scrollToSection('become-provider')}
@@ -275,6 +310,11 @@ export default function Header() {
                       <>
                         <Briefcase className="mr-2 h-4 w-4" />
                         Provider Dashboard
+                      </>
+                    ) : userRole === "seller" ? (
+                      <>
+                        <ShoppingBag className="mr-2 h-4 w-4" />
+                        Seller Dashboard
                       </>
                     ) : (
                       <>

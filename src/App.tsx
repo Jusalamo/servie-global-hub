@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,11 +15,13 @@ import ServiceCategories from "./pages/ServiceCategories";
 import ServiceDetail from "./pages/ServiceDetail";
 import ClientDashboard from "./pages/dashboard/ClientDashboard";
 import ProviderDashboard from "./pages/dashboard/ProviderDashboard";
+import SellerDashboard from "./pages/dashboard/SellerDashboard";
 import BookingPage from "./pages/BookingPage";
 import EcommerceShop from "./pages/ecommerce/EcommerceShop";
 import ProductDetail from "./pages/ecommerce/ProductDetail";
 import Cart from "./pages/ecommerce/Cart";
 import UserDashboard from "./pages/dashboard/UserDashboard";
+import BecomeSeller from "./pages/BecomeSeller";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +64,7 @@ const AppRoutes = () => {
       <Route path="/categories" element={<ServiceCategories />} />
       <Route path="/service/:id" element={<ServiceDetail />} />
       <Route path="/booking/:serviceId" element={<BookingPage />} />
+      <Route path="/become-seller" element={<BecomeSeller />} />
       
       {/* E-commerce routes */}
       <Route path="/shop" element={<EcommerceShop />} />
@@ -77,7 +81,7 @@ const AppRoutes = () => {
         } 
       />
       
-      {/* Keep explicit role-based routes as fallbacks */}
+      {/* Role-based dashboard routes */}
       <Route 
         path="/dashboard/client" 
         element={
@@ -93,6 +97,15 @@ const AppRoutes = () => {
           <ProtectedRoute 
             element={<ProviderDashboard />}
             requiredRole="provider"
+          />
+        } 
+      />
+      <Route 
+        path="/dashboard/seller" 
+        element={
+          <ProtectedRoute 
+            element={<SellerDashboard />}
+            requiredRole="seller"
           />
         } 
       />
