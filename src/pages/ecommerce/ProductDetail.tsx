@@ -22,12 +22,28 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useProductData } from "@/hooks/useProductData";
-import { mockProduct } from "@/data/mockData";
+import { services } from "@/data/mockData";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { getProductById } = useProductData();
-  const [product, setProduct] = useState(mockProduct); // Default with mock data
+  // Create default product data structure instead of relying on mockProduct
+  const defaultProduct = {
+    id: "default",
+    name: "Product not found",
+    description: "This product could not be found",
+    price: 0,
+    currency: "$",
+    images: ["/placeholder.svg"],
+    inStock: false,
+    rating: 0,
+    reviewCount: 0,
+    providerName: "Unknown",
+    providerAvatar: "/placeholder.svg",
+    providerId: "unknown"
+  };
+  
+  const [product, setProduct] = useState(defaultProduct);
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const [activeTab, setActiveTab] = useState("description");
