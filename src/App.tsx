@@ -23,6 +23,8 @@ import Cart from "./pages/ecommerce/Cart";
 import UserDashboard from "./pages/dashboard/UserDashboard";
 import BecomeSeller from "./pages/BecomeSeller";
 import BecomeProvider from "./pages/BecomeProvider";
+import ProfileEdit from "./components/profile/ProfileEdit";
+import EnhancedFooter from "./components/EnhancedFooter";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +69,9 @@ const AppRoutes = () => {
       <Route path="/booking/:serviceId" element={<BookingPage />} />
       <Route path="/become-seller" element={<BecomeSeller />} />
       <Route path="/become-provider" element={<BecomeProvider />} />
+      <Route path="/profile/edit" element={
+        <ProtectedRoute element={<ProfileEdit />} />
+      } />
       
       {/* E-commerce routes */}
       <Route path="/shop" element={<EcommerceShop />} />

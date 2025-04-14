@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ui/ThemeToggle";
+import { LangCurrencySelector } from "./LangCurrencySelector";
 import { 
   Menu, 
   X, 
@@ -14,8 +15,19 @@ import {
   ShoppingCart,
   Store,
   Package,
-  ShoppingBag
+  ShoppingBag,
+  Settings,
+  LogOut,
+  UserCog
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 
@@ -24,7 +36,7 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, userRole } = useAuth();
+  const { isAuthenticated, userRole, signOut, user } = useAuth();
 
   // Add scroll effect for the header
   useEffect(() => {
@@ -92,6 +104,15 @@ export default function Header() {
     }
     console.log("Navigating to:", path);
     navigate(path);
+  };
+  
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate("/");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
 
   return (
@@ -183,7 +204,7 @@ export default function Header() {
             Become a Seller
           </button>
           <button 
-            onClick={() => scrollToSection('become-provider')} 
+            onClick={() => handleNavigation('/become-provider')} 
             className="text-sm font-medium transition-colors hover:text-servie"
           >
             Become a Provider
@@ -212,21 +233,77 @@ export default function Header() {
                   </span>
                 </Button>
                 
-                {/* User Dashboard Button */}
+                {/* Notifications Button */}
+                <Button variant="ghost" size="icon" className="rounded-full relative group" title="Notifications">
+                  <Bell size={20} />
+                  <span className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-foreground text-background text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                    Notifications
+                  </span>
+                </Button>
+                
+                {/* Messages Button */}
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="rounded-full relative group" 
-                  onClick={() => handleNavigation('/dashboard')}
-                  title="My Dashboard"
+                  className="rounded-full relative group"
+                  title="Messages"
                 >
-                  {userRole === "provider" ? <Briefcase size={20} /> : 
-                   userRole === "seller" ? <ShoppingBag size={20} /> : <User size={20} />}
+                  <MessageSquare size={20} />
                   <span className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-foreground text-background text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                    {userRole === "provider" ? "Provider Dashboard" : 
-                     userRole === "seller" ? "Seller Dashboard" : "My Dashboard"}
+                    Messages
                   </span>
                 </Button>
+                
+                {/* User Menu Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="rounded-full relative">
+                      <User size={20} />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>
+                      <div className="flex flex-col">
+                        <span>{user?.user_metadata?.first_name} {user?.user_metadata?.last_name}</span>
+                        <span className="text-xs text-muted-foreground">{user?.email}</span>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => handleNavigation('/dashboard')}>
+                      {userRole === "provider" ? (
+                        <>
+                          <Briefcase className="mr-2 h-4 w-4" />
+                          Provider Dashboard
+                        </>
+                      ) : userRole === "seller" ? (
+                        <>
+                          <ShoppingBag className="mr-2 h-4 w-4" />
+                          Seller Dashboard
+                        </>
+                      ) : (
+                        <>
+                          <User className="mr-2 h-4 w-4" />
+                          Client Dashboard
+                        </>
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleNavigation('/profile/edit')}>
+                      <UserCog className="mr-2 h-4 w-4" />
+                      Edit Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleNavigation('/dashboard?tab=settings')}>
+                      <Settings className="mr-2 h-4 w-4" />
+                      Account Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                
+                <LangCurrencySelector />
               </>
             )}
             
@@ -300,11 +377,31 @@ export default function Header() {
                 Become a Seller
               </button>
               <button 
-                onClick={() => scrollToSection('become-provider')}
+                onClick={() => handleNavigation('/become-provider')}
                 className="text-lg font-medium"
               >
                 Become a Provider
               </button>
+              
+              {isAuthenticated && (
+                <>
+                  <button 
+                    onClick={() => handleNavigation('/profile/edit')}
+                    className="text-lg font-medium flex items-center"
+                  >
+                    <UserCog className="w-5 h-5 mr-2" />
+                    Edit Profile
+                  </button>
+                  
+                  <button 
+                    onClick={handleSignOut}
+                    className="text-lg font-medium flex items-center"
+                  >
+                    <LogOut className="w-5 h-5 mr-2" />
+                    Sign Out
+                  </button>
+                </>
+              )}
               
               <div className="flex flex-col space-y-2 pt-4">
                 {!isAuthenticated ? (
@@ -340,6 +437,7 @@ export default function Header() {
                 )}
                 
                 <div className="flex justify-center py-2">
+                  <LangCurrencySelector />
                   <ThemeToggle />
                 </div>
               </div>
