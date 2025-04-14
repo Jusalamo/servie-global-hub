@@ -23,12 +23,13 @@ import {
 import { toast } from "sonner";
 import { useProductData } from "@/hooks/useProductData";
 import { services } from "@/data/mockData";
+import { Product } from "@/components/ecommerce/ProductCard";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { getProductById } = useProductData();
-  // Create default product data structure instead of relying on mockProduct
-  const defaultProduct = {
+  // Create default product data structure that matches the Product type
+  const defaultProduct: Product = {
     id: "default",
     name: "Product not found",
     description: "This product could not be found",
@@ -36,14 +37,18 @@ const ProductDetail = () => {
     currency: "$",
     images: ["/placeholder.svg"],
     inStock: false,
-    rating: 0,
+    rating: 4.0,
     reviewCount: 0,
     providerName: "Unknown",
     providerAvatar: "/placeholder.svg",
-    providerId: "unknown"
+    providerId: "unknown",
+    category: "",
+    createdAt: "",
+    featured: false,
+    compareAtPrice: undefined
   };
   
-  const [product, setProduct] = useState(defaultProduct);
+  const [product, setProduct] = useState<Product>(defaultProduct);
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const [activeTab, setActiveTab] = useState("description");
@@ -88,6 +93,7 @@ const ProductDetail = () => {
     }
   };
   
+  // Calculate discount using optional chaining to avoid errors
   const discount = product.compareAtPrice 
     ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100) 
     : 0;
