@@ -1,10 +1,8 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import ScrollToTop from "./components/ScrollToTop";
 import Index from "./pages/Index";
@@ -17,6 +15,10 @@ import ServiceDetail from "./pages/ServiceDetail";
 import ClientDashboard from "./pages/dashboard/ClientDashboard";
 import ProviderDashboard from "./pages/dashboard/ProviderDashboard";
 import BookingPage from "./pages/BookingPage";
+import EcommerceShop from "./pages/ecommerce/EcommerceShop";
+import ProductDetail from "./pages/ecommerce/ProductDetail";
+import Cart from "./pages/ecommerce/Cart";
+import UserDashboard from "./pages/dashboard/UserDashboard";
 
 const queryClient = new QueryClient();
 
@@ -40,7 +42,7 @@ const ProtectedRoute = ({ element, requiredRole }: ProtectedRouteProps) => {
   
   // If role is required, check if user has that role
   if (requiredRole && userRole !== requiredRole) {
-    return <Navigate to="/" />;
+    return <Navigate to="/dashboard" />;
   }
   
   return element;
@@ -48,6 +50,8 @@ const ProtectedRoute = ({ element, requiredRole }: ProtectedRouteProps) => {
 
 // App routes with AuthProvider
 const AppRoutes = () => {
+  const { userRole } = useAuth();
+  
   return (
     <Routes>
       <Route path="/" element={<Index />} />
@@ -56,6 +60,24 @@ const AppRoutes = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/categories" element={<ServiceCategories />} />
       <Route path="/service/:id" element={<ServiceDetail />} />
+      <Route path="/booking/:serviceId" element={<BookingPage />} />
+      
+      {/* E-commerce routes */}
+      <Route path="/shop" element={<EcommerceShop />} />
+      <Route path="/product/:id" element={<ProductDetail />} />
+      <Route path="/cart" element={<Cart />} />
+      
+      {/* Smart dashboard routing based on user role */}
+      <Route 
+        path="/dashboard" 
+        element={
+          <ProtectedRoute 
+            element={<UserDashboard />}
+          />
+        } 
+      />
+      
+      {/* Keep explicit role-based routes as fallbacks */}
       <Route 
         path="/dashboard/client" 
         element={
@@ -74,7 +96,7 @@ const AppRoutes = () => {
           />
         } 
       />
-      <Route path="/booking/:serviceId" element={<BookingPage />} />
+      
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>
