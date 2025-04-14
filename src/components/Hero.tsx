@@ -40,8 +40,22 @@ export default function Hero() {
     navigate(`/categories?search=${encodeURIComponent(term)}`);
   };
 
+  const handleScrollToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      const headerOffset = 100; // Adjust for header height
+      const elementPosition = section.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
-    <section className="relative py-24 md:py-32 overflow-hidden">
+    <section className="relative py-24 md:py-32 overflow-hidden" id="hero-section">
       {/* Background elements */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute -top-96 -right-96 w-[800px] h-[800px] rounded-full bg-servie/5 dark:bg-servie/10"></div>
@@ -111,6 +125,21 @@ export default function Hero() {
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-servie/10 text-servie mr-2">50+</span>
                 <span>Countries Served</span>
               </div>
+            </div>
+            <div className="flex flex-wrap gap-3 pt-4">
+              <Button 
+                variant="outline" 
+                className="rounded-full border-servie text-servie hover:bg-servie/10" 
+                onClick={() => handleScrollToSection('how-it-works')}
+              >
+                How It Works
+              </Button>
+              <Button 
+                className="rounded-full bg-servie hover:bg-servie-600" 
+                onClick={() => handleScrollToSection('become-provider')}
+              >
+                Become a Provider
+              </Button>
             </div>
           </div>
           <div className="mx-auto flex items-center justify-center">

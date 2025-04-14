@@ -57,7 +57,7 @@ export default function ProviderCTA() {
   
   const handleRegisterClick = () => {
     console.log("Navigating to provider signup");
-    navigate('/become-seller');
+    navigate('/become-provider');
     toast.success("Provider registration page loaded", {
       description: "Choose a plan that fits your needs"
     });
@@ -108,7 +108,7 @@ export default function ProviderCTA() {
           </div>
         </div>
         
-        {/* New Provider Tiers Section */}
+        {/* Provider Tiers Section */}
         <div className="mt-20">
           <div className="text-center mb-12">
             <h3 className="text-2xl font-bold mb-3">Choose Your Provider Plan</h3>

@@ -46,7 +46,14 @@ export default function Header() {
     if (location.pathname === '/') {
       const element = document.getElementById(sectionId);
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
+        const headerOffset = 100; // Adjust based on header height
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
       }
     } else {
       // If we're not on the home page, navigate to the home page with the section as a hash
@@ -65,9 +72,16 @@ export default function Header() {
         setTimeout(() => {
           const element = document.getElementById(scrollToParam);
           if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
+            const headerOffset = 100; // Adjust based on header height
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth'
+            });
           }
-        }, 100);
+        }, 300); // Slightly longer timeout to ensure the page is fully rendered
       }
     }
   }, [location]);
