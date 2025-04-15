@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import Header from "@/components/Header";
@@ -9,7 +8,7 @@ import OrdersTab from "@/components/dashboard/seller/OrdersTab";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Menu, Package, ShoppingBag, Users, DollarSign, Truck, BarChart4, Settings } from "lucide-react";
+import { Menu, Package, ShoppingBag, Users, DollarSign, Truck, BarChart4, Settings, MessageSquare, Mail } from "lucide-react";
 
 // Mock data for seller dashboard
 const mockProducts = [
