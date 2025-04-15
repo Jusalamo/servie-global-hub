@@ -5,12 +5,20 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
+type UserData = {
+  email: string;
+  password: string;
+  first_name: string;
+  last_name: string;
+  role: 'client' | 'provider' | 'seller';
+};
+
 type AuthContextType = {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, userData: { first_name: string; last_name: string; role: 'client' | 'provider' }) => Promise<void>;
+  signUp: (userData: UserData) => Promise<void>;
   signOut: () => Promise<void>;
   isAuthenticated: boolean;
   userRole: string | null;
@@ -111,11 +119,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUp = async (email: string, password: string, userData: { first_name: string; last_name: string; role: 'client' | 'provider' }) => {
+  const signUp = async (userData: UserData) => {
     try {
       const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
+        email: userData.email,
+        password: userData.password,
         options: {
           data: {
             first_name: userData.first_name,
@@ -131,22 +139,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           description: error.message,
           variant: "destructive",
         });
-        return;
+        throw new Error(error.message);
       }
 
       toast({
         title: "Registration successful",
         description: "Welcome to Servie! Please check your email for verification.",
       });
-      
-      navigate('/');
     } catch (error) {
       console.error('Error signing up:', error);
-      toast({
-        title: "An error occurred",
-        description: "Please try again later",
-        variant: "destructive",
-      });
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error("An unexpected error occurred during signup");
+      }
     }
   };
 

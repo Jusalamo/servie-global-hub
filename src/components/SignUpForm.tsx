@@ -56,26 +56,22 @@ const SignUpForm = () => {
   const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
     try {
-      const { error } = await signUp({
+      await signUp({
         email: data.email,
         password: data.password,
-        options: {
-          data: {
-            first_name: data.first_name,
-            last_name: data.last_name,
-            role: "client" // Default role
-          }
-        }
+        first_name: data.first_name,
+        last_name: data.last_name,
+        role: "client" // Default role
       });
       
-      if (error) {
+      toast.success("Account created successfully! Please check your email to verify your account.");
+      navigate("/signin");
+    } catch (error) {
+      if (error instanceof Error) {
         toast.error(error.message);
       } else {
-        toast.success("Account created successfully! Please check your email to verify your account.");
-        navigate("/signin");
+        toast.error("An unexpected error occurred. Please try again.");
       }
-    } catch (error) {
-      toast.error("An unexpected error occurred. Please try again.");
       console.error(error);
     } finally {
       setIsLoading(false);
