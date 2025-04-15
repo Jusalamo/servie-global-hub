@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"
 import { Link, useLocation, Navigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
@@ -115,15 +114,13 @@ export default function SignUp() {
       setIsSubmitting(true);
       
       try {
-        await signUp(
-          formData.email, 
-          formData.password, 
-          {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            role: userRole
-          }
-        );
+        await signUp({
+          email: formData.email, 
+          password: formData.password, 
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          role: userRole
+        });
       } finally {
         setIsSubmitting(false);
       }
