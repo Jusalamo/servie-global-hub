@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -23,7 +22,8 @@ import {
   Heart,
   Calendar,
   Search,
-  HelpCircle
+  HelpCircle,
+  Star // Add Star import from lucide-react
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -143,6 +143,7 @@ export default function Header() {
     { label: "Become a Seller", onClick: () => handleNavigation('/become-seller') },
   ];
 
+  // Desktop navigation using Navigation Menu for better organization
   return (
     <header className={`sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-shadow ${isScrolled ? 'shadow-md' : ''}`}>
       <div className="container flex h-16 items-center justify-between">
@@ -166,7 +167,8 @@ export default function Header() {
           <NavigationMenuList className="gap-2">
             {/* Home Link */}
             <NavigationMenuItem>
-              <Link to="/" legacyBehavior passHref>
+              {/* Fix: Remove legacyBehavior and passHref props */}
+              <Link to="/">
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   <Home className="w-4 h-4 mr-2" />
                   Home
@@ -399,6 +401,7 @@ export default function Header() {
           </NavigationMenuList>
         </NavigationMenu>
 
+        {/* user authentication UI */}
         <div className="hidden lg:flex items-center space-x-2">
           {!isAuthenticated ? (
             <>
@@ -530,10 +533,11 @@ export default function Header() {
               </button>
               
               <button onClick={() => scrollToSection('testimonials')} className="text-lg font-medium flex items-center">
-                <Star className="w-5 h-5 mr-2" />
+                <Star className="w-5 h-5 mr-2" /> {/* Now Star is properly imported */}
                 Testimonials
               </button>
               
+              {/* rest of mobile menu items */}
               <button onClick={() => handleNavigation('/become-provider')} className="text-lg font-medium flex items-center">
                 <Briefcase className="w-5 h-5 mr-2" />
                 Become a Provider
