@@ -1,141 +1,80 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "./context/AuthContext";
-import ScrollToTop from "./components/ScrollToTop";
-import Index from "./pages/Index";
-import SignIn from "./pages/SignIn";
-import SignUp from "./pages/SignUp";
-import ForgotPassword from "./pages/ForgotPassword";
-import NotFound from "./pages/NotFound";
-import ServiceCategories from "./pages/ServiceCategories";
-import ServiceDetail from "./pages/ServiceDetail";
-import ClientDashboard from "./pages/dashboard/ClientDashboard";
-import ProviderDashboard from "./pages/dashboard/ProviderDashboard";
-import SellerDashboard from "./pages/dashboard/SellerDashboard";
-import BookingPage from "./pages/BookingPage";
-import EcommerceShop from "./pages/ecommerce/EcommerceShop";
-import ProductDetail from "./pages/ecommerce/ProductDetail";
-import Cart from "./pages/ecommerce/Cart";
-import UserDashboard from "./pages/dashboard/UserDashboard";
-import BecomeSeller from "./pages/BecomeSeller";
-import BecomeProvider from "./pages/BecomeProvider";
-import ProfileEdit from "./components/profile/ProfileEdit";
-import EnhancedFooter from "./components/EnhancedFooter";
-import TermsConditions from "./pages/TermsConditions";
+import { useState, useEffect } from 'react'
+import { Routes, Route, useLocation } from 'react-router-dom'
+import { ThemeProvider } from "@/components/ui/ThemeProvider"
+import { Toaster } from "@/components/ui/toaster"
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { AuthProvider } from './context/AuthContext'
+import { LocalizationProvider } from './components/LangCurrencySelector'
+import Index from './pages/Index'
+import SignIn from './pages/SignIn'
+import SignUp from './pages/SignUp'
+import ForgotPassword from './pages/ForgotPassword'
+import NotFound from './pages/NotFound'
+import ServiceCategories from './pages/ServiceCategories'
+import ServiceDetail from './pages/ServiceDetail'
+import EcommerceShop from './pages/ecommerce/EcommerceShop'
+import ProductDetail from './pages/ecommerce/ProductDetail'
+import Cart from './pages/ecommerce/Cart'
+import UserDashboard from './pages/dashboard/UserDashboard'
+import ClientDashboard from './pages/dashboard/ClientDashboard'
+import ProviderDashboard from './pages/dashboard/ProviderDashboard'
+import SellerDashboard from './pages/dashboard/SellerDashboard'
+import BecomeProvider from './pages/BecomeProvider'
+import BecomeSeller from './pages/BecomeSeller'
+import BookingPage from './pages/BookingPage'
+import TermsConditions from './pages/TermsConditions'
+import ScrollToTop from './components/ScrollToTop'
 
-const queryClient = new QueryClient();
-
-// Protected route component for role-based access control
-interface ProtectedRouteProps {
-  element: JSX.Element;
-  requiredRole?: string;
+// Remove console logs in production
+if (process.env.NODE_ENV === 'production') {
+  console.log = () => {}
+  console.warn = () => {}
+  console.error = () => {}
 }
 
-const ProtectedRoute = ({ element, requiredRole }: ProtectedRouteProps) => {
-  const { isAuthenticated, userRole, isLoading } = useAuth();
-  
-  // Show loading or redirect to sign-in if not authenticated
-  if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  }
-  
-  if (!isAuthenticated) {
-    return <Navigate to="/signin" />;
-  }
-  
-  // If role is required, check if user has that role
-  if (requiredRole && userRole !== requiredRole) {
-    return <Navigate to="/dashboard" />;
-  }
-  
-  return element;
-};
+// Create a client for React Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+    },
+  },
+})
 
-// App routes with AuthProvider
-const AppRoutes = () => {
+function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="/signin" element={<SignIn />} />
-      <Route path="/signup" element={<SignUp />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/terms-conditions" element={<TermsConditions />} />
-      <Route path="/categories" element={<ServiceCategories />} />
-      <Route path="/service/:id" element={<ServiceDetail />} />
-      <Route path="/booking/:serviceId" element={<BookingPage />} />
-      <Route path="/become-seller" element={<BecomeSeller />} />
-      <Route path="/become-provider" element={<BecomeProvider />} />
-      <Route path="/profile/edit" element={
-        <ProtectedRoute element={<ProfileEdit />} />
-      } />
-      
-      {/* E-commerce routes */}
-      <Route path="/shop" element={<EcommerceShop />} />
-      <Route path="/product/:id" element={<ProductDetail />} />
-      <Route path="/cart" element={<Cart />} />
-      
-      {/* Smart dashboard routing based on user role */}
-      <Route 
-        path="/dashboard" 
-        element={
-          <ProtectedRoute 
-            element={<UserDashboard />}
-          />
-        } 
-      />
-      
-      {/* Role-based dashboard routes */}
-      <Route 
-        path="/dashboard/client" 
-        element={
-          <ProtectedRoute 
-            element={<ClientDashboard />}
-            requiredRole="client"
-          />
-        } 
-      />
-      <Route 
-        path="/dashboard/provider" 
-        element={
-          <ProtectedRoute 
-            element={<ProviderDashboard />}
-            requiredRole="provider"
-          />
-        } 
-      />
-      <Route 
-        path="/dashboard/seller" 
-        element={
-          <ProtectedRoute 
-            element={<SellerDashboard />}
-            requiredRole="seller"
-          />
-        } 
-      />
-      
-      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  );
-};
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <ScrollToTop />
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="light" storageKey="servie-theme">
         <AuthProvider>
-          <AppRoutes />
+          <LocalizationProvider>
+            <ScrollToTop />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/signin" element={<SignIn />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/categories" element={<ServiceCategories />} />
+              <Route path="/services/:id" element={<ServiceDetail />} />
+              <Route path="/shop" element={<EcommerceShop />} />
+              <Route path="/shop/product/:id" element={<ProductDetail />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/dashboard" element={<UserDashboard />} />
+              <Route path="/dashboard/client" element={<ClientDashboard />} />
+              <Route path="/dashboard/provider" element={<ProviderDashboard />} />
+              <Route path="/dashboard/seller" element={<SellerDashboard />} />
+              <Route path="/become-provider" element={<BecomeProvider />} />
+              <Route path="/become-seller" element={<BecomeSeller />} />
+              <Route path="/booking/:id" element={<BookingPage />} />
+              <Route path="/terms" element={<TermsConditions />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <Toaster />
+          </LocalizationProvider>
         </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+      </ThemeProvider>
+    </QueryClientProvider>
+  )
+}
 
-export default App;
+export default App

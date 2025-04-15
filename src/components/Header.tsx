@@ -1,8 +1,10 @@
+
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ui/ThemeToggle";
 import { LangCurrencySelector } from "./LangCurrencySelector";
+import ServiceIcon from "./ServiceIcon";
 import { 
   Menu, 
   X, 
@@ -23,7 +25,7 @@ import {
   Calendar,
   Search,
   HelpCircle,
-  Star // Add Star import from lucide-react
+  Star
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -129,6 +131,21 @@ export default function Header() {
     }
   };
 
+  // Function to check if a path is active
+  const isActivePath = (path: string): boolean => {
+    if (path === '/') {
+      return location.pathname === '/';
+    }
+    return location.pathname.startsWith(path);
+  };
+
+  // Helper function to get active class
+  const getActiveClass = (path: string): string => {
+    return isActivePath(path) ? 
+      "bg-accent text-accent-foreground font-medium" : 
+      "hover:bg-accent hover:text-accent-foreground";
+  };
+
   // Group navigation items for better organization
   const mainNavItems = [
     { label: "Home", onClick: () => handleNavigation('/') },
@@ -149,6 +166,7 @@ export default function Header() {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
           <Link to="/" className="flex items-center gap-2">
+            <ServiceIcon className="h-8 w-8" color="#ea384c" />
             <span className="text-2xl font-bold text-servie">Servie</span>
           </Link>
         </div>
@@ -167,9 +185,11 @@ export default function Header() {
           <NavigationMenuList className="gap-2">
             {/* Home Link */}
             <NavigationMenuItem>
-              {/* Fix: Remove legacyBehavior and passHref props */}
               <Link to="/">
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                <NavigationMenuLink className={cn(
+                  navigationMenuTriggerStyle(),
+                  isActivePath('/') && "bg-accent/50"
+                )}>
                   <Home className="w-4 h-4 mr-2" />
                   Home
                 </NavigationMenuLink>
@@ -178,7 +198,9 @@ export default function Header() {
             
             {/* Services Dropdown */}
             <NavigationMenuItem>
-              <NavigationMenuTrigger>Services</NavigationMenuTrigger>
+              <NavigationMenuTrigger className={isActivePath('/categories') ? "bg-accent/50" : ""}>
+                Services
+              </NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid gap-3 p-4 w-[400px] grid-cols-2">
                   <li className="row-span-3">
@@ -254,7 +276,7 @@ export default function Header() {
 
             {/* Shop Dropdown */}
             <NavigationMenuItem>
-              <NavigationMenuTrigger>
+              <NavigationMenuTrigger className={isActivePath('/shop') || isActivePath('/cart') ? "bg-accent/50" : ""}>
                 <Store className="w-4 h-4 mr-1" />
                 Shop
               </NavigationMenuTrigger>
@@ -316,7 +338,9 @@ export default function Header() {
             
             {/* About Links */}
             <NavigationMenuItem>
-              <NavigationMenuTrigger>About</NavigationMenuTrigger>
+              <NavigationMenuTrigger className={isActivePath('/contact') ? "bg-accent/50" : ""}>
+                About
+              </NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid gap-3 p-4 w-[350px]">
                   <li>
@@ -360,7 +384,11 @@ export default function Header() {
             
             {/* Join Us Links */}
             <NavigationMenuItem>
-              <NavigationMenuTrigger>Join Us</NavigationMenuTrigger>
+              <NavigationMenuTrigger className={
+                isActivePath('/become-provider') || isActivePath('/become-seller') ? "bg-accent/50" : ""
+              }>
+                Join Us
+              </NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid gap-3 p-4 md:w-[400px] md:grid-cols-2">
                   <li>
@@ -417,7 +445,10 @@ export default function Header() {
           ) : (
             <>
               {/* Shopping Cart Button */}
-              <Button variant="ghost" size="icon" className="rounded-full relative group" 
+              <Button variant="ghost" size="icon" className={cn(
+                "rounded-full relative group",
+                isActivePath('/cart') && "bg-accent/50"
+              )} 
                 onClick={() => handleNavigation('/cart')} title="Shopping Cart">
                 <ShoppingCart size={20} />
                 <span className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-foreground text-background text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
@@ -449,7 +480,10 @@ export default function Header() {
               {/* User Menu Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full relative">
+                  <Button variant="ghost" size="icon" className={cn(
+                    "rounded-full relative",
+                    isActivePath('/dashboard') || isActivePath('/profile') && "bg-accent/50"
+                  )}>
                     <User size={20} />
                   </Button>
                 </DropdownMenuTrigger>
