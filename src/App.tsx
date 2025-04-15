@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
-import { ThemeProvider } from "@/components/ui/ThemeProvider"
+import { ThemeProvider } from "./components/ui/ThemeProvider"
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from './context/AuthContext'
