@@ -25,6 +25,7 @@ import BecomeSeller from "./pages/BecomeSeller";
 import BecomeProvider from "./pages/BecomeProvider";
 import ProfileEdit from "./components/profile/ProfileEdit";
 import EnhancedFooter from "./components/EnhancedFooter";
+import TermsConditions from "./pages/TermsConditions";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +63,7 @@ const AppRoutes = () => {
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/terms-conditions" element={<TermsConditions />} />
       <Route path="/categories" element={<ServiceCategories />} />
       <Route path="/service/:id" element={<ServiceDetail />} />
       <Route path="/booking/:serviceId" element={<BookingPage />} />
