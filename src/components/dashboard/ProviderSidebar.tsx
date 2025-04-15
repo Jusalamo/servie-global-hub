@@ -1,7 +1,19 @@
 
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Calendar, Users, ClipboardList, Star, CreditCard, BarChart2, Settings, HelpCircle, Briefcase } from "lucide-react";
+import { 
+  Calendar, 
+  Users, 
+  ClipboardList, 
+  Star, 
+  CreditCard, 
+  BarChart2, 
+  Settings, 
+  HelpCircle, 
+  Briefcase, 
+  Package,
+  MessageSquare
+} from "lucide-react";
 
 interface SidebarLinkProps {
   icon: React.ReactNode;
@@ -84,10 +96,24 @@ export default function ProviderSidebar() {
         />
         
         <SidebarLink
+          icon={<Package className="h-5 w-5" />}
+          label="Products"
+          isActive={activeTab === "products"}
+          onClick={() => handleTabClick("products")}
+        />
+        
+        <SidebarLink
           icon={<CreditCard className="h-5 w-5" />}
           label="Payments"
           isActive={activeTab === "payments"}
           onClick={() => handleTabClick("payments")}
+        />
+        
+        <SidebarLink
+          icon={<MessageSquare className="h-5 w-5" />}
+          label="Messages"
+          isActive={activeTab === "messages"}
+          onClick={() => handleTabClick("messages")}
         />
         
         <SidebarLink

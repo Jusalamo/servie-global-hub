@@ -1,7 +1,7 @@
 
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Package, ShoppingBag, BarChart2, Tag, Users, CreditCard, Settings, HelpCircle } from "lucide-react";
+import { Package, ShoppingBag, BarChart2, Tag, Users, CreditCard, Settings, HelpCircle, MessageSquare, TrendingUp, Store } from "lucide-react";
 
 interface SidebarLinkProps {
   icon: React.ReactNode;
@@ -70,10 +70,31 @@ export default function SellerSidebar() {
         />
         
         <SidebarLink
+          icon={<TrendingUp className="h-5 w-5" />}
+          label="Analytics"
+          isActive={activeTab === "analytics"}
+          onClick={() => handleTabClick("analytics")}
+        />
+        
+        <SidebarLink
+          icon={<Store className="h-5 w-5" />}
+          label="Store Settings"
+          isActive={activeTab === "store"}
+          onClick={() => handleTabClick("store")}
+        />
+        
+        <SidebarLink
           icon={<Users className="h-5 w-5" />}
           label="Customers"
           isActive={activeTab === "customers"}
           onClick={() => handleTabClick("customers")}
+        />
+        
+        <SidebarLink
+          icon={<MessageSquare className="h-5 w-5" />}
+          label="Messages"
+          isActive={activeTab === "messages"}
+          onClick={() => handleTabClick("messages")}
         />
         
         <SidebarLink
