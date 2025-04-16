@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, MapPin } from "lucide-react";
 import { toast } from "sonner";
+import { useTheme } from "./ui/ThemeProvider";
 
 export default function Hero() {
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState("");
   const navigate = useNavigate();
+  const { theme } = useTheme();
   
   const popularSearches = [
     "Home Cleaning", 
