@@ -48,13 +48,29 @@ const PaymentMethodSelector = ({ onSelect, selectedMethod = 'card' }: PaymentMet
           <RadioGroupItem value="card" id="card" className="peer sr-only" />
           <Label 
             htmlFor="card" 
-            className={`payment-method-card ${paymentMethod === 'card' ? 'payment-method-active' : ''}`}
+            className="flex items-center border rounded-lg p-4 cursor-pointer hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5"
           >
             <CreditCard className="h-5 w-5 mr-3 text-gray-600" />
             <div className="flex-1">
               <div className="font-medium">Credit / Debit Card</div>
               <div className="text-xs text-muted-foreground">Visa, Mastercard, Amex</div>
             </div>
+            {paymentMethod === 'card' && (
+              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary">
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2"
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  className="h-3 w-3 text-white"
+                >
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+              </div>
+            )}
           </Label>
         </div>
 
@@ -62,13 +78,29 @@ const PaymentMethodSelector = ({ onSelect, selectedMethod = 'card' }: PaymentMet
           <RadioGroupItem value="paypal" id="paypal" className="peer sr-only" />
           <Label 
             htmlFor="paypal" 
-            className={`payment-method-card ${paymentMethod === 'paypal' ? 'payment-method-active' : ''}`}
+            className="flex items-center border rounded-lg p-4 cursor-pointer hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5"
           >
             <PaypalIcon className="h-5 w-5 mr-3 text-blue-500" />
             <div className="flex-1">
               <div className="font-medium">PayPal</div>
               <div className="text-xs text-muted-foreground">Pay with your PayPal account</div>
             </div>
+            {paymentMethod === 'paypal' && (
+              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary">
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2"
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  className="h-3 w-3 text-white"
+                >
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+              </div>
+            )}
           </Label>
         </div>
 
@@ -76,13 +108,29 @@ const PaymentMethodSelector = ({ onSelect, selectedMethod = 'card' }: PaymentMet
           <RadioGroupItem value="apple-pay" id="apple-pay" className="peer sr-only" />
           <Label 
             htmlFor="apple-pay" 
-            className={`payment-method-card ${paymentMethod === 'apple-pay' ? 'payment-method-active' : ''}`}
+            className="flex items-center border rounded-lg p-4 cursor-pointer hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5"
           >
             <AppleIcon className="h-5 w-5 mr-3" />
             <div className="flex-1">
               <div className="font-medium">Apple Pay</div>
               <div className="text-xs text-muted-foreground">Pay with Apple Pay</div>
             </div>
+            {paymentMethod === 'apple-pay' && (
+              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary">
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2"
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  className="h-3 w-3 text-white"
+                >
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+              </div>
+            )}
           </Label>
         </div>
       </RadioGroup>

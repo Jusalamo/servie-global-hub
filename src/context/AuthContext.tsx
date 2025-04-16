@@ -147,14 +147,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       toast.success("Login successful!");
       
-      // Redirect based on role
-      if (userRole === 'provider') {
-        navigate('/dashboard/provider');
-      } else if (userRole === 'seller') {
-        navigate('/dashboard/seller');
-      } else {
-        navigate('/dashboard/client');
-      }
+      // Wait a brief moment to ensure userRole is set
+      setTimeout(() => {
+        // Redirect based on role
+        if (userRole === 'provider') {
+          navigate('/dashboard/provider');
+        } else if (userRole === 'seller') {
+          navigate('/dashboard/seller');
+        } else {
+          navigate('/dashboard/client');
+        }
+      }, 100);
     } catch (error) {
       console.error('Error signing in:', error);
       toast.error("An error occurred while signing in");
@@ -194,7 +197,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Auto sign-in the user after signup
         toast.success("Registration successful!");
         
-        // Redirect based on role
+        // Now redirect based on role (using the userData role since userRole state might not be updated yet)
         if (userData.role === 'provider') {
           navigate('/dashboard/provider');
         } else if (userData.role === 'seller') {

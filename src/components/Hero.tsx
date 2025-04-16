@@ -55,21 +55,30 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative py-24 md:py-32 overflow-hidden" id="hero-section">
-      {/* Background elements */}
+    <section className="relative py-20 md:py-24 overflow-hidden" id="hero-section">
+      {/* Video Background */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-96 -right-96 w-[800px] h-[800px] rounded-full bg-servie/5 dark:bg-servie/10"></div>
-        <div className="absolute top-1/4 -left-96 w-[800px] h-[800px] rounded-full bg-servie/10 dark:bg-servie/5"></div>
+        <div className="absolute inset-0 bg-black/40 z-10"></div>
+        <video 
+          autoPlay 
+          muted 
+          loop 
+          playsInline
+          className="h-full w-full object-cover absolute"
+        >
+          <source src="https://player.vimeo.com/external/370331493.hd.mp4?s=fbf419fc059d21e0e8f53a3f6e538121805df2f1&profile_id=175" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
       </div>
       
-      <div className="container px-4 md:px-6">
+      <div className="container px-4 md:px-6 relative z-10">
         <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
           <div className="flex flex-col justify-center space-y-4">
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
+              <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none text-white">
                 Find Expert Services for Any Task
               </h1>
-              <p className="max-w-[600px] text-muted-foreground md:text-xl">
+              <p className="max-w-[600px] text-white/90 md:text-xl">
                 Connect with skilled professionals across Africa and globally. Get quotes, book services, and get things done - all in one platform.
               </p>
             </div>
@@ -80,7 +89,7 @@ export default function Hero() {
                   <Input
                     type="search"
                     placeholder="What service are you looking for?"
-                    className="pl-10 rounded-full w-full"
+                    className="pl-10 rounded-full w-full bg-white/95"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -90,7 +99,7 @@ export default function Hero() {
                   <Input
                     type="text"
                     placeholder="Location (optional)"
-                    className="pl-10 rounded-full w-full"
+                    className="pl-10 rounded-full w-full bg-white/95"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                   />
@@ -100,12 +109,12 @@ export default function Hero() {
                 </Button>
               </div>
             </form>
-            <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+            <div className="flex flex-wrap gap-2 text-sm text-white/80">
               <span>Popular:</span>
               {popularSearches.map((term) => (
                 <button 
                   key={term} 
-                  className="underline hover:text-servie transition-colors"
+                  className="underline hover:text-white transition-colors"
                   onClick={() => handlePopularSearch(term)}
                 >
                   {term}
@@ -113,23 +122,23 @@ export default function Hero() {
               ))}
             </div>
             <div className="flex flex-wrap gap-3 pt-4">
-              <div className="flex items-center text-sm">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-servie/10 text-servie mr-2">10K+</span>
+              <div className="flex items-center text-sm text-white">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white mr-2">10K+</span>
                 <span>Verified Providers</span>
               </div>
-              <div className="flex items-center text-sm">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-servie/10 text-servie mr-2">4.8</span>
+              <div className="flex items-center text-sm text-white">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white mr-2">4.8</span>
                 <span>Average Rating</span>
               </div>
-              <div className="flex items-center text-sm">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-servie/10 text-servie mr-2">50+</span>
+              <div className="flex items-center text-sm text-white">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white mr-2">50+</span>
                 <span>Countries Served</span>
               </div>
             </div>
             <div className="flex flex-wrap gap-3 pt-4">
               <Button 
                 variant="outline" 
-                className="rounded-full border-servie text-servie hover:bg-servie/10" 
+                className="rounded-full border-white text-white hover:bg-white/20 bg-transparent" 
                 onClick={() => handleScrollToSection('how-it-works')}
               >
                 How It Works
@@ -142,8 +151,8 @@ export default function Hero() {
               </Button>
             </div>
           </div>
-          <div className="mx-auto flex items-center justify-center">
-            <div className="aspect-video overflow-hidden rounded-2xl border bg-muted p-2">
+          <div className="hidden md:flex items-center justify-center animate-fade-in">
+            <div className="aspect-video overflow-hidden rounded-2xl border bg-muted p-2 shadow-xl">
               <img
                 src="https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3"
                 width={600}
