@@ -56,7 +56,7 @@ export default function Hero() {
 
   return (
     <section className="relative py-20 md:py-24 overflow-hidden" id="hero-section">
-      {/* Video Background */}
+      {/* Video Background - contained within this section only */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute inset-0 bg-black/40 z-10"></div>
         <video 
