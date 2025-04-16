@@ -8,6 +8,7 @@ import { OverviewTab } from "@/components/dashboard/client/OverviewTab";
 import { BookingsTab } from "@/components/dashboard/client/BookingsTab";
 import { FavoritesTab } from "@/components/dashboard/client/FavoritesTab";
 import { PlaceholderTab } from "@/components/dashboard/client/PlaceholderTab";
+import AIAssistant from "@/components/dashboard/AIAssistant";
 
 // Use the first client for demo purposes
 const clientUser = users.find(user => user.role === "client");
@@ -87,6 +88,9 @@ const ClientDashboard = () => {
         </div>
       </main>
       <Footer />
+      
+      {/* AI Assistant */}
+      <AIAssistant />
     </div>
   );
 };
