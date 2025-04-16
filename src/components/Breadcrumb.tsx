@@ -9,7 +9,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Home } from 'lucide-react';
+import { Home, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface BreadcrumbProps {
   additionalCrumbs?: Array<{
@@ -24,6 +25,7 @@ interface RouteMap {
 
 const Breadcrumb: React.FC<BreadcrumbProps> = ({ additionalCrumbs = [] }) => {
   const location = useLocation();
+  const { t } = useTranslation();
   
   // Define route mapping for breadcrumbs
   const routeMap: RouteMap = {
@@ -39,6 +41,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ additionalCrumbs = [] }) => {
     'become-provider': { label: 'Become a Provider', parent: '' },
     'become-seller': { label: 'Become a Seller', parent: '' },
     'contact': { label: 'Contact', parent: '' },
+    'contact-support': { label: 'Support', parent: '' },
   };
   
   // Split the path and remove empty strings
@@ -55,7 +58,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ additionalCrumbs = [] }) => {
   
   // Always add Home
   breadcrumbs.push({
-    label: 'Home',
+    label: t('Home'),
     path: '/',
     isLast: false
   });
@@ -72,7 +75,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ additionalCrumbs = [] }) => {
     };
     
     breadcrumbs.push({
-      label: segmentInfo.label,
+      label: t(segmentInfo.label),
       path: currentPath,
       isLast
     });
@@ -82,7 +85,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ additionalCrumbs = [] }) => {
   if (additionalCrumbs.length > 0) {
     additionalCrumbs.forEach((crumb, index) => {
       breadcrumbs.push({
-        label: crumb.label,
+        label: t(crumb.label),
         path: crumb.href || '#',
         isLast: index === additionalCrumbs.length - 1
       });
@@ -90,20 +93,20 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ additionalCrumbs = [] }) => {
   }
   
   return (
-    <BreadcrumbUI className="px-4 py-2 md:px-6 lg:px-8">
-      <BreadcrumbList>
+    <BreadcrumbUI className="px-4 py-3 md:px-6 lg:px-8 bg-gray-50 border-b border-gray-100 overflow-x-auto whitespace-nowrap">
+      <BreadcrumbList className="flex-nowrap">
         {breadcrumbs.map((crumb, index) => (
           <React.Fragment key={index}>
-            <BreadcrumbItem>
+            <BreadcrumbItem className="flex items-center">
               {crumb.isLast ? (
-                <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                <BreadcrumbPage className="font-medium">{crumb.label}</BreadcrumbPage>
               ) : (
                 <BreadcrumbLink asChild>
-                  <Link to={crumb.path}>
+                  <Link to={crumb.path} className="flex items-center hover:text-servie transition-colors">
                     {index === 0 ? (
                       <div className="flex items-center">
                         <Home className="w-4 h-4 mr-1" />
-                        <span>{crumb.label}</span>
+                        <span className="hidden md:inline">{crumb.label}</span>
                       </div>
                     ) : (
                       crumb.label
@@ -112,7 +115,11 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ additionalCrumbs = [] }) => {
                 </BreadcrumbLink>
               )}
             </BreadcrumbItem>
-            {index < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
+            {index < breadcrumbs.length - 1 && (
+              <BreadcrumbSeparator>
+                <ChevronRight className="h-4 w-4" />
+              </BreadcrumbSeparator>
+            )}
           </React.Fragment>
         ))}
       </BreadcrumbList>

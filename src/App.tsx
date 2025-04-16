@@ -24,6 +24,7 @@ import BecomeProvider from './pages/BecomeProvider'
 import BecomeSeller from './pages/BecomeSeller'
 import BookingPage from './pages/BookingPage'
 import TermsConditions from './pages/TermsConditions'
+import ContactSupport from './pages/ContactSupport' // New page
 import ScrollToTop from './components/ScrollToTop'
 
 // Remove console logs in production
@@ -67,6 +68,7 @@ function App() {
               <Route path="/become-seller" element={<BecomeSeller />} />
               <Route path="/booking/:id" element={<BookingPage />} />
               <Route path="/terms" element={<TermsConditions />} />
+              <Route path="/contact-support" element={<ContactSupport />} /> {/* Added new route */}
               <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster />
