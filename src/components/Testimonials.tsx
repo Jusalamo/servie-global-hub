@@ -2,8 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Star, ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Star } from "lucide-react";
 
 const testimonials = [
   {
@@ -53,65 +52,44 @@ const testimonials = [
 export default function Testimonials() {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [scrollAmount, setScrollAmount] = useState(0);
   
   // Duplicate testimonials for infinite scrolling effect
-  const allTestimonials = [...testimonials, ...testimonials];
+  const allTestimonials = [...testimonials, ...testimonials, ...testimonials];
   
-  // Initialize scroll amount on component mount
+  // Continuous auto-scrolling with animation frame
   useEffect(() => {
-    if (carouselRef.current) {
-      const cardWidth = carouselRef.current.querySelector('.testimonial-card')?.clientWidth || 0;
-      const gap = 24; // gap-6 = 1.5rem = 24px
-      setScrollAmount(cardWidth + gap);
-    }
-  }, []);
-  
-  // Continuous auto-scrolling
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
+    let animationId: number;
+    let lastTimestamp = 0;
+    const speed = 0.3; // pixels per millisecond (adjust for speed)
     
-    if (!isPaused && scrollAmount > 0) {
-      interval = setInterval(() => {
-        if (carouselRef.current) {
-          const newIndex = (activeIndex + 1) % testimonials.length;
-          setActiveIndex(newIndex);
-          
-          carouselRef.current.scrollTo({
-            left: newIndex * scrollAmount,
-            behavior: 'smooth'
-          });
-        }
-      }, 4000); // Auto-scroll every 4 seconds (slightly faster than categories)
-    }
+    const scroll = (timestamp: number) => {
+      if (!carouselRef.current || isPaused) {
+        animationId = requestAnimationFrame(scroll);
+        return;
+      }
+      
+      if (!lastTimestamp) lastTimestamp = timestamp;
+      const elapsed = timestamp - lastTimestamp;
+      lastTimestamp = timestamp;
+      
+      carouselRef.current.scrollLeft += speed * elapsed;
+      
+      // Reset to start when we reach the end of the first set
+      if (carouselRef.current.scrollLeft >= carouselRef.current.scrollWidth / 3) {
+        carouselRef.current.scrollLeft = 0;
+      }
+      
+      animationId = requestAnimationFrame(scroll);
+    };
     
-    return () => clearInterval(interval);
-  }, [isPaused, activeIndex, scrollAmount]);
-  
-  const handlePrev = () => {
-    if (carouselRef.current && scrollAmount > 0) {
-      const newIndex = (activeIndex - 1 + testimonials.length) % testimonials.length;
-      setActiveIndex(newIndex);
-      
-      carouselRef.current.scrollTo({
-        left: newIndex * scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
-  
-  const handleNext = () => {
-    if (carouselRef.current && scrollAmount > 0) {
-      const newIndex = (activeIndex + 1) % testimonials.length;
-      setActiveIndex(newIndex);
-      
-      carouselRef.current.scrollTo({
-        left: newIndex * scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
+    animationId = requestAnimationFrame(scroll);
+    
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+  }, [isPaused]);
 
   return (
     <section id="testimonials" className="py-16 md:py-24 bg-muted/50 scroll-mt-24">
@@ -127,40 +105,18 @@ export default function Testimonials() {
           </div>
         </div>
         
-        <div className="relative mt-12">
+        <div className="relative mt-12"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
           {/* Gradient overlays for infinite scroll effect */}
           <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-muted/50 to-transparent z-10"></div>
           <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-muted/50 to-transparent z-10"></div>
           
-          {/* Navigation buttons */}
-          <Button
-            variant="outline"
-            size="icon"
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-background/80 backdrop-blur-sm"
-            onClick={handlePrev}
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          
-          <Button
-            variant="outline"
-            size="icon"
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-background/80 backdrop-blur-sm"
-            onClick={handleNext}
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-          
-          {/* Testimonial carousel */}
+          {/* Testimonial carousel with continuous scrolling */}
           <div 
             ref={carouselRef}
             className="flex overflow-x-auto scrollbar-none scroll-smooth py-4 px-8"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
           >
             {allTestimonials.map((testimonial, i) => (
               <Card 
@@ -193,28 +149,6 @@ export default function Testimonials() {
                   </blockquote>
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        </div>
-        
-        <div className="flex justify-center mt-6">
-          <div className="flex space-x-2">
-            {testimonials.map((_, i) => (
-              <button
-                key={i}
-                className={`h-2 w-2 rounded-full transition-colors ${
-                  i === activeIndex ? "bg-servie" : "bg-muted-foreground/30"
-                }`}
-                onClick={() => {
-                  setActiveIndex(i);
-                  if (carouselRef.current) {
-                    carouselRef.current.scrollTo({
-                      left: i * scrollAmount,
-                      behavior: 'smooth'
-                    });
-                  }
-                }}
-              />
             ))}
           </div>
         </div>

@@ -18,38 +18,41 @@ const UserDashboard = () => {
         if (userRole) {
           toast.info(`Directing you to the ${userRole} dashboard`);
           
-          // Route based on user role
-          setTimeout(() => {
-            if (userRole === "provider") {
-              navigate("/dashboard/provider?tab=overview", { replace: true });
-            } else if (userRole === "seller") {
-              navigate("/dashboard/seller?tab=overview", { replace: true });
-            } else {
-              navigate("/dashboard/client", { replace: true });
-            }
-          }, 100);
+          // Immediately redirect based on user role without setTimeout
+          if (userRole === "provider") {
+            navigate("/dashboard/provider?tab=overview", { replace: true });
+          } else if (userRole === "seller") {
+            navigate("/dashboard/seller?tab=overview", { replace: true });
+          } else {
+            navigate("/dashboard/client", { replace: true });
+          }
         } else {
           toast.info("Setting up your default dashboard");
-          setTimeout(() => {
-            navigate("/dashboard/client", { replace: true });
-          }, 100);
+          navigate("/dashboard/client", { replace: true });
         }
       } else {
         toast.error("Please sign in to access your dashboard");
-        setTimeout(() => {
-          navigate("/signin", { replace: true });
-        }, 100);
+        navigate("/signin", { replace: true });
       }
     }
   }, [userRole, isLoading, isAuthenticated, navigate]);
   
-  if (isLoading || redirecting) {
+  // Show a loading indicator while authentication state is being checked
+  if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
         <Loader2 className="h-10 w-10 animate-spin text-servie" />
-        <p className="mt-4 text-muted-foreground">
-          {redirecting ? "Redirecting to your dashboard..." : "Loading your dashboard..."}
-        </p>
+        <p className="mt-4 text-muted-foreground">Loading your dashboard...</p>
+      </div>
+    );
+  }
+  
+  // Show a redirecting indicator after authentication is checked
+  if (redirecting) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-servie" />
+        <p className="mt-4 text-muted-foreground">Redirecting to your dashboard...</p>
       </div>
     );
   }

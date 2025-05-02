@@ -98,50 +98,47 @@ const categories = [
 
 export default function ServiceCategoriesCarousel() {
   const carouselRef = useRef<HTMLDivElement>(null);
-  const [scrollPosition, setScrollPosition] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   
-  const handleScroll = () => {
-    if (carouselRef.current) {
-      setScrollPosition(carouselRef.current.scrollLeft);
-    }
-  };
+  // Duplicate categories for infinite scrolling effect
+  const allCategories = [...categories, ...categories];
   
-  const scroll = (direction: 'left' | 'right') => {
-    if (carouselRef.current) {
-      const scrollAmount = direction === 'left' ? -300 : 300;
-      carouselRef.current.scrollBy({
-        left: scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
-  
-  // Auto-scroll functionality
+  // Continuous auto-scrolling
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
+    let animationId: number;
+    let lastTimestamp = 0;
+    const speed = 0.5; // pixels per millisecond (adjust for speed)
     
-    if (!isPaused) {
-      interval = setInterval(() => {
-        if (carouselRef.current) {
-          // Check if we've reached the end, if so, scroll back to start
-          if (scrollPosition >= (carouselRef.current.scrollWidth - carouselRef.current.clientWidth - 20)) {
-            carouselRef.current.scrollTo({ left: 0, behavior: 'smooth' });
-          } else {
-            scroll('right');
-          }
-        }
-      }, 5000); // Auto-scroll every 5 seconds
-    }
+    const scroll = (timestamp: number) => {
+      if (!carouselRef.current || isPaused) {
+        animationId = requestAnimationFrame(scroll);
+        return;
+      }
+      
+      if (!lastTimestamp) lastTimestamp = timestamp;
+      const elapsed = timestamp - lastTimestamp;
+      lastTimestamp = timestamp;
+      
+      const currentScroll = carouselRef.current.scrollLeft;
+      carouselRef.current.scrollLeft += speed * elapsed;
+      
+      // Reset to start when we reach the end of the first set
+      if (carouselRef.current.scrollLeft >= carouselRef.current.scrollWidth / 2) {
+        carouselRef.current.scrollLeft = 0;
+      }
+      
+      animationId = requestAnimationFrame(scroll);
+    };
     
-    return () => clearInterval(interval);
-  }, [isPaused, scrollPosition]);
+    animationId = requestAnimationFrame(scroll);
+    
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+  }, [isPaused]);
   
-  const showLeftButton = scrollPosition > 20;
-  const showRightButton = carouselRef.current 
-    ? scrollPosition < carouselRef.current.scrollWidth - carouselRef.current.clientWidth - 20
-    : true;
-
   // Get the appropriate icon component for a category
   const getCategoryIcon = (iconName: string) => {
     const IconComponent = categoryIcons[iconName as keyof typeof categoryIcons] || Package;
@@ -162,38 +159,14 @@ export default function ServiceCategoriesCarousel() {
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
-          {/* Shadow overlays for scroll indication */}
-          <div className={`absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-background to-transparent z-10 transition-opacity duration-300 ${showLeftButton ? 'opacity-100' : 'opacity-0'}`}></div>
-          <div className={`absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background to-transparent z-10 transition-opacity duration-300 ${showRightButton ? 'opacity-100' : 'opacity-0'}`}></div>
-          
-          {/* Navigation buttons */}
-          <Button
-            variant="outline"
-            size="icon"
-            className={`absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-background/80 backdrop-blur-sm shadow-md transition-opacity duration-300 ${showLeftButton ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-            onClick={() => scroll('left')}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          
-          <Button
-            variant="outline"
-            size="icon"
-            className={`absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-background/80 backdrop-blur-sm shadow-md transition-opacity duration-300 ${showRightButton ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-            onClick={() => scroll('right')}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-          
-          {/* Categories carousel */}
+          {/* Remove scrollbar and navigation buttons for continuous flow */}
           <div 
             ref={carouselRef}
-            className="grid grid-flow-col auto-cols-max gap-4 overflow-x-auto pb-6 pt-2 px-2 scrollbar-none scroll-smooth"
-            onScroll={handleScroll}
+            className="grid grid-flow-col auto-cols-max gap-4 overflow-x-auto pb-6 pt-2 px-2 scrollbar-none"
           >
-            {categories.map((category) => (
+            {allCategories.map((category, index) => (
               <Card 
-                key={category.id}
+                key={`${category.id}-${index}`}
                 className="w-[200px] sm:w-[220px] hover:shadow-lg transition-transform hover:scale-105 transform"
               >
                 <Link to={`/categories/${category.id}`}>

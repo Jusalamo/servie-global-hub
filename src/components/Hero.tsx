@@ -20,6 +20,15 @@ export default function Hero() {
 
   return (
     <section id="hero" className="relative py-20 md:py-32 overflow-hidden">
+      {/* Animated gradient background */}
+      <div 
+        className="absolute inset-0 -z-10 bg-gradient-to-br from-servie/20 via-servie/5 to-background/50 animate-gradient"
+        style={{
+          backgroundSize: "200% 200%",
+          animation: "gradientAnimation 15s ease infinite"
+        }}
+      />
+      
       {/* Background pattern */}
       <div className="absolute inset-0 -z-10 opacity-5">
         <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
@@ -49,10 +58,10 @@ export default function Hero() {
             </p>
           </div>
 
-          {/* Search */}
+          {/* Search - centered */}
           <div className="w-full max-w-3xl mx-auto animate-fade-in">
             <AnimatedSearchInput 
-              className="w-full"
+              className="w-full max-w-xl mx-auto"
               onSearch={(query) => {
                 toast.info(`Searching for: ${query}`);
                 // In a real app, this would navigate to search results
