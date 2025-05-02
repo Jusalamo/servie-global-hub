@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Header from "@/components/Header";
@@ -9,7 +8,7 @@ import AIAssistant from "@/components/dashboard/AIAssistant";
 import Breadcrumb from "@/components/Breadcrumb";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import OverviewTab from "@/components/dashboard/seller/OverviewTab";
-import { Package, ShoppingBag, Tag, Users, CreditCard, TrendingUp, Store } from "lucide-react";
+import { Package, ShoppingBag, Tag, Users, CreditCard, TrendingUp, Store, MessageSquare } from "lucide-react";
 
 const SellerDashboard = () => {
   const location = useLocation();

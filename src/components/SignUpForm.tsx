@@ -51,7 +51,8 @@ const SignUpForm = ({ selectedRole = "client" }) => {
       password: "",
       confirmPassword: "",
       terms: false,
-      role: selectedRole as "client" | "provider" | "seller"
+      // Ensure the selectedRole is cast to one of the valid enum types
+      role: (selectedRole as "client" | "provider" | "seller")
     },
   });
 
