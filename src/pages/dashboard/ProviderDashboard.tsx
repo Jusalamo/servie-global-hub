@@ -1,18 +1,21 @@
 
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProviderSidebar from "@/components/dashboard/ProviderSidebar";
 import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
 import AIAssistant from "@/components/dashboard/AIAssistant";
-import { ProviderOverviewTab } from "@/components/dashboard/provider/OverviewTab";
 import Breadcrumb from "@/components/Breadcrumb";
-import { Card, CardContent } from "@/components/ui/card";
-import { CalendarDays, Users, Briefcase, Star, MessageSquare, CreditCard } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import OverviewTab from "@/components/dashboard/provider/OverviewTab";
+import AddServiceForm from "@/components/dashboard/provider/AddServiceForm";
+import { Calendar, ClipboardList, MessageSquare, Star, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const ProviderDashboard = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
   
   // Extract active tab from URL if present
@@ -36,16 +39,8 @@ const ProviderDashboard = () => {
         return [{ label: "Clients" }];
       case "reviews":
         return [{ label: "Reviews" }];
-      case "products":
-        return [{ label: "Products" }];
-      case "payments":
-        return [{ label: "Payments" }];
       case "messages":
         return [{ label: "Messages" }];
-      case "settings":
-        return [{ label: "Settings" }];
-      case "help":
-        return [{ label: "Help" }];
       default:
         return [{ label: "Overview" }];
     }
@@ -54,13 +49,11 @@ const ProviderDashboard = () => {
   const renderTabContent = () => {
     switch(activeTab) {
       case "overview":
-        return <ProviderOverviewTab />;
+        return <OverviewTab />;
       case "services":
         return <ServicesTab />;
       case "bookings":
         return <BookingsTab />;
-      case "schedule":
-        return <ScheduleTab />;
       case "clients":
         return <ClientsTab />;
       case "reviews":
@@ -107,92 +100,256 @@ const ProviderDashboard = () => {
   );
 };
 
-// Content for Services tab
+// My Services Tab
 const ServicesTab = () => {
+  const [addingService, setAddingService] = useState(false);
+  const navigate = useNavigate();
+  
+  // Mock services data
+  const services = [
+    {
+      id: 1,
+      title: "Web Development Service",
+      description: "Professional web development services with responsive design and modern technologies.",
+      category: "Technology",
+      price: 75,
+      bookings: 12,
+      rating: 4.8,
+      active: true,
+    },
+    {
+      id: 2,
+      title: "Logo Design & Branding",
+      description: "Creative logo design and complete branding packages for businesses of all sizes.",
+      category: "Design & Creative",
+      price: 120,
+      bookings: 8,
+      rating: 5.0,
+      active: true,
+    },
+    {
+      id: 3,
+      title: "SEO Optimization",
+      description: "Improve your website's search engine ranking with our comprehensive SEO services.",
+      category: "Marketing",
+      price: 90,
+      bookings: 5,
+      rating: 4.6,
+      active: false,
+    }
+  ];
+  
+  if (addingService) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold">Add New Service</h2>
+          <Button 
+            variant="outline"
+            onClick={() => setAddingService(false)}
+          >
+            Cancel
+          </Button>
+        </div>
+        <AddServiceForm />
+      </div>
+    );
+  }
+  
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">My Services</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {[1, 2, 3, 4].map((i) => (
-          <Card key={i} className="overflow-hidden">
-            <div className="h-40 bg-gray-100 dark:bg-gray-800 relative">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Briefcase className="h-12 w-12 text-gray-400" />
-              </div>
-            </div>
-            <CardContent className="p-4">
-              <h3 className="font-medium text-lg mb-1">Service #{i}</h3>
-              <p className="text-muted-foreground text-sm mb-3">
-                Professional service description. Click to manage this service.
-              </p>
-              <div className="flex justify-between items-center text-xs">
-                <span className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100 px-2 py-1 rounded-full">
-                  Active
-                </span>
-                <span className="text-muted-foreground">
-                  From $99/hour
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">My Services</h2>
+        <Button 
+          onClick={() => setAddingService(true)}
+          className="bg-servie text-white hover:bg-servie-600"
+        >
+          Add New Service
+        </Button>
       </div>
+      
+      {services.length === 0 ? (
+        <div className="text-center py-12 border rounded-lg bg-muted/30">
+          <h3 className="text-xl font-medium mb-2">No services yet</h3>
+          <p className="text-muted-foreground mb-6">Add your first service to start getting bookings</p>
+          <Button 
+            onClick={() => setAddingService(true)}
+            className="bg-servie text-white hover:bg-servie-600"
+          >
+            Add Your First Service
+          </Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {services.map(service => (
+            <Card key={service.id} className={`overflow-hidden ${!service.active ? 'border-muted' : ''}`}>
+              <div className="h-40 bg-muted relative">
+                {/* Placeholder for service image */}
+                <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                  <span className="text-muted-foreground">Service Image</span>
+                </div>
+                
+                {!service.active && (
+                  <div className="absolute top-0 right-0 bg-yellow-500 text-white text-xs px-2 py-1">
+                    Inactive
+                  </div>
+                )}
+              </div>
+              
+              <CardContent className="p-6">
+                <h3 className="text-xl font-medium mb-2">{service.title}</h3>
+                <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{service.description}</p>
+                
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-servie font-medium">${service.price}/hr</span>
+                  <span className="text-sm text-muted-foreground">{service.category}</span>
+                </div>
+                
+                <div className="flex justify-between items-center mb-4 text-sm">
+                  <div className="flex items-center gap-1">
+                    <ClipboardList className="h-4 w-4 text-muted-foreground" />
+                    <span>{service.bookings} bookings</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Star className="h-4 w-4 text-servie fill-servie" />
+                    <span>{service.rating}</span>
+                  </div>
+                </div>
+                
+                <div className="flex gap-2">
+                  <Button variant="outline" className="flex-1">Edit</Button>
+                  <Button variant="outline" className="flex-1">Preview</Button>
+                  {service.active ? (
+                    <Button variant="outline" className="flex-1">Deactivate</Button>
+                  ) : (
+                    <Button className="flex-1 bg-servie text-white hover:bg-servie-600">Activate</Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
 
-// Content for Bookings tab
+// Bookings Tab
 const BookingsTab = () => {
+  const bookings = [
+    {
+      id: "BK-2023-001",
+      client: { name: "John Smith", avatar: null },
+      service: "Web Development Service",
+      date: "Jun 15, 2025",
+      time: "10:00 AM - 12:00 PM",
+      status: "confirmed",
+      amount: "$150.00"
+    },
+    {
+      id: "BK-2023-002",
+      client: { name: "Emily Parker", avatar: null },
+      service: "Logo Design & Branding",
+      date: "Jun 17, 2025",
+      time: "2:00 PM - 4:00 PM",
+      status: "pending",
+      amount: "$240.00"
+    },
+    {
+      id: "BK-2023-003",
+      client: { name: "Michael Johnson", avatar: null },
+      service: "SEO Optimization",
+      date: "Jun 20, 2025",
+      time: "1:00 PM - 3:00 PM",
+      status: "completed",
+      amount: "$180.00"
+    },
+    {
+      id: "BK-2023-004",
+      client: { name: "Sarah Williams", avatar: null },
+      service: "Web Development Service",
+      date: "Jun 22, 2025",
+      time: "9:00 AM - 11:00 AM",
+      status: "canceled",
+      amount: "$150.00"
+    }
+  ];
+
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Bookings</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Bookings</h2>
+        <div className="flex gap-2">
+          <Button variant="outline">Export</Button>
+          <Button className="bg-servie text-white hover:bg-servie-600">Calendar View</Button>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Confirmed</CardTitle>
+            <div className="text-2xl font-bold">12</div>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Pending</CardTitle>
+            <div className="text-2xl font-bold">5</div>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Completed</CardTitle>
+            <div className="text-2xl font-bold">28</div>
+          </CardHeader>
+        </Card>
+      </div>
+      
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Client
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Service
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Date & Time
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Actions
-              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Booking ID</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Client</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Service</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date & Time</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Amount</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Action</th>
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            {[
-              { client: "Emma Wilson", service: "Web Development", date: "Jun 15, 2025", time: "10:00 AM", status: "confirmed" },
-              { client: "James Brown", service: "Logo Design", date: "Jun 17, 2025", time: "2:30 PM", status: "pending" },
-              { client: "Sophia Martinez", service: "App Development", date: "Jun 20, 2025", time: "9:00 AM", status: "completed" }
-            ].map((booking, i) => (
-              <tr key={i}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  {booking.client}
+            {bookings.map((booking) => (
+              <tr key={booking.id}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{booking.id}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 h-8 w-8 bg-servie/10 rounded-full flex items-center justify-center text-servie">
+                      {booking.client.name.charAt(0)}
+                    </div>
+                    <div className="ml-4">
+                      <div className="text-sm font-medium">{booking.client.name}</div>
+                    </div>
+                  </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                  {booking.service}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                  {booking.date} at {booking.time}
-                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm">{booking.service}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
+                  <div>{booking.date}</div>
+                  <div className="text-muted-foreground">{booking.time}</div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm">{booking.amount}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
                     ${booking.status === 'confirmed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' : 
-                      booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100' : 
-                      'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100'}`}>
+                      booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100' :
+                      booking.status === 'completed' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100' :
+                      'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100'}`}>
                     {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <a href="#" className="text-servie hover:text-servie-600">View</a>
+                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                  <Button variant="ghost" className="text-servie hover:text-servie-600 p-0">View Details</Button>
                 </td>
               </tr>
             ))}
@@ -203,64 +360,230 @@ const BookingsTab = () => {
   );
 };
 
-// Content for Schedule tab
-const ScheduleTab = () => {
+// Clients Tab
+const ClientsTab = () => {
+  const clients = [
+    {
+      name: "John Smith",
+      email: "john.smith@example.com",
+      bookings: 3,
+      spent: "$450",
+      lastBooking: "Jun 15, 2025",
+      status: "active"
+    },
+    {
+      name: "Emily Parker",
+      email: "emily.p@example.com",
+      bookings: 1,
+      spent: "$240",
+      lastBooking: "Jun 17, 2025",
+      status: "active"
+    },
+    {
+      name: "Michael Johnson",
+      email: "m.johnson@example.com",
+      bookings: 2,
+      spent: "$360",
+      lastBooking: "Jun 20, 2025",
+      status: "active"
+    },
+    {
+      name: "Sarah Williams",
+      email: "sarah.w@example.com",
+      bookings: 1,
+      spent: "$150",
+      lastBooking: "Jun 22, 2025",
+      status: "inactive"
+    }
+  ];
+
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">My Schedule</h2>
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden p-6">
-        <div className="flex items-center justify-center mb-6">
-          <CalendarDays className="h-24 w-24 text-servie" />
-        </div>
-        <h3 className="text-xl font-medium text-center mb-2">Scheduling Calendar</h3>
-        <p className="text-center text-muted-foreground mb-4">
-          Here you can manage your availability and view upcoming appointments
-        </p>
-        <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-          <h4 className="text-lg font-medium mb-2">Today's Schedule</h4>
-          <div className="space-y-2">
-            {[
-              { time: "10:00 AM - 11:30 AM", client: "Emma Wilson", service: "Web Development" },
-              { time: "2:00 PM - 3:30 PM", client: "James Brown", service: "Logo Design" }
-            ].map((slot, i) => (
-              <div key={i} className="flex justify-between border-b pb-2 last:border-0">
-                <span className="font-medium">{slot.time}</span>
-                <span>{slot.client} - {slot.service}</span>
-              </div>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Clients</h2>
+        <Button variant="outline">Export Client List</Button>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Total Clients</CardTitle>
+            <div className="text-2xl font-bold">24</div>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">New This Month</CardTitle>
+            <div className="text-2xl font-bold">8</div>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Repeat Clients</CardTitle>
+            <div className="text-2xl font-bold">14</div>
+          </CardHeader>
+        </Card>
+      </div>
+      
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-700">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Client</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Email</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Bookings</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Total Spent</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Last Booking</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Action</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            {clients.map((client, i) => (
+              <tr key={i}>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 h-10 w-10 bg-servie/10 text-servie rounded-full flex items-center justify-center">
+                      {client.name.charAt(0)}
+                    </div>
+                    <div className="ml-4">
+                      <div className="text-sm font-medium">{client.name}</div>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm">{client.email}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">{client.bookings}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm">{client.spent}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm">{client.lastBooking}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                    ${client.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' : 
+                    'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100'}`}>
+                    {client.status.charAt(0).toUpperCase() + client.status.slice(1)}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                  <div className="flex space-x-3">
+                    <button className="text-servie hover:text-servie-600">View</button>
+                    <button className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">Message</button>
+                  </div>
+                </td>
+              </tr>
             ))}
-          </div>
-        </div>
+          </tbody>
+        </table>
       </div>
     </div>
   );
 };
 
-// Content for Clients tab
-const ClientsTab = () => {
+// Reviews Tab
+const ReviewsTab = () => {
+  const reviews = [
+    {
+      id: 1,
+      client: { name: "John Smith", avatar: null },
+      service: "Web Development Service",
+      rating: 5,
+      review: "Exceptional work! The website exceeded my expectations. Very professional and responsive throughout the project.",
+      date: "Jun 12, 2025",
+      replied: true
+    },
+    {
+      id: 2,
+      client: { name: "Emily Parker", avatar: null },
+      service: "Logo Design & Branding",
+      rating: 4,
+      review: "Great design work for our company logo. Creative and understood our brand vision well. Would have appreciated a bit more revision options.",
+      date: "Jun 10, 2025",
+      replied: false
+    },
+    {
+      id: 3,
+      client: { name: "Michael Johnson", avatar: null },
+      service: "SEO Optimization",
+      rating: 5,
+      review: "Incredible results! Our website traffic has increased by 200% since implementing the SEO recommendations. Very knowledgeable and professional service.",
+      date: "Jun 5, 2025",
+      replied: true
+    }
+  ];
+
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">My Clients</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[
-          { name: "Emma Wilson", services: 3, since: "Jan 2025" },
-          { name: "James Brown", services: 1, since: "Mar 2025" },
-          { name: "Sophia Martinez", services: 2, since: "Feb 2025" },
-          { name: "Michael Johnson", services: 1, since: "Apr 2025" },
-          { name: "Emily Davis", services: 4, since: "Jan 2025" },
-          { name: "Thomas Wilson", services: 2, since: "Feb 2025" },
-        ].map((client, i) => (
-          <Card key={i}>
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                  <Users className="h-6 w-6 text-gray-500" />
-                </div>
-                <div>
-                  <h3 className="font-medium">{client.name}</h3>
-                  <p className="text-sm text-muted-foreground">Client since {client.since}</p>
-                  <p className="text-sm text-servie">{client.services} booked services</p>
-                </div>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Reviews & Ratings</h2>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Average Rating</CardTitle>
+            <div className="flex items-center gap-2">
+              <div className="text-2xl font-bold">4.8</div>
+              <div className="flex">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star 
+                    key={star} 
+                    className={`h-4 w-4 ${star <= 4 ? "text-servie fill-servie" : "text-gray-300"}`} 
+                  />
+                ))}
               </div>
+            </div>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Total Reviews</CardTitle>
+            <div className="text-2xl font-bold">42</div>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Response Rate</CardTitle>
+            <div className="text-2xl font-bold">95%</div>
+          </CardHeader>
+        </Card>
+      </div>
+      
+      <div className="space-y-6">
+        {reviews.map((review) => (
+          <Card key={review.id} className="overflow-hidden">
+            <CardContent className="p-6">
+              <div className="flex justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="flex-shrink-0 h-10 w-10 bg-servie/10 text-servie rounded-full flex items-center justify-center">
+                    {review.client.name.charAt(0)}
+                  </div>
+                  <div>
+                    <div className="font-medium">{review.client.name}</div>
+                    <div className="text-sm text-muted-foreground">{review.service}</div>
+                  </div>
+                </div>
+                <div className="text-sm text-muted-foreground">{review.date}</div>
+              </div>
+              
+              <div className="flex mt-4 mb-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star 
+                    key={star} 
+                    className={`h-4 w-4 ${star <= review.rating ? "text-servie fill-servie" : "text-gray-300"}`} 
+                  />
+                ))}
+              </div>
+              
+              <p className="mt-2">{review.review}</p>
+              
+              {review.replied ? (
+                <div className="mt-4 bg-muted/50 p-4 rounded-md">
+                  <div className="font-medium">Your Response</div>
+                  <p className="text-sm mt-1">Thank you for your kind review! It was a pleasure working with you, and I'm glad you're happy with the results. Looking forward to helping you again in the future.</p>
+                </div>
+              ) : (
+                <div className="mt-4">
+                  <Button className="bg-servie text-white hover:bg-servie-600">Reply to Review</Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -269,140 +592,103 @@ const ClientsTab = () => {
   );
 };
 
-// Content for Reviews tab
-const ReviewsTab = () => {
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">My Reviews</h2>
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-3xl font-bold">4.8</h3>
-            <div className="flex items-center mt-1">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star key={star} className={`h-5 w-5 ${star <= 4 ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />
-              ))}
-            </div>
-            <p className="text-sm text-muted-foreground mt-1">Based on 42 reviews</p>
-          </div>
-          <div className="text-right">
-            <div className="flex items-center justify-end space-x-1 text-sm">
-              <span className="font-medium">5</span>
-              <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-              <div className="w-32 h-2 bg-gray-200 rounded-full">
-                <div className="h-2 bg-servie rounded-full" style={{ width: '70%' }}></div>
-              </div>
-              <span className="text-gray-500">70%</span>
-            </div>
-            <div className="flex items-center justify-end space-x-1 text-sm mt-1">
-              <span className="font-medium">4</span>
-              <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-              <div className="w-32 h-2 bg-gray-200 rounded-full">
-                <div className="h-2 bg-servie rounded-full" style={{ width: '20%' }}></div>
-              </div>
-              <span className="text-gray-500">20%</span>
-            </div>
-            {[3, 2, 1].map((rating) => (
-              <div key={rating} className="flex items-center justify-end space-x-1 text-sm mt-1">
-                <span className="font-medium">{rating}</span>
-                <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-                <div className="w-32 h-2 bg-gray-200 rounded-full">
-                  <div className="h-2 bg-servie rounded-full" style={{ width: rating === 3 ? '8%' : '1%' }}></div>
-                </div>
-                <span className="text-gray-500">{rating === 3 ? '8%' : '1%'}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        
-        <div className="space-y-4">
-          {[
-            { name: "Thomas Anderson", rating: 5, date: "Apr 10, 2025", comment: "Excellent work! Delivered the project ahead of schedule and exceeded my expectations." },
-            { name: "Lisa Johnson", rating: 4, date: "Apr 5, 2025", comment: "Very professional and responsive. Would hire again." },
-            { name: "Michael Chen", rating: 5, date: "Mar 28, 2025", comment: "Amazing attention to detail and great communication throughout the project." },
-          ].map((review, i) => (
-            <div key={i} className="border-b pb-4 last:border-0">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <div className="font-medium">{review.name}</div>
-                  <div className="text-xs text-muted-foreground">{review.date}</div>
-                </div>
-                <div className="flex items-center">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={`h-4 w-4 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'}`} />
-                  ))}
-                </div>
-              </div>
-              <p className="text-sm">{review.comment}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Content for Messages tab
+// Messages Tab
 const MessagesTab = () => {
+  const messages = [
+    {
+      id: 1,
+      sender: { name: "John Smith", avatar: null },
+      subject: "Website Project Inquiry",
+      preview: "Hi there, I'm interested in your web development services. I need a new e-commerce website for my small business...",
+      date: "Today, 10:30 AM",
+      unread: true
+    },
+    {
+      id: 2,
+      sender: { name: "Emily Parker", avatar: null },
+      subject: "Logo Revision Request",
+      preview: "Thank you for the initial designs. They look great, but I was wondering if we could try a different color scheme...",
+      date: "Yesterday, 3:45 PM",
+      unread: false
+    },
+    {
+      id: 3,
+      sender: { name: "Michael Johnson", avatar: null },
+      subject: "Follow-up on SEO Results",
+      preview: "Just wanted to check in on the latest SEO performance metrics. Have you seen any significant improvements since...",
+      date: "Jun 10, 2025",
+      unread: false
+    },
+    {
+      id: 4,
+      sender: { name: "Sarah Williams", avatar: null },
+      subject: "Schedule Consultation",
+      preview: "I'd like to schedule a consultation to discuss a potential project. Are you available sometime next week to...",
+      date: "Jun 8, 2025",
+      unread: true
+    }
+  ];
+
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Messages</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Messages</h2>
+        <Button className="bg-servie text-white hover:bg-servie-600">Compose</Button>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Unread</CardTitle>
+            <div className="text-2xl font-bold">2</div>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Total</CardTitle>
+            <div className="text-2xl font-bold">16</div>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Response Time</CardTitle>
+            <div className="text-2xl font-bold">2.4h</div>
+          </CardHeader>
+        </Card>
+      </div>
+      
       <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
-        <div className="flex h-[500px]">
-          <div className="w-1/3 border-r">
-            <div className="p-4 border-b">
-              <h3 className="font-medium">Conversations</h3>
-            </div>
-            <div className="overflow-y-auto">
-              {[
-                { name: "Emma Wilson", preview: "About the website project", time: "10:24 AM", unread: true },
-                { name: "James Brown", preview: "Logo design feedback", time: "Yesterday", unread: false },
-                { name: "Sophia Martinez", preview: "App development question", time: "Yesterday", unread: false },
-                { name: "Michael Johnson", preview: "Thanks for the help!", time: "Apr 30", unread: false },
-              ].map((convo, i) => (
-                <div key={i} className={`p-4 border-b hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer ${convo.unread ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}>
-                  <div className="flex justify-between items-start">
-                    <h4 className={`font-medium ${convo.unread ? 'text-servie' : ''}`}>{convo.name}</h4>
-                    <span className="text-xs text-muted-foreground">{convo.time}</span>
+        {messages.map((message) => (
+          <div 
+            key={message.id} 
+            className={`border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer ${
+              message.unread ? "bg-servie/5" : ""
+            }`}
+          >
+            <div className="px-6 py-4">
+              <div className="flex justify-between items-start">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0 h-10 w-10 bg-servie/10 text-servie rounded-full flex items-center justify-center">
+                    {message.sender.name.charAt(0)}
                   </div>
-                  <p className="text-sm text-muted-foreground truncate">{convo.preview}</p>
+                  <div className="ml-4">
+                    <div className={`font-medium ${message.unread ? "text-servie" : ""}`}>
+                      {message.sender.name}
+                      {message.unread && (
+                        <span className="ml-2 inline-block w-2 h-2 bg-servie rounded-full"></span>
+                      )}
+                    </div>
+                    <div className="text-sm font-medium">{message.subject}</div>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
-          <div className="w-2/3 flex flex-col">
-            <div className="p-4 border-b">
-              <h3 className="font-medium">Emma Wilson</h3>
-              <p className="text-xs text-muted-foreground">Online</p>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              <div className="flex justify-start">
-                <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3 max-w-[70%]">
-                  <p className="text-sm">Hi there! I wanted to discuss the website project timeline.</p>
-                  <p className="text-xs text-muted-foreground mt-1">10:20 AM</p>
-                </div>
+                <div className="text-xs text-muted-foreground">{message.date}</div>
               </div>
-              <div className="flex justify-end">
-                <div className="bg-servie text-white rounded-lg p-3 max-w-[70%]">
-                  <p className="text-sm">Sure! I'm available to chat about it now.</p>
-                  <p className="text-xs text-servie-300 mt-1">10:22 AM</p>
-                </div>
-              </div>
-              <div className="flex justify-start">
-                <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3 max-w-[70%]">
-                  <p className="text-sm">Great! I was wondering if we could move up the delivery date by a week?</p>
-                  <p className="text-xs text-muted-foreground mt-1">10:24 AM</p>
-                </div>
-              </div>
-            </div>
-            <div className="p-4 border-t">
-              <div className="flex">
-                <input type="text" className="flex-1 border rounded-l-lg px-4 py-2" placeholder="Type a message..." />
-                <button className="bg-servie text-white px-4 py-2 rounded-r-lg">Send</button>
+              <div className="mt-2 ml-14 text-sm text-muted-foreground line-clamp-1">
+                {message.preview}
               </div>
             </div>
           </div>
-        </div>
+        ))}
       </div>
     </div>
   );
@@ -412,14 +698,24 @@ const MessagesTab = () => {
 const ComingSoonTab = ({ title }: { title: string }) => {
   const formatTitle = title.charAt(0).toUpperCase() + title.slice(1);
   
+  const getIcon = () => {
+    switch(title) {
+      case "schedule": return <Calendar className="h-16 w-16" />;
+      case "clients": return <Users className="h-16 w-16" />;
+      case "reviews": return <Star className="h-16 w-16" />;
+      case "messages": return <MessageSquare className="h-16 w-16" />;
+      default: return <Calendar className="h-16 w-16" />;
+    }
+  };
+  
   return (
     <div className="flex flex-col items-center justify-center py-12">
       <div className="text-servie mb-4">
-        <CreditCard className="h-16 w-16" />
+        {getIcon()}
       </div>
       <h2 className="text-2xl font-bold mb-2">{formatTitle}</h2>
       <p className="text-muted-foreground text-center max-w-md">
-        We're working hard to bring you the best {formatTitle.toLowerCase()} management tools.
+        We're working hard to bring you the best {formatTitle.toLowerCase()} tools for your provider account.
         This section will be available in the next update.
       </p>
     </div>

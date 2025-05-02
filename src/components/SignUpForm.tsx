@@ -42,6 +42,12 @@ const SignUpForm = ({ selectedRole = "client" }) => {
   const { signUp } = useAuth();
   const navigate = useNavigate();
 
+  // Convert selectedRole to the correct type to avoid TypeScript errors
+  const typedSelectedRole: "client" | "provider" | "seller" = 
+    (selectedRole === "provider" || selectedRole === "seller") 
+      ? selectedRole 
+      : "client";
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -51,8 +57,7 @@ const SignUpForm = ({ selectedRole = "client" }) => {
       password: "",
       confirmPassword: "",
       terms: false,
-      // Ensure the selectedRole is cast to one of the valid enum types
-      role: (selectedRole as "client" | "provider" | "seller")
+      role: typedSelectedRole
     },
   });
 

@@ -1,168 +1,88 @@
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import ServieIcon from "@/components/ServieIcon";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Search, MapPin } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
-import { useTheme } from "./ui/ThemeProvider";
-import AnimatedSearchPlaceholder from "./AnimatedSearchPlaceholder";
+import AnimatedSearchInput from "./AnimatedSearchInput";
 
 export default function Hero() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [location, setLocation] = useState("");
-  const navigate = useNavigate();
-  const { theme } = useTheme();
+  const [subscribeEmail, setSubscribeEmail] = useState("");
   
-  const searchPlaceholders = [
-    "What service are you looking for?",
-    "Need a web developer?",
-    "Looking for home cleaning?",
-    "Need graphic design services?",
-    "Find local tutoring services...",
-    "Searching for electrical repairs?"
-  ];
-  
-  const popularSearches = [
-    "Home Cleaning", 
-    "Web Development", 
-    "Electrical Repairs", 
-    "Tutoring", 
-    "Graphic Design"
-  ];
-  
-  const handleSearch = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    
-    if (searchQuery.trim()) {
-      toast.info("Searching for services", {
-        description: `Looking for "${searchQuery}" services`
-      });
-      navigate(`/categories?search=${encodeURIComponent(searchQuery)}${location ? `&location=${encodeURIComponent(location)}` : ''}`);
-    } else {
-      toast.warning("Please enter a search term");
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!subscribeEmail) {
+      return toast.error("Please enter your email address");
     }
-  };
-
-  const handlePopularSearch = (term: string) => {
-    setSearchQuery(term);
-    toast.info(`Searching for ${term}`, {
-      description: "Finding the best service providers"
-    });
-    navigate(`/categories?search=${encodeURIComponent(term)}`);
-  };
-
-  const handleScrollToSection = (sectionId: string) => {
-    const section = document.getElementById(sectionId);
-    if (section) {
-      const headerOffset = 100; // Adjust for header height
-      const elementPosition = section.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-      
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-    }
+    toast.success(`Thank you for subscribing with ${subscribeEmail}!`);
+    setSubscribeEmail("");
   };
 
   return (
-    <section className="relative py-20 md:py-24 overflow-hidden" id="hero-section">
-      {/* Video Background - contained within this section only */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-black/40 z-10"></div>
-        <video 
-          autoPlay 
-          muted 
-          loop 
-          playsInline
-          className="h-full w-full object-cover absolute"
-        >
-          <source src="https://player.vimeo.com/external/370331493.hd.mp4?s=fbf419fc059d21e0e8f53a3f6e538121805df2f1&profile_id=175" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+    <section id="hero" className="relative py-20 md:py-32 overflow-hidden">
+      {/* Background pattern */}
+      <div className="absolute inset-0 -z-10 opacity-5">
+        <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <defs>
+            <pattern id="dotted-pattern" width="16" height="16" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1" fill="currentColor" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#dotted-pattern)" />
+        </svg>
       </div>
-      
-      <div className="container px-4 md:px-6 relative z-10">
-        <div className="max-w-2xl mx-auto text-center">
-          <div className="space-y-4 animate-fade-in">
-            <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none text-white">
-              Find Expert Services for Any Task
+
+      <div className="container px-4 md:px-6 relative">
+        <div className="max-w-4xl mx-auto text-center space-y-12 relative">
+          {/* App logo/icon */}
+          <div className="mx-auto w-16 h-16 rounded-full bg-servie/10 flex items-center justify-center mb-6">
+            <ServieIcon className="w-8 h-8 text-servie" />
+          </div>
+
+          {/* Main hero text */}
+          <div className="space-y-4">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight animate-fade-in">
+              Find The Perfect Service Provider For Your Needs
             </h1>
-            <p className="text-white/90 md:text-xl">
-              Connect with skilled professionals across Africa and globally. Get quotes, book services, and get things done - all in one platform.
+            <p className="text-xl text-muted-foreground md:text-2xl animate-fade-in">
+              Connect with top professionals and skilled service providers in your area
             </p>
           </div>
-          <form onSubmit={handleSearch} className="space-y-4 mt-8 animate-fade-in" style={{ animationDelay: "150ms" }}>
-            <div className="flex flex-col md:flex-row gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-2.5 top-2.5 h-5 w-5 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder={<AnimatedSearchPlaceholder placeholders={searchPlaceholders} className="text-muted-foreground" /> as any}
-                  className="pl-10 rounded-full w-full bg-white/95"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <div className="relative flex-1 md:max-w-[220px]">
-                <MapPin className="absolute left-2.5 top-2.5 h-5 w-5 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Location (optional)"
-                  className="pl-10 rounded-full w-full bg-white/95"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                />
-              </div>
-              <Button type="submit" size="lg" className="rounded-full bg-servie hover:bg-servie-600 transition-all duration-300 hover:scale-105">
-                Search
-              </Button>
-            </div>
-          </form>
-          <div className="flex flex-wrap gap-2 text-sm text-white/80 justify-center mt-4 animate-fade-in" style={{ animationDelay: "300ms" }}>
-            <span>Popular:</span>
-            {popularSearches.map((term) => (
-              <button 
-                key={term} 
-                className="underline hover:text-white transition-colors"
-                onClick={() => handlePopularSearch(term)}
-              >
-                {term}
-              </button>
-            ))}
+
+          {/* Search */}
+          <div className="w-full max-w-3xl mx-auto animate-fade-in">
+            <AnimatedSearchInput 
+              className="w-full"
+              onSearch={(query) => {
+                toast.info(`Searching for: ${query}`);
+                // In a real app, this would navigate to search results
+              }}
+            />
           </div>
-          <div className="flex flex-wrap gap-3 pt-6 justify-center animate-fade-in" style={{ animationDelay: "450ms" }}>
-            <div className="flex items-center text-sm text-white">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white mr-2">10K+</span>
-              <span>Verified Providers</span>
-            </div>
-            <div className="flex items-center text-sm text-white">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white mr-2">4.8</span>
-              <span>Average Rating</span>
-            </div>
-            <div className="flex items-center text-sm text-white">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white mr-2">50+</span>
-              <span>Countries Served</span>
-            </div>
+
+          {/* CTA buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
+            <Button asChild size="lg" className="bg-servie text-white hover:bg-servie-600">
+              <Link to="/categories">Browse Services</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link to="/ecommerce/shop">Shop Products</Link>
+            </Button>
           </div>
-          <div className="flex flex-wrap gap-3 pt-6 justify-center animate-fade-in" style={{ animationDelay: "600ms" }}>
-            <Button 
-              variant="outline" 
-              className="rounded-full border-white text-white hover:bg-white/20 bg-transparent" 
-              onClick={() => handleScrollToSection('how-it-works')}
-            >
-              How It Works
-            </Button>
-            <Button 
-              className="rounded-full bg-servie hover:bg-servie-600 transition-all duration-300 hover:scale-105" 
-              onClick={() => handleScrollToSection('become-provider')}
-            >
-              Become a Provider
-            </Button>
+
+          {/* Trusted by section */}
+          <div className="mt-20 animate-fade-in">
+            <p className="text-sm text-muted-foreground mb-6">Trusted by over 10,000+ customers</p>
+            <div className="flex flex-wrap justify-center gap-8 items-center opacity-70">
+              {["Alpha", "Bravo", "Charlie", "Delta", "Echo"].map((name) => (
+                <div key={name} className="text-xl font-semibold tracking-tight">
+                  {name} <span className="text-servie">Co.</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 }
