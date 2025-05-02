@@ -6,12 +6,22 @@ import { Input } from "@/components/ui/input";
 import { Search, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "./ui/ThemeProvider";
+import AnimatedSearchPlaceholder from "./AnimatedSearchPlaceholder";
 
 export default function Hero() {
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState("");
   const navigate = useNavigate();
   const { theme } = useTheme();
+  
+  const searchPlaceholders = [
+    "What service are you looking for?",
+    "Need a web developer?",
+    "Looking for home cleaning?",
+    "Need graphic design services?",
+    "Find local tutoring services...",
+    "Searching for electrical repairs?"
+  ];
   
   const popularSearches = [
     "Home Cleaning", 
@@ -75,7 +85,7 @@ export default function Hero() {
       
       <div className="container px-4 md:px-6 relative z-10">
         <div className="max-w-2xl mx-auto text-center">
-          <div className="space-y-4">
+          <div className="space-y-4 animate-fade-in">
             <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none text-white">
               Find Expert Services for Any Task
             </h1>
@@ -83,13 +93,13 @@ export default function Hero() {
               Connect with skilled professionals across Africa and globally. Get quotes, book services, and get things done - all in one platform.
             </p>
           </div>
-          <form onSubmit={handleSearch} className="space-y-4 mt-8">
+          <form onSubmit={handleSearch} className="space-y-4 mt-8 animate-fade-in" style={{ animationDelay: "150ms" }}>
             <div className="flex flex-col md:flex-row gap-2">
               <div className="relative flex-1">
                 <Search className="absolute left-2.5 top-2.5 h-5 w-5 text-muted-foreground" />
                 <Input
                   type="search"
-                  placeholder="What service are you looking for?"
+                  placeholder={<AnimatedSearchPlaceholder placeholders={searchPlaceholders} className="text-muted-foreground" /> as any}
                   className="pl-10 rounded-full w-full bg-white/95"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -105,12 +115,12 @@ export default function Hero() {
                   onChange={(e) => setLocation(e.target.value)}
                 />
               </div>
-              <Button type="submit" size="lg" className="rounded-full bg-servie hover:bg-servie-600">
+              <Button type="submit" size="lg" className="rounded-full bg-servie hover:bg-servie-600 transition-all duration-300 hover:scale-105">
                 Search
               </Button>
             </div>
           </form>
-          <div className="flex flex-wrap gap-2 text-sm text-white/80 justify-center mt-4">
+          <div className="flex flex-wrap gap-2 text-sm text-white/80 justify-center mt-4 animate-fade-in" style={{ animationDelay: "300ms" }}>
             <span>Popular:</span>
             {popularSearches.map((term) => (
               <button 
@@ -122,7 +132,7 @@ export default function Hero() {
               </button>
             ))}
           </div>
-          <div className="flex flex-wrap gap-3 pt-6 justify-center">
+          <div className="flex flex-wrap gap-3 pt-6 justify-center animate-fade-in" style={{ animationDelay: "450ms" }}>
             <div className="flex items-center text-sm text-white">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white mr-2">10K+</span>
               <span>Verified Providers</span>
@@ -136,7 +146,7 @@ export default function Hero() {
               <span>Countries Served</span>
             </div>
           </div>
-          <div className="flex flex-wrap gap-3 pt-6 justify-center">
+          <div className="flex flex-wrap gap-3 pt-6 justify-center animate-fade-in" style={{ animationDelay: "600ms" }}>
             <Button 
               variant="outline" 
               className="rounded-full border-white text-white hover:bg-white/20 bg-transparent" 
@@ -145,7 +155,7 @@ export default function Hero() {
               How It Works
             </Button>
             <Button 
-              className="rounded-full bg-servie hover:bg-servie-600" 
+              className="rounded-full bg-servie hover:bg-servie-600 transition-all duration-300 hover:scale-105" 
               onClick={() => handleScrollToSection('become-provider')}
             >
               Become a Provider

@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { services, bookings, users } from "@/data/mockData";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -9,6 +10,9 @@ import { BookingsTab } from "@/components/dashboard/client/BookingsTab";
 import { FavoritesTab } from "@/components/dashboard/client/FavoritesTab";
 import { PlaceholderTab } from "@/components/dashboard/client/PlaceholderTab";
 import AIAssistant from "@/components/dashboard/AIAssistant";
+import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
+import { useAuth } from "@/context/AuthContext";
+import Breadcrumb from "@/components/Breadcrumb";
 
 // Use the first client for demo purposes
 const clientUser = users.find(user => user.role === "client");
@@ -22,7 +26,35 @@ const favoriteServices = clientUser?.favorites ?
   services.slice(0, 3); // Just show 3 random services if no favorites
 
 const ClientDashboard = () => {
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState("overview");
+  const { userRole } = useAuth();
+  
+  // Extract active tab from URL if present
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const tab = searchParams.get('tab');
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [location]);
+  
+  const getBreadcrumbItems = () => {
+    switch(activeTab) {
+      case "bookings":
+        return [{ label: "Bookings" }];
+      case "favorites":
+        return [{ label: "Favorites" }];
+      case "messages":
+        return [{ label: "Messages" }];
+      case "payments":
+        return [{ label: "Payment Methods" }];
+      case "settings":
+        return [{ label: "Account Settings" }];
+      default:
+        return [{ label: "Overview" }];
+    }
+  };
   
   const renderTabContent = () => {
     switch(activeTab) {
@@ -72,6 +104,12 @@ const ClientDashboard = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
+      <Breadcrumb 
+        additionalCrumbs={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: activeTab.charAt(0).toUpperCase() + activeTab.slice(1) }
+        ]} 
+      />
       <main className="flex-1 container mx-auto py-8 px-4">
         <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8">
           {/* Sidebar Navigation */}
@@ -83,6 +121,10 @@ const ClientDashboard = () => {
           
           {/* Main Content Area */}
           <div className="space-y-6">
+            <DashboardBreadcrumb 
+              items={getBreadcrumbItems()}
+              userRole="client"
+            />
             {renderTabContent()}
           </div>
         </div>

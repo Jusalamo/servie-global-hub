@@ -1,21 +1,35 @@
 
 import { useEffect } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 const UserDashboard = () => {
   const { userRole, isLoading, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   
   useEffect(() => {
     // Show user which dashboard they're being directed to
     if (!isLoading && isAuthenticated && userRole) {
       toast.info(`Directing you to the ${userRole} dashboard`);
+      
+      // Route based on user role
+      if (userRole === "provider") {
+        navigate("/dashboard/provider?tab=overview", { replace: true });
+      } else if (userRole === "seller") {
+        navigate("/dashboard/seller?tab=overview", { replace: true });
+      } else {
+        navigate("/dashboard/client", { replace: true });
+      }
     } else if (!isLoading && isAuthenticated && !userRole) {
       toast.info("Setting up your default dashboard");
+      navigate("/dashboard/client", { replace: true });
+    } else if (!isLoading && !isAuthenticated) {
+      toast.error("Please sign in to access your dashboard");
+      navigate("/signin", { replace: true });
     }
-  }, [userRole, isLoading, isAuthenticated]);
+  }, [userRole, isLoading, isAuthenticated, navigate]);
   
   if (isLoading) {
     return (
@@ -26,22 +40,8 @@ const UserDashboard = () => {
     );
   }
   
-  if (!isAuthenticated) {
-    toast.error("Please sign in to access your dashboard");
-    return <Navigate to="/signin" replace />;
-  }
-  
-  // Direct to specific dashboard based on user role
-  if (userRole === "provider") {
-    return <Navigate to="/dashboard/provider?tab=overview" replace />;
-  }
-
-  if (userRole === "seller") {
-    return <Navigate to="/dashboard/seller?tab=overview" replace />;
-  }
-  
-  // Default to client dashboard for any other role (client or undefined)
-  return <Navigate to="/dashboard/client" replace />;
+  // This is just a fallback - the useEffect should handle the redirections
+  return null;
 };
 
 export default UserDashboard;
