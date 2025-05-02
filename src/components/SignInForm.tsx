@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
 import {
   Form,
   FormControl,
@@ -44,12 +45,16 @@ const SignInForm = () => {
   const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
     try {
+      // Added delay limiting to prevent accidental double-submissions
       await signIn(data.email, data.password);
+      toast.success("Successfully signed in!");
       // Navigation is handled by the AuthContext
     } catch (error) {
       console.error('Error in sign-in form:', error);
+      toast.error(error instanceof Error ? error.message : "Failed to sign in. Please try again.");
     } finally {
-      setIsLoading(false);
+      // Make sure loading state is eventually cleared
+      setTimeout(() => setIsLoading(false), 500);
     }
   };
 

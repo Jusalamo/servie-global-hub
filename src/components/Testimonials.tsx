@@ -54,56 +54,60 @@ export default function Testimonials() {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [scrollAmount, setScrollAmount] = useState(0);
   
   // Duplicate testimonials for infinite scrolling effect
   const allTestimonials = [...testimonials, ...testimonials];
   
+  // Initialize scroll amount on component mount
+  useEffect(() => {
+    if (carouselRef.current) {
+      const cardWidth = carouselRef.current.querySelector('.testimonial-card')?.clientWidth || 0;
+      const gap = 24; // gap-6 = 1.5rem = 24px
+      setScrollAmount(cardWidth + gap);
+    }
+  }, []);
+  
+  // Continuous auto-scrolling
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
     
-    if (!isPaused) {
+    if (!isPaused && scrollAmount > 0) {
       interval = setInterval(() => {
         if (carouselRef.current) {
           const newIndex = (activeIndex + 1) % testimonials.length;
           setActiveIndex(newIndex);
           
-          // Calculate scroll position based on card width and current index
-          const cardWidth = carouselRef.current.querySelector('.testimonial-card')?.clientWidth || 0;
-          const gap = 24; // gap-6 = 1.5rem = 24px
           carouselRef.current.scrollTo({
-            left: newIndex * (cardWidth + gap),
+            left: newIndex * scrollAmount,
             behavior: 'smooth'
           });
         }
-      }, 5000);
+      }, 4000); // Auto-scroll every 4 seconds (slightly faster than categories)
     }
     
     return () => clearInterval(interval);
-  }, [isPaused, activeIndex]);
+  }, [isPaused, activeIndex, scrollAmount]);
   
   const handlePrev = () => {
-    if (carouselRef.current) {
+    if (carouselRef.current && scrollAmount > 0) {
       const newIndex = (activeIndex - 1 + testimonials.length) % testimonials.length;
       setActiveIndex(newIndex);
       
-      const cardWidth = carouselRef.current.querySelector('.testimonial-card')?.clientWidth || 0;
-      const gap = 24;
       carouselRef.current.scrollTo({
-        left: newIndex * (cardWidth + gap),
+        left: newIndex * scrollAmount,
         behavior: 'smooth'
       });
     }
   };
   
   const handleNext = () => {
-    if (carouselRef.current) {
+    if (carouselRef.current && scrollAmount > 0) {
       const newIndex = (activeIndex + 1) % testimonials.length;
       setActiveIndex(newIndex);
       
-      const cardWidth = carouselRef.current.querySelector('.testimonial-card')?.clientWidth || 0;
-      const gap = 24;
       carouselRef.current.scrollTo({
-        left: newIndex * (cardWidth + gap),
+        left: newIndex * scrollAmount,
         behavior: 'smooth'
       });
     }
@@ -204,10 +208,8 @@ export default function Testimonials() {
                 onClick={() => {
                   setActiveIndex(i);
                   if (carouselRef.current) {
-                    const cardWidth = carouselRef.current.querySelector('.testimonial-card')?.clientWidth || 0;
-                    const gap = 24;
                     carouselRef.current.scrollTo({
-                      left: i * (cardWidth + gap),
+                      left: i * scrollAmount,
                       behavior: 'smooth'
                     });
                   }

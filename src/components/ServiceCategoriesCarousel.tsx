@@ -1,16 +1,31 @@
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Home, Briefcase, Scissors, CalendarClock, Truck, GraduationCap, Heart, Palette, Wrench, Hammer, Package, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import ServiceIcon from '@/components/ServiceIcon';
+
+// Map category IDs to their corresponding Lucide icons
+const categoryIcons = {
+  'home-cleaning': Home,
+  'plumbing': Wrench,
+  'electrical': Palette,
+  'landscaping': Palette,
+  'home-repair': Hammer,
+  'moving': Truck,
+  'beauty': Heart,
+  'tech': Wrench,
+  'tutoring': GraduationCap,
+  'pet-care': Heart,
+  'design': Palette,
+  'business': Briefcase
+};
 
 const categories = [
   {
     id: 'home-cleaning',
     name: 'Home Cleaning',
-    icon: 'cleaning',
+    icon: 'home-cleaning',
     color: 'bg-blue-100 dark:bg-blue-950',
   },
   {
@@ -28,13 +43,13 @@ const categories = [
   {
     id: 'landscaping',
     name: 'Landscaping',
-    icon: 'gardening',
+    icon: 'landscaping',
     color: 'bg-emerald-100 dark:bg-emerald-950',
   },
   {
     id: 'home-repair',
     name: 'Home Repair',
-    icon: 'repair',
+    icon: 'home-repair',
     color: 'bg-orange-100 dark:bg-orange-950',
   },
   {
@@ -58,13 +73,13 @@ const categories = [
   {
     id: 'tutoring',
     name: 'Tutoring',
-    icon: 'education',
+    icon: 'tutoring',
     color: 'bg-red-100 dark:bg-red-950',
   },
   {
     id: 'pet-care',
     name: 'Pet Services',
-    icon: 'pet',
+    icon: 'pet-care',
     color: 'bg-teal-100 dark:bg-teal-950',
   },
   {
@@ -84,6 +99,7 @@ const categories = [
 export default function ServiceCategoriesCarousel() {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [scrollPosition, setScrollPosition] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
   
   const handleScroll = () => {
     if (carouselRef.current) {
@@ -93,7 +109,7 @@ export default function ServiceCategoriesCarousel() {
   
   const scroll = (direction: 'left' | 'right') => {
     if (carouselRef.current) {
-      const scrollAmount = direction === 'left' ? -600 : 600;
+      const scrollAmount = direction === 'left' ? -300 : 300;
       carouselRef.current.scrollBy({
         left: scrollAmount,
         behavior: 'smooth'
@@ -101,10 +117,36 @@ export default function ServiceCategoriesCarousel() {
     }
   };
   
+  // Auto-scroll functionality
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    
+    if (!isPaused) {
+      interval = setInterval(() => {
+        if (carouselRef.current) {
+          // Check if we've reached the end, if so, scroll back to start
+          if (scrollPosition >= (carouselRef.current.scrollWidth - carouselRef.current.clientWidth - 20)) {
+            carouselRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+          } else {
+            scroll('right');
+          }
+        }
+      }, 5000); // Auto-scroll every 5 seconds
+    }
+    
+    return () => clearInterval(interval);
+  }, [isPaused, scrollPosition]);
+  
   const showLeftButton = scrollPosition > 20;
   const showRightButton = carouselRef.current 
     ? scrollPosition < carouselRef.current.scrollWidth - carouselRef.current.clientWidth - 20
     : true;
+
+  // Get the appropriate icon component for a category
+  const getCategoryIcon = (iconName: string) => {
+    const IconComponent = categoryIcons[iconName as keyof typeof categoryIcons] || Package;
+    return <IconComponent className="w-8 h-8" />;
+  };
 
   return (
     <section className="py-16 relative bg-background">
@@ -116,7 +158,10 @@ export default function ServiceCategoriesCarousel() {
           </Link>
         </div>
         
-        <div className="relative">
+        <div className="relative"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
           {/* Shadow overlays for scroll indication */}
           <div className={`absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-background to-transparent z-10 transition-opacity duration-300 ${showLeftButton ? 'opacity-100' : 'opacity-0'}`}></div>
           <div className={`absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background to-transparent z-10 transition-opacity duration-300 ${showRightButton ? 'opacity-100' : 'opacity-0'}`}></div>
@@ -154,7 +199,7 @@ export default function ServiceCategoriesCarousel() {
                 <Link to={`/categories/${category.id}`}>
                   <CardContent className="p-6 flex flex-col items-center text-center space-y-3">
                     <div className={`w-16 h-16 rounded-full flex items-center justify-center ${category.color}`}>
-                      <ServiceIcon name={category.icon} className="w-8 h-8" />
+                      {getCategoryIcon(category.id)}
                     </div>
                     <h3 className="font-medium">{category.name}</h3>
                   </CardContent>

@@ -74,17 +74,20 @@ const SignUpForm = ({ selectedRole = "client" }) => {
       
       toast.success("Account created successfully!");
       
-      // Direct user to the appropriate dashboard based on role
-      switch(data.role) {
-        case "provider":
-          navigate("/dashboard/provider?tab=overview", { replace: true });
-          break;
-        case "seller":
-          navigate("/dashboard/seller?tab=overview", { replace: true });
-          break;
-        default:
-          navigate("/dashboard/client", { replace: true });
-      }
+      // Add a slight delay to ensure toast is visible before navigation
+      setTimeout(() => {
+        // Direct user to the appropriate dashboard based on role
+        switch(data.role) {
+          case "provider":
+            navigate("/dashboard/provider?tab=overview", { replace: true });
+            break;
+          case "seller":
+            navigate("/dashboard/seller?tab=overview", { replace: true });
+            break;
+          default:
+            navigate("/dashboard/client", { replace: true });
+        }
+      }, 500);
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message);
@@ -93,7 +96,7 @@ const SignUpForm = ({ selectedRole = "client" }) => {
       }
       console.error(error);
     } finally {
-      setIsLoading(false);
+      setTimeout(() => setIsLoading(false), 300);
     }
   };
 
