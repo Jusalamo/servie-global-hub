@@ -28,7 +28,8 @@ const formSchema = z.object({
   confirmPassword: z.string(),
   terms: z.boolean().refine(val => val === true, {
     message: "You must accept the terms and conditions"
-  })
+  }),
+  role: z.enum(["client", "provider", "seller"]).default("client")
 }).refine(data => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],
@@ -36,7 +37,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const SignUpForm = () => {
+const SignUpForm = ({ selectedRole = "client" }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { signUp } = useAuth();
   const navigate = useNavigate();
@@ -50,6 +51,7 @@ const SignUpForm = () => {
       password: "",
       confirmPassword: "",
       terms: false,
+      role: selectedRole as "client" | "provider" | "seller"
     },
   });
 
@@ -61,11 +63,22 @@ const SignUpForm = () => {
         password: data.password,
         first_name: data.first_name,
         last_name: data.last_name,
-        role: "client" // Default role
+        role: data.role
       });
       
-      toast.success("Account created successfully! Please check your email to verify your account.");
-      navigate("/signin");
+      toast.success("Account created successfully!");
+      
+      // Direct user to the appropriate dashboard based on role
+      switch(data.role) {
+        case "provider":
+          navigate("/dashboard/provider?tab=overview", { replace: true });
+          break;
+        case "seller":
+          navigate("/dashboard/seller?tab=overview", { replace: true });
+          break;
+        default:
+          navigate("/dashboard/client", { replace: true });
+      }
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message);
@@ -152,6 +165,15 @@ const SignUpForm = () => {
               </FormControl>
               <FormMessage />
             </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="role"
+          defaultValue={selectedRole}
+          render={({ field }) => (
+            <input type="hidden" {...field} />
           )}
         />
 

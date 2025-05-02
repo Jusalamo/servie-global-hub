@@ -115,7 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw error;
       }
       
-      // Update local state
+      // Update local state immediately
       setUserRole(userData.role || null);
     } catch (error) {
       console.error('Error in createOrUpdateProfile:', error);
@@ -143,21 +143,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Fetch and set user role
       if (data.user) {
         await fetchUserRole(data.user.id);
+        
+        // Wait briefly to ensure role is set before redirecting
+        setTimeout(() => {
+          toast.success("Login successful!");
+          
+          // Redirect based on role
+          if (userRole === 'provider') {
+            navigate('/dashboard/provider?tab=overview');
+          } else if (userRole === 'seller') {
+            navigate('/dashboard/seller?tab=overview');
+          } else {
+            navigate('/dashboard/client');
+          }
+        }, 300);
       }
-
-      toast.success("Login successful!");
-      
-      // Wait a brief moment to ensure userRole is set
-      setTimeout(() => {
-        // Redirect based on role
-        if (userRole === 'provider') {
-          navigate('/dashboard/provider');
-        } else if (userRole === 'seller') {
-          navigate('/dashboard/seller');
-        } else {
-          navigate('/dashboard/client');
-        }
-      }, 100);
     } catch (error) {
       console.error('Error signing in:', error);
       toast.error("An error occurred while signing in");
@@ -193,18 +193,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Create profile record
       if (data.user) {
         await createOrUpdateProfile(data.user.id, userData);
-        
-        // Auto sign-in the user after signup
         toast.success("Registration successful!");
-        
-        // Now redirect based on role (using the userData role since userRole state might not be updated yet)
-        if (userData.role === 'provider') {
-          navigate('/dashboard/provider');
-        } else if (userData.role === 'seller') {
-          navigate('/dashboard/seller');
-        } else {
-          navigate('/dashboard/client');
-        }
+        return;
       } else {
         toast.info("Please check your email for verification.");
       }
