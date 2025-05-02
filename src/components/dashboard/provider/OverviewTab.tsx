@@ -233,3 +233,6 @@ export function ProviderOverviewTab() {
     </div>
   );
 }
+
+// Add a default export to fix the import issue in ProviderDashboard.tsx
+export default ProviderOverviewTab;

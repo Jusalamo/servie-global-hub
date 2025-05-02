@@ -4,9 +4,10 @@ import React from 'react';
 interface ServiceIconProps {
   className?: string;
   color?: string;
+  name?: string; // Add the name prop to the interface
 }
 
-const ServiceIcon: React.FC<ServiceIconProps> = ({ className = "h-6 w-6", color = "#ea384c" }) => {
+const ServiceIcon: React.FC<ServiceIconProps> = ({ className = "h-6 w-6", color = "#ea384c", name }) => {
   return (
     <svg 
       xmlns="http://www.w3.org/2000/svg" 

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Header from "@/components/Header";
@@ -8,7 +7,7 @@ import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
 import AIAssistant from "@/components/dashboard/AIAssistant";
 import Breadcrumb from "@/components/Breadcrumb";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import OverviewTab from "@/components/dashboard/provider/OverviewTab";
+import { ProviderOverviewTab } from "@/components/dashboard/provider/OverviewTab";
 import AddServiceForm from "@/components/dashboard/provider/AddServiceForm";
 import { Calendar, ClipboardList, MessageSquare, Star, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -49,7 +48,7 @@ const ProviderDashboard = () => {
   const renderTabContent = () => {
     switch(activeTab) {
       case "overview":
-        return <OverviewTab />;
+        return <ProviderOverviewTab />;
       case "services":
         return <ServicesTab />;
       case "bookings":

@@ -177,7 +177,7 @@ const SignUpForm = ({ selectedRole = "client" }) => {
         <FormField
           control={form.control}
           name="role"
-          defaultValue={selectedRole}
+          defaultValue={typedSelectedRole}
           render={({ field }) => (
             <input type="hidden" {...field} />
           )}
