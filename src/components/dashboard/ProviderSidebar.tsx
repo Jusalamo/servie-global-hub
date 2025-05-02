@@ -15,6 +15,11 @@ import {
   MessageSquare
 } from "lucide-react";
 
+interface ProviderSidebarProps {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+}
+
 interface SidebarLinkProps {
   icon: React.ReactNode;
   label: string;
@@ -35,14 +40,12 @@ const SidebarLink = ({ icon, label, isActive, onClick }: SidebarLinkProps) => {
   );
 };
 
-export default function ProviderSidebar() {
+export default function ProviderSidebar({ activeTab, onTabChange }: ProviderSidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const activeTab = searchParams.get("tab") || "overview";
 
   const handleTabClick = (tabName: string) => {
-    navigate(`/dashboard/provider?tab=${tabName}`);
+    onTabChange(tabName);
   };
 
   return (

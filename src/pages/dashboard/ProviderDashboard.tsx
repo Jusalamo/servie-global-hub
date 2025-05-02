@@ -8,9 +8,9 @@ import ProviderSidebar from "@/components/dashboard/ProviderSidebar";
 import AIAssistant from "@/components/dashboard/AIAssistant";
 import Breadcrumb from "@/components/Breadcrumb";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import ProviderOverviewTab from "@/components/dashboard/provider/OverviewTab";
+import { ProviderOverviewTab } from "@/components/dashboard/provider/OverviewTab";
 import AddServiceForm from "@/components/dashboard/provider/AddServiceForm";
-import { Calendar, ClipboardList, MessageSquare, Star, Users } from "lucide-react";
+import { Calendar, ClipboardList, MessageSquare, Star, Users, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -119,6 +119,12 @@ export default function ProviderDashboard() {
     }
   };
   
+  const breadcrumbItems = [
+    { label: "Dashboard", href: "/dashboard" }, 
+    { label: "Provider", href: "/dashboard/provider" },
+    { label: activeTab.charAt(0).toUpperCase() + activeTab.slice(1), href: `/dashboard/provider?tab=${activeTab}` }
+  ];
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -126,13 +132,7 @@ export default function ProviderDashboard() {
         <ProviderSidebar activeTab={activeTab} onTabChange={navigateToTab} />
         <main className="flex-1 p-6 overflow-auto">
           <div className="max-w-7xl mx-auto space-y-6">
-            <Breadcrumb 
-              items={[
-                { label: "Dashboard", href: "/dashboard" }, 
-                { label: "Provider", href: "/dashboard/provider" },
-                { label: activeTab.charAt(0).toUpperCase() + activeTab.slice(1), href: `/dashboard/provider?tab=${activeTab}` }
-              ]}
-            />
+            <Breadcrumb items={breadcrumbItems} />
             
             {renderTabContent()}
           </div>

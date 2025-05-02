@@ -17,15 +17,56 @@ interface BreadcrumbProps {
     label: string;
     href?: string;
   }>;
+  items?: Array<{
+    label: string;
+    href: string;
+  }>;
 }
 
 interface RouteMap {
   [key: string]: { label: string; parent?: string };
 }
 
-const Breadcrumb: React.FC<BreadcrumbProps> = ({ additionalCrumbs = [] }) => {
+const Breadcrumb: React.FC<BreadcrumbProps> = ({ additionalCrumbs = [], items }) => {
   const location = useLocation();
   const { t } = useTranslation();
+  
+  // If items are directly provided, use those instead of building from the route
+  if (items && items.length > 0) {
+    return (
+      <BreadcrumbUI className="px-4 py-3 md:px-6 lg:px-8 bg-gray-50 border-b border-gray-100 dark:bg-gray-800 dark:border-gray-700 overflow-x-auto whitespace-nowrap">
+        <BreadcrumbList className="flex-nowrap">
+          {items.map((crumb, index) => (
+            <React.Fragment key={index}>
+              <BreadcrumbItem className="flex items-center">
+                {index === items.length - 1 ? (
+                  <BreadcrumbPage className="font-medium">{crumb.label}</BreadcrumbPage>
+                ) : (
+                  <BreadcrumbLink asChild>
+                    <Link to={crumb.href} className="flex items-center hover:text-servie transition-colors">
+                      {index === 0 ? (
+                        <div className="flex items-center">
+                          <Home className="w-4 h-4 mr-1" />
+                          <span className="hidden md:inline">{crumb.label}</span>
+                        </div>
+                      ) : (
+                        crumb.label
+                      )}
+                    </Link>
+                  </BreadcrumbLink>
+                )}
+              </BreadcrumbItem>
+              {index < items.length - 1 && (
+                <BreadcrumbSeparator>
+                  <ChevronRight className="h-4 w-4" />
+                </BreadcrumbSeparator>
+              )}
+            </React.Fragment>
+          ))}
+        </BreadcrumbList>
+      </BreadcrumbUI>
+    );
+  }
   
   // Define route mapping for breadcrumbs
   const routeMap: RouteMap = {
@@ -93,7 +134,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ additionalCrumbs = [] }) => {
   }
   
   return (
-    <BreadcrumbUI className="px-4 py-3 md:px-6 lg:px-8 bg-gray-50 border-b border-gray-100 overflow-x-auto whitespace-nowrap">
+    <BreadcrumbUI className="px-4 py-3 md:px-6 lg:px-8 bg-gray-50 border-b border-gray-100 dark:bg-gray-800 dark:border-gray-700 overflow-x-auto whitespace-nowrap">
       <BreadcrumbList className="flex-nowrap">
         {breadcrumbs.map((crumb, index) => (
           <React.Fragment key={index}>
