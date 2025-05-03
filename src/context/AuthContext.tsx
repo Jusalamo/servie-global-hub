@@ -38,14 +38,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
+      (event, currentSession) => {
         console.log('Auth state changed:', event, !!currentSession?.user);
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
-        // Get user role if authenticated
         if (currentSession?.user) {
-          await fetchUserRole(currentSession.user.id);
+          // Use setTimeout to avoid recursive update issues
+          setTimeout(() => {
+            fetchUserRole(currentSession.user.id);
+          }, 0);
         } else {
           setUserRole(null);
         }
@@ -59,7 +61,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
-        // Get user role if authenticated
         if (currentSession?.user) {
           await fetchUserRole(currentSession.user.id);
         }
@@ -84,7 +85,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .from('profiles')
         .select('role')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching user role:', error);
@@ -137,30 +138,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           description: error.message,
           variant: "destructive",
         });
-        return;
+        throw new Error(error.message);
       }
-
-      // Fetch and set user role
-      if (data.user) {
-        await fetchUserRole(data.user.id);
-        
-        // Wait briefly to ensure role is set before redirecting
-        setTimeout(() => {
-          toast.success("Login successful!");
-          
-          // Redirect based on role
-          if (userRole === 'provider') {
-            navigate('/dashboard/provider?tab=overview');
-          } else if (userRole === 'seller') {
-            navigate('/dashboard/seller?tab=overview');
-          } else {
-            navigate('/dashboard/client');
-          }
-        }, 300);
-      }
+      
+      // User will be updated automatically via the onAuthStateChange listener
+      return;
     } catch (error) {
       console.error('Error signing in:', error);
-      toast.error("An error occurred while signing in");
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error("An error occurred while signing in");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -221,15 +210,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           description: error.message,
           variant: "destructive",
         });
-        return;
+        throw error;
       }
-
-      toast.success("Signed out successfully");
       
-      navigate('/');
+      // Auth state listener will handle state updates
+      return;
     } catch (error) {
       console.error('Error signing out:', error);
-      toast.error("An error occurred while signing out");
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error("An error occurred while signing out");
+      }
     } finally {
       setIsLoading(false);
     }

@@ -1,5 +1,5 @@
 
-import { Link, Navigate } from "react-router-dom"
+import { Link, Navigate, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import Header from "@/components/Header"
@@ -9,10 +9,12 @@ import SignInForm from "@/components/SignInForm"
 
 export default function SignIn() {
   const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/dashboard";
 
   // Redirect if already authenticated
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={from} replace />;
   }
 
   return (

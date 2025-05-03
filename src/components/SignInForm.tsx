@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,9 @@ const SignInForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  // Get the redirect path from the location state, or default to dashboard
+  const from = location.state?.from?.pathname || "/dashboard";
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -45,16 +48,14 @@ const SignInForm = () => {
   const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
     try {
-      // Added delay limiting to prevent accidental double-submissions
       await signIn(data.email, data.password);
       toast.success("Successfully signed in!");
-      // Navigation is handled by the AuthContext
+      navigate(from, { replace: true });
     } catch (error) {
       console.error('Error in sign-in form:', error);
       toast.error(error instanceof Error ? error.message : "Failed to sign in. Please try again.");
     } finally {
-      // Make sure loading state is eventually cleared
-      setTimeout(() => setIsLoading(false), 500);
+      setIsLoading(false);
     }
   };
 
@@ -87,12 +88,12 @@ const SignInForm = () => {
             <FormItem>
               <div className="flex items-center justify-between">
                 <FormLabel>Password</FormLabel>
-                <a 
-                  href="/forgot-password" 
+                <Link 
+                  to="/forgot-password" 
                   className="text-sm font-medium text-servie hover:underline"
                 >
                   Forgot password?
-                </a>
+                </Link>
               </div>
               <FormControl>
                 <div className="relative">

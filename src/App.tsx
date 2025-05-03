@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import { ThemeProvider } from "./components/ui/ThemeProvider"
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -24,8 +24,9 @@ import BecomeProvider from './pages/BecomeProvider'
 import BecomeSeller from './pages/BecomeSeller'
 import BookingPage from './pages/BookingPage'
 import TermsConditions from './pages/TermsConditions'
-import ContactSupport from './pages/ContactSupport' // New page
+import ContactSupport from './pages/ContactSupport'
 import ScrollToTop from './components/ScrollToTop'
+import RequireAuth from './components/auth/RequireAuth'
 
 // Remove console logs in production
 if (process.env.NODE_ENV === 'production') {
@@ -58,13 +59,17 @@ function App() {
               <Route path="/categories" element={<ServiceCategories />} />
               <Route path="/services/:id" element={<ServiceDetail />} />
               <Route path="/shop" element={<EcommerceShop />} />
-              <Route path="/ecommerce/shop" element={<EcommerceShop />} />
               <Route path="/shop/product/:id" element={<ProductDetail />} />
               <Route path="/cart" element={<Cart />} />
-              <Route path="/dashboard" element={<UserDashboard />} />
-              <Route path="/dashboard/client" element={<ClientDashboard />} />
-              <Route path="/dashboard/provider" element={<ProviderDashboard />} />
-              <Route path="/dashboard/seller" element={<SellerDashboard />} />
+
+              {/* Protected Routes */}
+              <Route element={<RequireAuth />}>
+                <Route path="/dashboard" element={<UserDashboard />} />
+                <Route path="/dashboard/client" element={<ClientDashboard />} />
+                <Route path="/dashboard/provider" element={<ProviderDashboard />} />
+                <Route path="/dashboard/seller" element={<SellerDashboard />} />
+              </Route>
+
               <Route path="/become-provider" element={<BecomeProvider />} />
               <Route path="/become-seller" element={<BecomeSeller />} />
               <Route path="/booking/:id" element={<BookingPage />} />

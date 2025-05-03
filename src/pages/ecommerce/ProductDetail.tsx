@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Header from "@/components/Header";
@@ -22,12 +21,12 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useProductData } from "@/hooks/useProductData";
-import { services } from "@/data/mockData";
 import { Product } from "@/components/ecommerce/ProductCard";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { getProductById } = useProductData();
+  
   // Create default product data structure that matches the Product type
   const defaultProduct: Product = {
     id: "default",
@@ -130,7 +129,7 @@ const ProductDetail = () => {
                     <div 
                       key={index}
                       className={`aspect-square cursor-pointer rounded-md overflow-hidden border-2 ${
-                        activeImage === index ? 'border-servie' : 'border-transparent'
+                        activeImage === index ? 'border-purple-500' : 'border-transparent'
                       }`}
                       onClick={() => setActiveImage(index)}
                     >
@@ -149,10 +148,10 @@ const ProductDetail = () => {
             <div className="space-y-6">
               <div>
                 {product.featured && (
-                  <Badge className="mb-2 bg-servie">Featured</Badge>
+                  <Badge className="mb-2 bg-purple-500 hover:bg-purple-600">Featured</Badge>
                 )}
                 {discount > 0 && (
-                  <Badge className="mb-2 ml-2 bg-red-500">{discount}% OFF</Badge>
+                  <Badge className="mb-2 ml-2 bg-purple-500 hover:bg-purple-600">{discount}% OFF</Badge>
                 )}
                 <h1 className="text-3xl font-bold">{product.name}</h1>
                 
@@ -213,7 +212,7 @@ const ProductDetail = () => {
                       In Stock
                     </Badge>
                   ) : (
-                    <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                    <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
                       Out of Stock
                     </Badge>
                   )}
@@ -249,8 +248,12 @@ const ProductDetail = () => {
                   <ShoppingCart className="mr-2 h-4 w-4" />
                   {isAddingToCart ? "Adding..." : "Add to Cart"}
                 </Button>
-                <Button variant="outline" onClick={handleToggleFavorite}>
-                  <Heart className={`h-4 w-4 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
+                <Button 
+                  variant="outline" 
+                  onClick={handleToggleFavorite}
+                  className={isFavorite ? "text-purple-500" : ""}
+                >
+                  <Heart className={`h-4 w-4 ${isFavorite ? 'fill-purple-500 text-purple-500' : ''}`} />
                 </Button>
                 <Button variant="outline">
                   <Share2 className="h-4 w-4" />
@@ -377,7 +380,7 @@ const ProductDetail = () => {
                       )}
                       
                       <div className="text-center mt-6">
-                        <Button>Write a Review</Button>
+                        <Button variant="purple">Write a Review</Button>
                       </div>
                     </div>
                   </TabsContent>

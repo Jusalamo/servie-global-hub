@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -567,7 +566,7 @@ export default function Header() {
               </button>
               
               <button onClick={() => scrollToSection('testimonials')} className="text-lg font-medium flex items-center">
-                <Star className="w-5 h-5 mr-2" /> {/* Now Star is properly imported */}
+                <Star className="w-5 h-5 mr-2" />
                 Testimonials
               </button>
               
