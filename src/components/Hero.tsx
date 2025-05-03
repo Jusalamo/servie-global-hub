@@ -19,12 +19,12 @@ export default function Hero() {
   };
 
   return (
-    <section id="hero" className="relative py-20 md:py-32 overflow-hidden">
-      {/* Animated gradient background */}
+    <section id="hero" className="relative py-16 md:py-24 overflow-hidden">
+      {/* Animated gradient background with red tones */}
       <div 
-        className="absolute inset-0 -z-10 bg-gradient-to-br from-servie/20 via-servie/5 to-background/50 animate-gradient"
+        className="absolute inset-0 -z-10 bg-gradient-to-br from-servie/30 via-servie/10 to-background/50 animate-gradient"
         style={{
-          backgroundSize: "200% 200%",
+          backgroundSize: "400% 400%",
           animation: "gradientAnimation 15s ease infinite"
         }}
       />
@@ -42,7 +42,7 @@ export default function Hero() {
       </div>
 
       <div className="container px-4 md:px-6 relative">
-        <div className="max-w-4xl mx-auto text-center space-y-12 relative">
+        <div className="max-w-4xl mx-auto text-center space-y-8 relative">
           {/* App logo/icon */}
           <div className="mx-auto w-16 h-16 rounded-full bg-servie/10 flex items-center justify-center mb-6">
             <ServieIcon className="w-8 h-8 text-servie" />
@@ -59,9 +59,9 @@ export default function Hero() {
           </div>
 
           {/* Search - centered */}
-          <div className="w-full max-w-3xl mx-auto animate-fade-in">
+          <div className="w-full max-w-xl mx-auto animate-fade-in">
             <AnimatedSearchInput 
-              className="w-full max-w-xl mx-auto"
+              className="w-full mx-auto"
               onSearch={(query) => {
                 toast.info(`Searching for: ${query}`);
                 // In a real app, this would navigate to search results
@@ -80,12 +80,19 @@ export default function Hero() {
           </div>
 
           {/* Trusted by section */}
-          <div className="mt-20 animate-fade-in">
+          <div className="mt-16 animate-fade-in">
             <p className="text-sm text-muted-foreground mb-6">Trusted by over 10,000+ customers</p>
-            <div className="flex flex-wrap justify-center gap-8 items-center opacity-70">
-              {["Alpha", "Bravo", "Charlie", "Delta", "Echo"].map((name) => (
-                <div key={name} className="text-xl font-semibold tracking-tight">
-                  {name} <span className="text-servie">Co.</span>
+            <div className="flex flex-wrap justify-center gap-8 items-center">
+              {[
+                { name: "Alpha", icon: "🏢" },
+                { name: "Bravo", icon: "🚀" },
+                { name: "Charlie", icon: "⚡" },
+                { name: "Delta", icon: "🛠️" },
+                { name: "Echo", icon: "🔍" }
+              ].map((company) => (
+                <div key={company.name} className="flex items-center text-xl font-semibold tracking-tight">
+                  <span className="mr-2 text-2xl">{company.icon}</span>
+                  {company.name} <span className="text-servie ml-1">Co.</span>
                 </div>
               ))}
             </div>

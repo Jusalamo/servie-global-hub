@@ -1,8 +1,7 @@
 
 import { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Home, Briefcase, Scissors, CalendarClock, Truck, GraduationCap, Heart, Palette, Wrench, Hammer, Package, Users } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Home, Briefcase, Scissors, Calendar, Truck, GraduationCap, Heart, Palette, Wrench, Hammer, Package, Users } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 // Map category IDs to their corresponding Lucide icons
@@ -107,7 +106,7 @@ export default function ServiceCategoriesCarousel() {
   useEffect(() => {
     let animationId: number;
     let lastTimestamp = 0;
-    const speed = 0.5; // pixels per millisecond (adjust for speed)
+    const speed = 0.25; // Reduced speed for categories (was 0.5)
     
     const scroll = (timestamp: number) => {
       if (!carouselRef.current || isPaused) {
@@ -119,7 +118,6 @@ export default function ServiceCategoriesCarousel() {
       const elapsed = timestamp - lastTimestamp;
       lastTimestamp = timestamp;
       
-      const currentScroll = carouselRef.current.scrollLeft;
       carouselRef.current.scrollLeft += speed * elapsed;
       
       // Reset to start when we reach the end of the first set
@@ -146,9 +144,9 @@ export default function ServiceCategoriesCarousel() {
   };
 
   return (
-    <section className="py-16 relative bg-background">
+    <section className="py-12 relative bg-background">
       <div className="container px-4 md:px-6">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-bold">Popular Service Categories</h2>
           <Link to="/categories" className="text-servie hover:underline">
             View All Categories
@@ -159,7 +157,11 @@ export default function ServiceCategoriesCarousel() {
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
-          {/* Remove scrollbar and navigation buttons for continuous flow */}
+          {/* Gradient overlays for infinite scroll effect */}
+          <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-background to-transparent z-10"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-background to-transparent z-10"></div>
+          
+          {/* Continuously scrolling carousel without scrollbar */}
           <div 
             ref={carouselRef}
             className="grid grid-flow-col auto-cols-max gap-4 overflow-x-auto pb-6 pt-2 px-2 scrollbar-none"

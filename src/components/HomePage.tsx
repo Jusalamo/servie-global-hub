@@ -10,7 +10,10 @@ import Header from './Header';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative">
+      {/* Dynamic background effect */}
+      <div className="home-background"></div>
+      
       <Header />
       <main className="flex-1">
         <Hero />

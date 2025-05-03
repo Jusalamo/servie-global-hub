@@ -31,7 +31,7 @@ export default function AnimatedSearchInput({ className, onSearch }: AnimatedSea
   };
 
   return (
-    <form onSubmit={handleSearch} className={`relative flex justify-center ${className || ""}`}>
+    <form onSubmit={handleSearch} className={`w-full max-w-2xl mx-auto ${className || ""}`}>
       <div className="relative w-full">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
         <Input

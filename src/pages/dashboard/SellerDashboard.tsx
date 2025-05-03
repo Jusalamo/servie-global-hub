@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Header from "@/components/Header";
@@ -6,7 +5,6 @@ import Footer from "@/components/Footer";
 import SellerSidebar from "@/components/dashboard/SellerSidebar";
 import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
 import AIAssistant from "@/components/dashboard/AIAssistant";
-import Breadcrumb from "@/components/Breadcrumb";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import OverviewTab from "@/components/dashboard/seller/OverviewTab";
 import { Button } from "@/components/ui/button";
@@ -27,30 +25,14 @@ const SellerDashboard = () => {
   }, [location]);
   
   const getBreadcrumbItems = () => {
-    switch(activeTab) {
-      case "orders":
-        return [{ label: "Orders" }];
-      case "products":
-        return [{ label: "Products" }];
-      case "inventory":
-        return [{ label: "Inventory" }];
-      case "analytics":
-        return [{ label: "Analytics" }];
-      case "store":
-        return [{ label: "Store Settings" }];
-      case "customers":
-        return [{ label: "Customers" }];
-      case "messages":
-        return [{ label: "Messages" }];
-      case "payments":
-        return [{ label: "Payments" }];
-      case "settings":
-        return [{ label: "Settings" }];
-      case "help":
-        return [{ label: "Help" }];
-      default:
-        return [{ label: "Overview" }];
+    if (activeTab === "overview") {
+      return [{ label: "Overview" }];
     }
+    
+    return [
+      { label: "Overview", path: "/dashboard/seller?tab=overview" },
+      { label: activeTab.charAt(0).toUpperCase() + activeTab.slice(1) }
+    ];
   };
   
   const renderTabContent = () => {
@@ -75,13 +57,6 @@ const SellerDashboard = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <Breadcrumb 
-        additionalCrumbs={[
-          { label: "Dashboard", href: "/dashboard" },
-          { label: "Seller", href: "/dashboard/seller" },
-          { label: activeTab.charAt(0).toUpperCase() + activeTab.slice(1) }
-        ]} 
-      />
       <main className="flex-1 container mx-auto py-8 px-4">
         <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8">
           {/* Sidebar Navigation */}

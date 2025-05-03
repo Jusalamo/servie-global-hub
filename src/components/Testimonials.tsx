@@ -60,7 +60,7 @@ export default function Testimonials() {
   useEffect(() => {
     let animationId: number;
     let lastTimestamp = 0;
-    const speed = 0.3; // pixels per millisecond (adjust for speed)
+    const speed = 0.5; // Increased speed for testimonials (was 0.3)
     
     const scroll = (timestamp: number) => {
       if (!carouselRef.current || isPaused) {
@@ -92,11 +92,11 @@ export default function Testimonials() {
   }, [isPaused]);
 
   return (
-    <section id="testimonials" className="py-16 md:py-24 bg-muted/50 scroll-mt-24">
+    <section id="testimonials" className="py-16 md:py-24 bg-muted/30 scroll-mt-24">
       <div className="container px-4 md:px-6">
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">
               What Our Users Say
             </h2>
             <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
@@ -110,8 +110,8 @@ export default function Testimonials() {
           onMouseLeave={() => setIsPaused(false)}
         >
           {/* Gradient overlays for infinite scroll effect */}
-          <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-muted/50 to-transparent z-10"></div>
-          <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-muted/50 to-transparent z-10"></div>
+          <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-muted/30 to-transparent z-10"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-muted/30 to-transparent z-10"></div>
           
           {/* Testimonial carousel with continuous scrolling */}
           <div 

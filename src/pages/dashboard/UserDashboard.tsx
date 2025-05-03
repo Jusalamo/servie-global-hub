@@ -11,28 +11,26 @@ const UserDashboard = () => {
   const [redirecting, setRedirecting] = useState(false);
   
   useEffect(() => {
+    console.log("UserDashboard useEffect - Auth state:", { userRole, isLoading, isAuthenticated });
+    
     if (!isLoading) {
       if (isAuthenticated) {
         setRedirecting(true);
         
-        if (userRole) {
-          toast.info(`Directing you to the ${userRole} dashboard`);
-          
-          // Immediately redirect based on user role without setTimeout
-          if (userRole === "provider") {
-            navigate("/dashboard/provider?tab=overview", { replace: true });
-          } else if (userRole === "seller") {
-            navigate("/dashboard/seller?tab=overview", { replace: true });
-          } else {
-            navigate("/dashboard/client", { replace: true });
-          }
+        if (userRole === "provider") {
+          toast.info(`Directing you to the provider dashboard`);
+          navigate("/dashboard/provider?tab=overview", { replace: true });
+        } else if (userRole === "seller") {
+          toast.info(`Directing you to the seller dashboard`);
+          navigate("/dashboard/seller?tab=overview", { replace: true });
         } else {
-          toast.info("Setting up your default dashboard");
+          toast.info("Setting up your client dashboard");
           navigate("/dashboard/client", { replace: true });
         }
       } else {
-        toast.error("Please sign in to access your dashboard");
-        navigate("/signin", { replace: true });
+        // For demo purposes, let's redirect to a mock dashboard
+        toast.info("Note: Using demo dashboard data");
+        navigate("/dashboard/provider?tab=overview", { replace: true });
       }
     }
   }, [userRole, isLoading, isAuthenticated, navigate]);
@@ -58,7 +56,12 @@ const UserDashboard = () => {
   }
   
   // This is just a fallback - the useEffect should handle the redirections
-  return null;
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center">
+      <Loader2 className="h-10 w-10 animate-spin text-servie" />
+      <p className="mt-4 text-muted-foreground">Setting up your dashboard...</p>
+    </div>
+  );
 };
 
 export default UserDashboard;

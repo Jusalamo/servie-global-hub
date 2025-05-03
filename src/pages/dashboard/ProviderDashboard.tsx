@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProviderSidebar from "@/components/dashboard/ProviderSidebar";
 import AIAssistant from "@/components/dashboard/AIAssistant";
-import Breadcrumb from "@/components/Breadcrumb";
+import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProviderOverviewTab } from "@/components/dashboard/provider/OverviewTab";
 import AddServiceForm from "@/components/dashboard/provider/AddServiceForm";
@@ -120,9 +120,8 @@ export default function ProviderDashboard() {
   };
   
   const breadcrumbItems = [
-    { label: "Dashboard", href: "/dashboard" }, 
-    { label: "Provider", href: "/dashboard/provider" },
-    { label: activeTab.charAt(0).toUpperCase() + activeTab.slice(1), href: `/dashboard/provider?tab=${activeTab}` }
+    { label: "Overview", path: activeTab === "overview" ? undefined : `/dashboard/provider?tab=overview` },
+    ...(activeTab !== "overview" ? [{ label: activeTab.charAt(0).toUpperCase() + activeTab.slice(1) }] : [])
   ];
   
   return (
@@ -132,7 +131,10 @@ export default function ProviderDashboard() {
         <ProviderSidebar activeTab={activeTab} onTabChange={navigateToTab} />
         <main className="flex-1 p-6 overflow-auto">
           <div className="max-w-7xl mx-auto space-y-6">
-            <Breadcrumb items={breadcrumbItems} />
+            <DashboardBreadcrumb 
+              items={breadcrumbItems}
+              userRole="provider"
+            />
             
             {renderTabContent()}
           </div>

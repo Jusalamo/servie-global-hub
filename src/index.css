@@ -24,9 +24,9 @@
   --input: 220 13% 91%;
   --ring: 262.1 83.3% 57.8%;
   --radius: 0.5rem;
-  --servie: 262.1 83.3% 57.8%;
+  --servie: 350 82% 57%;
   --servie-foreground: 210 20% 98%;
-  --servie-600: 262.1 73.3% 50.8%;
+  --servie-600: 350 73.3% 50.8%;
 }
 
 .dark {
@@ -49,9 +49,9 @@
   --border: 215 27.9% 16.9%;
   --input: 215 27.9% 16.9%;
   --ring: 263.4 70% 50.4%;
-  --servie: 263.4 70% 50.4%;
+  --servie: 350 70% 55%;
   --servie-foreground: 210 20% 98%;
-  --servie-600: 263.4 80% 45.4%;
+  --servie-600: 350 80% 45.4%;
 }
 
 @layer base {
@@ -60,7 +60,7 @@
   }
   body {
     @apply bg-background text-foreground font-sans;
-    background-color: #f8f9fa;
+    background-color: #fbfbfc;
   }
   
   /* Soften the light mode with a subtle pattern */
@@ -95,7 +95,6 @@
 
 body {
   min-height: 100vh;
-  background-color: #f8f9fa;
 }
 
 .dark body {
@@ -221,6 +220,62 @@ body {
   animation: slideInUp 0.4s ease-out;
 }
 
+/* Dynamic gradient animation - enhanced lava lamp effect */
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+  25% {
+    background-position: 50% 100%;
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+  }
+  50% {
+    background-position: 100% 50%;
+    border-radius: 50% 50% 20% 80% / 25% 80% 20% 75%;
+  }
+  75% {
+    background-position: 50% 0%;
+    border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%;
+  }
+  100% {
+    background-position: 0% 50%;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+}
+
+.animate-gradient {
+  animation: gradientAnimation 30s ease infinite;
+  background-size: 400% 400%;
+}
+
+/* Enhanced background effect for dark mode */
+.dark .home-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  opacity: 0.15;
+  background: 
+    radial-gradient(circle at 25% 25%, rgba(218, 0, 96, 0.5) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(31, 169, 17, 0.5) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(0, 81, 255, 0.5) 0%, transparent 50%);
+  filter: blur(80px);
+  animation: gradientAnimation 30s ease infinite;
+}
+
+/* Hide scrollbars but maintain functionality */
+.scrollbar-none {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
+}
+
 /* Button hover effects */
 .btn-hover-scale {
   transition: transform 0.2s ease;
@@ -251,23 +306,6 @@ body {
 }
 
 .input-focus-effect:focus {
-  border-color: hsl(var(--primary));
-  box-shadow: 0 0 0 2px hsla(var(--primary), 0.2);
-}
-
-/* Dynamic gradient animation */
-@keyframes gradientAnimation {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.animate-gradient {
-  animation: gradientAnimation 15s ease infinite;
+  border-color: hsl(var(--servie));
+  box-shadow: 0 0 0 2px hsla(var(--servie), 0.2);
 }
