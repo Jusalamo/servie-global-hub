@@ -6,8 +6,8 @@ import Footer from "@/components/Footer";
 import SellerSidebar from "@/components/dashboard/SellerSidebar";
 import AIAssistant from "@/components/dashboard/AIAssistant";
 import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
-import { SellerOverviewTab } from "@/components/dashboard/seller/OverviewTab";
-import { OrdersTab } from "@/components/dashboard/seller/OrdersTab";
+import OverviewTab from "@/components/dashboard/seller/OverviewTab";
+import OrdersTab from "@/components/dashboard/seller/OrdersTab";
 import AddProductForm from "@/components/dashboard/seller/AddProductForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -76,7 +76,7 @@ export default function SellerDashboard() {
   const renderTabContent = () => {
     switch(activeTab) {
       case "overview":
-        return <SellerOverviewTab />;
+        return <OverviewTab />;
       case "orders":
         return <OrdersTab />;
       case "products":
