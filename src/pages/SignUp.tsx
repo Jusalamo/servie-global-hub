@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react"
-import { Link, useLocation, Navigate } from "react-router-dom"
+import { Link, useLocation, Navigate, useSearchParams } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import Header from "@/components/Header"
@@ -14,23 +14,25 @@ type UserRole = "client" | "provider" | "seller"
 export default function SignUp() {
   const location = useLocation();
   const { isAuthenticated } = useAuth();
-  const [userRole, setUserRole] = useState<UserRole>("client")
+  const [userRole, setUserRole] = useState<UserRole>("client");
   const [currentStep, setCurrentStep] = useState(1);
   const [formProgress, setFormProgress] = useState(0);
-
+  const [searchParams] = useSearchParams();
+  
   // Redirect if already authenticated
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   // Set default role based on URL parameter
   useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
     const role = searchParams.get('role');
     if (role === 'provider' || role === 'seller') {
       setUserRole(role as UserRole);
+      // Skip to step 2 if role was provided in URL
+      setCurrentStep(2);
     }
-  }, [location]);
+  }, [searchParams]);
 
   // Update form progress
   useEffect(() => {

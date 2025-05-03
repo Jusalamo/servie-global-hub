@@ -61,20 +61,25 @@ function App() {
               <Route path="/shop" element={<EcommerceShop />} />
               <Route path="/shop/product/:id" element={<ProductDetail />} />
               <Route path="/cart" element={<Cart />} />
+              <Route path="/become-provider" element={<BecomeProvider />} />
+              <Route path="/become-seller" element={<BecomeSeller />} />
+              <Route path="/terms" element={<TermsConditions />} />
+              <Route path="/contact-support" element={<ContactSupport />} />
 
               {/* Protected Routes */}
               <Route element={<RequireAuth />}>
+                {/* The base dashboard route will redirect users based on their role */}
                 <Route path="/dashboard" element={<UserDashboard />} />
+                
+                {/* Role-specific dashboards */}
                 <Route path="/dashboard/client" element={<ClientDashboard />} />
                 <Route path="/dashboard/provider" element={<ProviderDashboard />} />
                 <Route path="/dashboard/seller" element={<SellerDashboard />} />
+                
+                {/* Protected booking routes */}
+                <Route path="/booking/:id" element={<BookingPage />} />
               </Route>
 
-              <Route path="/become-provider" element={<BecomeProvider />} />
-              <Route path="/become-seller" element={<BecomeSeller />} />
-              <Route path="/booking/:id" element={<BookingPage />} />
-              <Route path="/terms" element={<TermsConditions />} />
-              <Route path="/contact-support" element={<ContactSupport />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster />

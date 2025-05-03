@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const UserDashboard = () => {
   const { userRole, isLoading } = useAuth();
@@ -10,7 +11,9 @@ const UserDashboard = () => {
   
   useEffect(() => {
     if (!isLoading && userRole) {
-      // Immediate navigation based on role without timeout
+      console.log("UserDashboard: redirecting based on role:", userRole);
+      
+      // Immediate navigation based on role
       if (userRole === "provider") {
         navigate("/dashboard/provider?tab=overview", { replace: true });
       } else if (userRole === "seller") {
@@ -18,6 +21,11 @@ const UserDashboard = () => {
       } else {
         navigate("/dashboard/client", { replace: true });
       }
+    } else if (!isLoading && !userRole) {
+      // Handle case where role is not set
+      console.error("User role not set properly");
+      toast.error("Could not determine user role. Redirecting to default dashboard.");
+      navigate("/dashboard/client", { replace: true });
     }
   }, [userRole, isLoading, navigate]);
   

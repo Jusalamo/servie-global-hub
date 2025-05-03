@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Loader2 } from 'lucide-react';
 
 const RequireAuth = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, userRole } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
@@ -19,6 +19,16 @@ const RequireAuth = () => {
   if (!isAuthenticated) {
     // Redirect to signin page but save the location they were trying to access
     return <Navigate to="/signin" state={{ from: location }} replace />;
+  }
+
+  // Redirect users to their appropriate dashboards if they're trying to access generic dashboard
+  if (location.pathname === "/dashboard" && userRole) {
+    const dashboardPath = 
+      userRole === "provider" ? "/dashboard/provider?tab=overview" :
+      userRole === "seller" ? "/dashboard/seller?tab=overview" : 
+      "/dashboard/client";
+    
+    return <Navigate to={dashboardPath} replace />;
   }
 
   // If authenticated, render the child routes

@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import BookingsCalendarTab from "@/components/dashboard/provider/BookingsCalendarTab";
 
 // Mock data
 const services = [
@@ -59,7 +60,7 @@ const bookings = [
     clientName: "Alice Johnson",
     clientAvatar: "https://randomuser.me/api/portraits/women/11.jpg",
     service: "House Cleaning",
-    date: "2023-06-10T14:00:00",
+    date: "2025-05-10T14:00:00",
     status: "confirmed",
     address: "123 Main St, Apt 4B, Boston MA",
     amount: 75
@@ -69,7 +70,7 @@ const bookings = [
     clientName: "Bob Smith",
     clientAvatar: "https://randomuser.me/api/portraits/men/22.jpg",
     service: "Deep Cleaning",
-    date: "2023-06-12T10:00:00",
+    date: "2025-05-12T10:00:00",
     status: "pending",
     address: "456 Oak Ave, Cambridge MA",
     amount: 150
@@ -79,9 +80,29 @@ const bookings = [
     clientName: "Carol Davis",
     clientAvatar: "https://randomuser.me/api/portraits/women/33.jpg",
     service: "House Cleaning",
-    date: "2023-06-08T09:00:00",
+    date: "2025-05-08T09:00:00",
     status: "completed",
     address: "789 Pine St, Brookline MA",
+    amount: 75
+  },
+  {
+    id: "book126",
+    clientName: "David Wilson",
+    clientAvatar: "https://randomuser.me/api/portraits/men/44.jpg",
+    service: "Move-In/Out Cleaning",
+    date: "2025-05-15T13:00:00",
+    status: "pending",
+    address: "101 Elm St, Somerville MA",
+    amount: 200
+  },
+  {
+    id: "book127",
+    clientName: "Emily Brown",
+    clientAvatar: "https://randomuser.me/api/portraits/women/55.jpg",
+    service: "House Cleaning",
+    date: "2025-05-18T11:00:00",
+    status: "confirmed",
+    address: "202 Maple Ave, Medford MA",
     amount: 75
   }
 ];
@@ -112,6 +133,8 @@ export default function ProviderDashboard() {
         return <ServicesTab />;
       case "bookings":
         return <BookingsTab />;
+      case "schedule":
+        return <BookingsCalendarTab bookings={bookings} />;
       case "add-service":
         return <AddServiceForm />;
       default:
@@ -186,7 +209,7 @@ const ServicesTab = () => {
                     <span>{service.rating} ({service.reviewCount} reviews)</span>
                   </div>
                   <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-1" />
+                    <Calendar className="h-4 w-4 mr-1 text-purple-500" />
                     <span>{service.bookings} bookings</span>
                   </div>
                 </div>
@@ -245,7 +268,7 @@ const BookingsTab = () => {
               <div className="flex flex-col md:flex-row gap-4 md:items-center w-full md:w-auto">
                 <div className="flex flex-col">
                   <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-2" />
+                    <Calendar className="h-4 w-4 mr-2 text-purple-500" />
                     <span className="text-sm">
                       {new Date(booking.date).toLocaleDateString('en-US', { 
                         month: 'short', 
@@ -255,7 +278,7 @@ const BookingsTab = () => {
                     </span>
                   </div>
                   <div className="flex items-center mt-1">
-                    <Clock className="h-4 w-4 mr-2" />
+                    <Clock className="h-4 w-4 mr-2 text-purple-500" />
                     <span className="text-sm">
                       {new Date(booking.date).toLocaleTimeString('en-US', {
                         hour: '2-digit',
@@ -281,7 +304,7 @@ const BookingsTab = () => {
               
               <div className="flex space-x-2 self-end md:self-center">
                 <Button variant="outline" size="sm">View Details</Button>
-                <Button size="sm">Send Message</Button>
+                <Button size="sm" className="bg-red-500 hover:bg-red-600 text-white">Send Message</Button>
               </div>
             </CardContent>
           </Card>
