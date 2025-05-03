@@ -97,7 +97,7 @@ export default function SellerDashboard() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 flex">
-        <SellerSidebar />
+        <SellerSidebar activeTab={activeTab} onTabChange={handleTabClick} />
         <div className="flex-1 p-6 overflow-auto">
           <div className="max-w-7xl mx-auto space-y-6">
             <DashboardBreadcrumb 

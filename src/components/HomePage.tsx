@@ -3,6 +3,7 @@ import React from 'react';
 import Hero from './Hero';
 import HowItWorks from './HowItWorks';
 import ServiceCategoriesCarousel from './ServiceCategoriesCarousel';
+import SearchSection from './SearchSection';
 import Testimonials from './Testimonials';
 import ProviderCTA from './ProviderCTA';
 import Footer from './Footer';
@@ -17,6 +18,7 @@ export default function HomePage() {
       <Header />
       <main className="flex-1">
         <Hero />
+        <SearchSection />
         <ServiceCategoriesCarousel />
         <HowItWorks />
         <Testimonials />

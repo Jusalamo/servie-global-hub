@@ -1,630 +1,229 @@
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { toast } from "sonner";
-import { CheckCircle, Star } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { useAuth } from "@/context/AuthContext";
-
-// Form validation schema
-const sellerFormSchema = z.object({
-  fullName: z.string().min(2, "Name must be at least 2 characters"),
-  businessName: z.string().optional(),
-  email: z.string().email("Please enter a valid email"),
-  phone: z.string().min(10, "Please enter a valid phone number"),
-  address: z.string().min(5, "Please enter a valid address"),
-  businessDescription: z.string().min(20, "Description must be at least 20 characters"),
-  categories: z.string().min(1, "Please select at least one category"),
-  taxNumber: z.string().optional(),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string().min(8, "Please confirm your password"),
-  termsAccepted: z.boolean().refine((val) => val === true, {
-    message: "You must accept the terms and conditions",
-  }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
-});
-
-// Product Categories
-const productCategories = [
-  "Electronics & Accessories",
-  "Home & Garden",
-  "Fashion & Apparel",
-  "Health & Beauty",
-  "Books & Entertainment",
-  "Sports & Outdoor",
-  "Toys & Games",
-  "Automotive",
-  "Handmade Crafts",
-  "Food & Beverages",
-];
-
-// Seller benefits
-const sellerBenefits = [
-  "Access to millions of customers on our global marketplace",
-  "User-friendly platform for easy product listing and management",
-  "Secure payment processing and fraud protection",
-  "Detailed analytics and reporting on sales performance",
-  "Seller success team to help you optimize your business",
-  "Marketing tools to help you promote your products",
-  "Only 7% commission on all sales - lower than industry average",
-  "Fast payouts - get paid within 7 days of a completed order",
-];
-
-// FAQ questions
-const faqQuestions = [
-  {
-    question: "What is the commission structure?",
-    answer: "We charge a competitive 7% commission on all sales. This is significantly lower than industry standards, which typically range from 15% to 30%. This commission covers payment processing, platform maintenance, customer service, and marketing efforts."
-  },
-  {
-    question: "How long does it take to get approved?",
-    answer: "Most seller applications are reviewed within 2-3 business days. Once approved, you can immediately start listing products and making sales."
-  },
-  {
-    question: "What information do I need to provide?",
-    answer: "You'll need to provide basic business information, including contact details, product categories, and tax information if applicable. For certain product categories, additional verification may be required."
-  },
-  {
-    question: "When and how do I get paid?",
-    answer: "Payments are processed every 7 days for completed orders. You can receive payments via direct bank transfer, PayPal, or other supported payment methods in your region."
-  },
-  {
-    question: "Can I sell internationally?",
-    answer: "Yes, you can sell to customers globally. Our platform handles currency conversion and provides shipping options for international deliveries."
-  },
-  {
-    question: "What kind of support do sellers receive?",
-    answer: "Sellers have access to our dedicated seller support team, comprehensive documentation, seller community forums, and regular webinars on best practices and platform updates."
-  },
-];
-
-type FormValues = z.infer<typeof sellerFormSchema>;
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ShoppingBag, Check, ArrowRight, Package, CreditCard, TrendingUp, Store, Users } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 export default function BecomeSeller() {
-  const [currentTab, setCurrentTab] = useState<string>("benefits");
   const navigate = useNavigate();
-  const { isAuthenticated, userRole } = useAuth();
+  const { isAuthenticated } = useAuth();
 
-  // Set up the form with validation
-  const form = useForm<FormValues>({
-    resolver: zodResolver(sellerFormSchema),
-    defaultValues: {
-      fullName: "",
-      businessName: "",
-      email: "",
-      phone: "",
-      address: "",
-      businessDescription: "",
-      categories: "",
-      taxNumber: "",
-      password: "",
-      confirmPassword: "",
-      termsAccepted: false,
-    },
-  });
-
-  const onSubmit = (values: FormValues) => {
-    console.log("Form submitted:", values);
-    toast.success("Registration submitted successfully!", {
-      description: "We'll review your application and get back to you soon."
-    });
-    setTimeout(() => navigate("/"), 2000);
+  const handleGetStarted = () => {
+    if (isAuthenticated) {
+      // If already signed in, redirect to signup page with seller role pre-selected
+      navigate('/signup?role=seller');
+    } else {
+      // If not authenticated, redirect to signup page with seller role pre-selected
+      navigate('/signup?role=seller');
+    }
   };
+
+  const benefits = [
+    { 
+      title: "Set up your store", 
+      description: "Create your storefront in minutes and start selling immediately",
+      icon: <Store className="h-6 w-6 text-servie" />
+    },
+    { 
+      title: "Manage inventory easily", 
+      description: "Track products, orders, and shipments from one dashboard",
+      icon: <Package className="h-6 w-6 text-servie" /> 
+    },
+    { 
+      title: "Get paid securely", 
+      description: "Receive payments directly to your account with low transaction fees",
+      icon: <CreditCard className="h-6 w-6 text-servie" /> 
+    },
+    { 
+      title: "Grow your business", 
+      description: "Access analytics and tools to help expand your customer base",
+      icon: <TrendingUp className="h-6 w-6 text-servie" /> 
+    },
+    { 
+      title: "Connect with customers", 
+      description: "Build relationships through our integrated messaging system",
+      icon: <Users className="h-6 w-6 text-servie" /> 
+    },
+  ];
+
+  const pricingTiers = [
+    {
+      name: "Basic",
+      price: "Free",
+      description: "Perfect for starting sellers",
+      features: [
+        "List up to 10 products",
+        "Basic analytics",
+        "Standard processing fee (5%)",
+        "Community support"
+      ],
+      buttonText: "Start Free",
+      popular: false
+    },
+    {
+      name: "Pro",
+      price: "$29",
+      period: "/month",
+      description: "Best for growing businesses",
+      features: [
+        "Unlimited products",
+        "Advanced analytics",
+        "Reduced processing fee (3.5%)",
+        "Priority support",
+        "Custom storefront"
+      ],
+      buttonText: "Try Pro",
+      popular: true
+    },
+    {
+      name: "Business",
+      price: "$79",
+      period: "/month",
+      description: "For established businesses",
+      features: [
+        "Everything in Pro",
+        "Lowest processing fee (2.5%)",
+        "Dedicated account manager",
+        "API access",
+        "Bulk upload tools"
+      ],
+      buttonText: "Contact Sales",
+      popular: false
+    }
+  ];
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 bg-background">
+
+      <main className="flex-1">
         {/* Hero Section */}
-        <section className="bg-servie/5 dark:bg-servie/10 py-16 md:py-20">
-          <div className="container px-4 md:px-6">
-            <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
-              <div className="flex flex-col justify-center space-y-4">
-                <div className="space-y-2">
-                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-                    Start Selling on Servie
-                  </h1>
-                  <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                    Join thousands of successful sellers on our platform and grow your business with our global marketplace.
-                  </p>
+        <section className="relative bg-gradient-to-br from-purple-50 to-white py-20 dark:from-gray-900 dark:to-gray-800">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div className="space-y-6">
+                <div className="inline-block bg-purple-100 dark:bg-purple-900/30 px-3 py-1 rounded-full text-sm font-medium text-purple-700 dark:text-purple-300">
+                  Sell on Servie
                 </div>
-                
-                <div className="flex flex-col space-y-3 md:flex-row md:space-y-0 md:space-x-4 mt-6">
-                  <Button 
-                    size="lg" 
-                    className="bg-servie hover:bg-servie-600"
-                    onClick={() => setCurrentTab("registration")}
-                  >
-                    Register Now
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter">
+                  Turn Your Products Into <span className="text-servie">Profit</span>
+                </h1>
+                <p className="text-lg text-gray-600 dark:text-gray-300 max-w-xl">
+                  Join thousands of sellers on our platform and reach customers looking for quality products like yours. Start selling in minutes with our easy-to-use platform.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Button size="lg" className="bg-servie hover:bg-servie-600" onClick={handleGetStarted}>
+                    <ShoppingBag className="mr-2 h-5 w-5" />
+                    Start Selling
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    size="lg"
-                    onClick={() => setCurrentTab("faq")}
-                  >
-                    Learn More
+                  <Button variant="outline" size="lg" onClick={() => navigate('/shop')}>
+                    Explore Marketplace
                   </Button>
-                </div>
-                
-                <div className="flex flex-wrap gap-3 pt-4">
-                  <div className="flex items-center text-sm">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-servie/10 text-servie mr-2">7%</span>
-                    <span>Commission Only</span>
-                  </div>
-                  <div className="flex items-center text-sm">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-servie/10 text-servie mr-2">7d</span>
-                    <span>Fast Payouts</span>
-                  </div>
-                  <div className="flex items-center text-sm">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-servie/10 text-servie mr-2">24/7</span>
-                    <span>Seller Support</span>
-                  </div>
                 </div>
               </div>
-              
-              <div className="mx-auto flex items-center justify-center">
-                <div className="aspect-video overflow-hidden rounded-2xl border bg-muted p-2">
-                  <img
-                    src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3"
-                    width={600}
-                    height={400}
-                    alt="Successful online seller managing their business"
-                    className="aspect-video object-cover rounded-xl"
-                  />
-                </div>
+              <div className="hidden lg:block relative">
+                <img 
+                  src="https://images.unsplash.com/photo-1556740758-90de374c12ad?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                  alt="Seller dashboard" 
+                  className="rounded-lg shadow-xl"
+                />
               </div>
             </div>
           </div>
         </section>
 
-        {/* Main Content Tabs */}
-        <section className="py-16">
-          <div className="container px-4 md:px-6">
-            <Tabs defaultValue={currentTab} value={currentTab} onValueChange={setCurrentTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-12">
-                <TabsTrigger value="benefits">Benefits</TabsTrigger>
-                <TabsTrigger value="registration">Registration</TabsTrigger>
-                <TabsTrigger value="faq">FAQ</TabsTrigger>
-              </TabsList>
-              
-              {/* Benefits Tab */}
-              <TabsContent value="benefits" className="space-y-12">
-                {/* Benefits Section */}
-                <div className="grid gap-8 md:grid-cols-2 lg:gap-12">
-                  <div className="space-y-4">
-                    <h2 className="text-3xl font-bold">Why Sell with Us?</h2>
-                    <p className="text-muted-foreground text-lg">
-                      Our platform provides everything you need to start, manage, and grow your online business with minimal hassle and maximum profit.
+        {/* Benefits Section */}
+        <section className="py-20 bg-white dark:bg-gray-950">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <h2 className="text-3xl font-bold mb-4">Why Sell With Us?</h2>
+              <p className="text-gray-600 dark:text-gray-300">
+                Our platform provides everything you need to build and grow your online business.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {benefits.map((benefit, index) => (
+                <Card key={index} className="border-0 shadow-md">
+                  <CardHeader>
+                    <div className="mb-3">
+                      {benefit.icon}
+                    </div>
+                    <CardTitle>{benefit.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      {benefit.description}
                     </p>
-                    
-                    <ul className="space-y-3 mt-6">
-                      {sellerBenefits.map((benefit) => (
-                        <li key={benefit} className="flex items-start gap-2">
-                          <CheckCircle className="h-5 w-5 flex-shrink-0 text-servie mt-1" />
-                          <span>{benefit}</span>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing Section */}
+        <section className="py-20 bg-gray-50 dark:bg-gray-900">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <h2 className="text-3xl font-bold mb-4">Simple, Transparent Pricing</h2>
+              <p className="text-gray-600 dark:text-gray-300">
+                Choose the plan that works best for your business needs
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+              {pricingTiers.map((tier, index) => (
+                <Card key={index} className={`flex flex-col border ${tier.popular ? 'border-servie shadow-lg ring-2 ring-servie' : ''}`}>
+                  <CardHeader>
+                    <CardTitle>{tier.name}</CardTitle>
+                    <div className="mt-4">
+                      <span className="text-4xl font-bold">{tier.price}</span>
+                      {tier.period && <span className="text-gray-600 dark:text-gray-400">{tier.period}</span>}
+                    </div>
+                    <CardDescription className="mt-1.5">{tier.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex-1">
+                    <ul className="space-y-3">
+                      {tier.features.map((feature, i) => (
+                        <li key={i} className="flex items-center">
+                          <Check className="h-4 w-4 text-servie mr-2" />
+                          <span className="text-sm">{feature}</span>
                         </li>
                       ))}
                     </ul>
-                    
-                    <Button 
-                      className="mt-4 bg-servie hover:bg-servie-600"
-                      onClick={() => setCurrentTab("registration")}
-                    >
-                      Start Selling Today
+                  </CardContent>
+                  <CardFooter>
+                    <Button variant={tier.popular ? "default" : "outline"} className={`w-full ${tier.popular ? 'bg-servie hover:bg-servie-600' : ''}`} onClick={handleGetStarted}>
+                      {tier.buttonText}
                     </Button>
-                  </div>
-                  
-                  {/* Commission Structure */}
-                  <div className="space-y-4 bg-muted/50 p-6 rounded-lg border">
-                    <h3 className="text-2xl font-bold">Commission Structure</h3>
-                    <p className="text-muted-foreground">
-                      We believe in transparent and fair pricing that helps your business thrive.
-                    </p>
-                    
-                    <div className="mt-6 space-y-6">
-                      <div className="bg-background p-6 rounded-lg border">
-                        <div className="text-4xl font-bold text-servie">7%</div>
-                        <p className="mt-2 font-medium">Commission on All Sales</p>
-                        <p className="text-sm text-muted-foreground mt-2">
-                          Industry average: 15-30%
-                        </p>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-semibold mb-2">What's included:</h4>
-                        <ul className="space-y-2">
-                          <li className="flex items-center gap-2">
-                            <CheckCircle className="h-4 w-4 text-servie" />
-                            <span>Payment processing</span>
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <CheckCircle className="h-4 w-4 text-servie" />
-                            <span>Fraud protection</span>
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <CheckCircle className="h-4 w-4 text-servie" />
-                            <span>Platform maintenance</span>
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <CheckCircle className="h-4 w-4 text-servie" />
-                            <span>Customer service</span>
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <CheckCircle className="h-4 w-4 text-servie" />
-                            <span>Marketing exposure</span>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Testimonials */}
-                <div className="mt-16 space-y-6">
-                  <h2 className="text-3xl font-bold text-center mb-8">What Our Sellers Say</h2>
-                  
-                  <div className="grid gap-6 md:grid-cols-3">
-                    <div className="bg-muted/50 p-6 rounded-lg border">
-                      <div className="flex items-center text-servie mb-2">
-                        <Star className="fill-servie h-4 w-4" />
-                        <Star className="fill-servie h-4 w-4" />
-                        <Star className="fill-servie h-4 w-4" />
-                        <Star className="fill-servie h-4 w-4" />
-                        <Star className="fill-servie h-4 w-4" />
-                      </div>
-                      <p className="italic">
-                        "I've been selling on multiple platforms for years, and Servie offers the lowest commission rates while providing excellent support. My sales have doubled in just 6 months!"
-                      </p>
-                      <div className="mt-4 font-semibold">
-                        Sarah K. - Handmade Crafts Seller
-                      </div>
-                    </div>
-                    
-                    <div className="bg-muted/50 p-6 rounded-lg border">
-                      <div className="flex items-center text-servie mb-2">
-                        <Star className="fill-servie h-4 w-4" />
-                        <Star className="fill-servie h-4 w-4" />
-                        <Star className="fill-servie h-4 w-4" />
-                        <Star className="fill-servie h-4 w-4" />
-                        <Star className="fill-servie h-4 w-4" />
-                      </div>
-                      <p className="italic">
-                        "The seller dashboard is so intuitive and provides all the analytics I need to grow my business. The weekly payouts are reliable and fast."
-                      </p>
-                      <div className="mt-4 font-semibold">
-                        Michael T. - Electronics Seller
-                      </div>
-                    </div>
-                    
-                    <div className="bg-muted/50 p-6 rounded-lg border">
-                      <div className="flex items-center text-servie mb-2">
-                        <Star className="fill-servie h-4 w-4" />
-                        <Star className="fill-servie h-4 w-4" />
-                        <Star className="fill-servie h-4 w-4" />
-                        <Star className="fill-servie h-4 w-4" />
-                        <Star className="fill-servie h-4 w-4" />
-                      </div>
-                      <p className="italic">
-                        "As a small business owner, the 7% commission rate makes a huge difference to my bottom line. The seller support team is always there when I need help."
-                      </p>
-                      <div className="mt-4 font-semibold">
-                        Aisha B. - Home Decor Seller
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Steps to Get Started */}
-                <div className="mt-16 space-y-6">
-                  <h2 className="text-3xl font-bold text-center mb-8">Steps to Get Started</h2>
-                  
-                  <div className="grid gap-6 md:grid-cols-4">
-                    <div className="text-center space-y-3">
-                      <div className="h-16 w-16 bg-servie/10 rounded-full flex items-center justify-center mx-auto">
-                        <span className="text-2xl font-bold text-servie">1</span>
-                      </div>
-                      <h3 className="font-semibold text-lg">Complete Registration</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Fill out the seller application form with your business details
-                      </p>
-                    </div>
-                    
-                    <div className="text-center space-y-3">
-                      <div className="h-16 w-16 bg-servie/10 rounded-full flex items-center justify-center mx-auto">
-                        <span className="text-2xl font-bold text-servie">2</span>
-                      </div>
-                      <h3 className="font-semibold text-lg">Verification</h3>
-                      <p className="text-sm text-muted-foreground">
-                        We'll verify your information within 2-3 business days
-                      </p>
-                    </div>
-                    
-                    <div className="text-center space-y-3">
-                      <div className="h-16 w-16 bg-servie/10 rounded-full flex items-center justify-center mx-auto">
-                        <span className="text-2xl font-bold text-servie">3</span>
-                      </div>
-                      <h3 className="font-semibold text-lg">List Products</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Upload your products with descriptions, images and pricing
-                      </p>
-                    </div>
-                    
-                    <div className="text-center space-y-3">
-                      <div className="h-16 w-16 bg-servie/10 rounded-full flex items-center justify-center mx-auto">
-                        <span className="text-2xl font-bold text-servie">4</span>
-                      </div>
-                      <h3 className="font-semibold text-lg">Start Selling</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Receive orders, ship products, and get paid within 7 days
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="text-center mt-10">
-                    <Button
-                      className="bg-servie hover:bg-servie-600"
-                      size="lg"
-                      onClick={() => setCurrentTab("registration")}
-                    >
-                      Register as a Seller Now
-                    </Button>
-                  </div>
-                </div>
-              </TabsContent>
-              
-              {/* Registration Tab */}
-              <TabsContent value="registration">
-                <div className="max-w-3xl mx-auto">
-                  <h2 className="text-3xl font-bold mb-6">Seller Registration Form</h2>
-                  <p className="text-muted-foreground mb-8">
-                    Complete this form to apply as a seller on our platform. We'll review your application and get back to you within 2-3 business days.
-                  </p>
-                  
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <FormField
-                          control={form.control}
-                          name="fullName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Full Name *</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Your name" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="businessName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Business Name (if applicable)</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Your business name" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <FormField
-                          control={form.control}
-                          name="email"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Email Address *</FormLabel>
-                              <FormControl>
-                                <Input type="email" placeholder="Your email" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="phone"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Phone Number *</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Your phone number" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      
-                      <FormField
-                        control={form.control}
-                        name="address"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Physical Address *</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Your address" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="businessDescription"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Business Description *</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="Tell us about your business and products..." 
-                                className="min-h-[120px]"
-                                {...field} 
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="categories"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Product Categories *</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a category" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {productCategories.map((category) => (
-                                  <SelectItem key={category} value={category}>
-                                    {category}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="taxNumber"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Tax/Business Registration Number (if applicable)</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Your tax/registration number" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <FormField
-                          control={form.control}
-                          name="password"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Password *</FormLabel>
-                              <FormControl>
-                                <Input type="password" placeholder="Create a password" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="confirmPassword"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Confirm Password *</FormLabel>
-                              <FormControl>
-                                <Input type="password" placeholder="Confirm your password" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      
-                      <FormField
-                        control={form.control}
-                        name="termsAccepted"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <div className="space-y-1 leading-none">
-                              <FormLabel>
-                                I accept the <a href="#" className="text-servie underline">Terms and Conditions</a> and <a href="#" className="text-servie underline">Seller Agreement</a> *
-                              </FormLabel>
-                              <FormMessage />
-                            </div>
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <Button type="submit" className="w-full bg-servie hover:bg-servie-600">
-                        Submit Registration
-                      </Button>
-                    </form>
-                  </Form>
-                  
-                  <div className="mt-8 text-sm text-muted-foreground">
-                    <p>* Required fields</p>
-                    <p className="mt-2">
-                      By submitting this form, you agree to allow us to process your information for the purpose of seller verification.
-                    </p>
-                  </div>
-                </div>
-              </TabsContent>
-              
-              {/* FAQ Tab */}
-              <TabsContent value="faq">
-                <div className="max-w-3xl mx-auto">
-                  <h2 className="text-3xl font-bold mb-6">Frequently Asked Questions</h2>
-                  
-                  <Accordion type="single" collapsible className="w-full">
-                    {faqQuestions.map((faq, index) => (
-                      <AccordionItem key={index} value={`item-${index}`}>
-                        <AccordionTrigger>{faq.question}</AccordionTrigger>
-                        <AccordionContent>{faq.answer}</AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
-                  
-                  <div className="mt-12 p-6 bg-muted/50 rounded-lg border">
-                    <h3 className="text-xl font-semibold mb-3">Still have questions?</h3>
-                    <p className="text-muted-foreground mb-4">
-                      Our seller support team is here to help you with any questions about becoming a seller on our platform.
-                    </p>
-                    <Button className="bg-servie hover:bg-servie-600">
-                      Contact Seller Support
-                    </Button>
-                  </div>
-                </div>
-              </TabsContent>
-            </Tabs>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-20 bg-servie text-white">
+          <div className="container px-4 md:px-6 mx-auto text-center">
+            <div className="max-w-3xl mx-auto space-y-6">
+              <h2 className="text-3xl font-bold">Ready to start selling?</h2>
+              <p className="text-xl opacity-90">
+                Join thousands of successful sellers on our platform today
+              </p>
+              <Button size="lg" variant="secondary" onClick={handleGetStarted} className="mt-6">
+                Create Your Seller Account <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </div>
           </div>
         </section>
       </main>
+
       <Footer />
     </div>
   );
