@@ -60,7 +60,7 @@ export default function Testimonials() {
   useEffect(() => {
     let animationId: number;
     let lastTimestamp = 0;
-    const speed = 0.5; // Increased speed for testimonials (was 0.3)
+    const speed = 0.8; // Faster speed for testimonials (was 0.5)
     
     const scroll = (timestamp: number) => {
       if (!carouselRef.current || isPaused) {
@@ -116,7 +116,7 @@ export default function Testimonials() {
           {/* Testimonial carousel with continuous scrolling */}
           <div 
             ref={carouselRef}
-            className="flex overflow-x-auto scrollbar-none scroll-smooth py-4 px-8"
+            className="flex overflow-x-auto scrollbar-none scroll-smooth py-4 px-8 transition-all duration-300"
           >
             {allTestimonials.map((testimonial, i) => (
               <Card 

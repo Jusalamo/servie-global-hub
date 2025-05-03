@@ -58,6 +58,7 @@ function App() {
               <Route path="/categories" element={<ServiceCategories />} />
               <Route path="/services/:id" element={<ServiceDetail />} />
               <Route path="/shop" element={<EcommerceShop />} />
+              <Route path="/ecommerce/shop" element={<EcommerceShop />} />
               <Route path="/shop/product/:id" element={<ProductDetail />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/dashboard" element={<UserDashboard />} />
@@ -68,7 +69,7 @@ function App() {
               <Route path="/become-seller" element={<BecomeSeller />} />
               <Route path="/booking/:id" element={<BookingPage />} />
               <Route path="/terms" element={<TermsConditions />} />
-              <Route path="/contact-support" element={<ContactSupport />} /> {/* Added new route */}
+              <Route path="/contact-support" element={<ContactSupport />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster />

@@ -15,6 +15,11 @@ interface DashboardBreadcrumbProps {
 const DashboardBreadcrumb = ({ items, userRole }: DashboardBreadcrumbProps) => {
   const dashboardPath = `/dashboard/${userRole}`;
   
+  // Filter out any duplicate items that might cause UI issues
+  const filteredItems = items.filter((item, index, self) => 
+    index === self.findIndex(t => t.label === item.label)
+  );
+  
   return (
     <nav className="flex items-center space-x-1 text-sm text-muted-foreground mb-6 overflow-x-auto pb-1 border-b border-border">
       <Link 
@@ -25,7 +30,7 @@ const DashboardBreadcrumb = ({ items, userRole }: DashboardBreadcrumbProps) => {
         <span>Dashboard</span>
       </Link>
       
-      {items.length > 0 && items.map((item, index) => (
+      {filteredItems.length > 0 && filteredItems.map((item, index) => (
         <div key={index} className="flex items-center">
           <ChevronRight className="h-4 w-4 mx-1 text-muted-foreground/60" />
           {item.path ? (

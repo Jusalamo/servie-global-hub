@@ -249,7 +249,7 @@ body {
   background-size: 400% 400%;
 }
 
-/* Enhanced background effect for dark mode */
+/* Enhanced background effect for dark mode - lava lamp */
 .dark .home-background {
   position: fixed;
   top: 0;
@@ -308,4 +308,43 @@ body {
 .input-focus-effect:focus {
   border-color: hsl(var(--servie));
   box-shadow: 0 0 0 2px hsla(var(--servie), 0.2);
+}
+
+/* Button style updates for consistency */
+.btn-primary {
+  @apply bg-servie hover:bg-servie-600 text-white;
+}
+
+.btn-outline-primary {
+  @apply border border-servie text-servie hover:bg-servie hover:text-white;
+}
+
+/* Add to cart and major action buttons */
+.btn-action {
+  @apply bg-servie hover:bg-servie-600 text-white;
+}
+
+/* Purple highlight elements */
+.highlight-element {
+  @apply text-primary border-primary;
+}
+
+/* Custom scrollbar with purple color scheme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary));
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary));
 }

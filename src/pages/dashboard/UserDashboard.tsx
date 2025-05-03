@@ -17,25 +17,19 @@ const UserDashboard = () => {
     if (!isLoading) {
       setRedirecting(true);
       
-      // Redirect based on role
-      setTimeout(() => {
-        if (isAuthenticated) {
-          if (userRole === "provider") {
-            toast.info(`Directing you to the provider dashboard`);
-            navigate("/dashboard/provider?tab=overview", { replace: true });
-          } else if (userRole === "seller") {
-            toast.info(`Directing you to the seller dashboard`);
-            navigate("/dashboard/seller?tab=overview", { replace: true });
-          } else {
-            toast.info("Setting up your client dashboard");
-            navigate("/dashboard/client", { replace: true });
-          }
-        } else {
-          // For demo purposes, let's redirect to a mock dashboard
-          toast.info("Note: Using demo dashboard data");
+      // Immediate redirect based on role - removed timeout to avoid delay
+      if (isAuthenticated) {
+        if (userRole === "provider") {
+          navigate("/dashboard/provider?tab=overview", { replace: true });
+        } else if (userRole === "seller") {
           navigate("/dashboard/seller?tab=overview", { replace: true });
+        } else {
+          navigate("/dashboard/client", { replace: true });
         }
-      }, 300);
+      } else {
+        // For demo purposes, let's redirect to a mock dashboard
+        navigate("/dashboard/seller?tab=overview", { replace: true });
+      }
     }
   }, [userRole, isLoading, isAuthenticated, navigate]);
   
