@@ -25,7 +25,7 @@ const DashboardBreadcrumb = ({ items, userRole }: DashboardBreadcrumbProps) => {
         <span>Dashboard</span>
       </Link>
       
-      {items.map((item, index) => (
+      {items.length > 0 && items.map((item, index) => (
         <div key={index} className="flex items-center">
           <ChevronRight className="h-4 w-4 mx-1 text-muted-foreground/60" />
           {item.path ? (

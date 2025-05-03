@@ -13,25 +13,29 @@ const UserDashboard = () => {
   useEffect(() => {
     console.log("UserDashboard useEffect - Auth state:", { userRole, isLoading, isAuthenticated });
     
+    // Only proceed if authentication check is complete
     if (!isLoading) {
-      if (isAuthenticated) {
-        setRedirecting(true);
-        
-        if (userRole === "provider") {
-          toast.info(`Directing you to the provider dashboard`);
-          navigate("/dashboard/provider?tab=overview", { replace: true });
-        } else if (userRole === "seller") {
-          toast.info(`Directing you to the seller dashboard`);
-          navigate("/dashboard/seller?tab=overview", { replace: true });
+      setRedirecting(true);
+      
+      // Redirect based on role
+      setTimeout(() => {
+        if (isAuthenticated) {
+          if (userRole === "provider") {
+            toast.info(`Directing you to the provider dashboard`);
+            navigate("/dashboard/provider?tab=overview", { replace: true });
+          } else if (userRole === "seller") {
+            toast.info(`Directing you to the seller dashboard`);
+            navigate("/dashboard/seller?tab=overview", { replace: true });
+          } else {
+            toast.info("Setting up your client dashboard");
+            navigate("/dashboard/client", { replace: true });
+          }
         } else {
-          toast.info("Setting up your client dashboard");
-          navigate("/dashboard/client", { replace: true });
+          // For demo purposes, let's redirect to a mock dashboard
+          toast.info("Note: Using demo dashboard data");
+          navigate("/dashboard/seller?tab=overview", { replace: true });
         }
-      } else {
-        // For demo purposes, let's redirect to a mock dashboard
-        toast.info("Note: Using demo dashboard data");
-        navigate("/dashboard/provider?tab=overview", { replace: true });
-      }
+      }, 300);
     }
   }, [userRole, isLoading, isAuthenticated, navigate]);
   
