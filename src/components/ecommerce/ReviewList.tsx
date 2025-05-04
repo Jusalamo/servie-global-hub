@@ -1,207 +1,248 @@
-
 import { useState, useEffect } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Star } from 'lucide-react';
+import ReviewForm from './ReviewForm';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface Review {
   id: string;
-  userId: string;
-  userName: string;
-  userAvatar?: string;
+  user: {
+    name: string;
+    avatar?: string;
+  };
   rating: number;
+  date: string;
   comment: string;
-  createdAt: string;
-  productId: string;
-  sellerResponse?: string;
-  isVerified?: boolean;
+  helpful: number;
 }
 
 interface ReviewListProps {
   productId: string;
-  initialLoad?: number;
 }
 
-const ReviewList = ({ productId, initialLoad = 3 }: ReviewListProps) => {
+const ReviewList = ({ productId }: ReviewListProps) => {
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadedAll, setLoadedAll] = useState(false);
-
+  const [showForm, setShowForm] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  
   useEffect(() => {
+    // In a real app, this would be an API call to fetch reviews
+    const fetchReviews = async () => {
+      setIsLoading(true);
+      try {
+        // Simulating API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Mock data
+        const mockReviews: Review[] = [
+          {
+            id: '1',
+            user: {
+              name: 'Alex Johnson',
+              avatar: '/avatars/alex.jpg',
+            },
+            rating: 5,
+            date: '2023-10-15',
+            comment: 'This product exceeded my expectations. The quality is outstanding and it arrived earlier than expected.',
+            helpful: 12,
+          },
+          {
+            id: '2',
+            user: {
+              name: 'Sam Taylor',
+            },
+            rating: 4,
+            date: '2023-09-28',
+            comment: 'Great product for the price. Would recommend to others looking for something similar.',
+            helpful: 8,
+          },
+          {
+            id: '3',
+            user: {
+              name: 'Jordan Lee',
+              avatar: '/avatars/jordan.jpg',
+            },
+            rating: 3,
+            date: '2023-09-10',
+            comment: 'Decent product but had some minor issues with the setup. Customer service was helpful though.',
+            helpful: 3,
+          },
+        ];
+        
+        setReviews(mockReviews);
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
     fetchReviews();
-  }, []);
-
-  const fetchReviews = async (loadMore = false) => {
-    setLoading(true);
-    try {
-      // In a real app, this would be an API call
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // Mock reviews data
-      const mockReviews: Review[] = [
-        {
-          id: "rev1",
-          userId: "user1",
-          userName: "Alex Johnson",
-          userAvatar: "/placeholder.svg",
-          rating: 5,
-          comment: "Absolutely love this product! The quality is outstanding, and it works exactly as described. I've already recommended it to several friends.",
-          createdAt: "2025-04-15T08:30:00.000Z",
-          productId,
-          isVerified: true
-        },
-        {
-          id: "rev2",
-          userId: "user2",
-          userName: "Maria García",
-          userAvatar: "/placeholder.svg",
-          rating: 4,
-          comment: "Great product, very satisfied with my purchase. The only reason for 4 stars instead of 5 is that delivery took a bit longer than expected.",
-          createdAt: "2025-04-02T14:45:00.000Z",
-          productId,
-          isVerified: true
-        },
-        {
-          id: "rev3",
-          userId: "user3",
-          userName: "David Lee",
-          userAvatar: "/placeholder.svg",
-          rating: 5,
-          comment: "Best purchase I've made this year! The product exceeded my expectations in every way possible.",
-          createdAt: "2025-03-24T11:20:00.000Z",
-          productId,
-          isVerified: true
-        },
-        {
-          id: "rev4",
-          userId: "user4",
-          userName: "Sarah Miller",
-          userAvatar: "/placeholder.svg",
-          rating: 4,
-          comment: "Very good quality and exactly as described. Fast delivery and excellent customer service.",
-          createdAt: "2025-03-18T09:15:00.000Z",
-          productId,
-          isVerified: false
-        },
-        {
-          id: "rev5",
-          userId: "user5",
-          userName: "James Wilson",
-          userAvatar: "/placeholder.svg",
-          rating: 3,
-          comment: "Decent product for the price. It works well but I think there are better options available if you're willing to spend a bit more.",
-          createdAt: "2025-03-10T16:30:00.000Z",
-          productId,
-          sellerResponse: "Thank you for your feedback. We're always working to improve our products. Please reach out to our customer service team if you have any specific suggestions."
-        }
-      ];
-      
-      setReviews(prev => loadMore ? [...prev, ...mockReviews.slice(prev.length)] : mockReviews.slice(0, initialLoad));
-      setLoadedAll(mockReviews.length <= (loadMore ? prev.length + mockReviews.length : initialLoad));
-    } catch (error) {
-      console.error("Error fetching reviews:", error);
-    } finally {
-      setLoading(false);
-    }
+  }, [productId]);
+  
+  const handleHelpful = (reviewId: string) => {
+    setReviews(prev => prev.map(review => 
+      review.id === reviewId 
+        ? { ...review, helpful: review.helpful + 1 } 
+        : review
+    ));
   };
-
-  const loadMore = () => {
-    fetchReviews(true);
+  
+  const handleReviewSubmit = () => {
+    setShowForm(false);
+    // In a real app, we would refresh the reviews from the server
+    // For now, we'll just simulate a new review being added
+    const newReview: Review = {
+      id: `new-${Date.now()}`,
+      user: {
+        name: 'You',
+      },
+      rating: 5,
+      date: new Date().toISOString().split('T')[0],
+      comment: 'Just added my review!',
+      helpful: 0,
+    };
+    
+    setReviews(prev => [...prev, newReview]);
   };
-
-  if (loading && reviews.length === 0) {
-    return (
-      <div className="space-y-6">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="space-y-3">
-            <div className="flex items-center gap-3">
-              <Skeleton className="w-10 h-10 rounded-full" />
-              <Skeleton className="h-4 w-40" />
-            </div>
-            <Skeleton className="h-4 w-20" />
-            <Skeleton className="h-16 w-full" />
-          </div>
-        ))}
-      </div>
-    );
-  }
-
+  
+  const averageRating = reviews.length 
+    ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length 
+    : 0;
+  
+  const ratingCounts = reviews.reduce((counts, review) => {
+    counts[review.rating - 1]++;
+    return counts;
+  }, [0, 0, 0, 0, 0]);
+  
   return (
-    <div>
-      {reviews.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-muted-foreground">No reviews yet. Be the first to review this product!</p>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {reviews.map((review) => (
-            <div key={review.id} className="border-b pb-6 last:border-none">
-              <div className="flex justify-between items-start">
-                <div className="flex items-center">
-                  <Avatar className="h-10 w-10 mr-3">
-                    <AvatarImage src={review.userAvatar} alt={review.userName} />
-                    <AvatarFallback>{review.userName.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="flex items-center">
-                      <p className="font-medium">{review.userName}</p>
-                      {review.isVerified && (
-                        <span className="ml-2 text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-1.5 py-0.5 rounded">
-                          Verified Purchase
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center mt-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                          key={star}
-                          className={`h-4 w-4 ${
-                            star <= review.rating
-                              ? "text-yellow-400 fill-yellow-400"
-                              : "text-muted stroke-muted-foreground"
-                          }`}
-                        />
-                      ))}
-                      <span className="ml-2 text-xs text-muted-foreground">
-                        {new Date(review.createdAt).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric"
-                        })}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-3">
-                <p>{review.comment}</p>
-                
-                {/* Seller response */}
-                {review.sellerResponse && (
-                  <div className="mt-3 bg-muted/30 p-3 rounded-md">
-                    <p className="text-sm font-medium mb-1">Seller Response:</p>
-                    <p className="text-sm">{review.sellerResponse}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
+    <div className="space-y-8">
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* Rating summary */}
+        <div className="w-full md:w-1/3 space-y-4">
+          <h3 className="text-lg font-medium">Customer Reviews</h3>
           
-          {!loadedAll && (
-            <div className="text-center mt-4">
-              <Button 
-                variant="outline" 
-                onClick={loadMore} 
-                disabled={loading}
-              >
-                {loading ? "Loading..." : "Load More Reviews"}
-              </Button>
+          <div className="flex items-center gap-2">
+            <div className="flex">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  className={`h-5 w-5 ${
+                    star <= Math.round(averageRating)
+                      ? "text-yellow-400 fill-yellow-400"
+                      : "text-muted-foreground"
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="font-medium">
+              {averageRating.toFixed(1)} out of 5
+            </span>
+          </div>
+          
+          <p className="text-sm text-muted-foreground">
+            Based on {reviews.length} reviews
+          </p>
+          
+          <div className="space-y-2">
+            {[5, 4, 3, 2, 1].map((rating, index) => (
+              <div key={rating} className="flex items-center gap-2">
+                <span className="text-sm w-6">{rating} ★</span>
+                <div className="h-2 bg-muted rounded-full flex-1 overflow-hidden">
+                  <div 
+                    className="h-full bg-yellow-400 rounded-full"
+                    style={{ 
+                      width: reviews.length 
+                        ? `${(ratingCounts[5 - rating] / reviews.length) * 100}%` 
+                        : '0%' 
+                    }}
+                  />
+                </div>
+                <span className="text-sm w-6 text-right">
+                  {ratingCounts[5 - rating]}
+                </span>
+              </div>
+            ))}
+          </div>
+          
+          <Button 
+            onClick={() => setShowForm(!showForm)} 
+            variant={showForm ? "outline" : "default"}
+            className={showForm ? "" : "bg-servie hover:bg-servie-600"}
+          >
+            {showForm ? "Cancel" : "Write a Review"}
+          </Button>
+        </div>
+        
+        {/* Review form or list */}
+        <div className="w-full md:w-2/3">
+          {showForm ? (
+            <ReviewForm productId={productId} onSubmitSuccess={handleReviewSubmit} />
+          ) : (
+            <div className="space-y-6">
+              {isLoading ? (
+                <div className="flex justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-servie" />
+                </div>
+              ) : reviews.length > 0 ? (
+                reviews.map((review) => (
+                  <div key={review.id} className="border-b pb-6 last:border-0">
+                    <div className="flex justify-between items-start">
+                      <div className="flex gap-3 items-center">
+                        <Avatar>
+                          <AvatarImage src={review.user.avatar} />
+                          <AvatarFallback>
+                            {review.user.name.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">{review.user.name}</p>
+                          <div className="flex items-center gap-2">
+                            <div className="flex">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star
+                                  key={star}
+                                  className={`h-4 w-4 ${
+                                    star <= review.rating
+                                      ? "text-yellow-400 fill-yellow-400"
+                                      : "text-muted-foreground"
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-sm text-muted-foreground">
+                              {new Date(review.date).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-3 text-sm">
+                      <p>{review.comment}</p>
+                    </div>
+                    
+                    <div className="mt-3 flex items-center">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleHelpful(review.id)}
+                        className="text-sm h-auto py-1"
+                      >
+                        Helpful ({review.helpful})
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-center py-8 text-muted-foreground">
+                  No reviews yet. Be the first to review this product!
+                </p>
+              )}
             </div>
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 };

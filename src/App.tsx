@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route, RouterProvider, createBrowserRouter } from "react-router-dom";
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
 import { Toaster } from "@/components/ui/toaster";
@@ -28,8 +29,6 @@ import OrderConfirmation from "@/pages/ecommerce/OrderConfirmation";
 const queryClient = new QueryClient();
 
 function App() {
-  
-
   return (
     <ThemeProvider defaultTheme="light" storageKey="ui-theme">
       <QueryClientProvider client={queryClient}>
@@ -122,9 +121,11 @@ function App() {
               }
             ])}
           />
-          <Toaster position="top-right" />
+          <Toaster />
         </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );
 }
+
+export default App;
