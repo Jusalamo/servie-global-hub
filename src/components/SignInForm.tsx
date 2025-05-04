@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 
 export function SignInForm() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { signIn } = useAuth(); // Changed from 'login' to 'signIn' to match AuthContext
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -35,7 +35,7 @@ export function SignInForm() {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Simulate successful login
-      login({
+      signIn({
         id: '123',
         email: formData.email,
         user_metadata: {

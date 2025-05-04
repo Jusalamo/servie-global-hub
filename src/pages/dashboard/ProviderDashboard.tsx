@@ -1,10 +1,11 @@
+
 import { useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import ProviderSidebar from "@/components/dashboard/ProviderSidebar";
-import ProviderOverviewTab from "@/components/dashboard/ProviderOverviewTab";
-import AddServiceForm from "@/components/services/AddServiceForm";
-import BookingsTab from "@/components/dashboard/BookingsTab";
-import BookingsCalendarTab from "@/components/dashboard/BookingsCalendarTab";
+import { ProviderOverviewTab } from "@/components/dashboard/provider/OverviewTab";
+import AddServiceForm from "@/components/dashboard/provider/AddServiceForm";
+import BookingsTab from "@/components/dashboard/provider/BookingsTab";
+import BookingsCalendarTab from "@/components/dashboard/provider/BookingsCalendarTab";
 
 // Import the new components
 import ClientsTab from "@/components/dashboard/provider/ClientsTab";
