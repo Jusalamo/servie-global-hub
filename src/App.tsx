@@ -1,9 +1,10 @@
 
-import { BrowserRouter, Routes, Route, RouterProvider, createBrowserRouter } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/context/AuthContext";
+import ScrollToTop from "@/components/ScrollToTop";
 import Index from "@/pages/Index";
 import SignIn from "@/pages/SignIn";
 import SignUp from "@/pages/SignUp";
@@ -33,94 +34,30 @@ function App() {
     <ThemeProvider defaultTheme="light" storageKey="ui-theme">
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <RouterProvider
-            router={createBrowserRouter([
-              {
-                path: "/",
-                element: <Index />
-              },
-              {
-                path: "/categories",
-                element: <ServiceCategories />
-              },
-              {
-                path: "/service/:serviceId",
-                element: <ServiceDetail />
-              },
-              {
-                path: "/shop",
-                element: <EcommerceShop />
-              },
-              {
-                path: "/product/:productId",
-                element: <ProductDetail />
-              },
-              {
-                path: "/cart",
-                element: <Cart />
-              },
-              {
-                path: "/checkout",
-                element: <Checkout />
-              },
-              {
-                path: "/order-confirmation",
-                element: <OrderConfirmation />
-              },
-              {
-                path: "/sign-in",
-                element: <SignIn />
-              },
-              {
-                path: "/sign-up",
-                element: <SignUp />
-              },
-              {
-                path: "/forgot-password",
-                element: <ForgotPassword />
-              },
-              {
-                path: "/become-provider",
-                element: <BecomeProvider />
-              },
-              {
-                path: "/become-seller",
-                element: <BecomeSeller />
-              },
-              {
-                path: "/booking/:bookingId",
-                element: <BookingPage />
-              },
-              {
-                path: "/contact-support",
-                element: <ContactSupport />
-              },
-              {
-                path: "/terms-conditions",
-                element: <TermsConditions />
-              },
-              {
-                path: "/dashboard/client",
-                element: <ClientDashboard />
-              },
-              {
-                path: "/dashboard/provider",
-                element: <ProviderDashboard />
-              },
-              {
-                path: "/dashboard/seller",
-                element: <SellerDashboard />
-              },
-              {
-                path: "/dashboard",
-                element: <UserDashboard />
-              },
-              {
-                path: "*",
-                element: <NotFound />
-              }
-            ])}
-          />
+          <ScrollToTop />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/categories" element={<ServiceCategories />} />
+            <Route path="/service/:serviceId" element={<ServiceDetail />} />
+            <Route path="/shop" element={<EcommerceShop />} />
+            <Route path="/product/:productId" element={<ProductDetail />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/order-confirmation" element={<OrderConfirmation />} />
+            <Route path="/sign-in" element={<SignIn />} />
+            <Route path="/sign-up" element={<SignUp />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/become-provider" element={<BecomeProvider />} />
+            <Route path="/become-seller" element={<BecomeSeller />} />
+            <Route path="/booking/:bookingId" element={<BookingPage />} />
+            <Route path="/contact-support" element={<ContactSupport />} />
+            <Route path="/terms-conditions" element={<TermsConditions />} />
+            <Route path="/dashboard/client" element={<ClientDashboard />} />
+            <Route path="/dashboard/provider" element={<ProviderDashboard />} />
+            <Route path="/dashboard/seller" element={<SellerDashboard />} />
+            <Route path="/dashboard" element={<UserDashboard />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
           <Toaster />
         </AuthProvider>
       </QueryClientProvider>

@@ -6,5 +6,7 @@ import './index.css'
 import './i18n' // Import i18n configuration
 
 createRoot(document.getElementById("root")!).render(
-  <App />
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
 );
