@@ -1,9 +1,10 @@
+
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import ProductCard from "@/components/ecommerce/ProductCard";
+import { ProductCard } from "@/components/ecommerce/ProductCard";
 import { Search } from "lucide-react";
 
 export default function ProductListing({ initialCategory = 'all', initialSearch = '' }) {

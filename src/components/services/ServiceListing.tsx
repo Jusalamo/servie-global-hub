@@ -112,7 +112,20 @@ export default function ServiceListing({ initialCategory = 'all', initialSearch 
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {services.map(service => (
-          <ServiceCard key={service.id} service={service} />
+          <ServiceCard 
+            key={service.id}
+            id={String(service.id)}
+            title={service.name}
+            category={service.category}
+            imageUrl={service.image}
+            providerName="Service Provider"
+            providerAvatar="/placeholder.svg"
+            rating={4.5}
+            reviewCount={10}
+            price={service.price}
+            currency="$"
+            featured={false}
+          />
         ))}
       </div>
     </div>
