@@ -35,7 +35,8 @@ export function SignInForm() {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Simulate successful login
-      signIn({
+      // Mock user object to match what AuthContext expects
+      const mockUser = {
         id: '123',
         email: formData.email,
         user_metadata: {
@@ -43,7 +44,10 @@ export function SignInForm() {
           last_name: 'User',
           avatar_url: '/placeholder.svg'
         }
-      });
+      };
+      
+      // Call signIn with email and password (though we're using the mock user here)
+      await signIn(formData.email, formData.password);
       
       toast.success("Successfully signed in!");
       

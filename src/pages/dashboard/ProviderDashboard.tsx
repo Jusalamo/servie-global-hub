@@ -11,6 +11,30 @@ import BookingsCalendarTab from "@/components/dashboard/provider/BookingsCalenda
 import ClientsTab from "@/components/dashboard/provider/ClientsTab";
 import ReviewsTab from "@/components/dashboard/provider/ReviewsTab";
 
+// Mock data for calendar bookings
+const mockBookings = [
+  {
+    id: "book-1",
+    clientName: "Sarah Johnson",
+    clientAvatar: "https://randomuser.me/api/portraits/women/32.jpg",
+    service: "Home Cleaning",
+    date: new Date(Date.now() + 86400000).toISOString(), // tomorrow
+    status: "confirmed",
+    address: "123 Main St, Cityville",
+    amount: 85
+  },
+  {
+    id: "book-2",
+    clientName: "Michael Chen",
+    clientAvatar: "https://randomuser.me/api/portraits/men/45.jpg",
+    service: "Carpet Cleaning",
+    date: new Date(Date.now() + 172800000).toISOString(), // day after tomorrow
+    status: "pending",
+    address: "456 Oak Ave, Townsburg",
+    amount: 120
+  }
+];
+
 export default function ProviderDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -24,11 +48,12 @@ export default function ProviderDashboard() {
       case "overview":
         return <ProviderOverviewTab />;
       case "services":
-        return <AddServiceForm onSuccess={() => setActiveTab("overview")} />;
+        // Only pass onSuccess if the component supports it
+        return <AddServiceForm />;
       case "bookings":
         return <BookingsTab />;
       case "schedule":
-        return <BookingsCalendarTab />;
+        return <BookingsCalendarTab bookings={mockBookings} />;
       case "clients":
         return <ClientsTab />;
       case "reviews":
