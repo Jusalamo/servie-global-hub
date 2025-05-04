@@ -1,89 +1,101 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import { 
-  ChevronLeft, 
-  Star, 
-  Truck, 
-  ShieldCheck, 
-  RotateCcw,
-  Heart, 
-  Share2,
-  ShoppingCart,
-  MinusIcon,
-  PlusIcon
-} from "lucide-react";
+import { ShoppingCart, Heart, Star, ChevronLeft, Share, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
-import { useProductData } from "@/hooks/useProductData";
-import { Product } from "@/components/ecommerce/ProductCard";
+import { useAuth } from "@/context/AuthContext";
+import { Skeleton } from "@/components/ui/skeleton";
+import PaymentMethodSelector from "@/components/PaymentMethodSelector";
+import ReviewForm from "@/components/ecommerce/ReviewForm";
+import ReviewList from "@/components/ecommerce/ReviewList";
+import { type Product } from "@/components/ecommerce/ProductCard";
 
-const ProductDetail = () => {
-  const { id } = useParams<{ id: string }>();
-  const { getProductById } = useProductData();
-  
-  // Create default product data structure that matches the Product type
-  const defaultProduct: Product = {
-    id: "default",
-    name: "Product not found",
-    description: "This product could not be found",
-    price: 0,
-    currency: "$",
-    images: ["/placeholder.svg"],
-    inStock: false,
-    rating: 4.0,
-    reviewCount: 0,
-    providerName: "Unknown",
-    providerAvatar: "/placeholder.svg",
-    providerId: "unknown",
-    category: "",
-    createdAt: "",
-    featured: false,
-    compareAtPrice: undefined
-  };
-  
-  const [product, setProduct] = useState<Product>(defaultProduct);
-  const [quantity, setQuantity] = useState(1);
-  const [activeImage, setActiveImage] = useState(0);
-  const [activeTab, setActiveTab] = useState("description");
-  const [isAddingToCart, setIsAddingToCart] = useState(false);
+export default function ProductDetail() {
+  const { productId } = useParams<{ productId: string }>();
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeImage, setActiveImage] = useState<string>("");
   const [isFavorite, setIsFavorite] = useState(false);
-  
+  const [quantity, setQuantity] = useState(1);
+  const { isAuthenticated } = useAuth();
+
+  // Simulate fetching product data
   useEffect(() => {
-    // Try to get the product from real data
-    const fetchedProduct = getProductById(id || "");
-    if (fetchedProduct) {
-      setProduct(fetchedProduct);
-      setActiveImage(0); // Reset active image when product changes
+    const fetchProduct = async () => {
+      // In a real app, this would be an API call
+      setLoading(true);
+      try {
+        // Simulating API call with timeout
+        await new Promise(resolve => setTimeout(resolve, 600));
+        
+        // Mock product data
+        const mockProduct: Product = {
+          id: productId || "1",
+          name: "Premium Wireless Headphones",
+          description: "Enjoy premium sound quality with these wireless headphones. Features active noise cancellation, 30-hour battery life, and comfortable ear cushions for all-day listening.",
+          price: 249.99,
+          compareAtPrice: 299.99,
+          currency: "$",
+          images: [
+            "/products/headphones-1.jpg", 
+            "/products/headphones-2.jpg",
+            "/products/headphones-3.jpg",
+            "/products/headphones-4.jpg"
+          ].map(() => "/placeholder.svg"), // Using placeholder since real images might not exist
+          category: "electronics",
+          providerId: "seller123",
+          providerName: "AudioTech",
+          providerAvatar: "/placeholder.svg",
+          rating: 4.8,
+          reviewCount: 124,
+          featured: true,
+          inStock: true,
+          createdAt: "2023-01-15T08:30:00.000Z"
+        };
+        
+        setProduct(mockProduct);
+        setActiveImage(mockProduct.images[0]);
+      } catch (error) {
+        console.error("Error fetching product:", error);
+        toast.error("Failed to load product details");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (productId) {
+      fetchProduct();
     }
-  }, [id, getProductById]);
-  
-  const handleQuantityChange = (value: number) => {
-    const newQuantity = Math.max(1, Math.min(99, quantity + value));
-    setQuantity(newQuantity);
+  }, [productId]);
+
+  const handleQuantityChange = (amount: number) => {
+    setQuantity(prev => {
+      const newValue = prev + amount;
+      return newValue < 1 ? 1 : newValue;
+    });
   };
-  
+
   const handleAddToCart = () => {
-    setIsAddingToCart(true);
-    
-    // Simulate adding to cart
-    setTimeout(() => {
-      setIsAddingToCart(false);
-      toast.success(`${quantity} × ${product.name} added to your cart`, {
-        action: {
-          label: "View Cart",
-          onClick: () => window.location.href = "/cart"
-        }
-      });
-    }, 800);
+    toast.success(`${quantity} ${quantity === 1 ? 'item' : 'items'} added to cart`);
   };
-  
+
+  const handleBuyNow = () => {
+    toast.success(`Proceeding to checkout`);
+    // In a real app, this would navigate to checkout
+  };
+
   const handleToggleFavorite = () => {
+    if (!isAuthenticated) {
+      toast.error("Please sign in to save favorites");
+      return;
+    }
+    
     setIsFavorite(!isFavorite);
     if (isFavorite) {
       toast.info("Removed from wishlist");
@@ -91,308 +103,399 @@ const ProductDetail = () => {
       toast.success("Added to wishlist");
     }
   };
-  
-  // Calculate discount using optional chaining to avoid errors
-  const discount = product.compareAtPrice 
-    ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100) 
-    : 0;
-  
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 py-8">
+          <div className="container px-4">
+            <div className="flex flex-col md:flex-row gap-8">
+              <div className="w-full md:w-2/5">
+                <Skeleton className="w-full aspect-square rounded-lg" />
+                <div className="flex gap-2 mt-4">
+                  {[1, 2, 3, 4].map((i) => (
+                    <Skeleton key={i} className="w-20 h-20 rounded" />
+                  ))}
+                </div>
+              </div>
+              <div className="w-full md:w-3/5 space-y-6">
+                <Skeleton className="h-10 w-3/4" />
+                <Skeleton className="h-6 w-1/4" />
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-10 w-1/3" />
+                <div className="flex gap-4">
+                  <Skeleton className="h-12 w-40" />
+                  <Skeleton className="h-12 w-40" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 py-16">
+          <div className="container px-4 text-center">
+            <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
+            <p className="text-muted-foreground mb-6">
+              The product you're looking for doesn't exist or has been removed.
+            </p>
+            <Button asChild>
+              <Link to="/shop">Browse Products</Link>
+            </Button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 py-8">
-        <div className="container mx-auto px-4">
+        <div className="container px-4">
           {/* Breadcrumb */}
           <div className="mb-6">
-            <Link to="/shop" className="text-muted-foreground hover:text-foreground flex items-center">
+            <Link to="/shop" className="flex items-center text-sm text-muted-foreground hover:text-foreground">
               <ChevronLeft className="h-4 w-4 mr-1" />
-              Back to Shop
+              Back to products
             </Link>
           </div>
-          
-          {/* Product Detail */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            {/* Product Images */}
-            <div className="space-y-4">
-              <div className="aspect-square overflow-hidden rounded-lg border bg-muted">
-                <img 
-                  src={product.images[activeImage]} 
-                  alt={product.name} 
-                  className="object-cover w-full h-full"
+
+          {/* Product details */}
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Product images */}
+            <div className="w-full lg:w-2/5">
+              <div className="aspect-square bg-muted/20 rounded-lg overflow-hidden">
+                <img
+                  src={activeImage || product.images[0]}
+                  alt={product.name}
+                  className="w-full h-full object-contain"
                 />
               </div>
-              
-              {/* Thumbnail Images */}
               {product.images.length > 1 && (
-                <div className="grid grid-cols-5 gap-2">
+                <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
                   {product.images.map((image, index) => (
-                    <div 
+                    <button
                       key={index}
-                      className={`aspect-square cursor-pointer rounded-md overflow-hidden border-2 ${
-                        activeImage === index ? 'border-purple-500' : 'border-transparent'
+                      className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${
+                        activeImage === image ? "border-servie" : "border-muted"
                       }`}
-                      onClick={() => setActiveImage(index)}
+                      onClick={() => setActiveImage(image)}
                     >
-                      <img 
-                        src={image}
-                        alt={`${product.name} thumbnail ${index + 1}`}
-                        className="object-cover w-full h-full"
-                      />
-                    </div>
+                      <img src={image} alt={`${product.name} ${index + 1}`} className="w-full h-full object-cover" />
+                    </button>
                   ))}
                 </div>
               )}
             </div>
-            
-            {/* Product Info */}
-            <div className="space-y-6">
+
+            {/* Product info */}
+            <div className="w-full lg:w-3/5 space-y-6">
               <div>
-                {product.featured && (
-                  <Badge className="mb-2 bg-purple-500 hover:bg-purple-600">Featured</Badge>
-                )}
-                {discount > 0 && (
-                  <Badge className="mb-2 ml-2 bg-purple-500 hover:bg-purple-600">{discount}% OFF</Badge>
-                )}
-                <h1 className="text-3xl font-bold">{product.name}</h1>
-                
-                {/* Rating */}
-                <div className="flex items-center gap-2 mt-2">
-                  <div className="flex">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star 
-                        key={star}
-                        className={`w-5 h-5 ${
-                          star <= Math.round(product.rating) 
-                            ? 'text-yellow-400 fill-yellow-400' 
-                            : 'text-gray-300'
-                        }`} 
-                      />
-                    ))}
-                  </div>
-                  <span className="text-sm text-muted-foreground">
-                    {product.rating.toFixed(1)} ({product.reviewCount} reviews)
-                  </span>
+                <div className="flex items-center justify-between">
+                  <h1 className="text-2xl md:text-3xl font-bold">{product.name}</h1>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full"
+                    onClick={handleToggleFavorite}
+                  >
+                    <Heart className={`h-6 w-6 ${isFavorite ? "fill-red-500 text-red-500" : ""}`} />
+                  </Button>
                 </div>
-                
-                {/* Provider */}
-                <div className="flex items-center gap-2 mt-4">
-                  <span className="text-sm text-muted-foreground">Sold by:</span>
+                <div className="flex items-center mt-2">
                   <div className="flex items-center">
-                    <img 
-                      src={product.providerAvatar} 
-                      alt={product.providerName} 
-                      className="w-6 h-6 rounded-full mr-2"
-                    />
-                    <Link to={`/provider/${product.providerId}`} className="text-sm font-medium hover:underline">
-                      {product.providerName}
-                    </Link>
+                    <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
+                    <span className="ml-1 font-medium">{product.rating}</span>
+                  </div>
+                  <span className="mx-2 text-muted-foreground">•</span>
+                  <span className="text-muted-foreground">{product.reviewCount} reviews</span>
+                </div>
+              </div>
+
+              <div className="flex items-baseline">
+                <span className="text-3xl font-bold">{product.currency || "$"}{product.price.toFixed(2)}</span>
+                {product.compareAtPrice && (
+                  <span className="ml-2 text-muted-foreground line-through">
+                    {product.currency || "$"}{product.compareAtPrice.toFixed(2)}
+                  </span>
+                )}
+                {product.compareAtPrice && (
+                  <Badge className="ml-2 bg-red-500">
+                    {Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)}% OFF
+                  </Badge>
+                )}
+              </div>
+
+              <p className="text-muted-foreground">{product.description}</p>
+
+              <div>
+                <div className="flex items-center mb-4">
+                  <span className="font-medium mr-4">Quantity:</span>
+                  <div className="flex items-center border rounded-md">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-10 w-10 rounded-none"
+                      onClick={() => handleQuantityChange(-1)}
+                      disabled={quantity <= 1}
+                    >
+                      -
+                    </Button>
+                    <span className="w-12 text-center">{quantity}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-10 w-10 rounded-none"
+                      onClick={() => handleQuantityChange(1)}
+                    >
+                      +
+                    </Button>
                   </div>
                 </div>
-              </div>
-              
-              <Separator />
-              
-              {/* Price */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-3xl font-bold">
-                    {product.currency || "$"}{product.price.toFixed(2)}
-                  </span>
-                  {product.compareAtPrice && (
-                    <span className="text-xl text-muted-foreground line-through">
-                      {product.currency || "$"}{product.compareAtPrice.toFixed(2)}
-                    </span>
-                  )}
-                </div>
-                
-                {/* Stock Status */}
-                <div>
-                  {product.inStock ? (
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                      In Stock
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-                      Out of Stock
-                    </Badge>
-                  )}
-                </div>
-              </div>
-              
-              {/* Add to Cart */}
-              <div className="flex flex-wrap gap-4">
-                <div className="flex items-center border rounded-md">
+
+                <div className="flex flex-col sm:flex-row gap-4">
                   <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => handleQuantityChange(-1)}
-                    disabled={quantity <= 1 || !product.inStock}
+                    onClick={handleAddToCart} 
+                    className="flex-1"
+                    disabled={!product.inStock}
                   >
-                    <MinusIcon className="h-4 w-4" />
+                    <ShoppingCart className="mr-2 h-5 w-5" />
+                    Add to Cart
                   </Button>
-                  <span className="w-12 text-center">{quantity}</span>
                   <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => handleQuantityChange(1)}
-                    disabled={quantity >= 99 || !product.inStock}
+                    onClick={handleBuyNow} 
+                    className="flex-1 bg-servie hover:bg-servie-600"
+                    disabled={!product.inStock}
                   >
-                    <PlusIcon className="h-4 w-4" />
+                    Buy Now
                   </Button>
                 </div>
-                <Button 
-                  className="flex-1"
-                  onClick={handleAddToCart}
-                  disabled={!product.inStock || isAddingToCart}
-                >
-                  <ShoppingCart className="mr-2 h-4 w-4" />
-                  {isAddingToCart ? "Adding..." : "Add to Cart"}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={handleToggleFavorite}
-                  className={isFavorite ? "text-purple-500" : ""}
-                >
-                  <Heart className={`h-4 w-4 ${isFavorite ? 'fill-purple-500 text-purple-500' : ''}`} />
-                </Button>
-                <Button variant="outline">
-                  <Share2 className="h-4 w-4" />
-                </Button>
               </div>
-              
-              {/* Features */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-                <div className="flex items-center gap-2">
-                  <Truck className="h-5 w-5 text-muted-foreground" />
-                  <span className="text-sm">Free shipping over $50</span>
+
+              <div className="flex items-center pt-4 text-sm text-muted-foreground">
+                <div className="flex items-center mr-4">
+                  <img
+                    src={product.providerAvatar}
+                    alt={product.providerName}
+                    className="w-6 h-6 rounded-full mr-2"
+                  />
+                  <span>{product.providerName}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="h-5 w-5 text-muted-foreground" />
-                  <span className="text-sm">2 year warranty</span>
+                <div className="flex items-center">
+                  <Share className="h-4 w-4 mr-1" />
+                  <button className="hover:text-foreground">Share</button>
                 </div>
-                <div className="flex items-center gap-2">
-                  <RotateCcw className="h-5 w-5 text-muted-foreground" />
-                  <span className="text-sm">30-day returns</span>
-                </div>
-              </div>
-              
-              {/* Product Info Tabs */}
-              <div className="mt-8">
-                <Tabs defaultValue="description" value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className="w-full grid grid-cols-3">
-                    <TabsTrigger value="description">Description</TabsTrigger>
-                    <TabsTrigger value="specifications">Specifications</TabsTrigger>
-                    <TabsTrigger value="reviews">Reviews ({product.reviewCount})</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="description" className="mt-4">
-                    <div className="prose max-w-none">
-                      <p className="text-sm text-muted-foreground">{product.description}</p>
-                      <p className="text-sm text-muted-foreground mt-4">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, 
-                        nisl vel ultricies lacinia, nisl nisl aliquam nisl, nec aliquam nisl 
-                        nisl nec nisl. Sed euismod, nisl vel ultricies lacinia, nisl nisl 
-                        aliquam nisl, nec aliquam nisl nisl nec nisl.
-                      </p>
-                    </div>
-                  </TabsContent>
-                  <TabsContent value="specifications" className="mt-4">
-                    <div className="text-sm">
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="font-semibold">Material</div>
-                        <div>Premium quality</div>
-                        <div className="font-semibold">Dimensions</div>
-                        <div>10" x 8" x 2"</div>
-                        <div className="font-semibold">Weight</div>
-                        <div>0.5 kg</div>
-                        <div className="font-semibold">Origin</div>
-                        <div>Made in USA</div>
-                        <div className="font-semibold">Warranty</div>
-                        <div>2 years</div>
-                      </div>
-                    </div>
-                  </TabsContent>
-                  <TabsContent value="reviews" className="mt-4">
-                    <div className="space-y-6">
-                      {product.reviewCount > 0 ? (
-                        <>
-                          <div className="flex items-start space-x-4">
-                            <div className="flex-shrink-0">
-                              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-                                <span>JD</span>
-                              </div>
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <h4 className="font-semibold">John Doe</h4>
-                                <span className="text-xs text-muted-foreground">2 months ago</span>
-                              </div>
-                              <div className="flex mt-1">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                  <Star 
-                                    key={star}
-                                    className={`w-4 h-4 ${
-                                      star <= 5 
-                                        ? 'text-yellow-400 fill-yellow-400' 
-                                        : 'text-gray-300'
-                                    }`} 
-                                  />
-                                ))}
-                              </div>
-                              <p className="mt-2 text-sm">
-                                Great product! Exactly what I was looking for.
-                              </p>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-start space-x-4">
-                            <div className="flex-shrink-0">
-                              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-                                <span>MS</span>
-                              </div>
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <h4 className="font-semibold">Mary Smith</h4>
-                                <span className="text-xs text-muted-foreground">3 weeks ago</span>
-                              </div>
-                              <div className="flex mt-1">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                  <Star 
-                                    key={star}
-                                    className={`w-4 h-4 ${
-                                      star <= 4 
-                                        ? 'text-yellow-400 fill-yellow-400' 
-                                        : 'text-gray-300'
-                                    }`} 
-                                  />
-                                ))}
-                              </div>
-                              <p className="mt-2 text-sm">
-                                Good quality but shipping took longer than expected.
-                              </p>
-                            </div>
-                          </div>
-                        </>
-                      ) : (
-                        <div className="text-center py-6">
-                          <p className="text-muted-foreground">No reviews yet. Be the first to leave a review!</p>
-                        </div>
-                      )}
-                      
-                      <div className="text-center mt-6">
-                        <Button variant="purple">Write a Review</Button>
-                      </div>
-                    </div>
-                  </TabsContent>
-                </Tabs>
               </div>
             </div>
+          </div>
+
+          {/* Product tabs */}
+          <div className="mt-12">
+            <Tabs defaultValue="description">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="description">Description</TabsTrigger>
+                <TabsTrigger value="reviews">Reviews</TabsTrigger>
+                <TabsTrigger value="shipping">Shipping & Returns</TabsTrigger>
+              </TabsList>
+              <TabsContent value="description" className="py-6">
+                <h3 className="text-lg font-semibold mb-4">Product Description</h3>
+                <div className="space-y-4">
+                  <p>
+                    {product.description}
+                  </p>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in metus euismod, efficitur nisi eget, 
+                    volutpat nisl. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; 
+                    Vestibulum varius diam velit, ac suscipit enim euismod non.
+                  </p>
+                  <div>
+                    <h4 className="font-medium mb-2">Key Features:</h4>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>High-quality materials for durability</li>
+                      <li>Ergonomic design for comfort</li>
+                      <li>Premium sound quality with deep bass</li>
+                      <li>Active noise cancellation</li>
+                      <li>30-hour battery life</li>
+                      <li>Fast charging: 5 minutes for 3 hours of playback</li>
+                    </ul>
+                  </div>
+                </div>
+              </TabsContent>
+              <TabsContent value="reviews" className="py-6">
+                <div className="space-y-8">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">Customer Reviews</h3>
+                    <Button variant="outline">
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      Write a Review
+                    </Button>
+                  </div>
+
+                  <div className="bg-muted/30 p-6 rounded-lg">
+                    <div className="flex flex-col md:flex-row md:items-center gap-6">
+                      <div className="text-center">
+                        <span className="text-5xl font-bold">{product.rating}</span>
+                        <div className="flex justify-center mt-2">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              className={`h-5 w-5 ${
+                                star <= Math.floor(product.rating)
+                                  ? "text-yellow-400 fill-yellow-400"
+                                  : "text-muted-foreground"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          Based on {product.reviewCount} reviews
+                        </p>
+                      </div>
+                      
+                      <div className="flex-1">
+                        <div className="space-y-2">
+                          {[5, 4, 3, 2, 1].map((rating) => {
+                            // Calculate percentage for each rating (mock data)
+                            const percentage = rating === 5 ? 60 : 
+                                              rating === 4 ? 25 : 
+                                              rating === 3 ? 10 : 
+                                              rating === 2 ? 3 : 2;
+                            return (
+                              <div key={rating} className="flex items-center">
+                                <div className="flex items-center w-24">
+                                  <span className="mr-2">{rating}</span>
+                                  <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                                </div>
+                                <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full bg-yellow-400"
+                                    style={{ width: `${percentage}%` }}
+                                  ></div>
+                                </div>
+                                <span className="ml-4 text-sm w-12">{percentage}%</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mock reviews */}
+                  <div className="space-y-6">
+                    {[
+                      {
+                        name: "Alex Johnson",
+                        date: "2025-04-15",
+                        rating: 5,
+                        comment: "Absolutely love these headphones! The sound quality is amazing and the noise cancellation works perfectly.",
+                        avatar: "/placeholder.svg"
+                      },
+                      {
+                        name: "Maria García",
+                        date: "2025-04-02",
+                        rating: 4,
+                        comment: "Great product, very comfortable for long listening sessions. Battery life is impressive, though the app could use some improvements.",
+                        avatar: "/placeholder.svg"
+                      },
+                      {
+                        name: "David Lee",
+                        date: "2025-03-24",
+                        rating: 5,
+                        comment: "Best headphones I've ever owned. The sound is crystal clear and they're so comfortable I forget I'm wearing them.",
+                        avatar: "/placeholder.svg"
+                      }
+                    ].map((review, idx) => (
+                      <div key={idx} className="border-b pb-6 last:border-none">
+                        <div className="flex justify-between">
+                          <div className="flex items-center">
+                            <img
+                              src={review.avatar}
+                              alt={review.name}
+                              className="w-10 h-10 rounded-full mr-3"
+                            />
+                            <div>
+                              <p className="font-medium">{review.name}</p>
+                              <div className="flex items-center">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <Star
+                                    key={star}
+                                    className={`h-4 w-4 ${
+                                      star <= review.rating
+                                        ? "text-yellow-400 fill-yellow-400"
+                                        : "text-muted stroke-muted-foreground"
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {new Date(review.date).toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric"
+                            })}
+                          </div>
+                        </div>
+                        <p className="mt-3">{review.comment}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </TabsContent>
+              <TabsContent value="shipping" className="py-6">
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Shipping Information</h3>
+                    <p className="text-muted-foreground">
+                      We ship to all 50 US states as well as international destinations.
+                      Standard shipping typically takes 3-7 business days. Express shipping
+                      options are available at checkout.
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Returns & Refunds</h3>
+                    <p className="text-muted-foreground">
+                      We want you to be completely satisfied with your purchase. If you're not
+                      happy with your order, we accept returns within 30 days of delivery for a
+                      full refund or exchange.
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Warranty</h3>
+                    <p className="text-muted-foreground">
+                      This product comes with a 1-year manufacturer's warranty that covers
+                      defects in materials and workmanship.
+                    </p>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          {/* Checkout preview panel */}
+          <div className="mt-16">
+            <Card className="p-6 max-w-lg mx-auto">
+              <h3 className="text-xl font-semibold mb-4">Complete Your Purchase</h3>
+              <PaymentMethodSelector onSelect={(method) => console.log(`Selected payment method: ${method}`)} />
+            </Card>
           </div>
         </div>
       </main>
       <Footer />
     </div>
   );
-};
-
-export default ProductDetail;
+}

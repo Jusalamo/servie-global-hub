@@ -1,356 +1,560 @@
 
-import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { Star, User, Clock, Check, Heart, Share2, MapPin, Calendar } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ServiceCard from "@/components/ServiceCard";
-import { services } from "@/data/mockData";
-import { toast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Calendar, Clock, MapPin, Heart, Star, ChevronLeft, Share, CheckCircle } from "lucide-react";
+import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 
-const ServiceDetail = () => {
-  const { id } = useParams<{ id: string }>();
-  const [currentImage, setCurrentImage] = useState(0);
-  const [selectedPackage, setSelectedPackage] = useState("1b");
+interface Service {
+  id: string;
+  title: string;
+  description: string;
+  longDescription: string;
+  price: number;
+  priceType: "hourly" | "fixed" | "starting";
+  duration: string;  // e.g., "2 hours" or "1-2 hours"
+  category: string;
+  providerId: string;
+  providerName: string;
+  providerAvatar: string;
+  providerRating: number;
+  providerReviewCount: number;
+  providerDescription: string;
+  featured: boolean;
+  images: string[];
+  rating: number;
+  reviewCount: number;
+  createdAt: string;
+}
+
+export default function ServiceDetail() {
+  const { serviceId } = useParams<{ serviceId: string }>();
+  const navigate = useNavigate();
+  const [service, setService] = useState<Service | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeImage, setActiveImage] = useState<string>("");
   const [isFavorite, setIsFavorite] = useState(false);
-  
-  // Find the service based on the id from URL
-  const service = services.find(s => s.id === id);
-  
-  // Find related services (same category)
-  const relatedServices = services
-    .filter(s => s.id !== id && s.category === service?.category)
-    .slice(0, 3);
-  
-  if (!service) {
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const { isAuthenticated } = useAuth();
+
+  // Simulate fetching service data
+  useEffect(() => {
+    const fetchService = async () => {
+      // In a real app, this would be an API call
+      setLoading(true);
+      try {
+        // Simulating API call with timeout
+        await new Promise(resolve => setTimeout(resolve, 600));
+        
+        // Mock service data
+        const mockService: Service = {
+          id: serviceId || "1",
+          title: "Professional Home Cleaning Service",
+          description: "Top-rated home cleaning service with eco-friendly products and professional cleaners.",
+          longDescription: `Our professional home cleaning service is designed to give you a spotless home without the stress. 
+          We use eco-friendly cleaning products that are safe for your family and pets, while still providing a deep clean that eliminates dust, allergens, and bacteria.
+          
+          Our experienced team of cleaners are background-checked, insured, and trained to deliver consistent results. We focus on the details that matter, from baseboards to ceiling fans.
+          
+          This standard cleaning service includes:
+          - Dusting and wiping all accessible surfaces
+          - Vacuuming all floors, carpets, and rugs
+          - Mopping hard floors
+          - Cleaning kitchen countertops, sink, and appliance exteriors
+          - Cleaning and disinfecting bathrooms
+          - Emptying trash and replacing liners`,
+          price: 120,
+          priceType: "fixed",
+          duration: "3-4 hours",
+          category: "home-services",
+          providerId: "provider123",
+          providerName: "CleanHome Professionals",
+          providerAvatar: "/placeholder.svg",
+          providerRating: 4.9,
+          providerReviewCount: 158,
+          providerDescription: "Professional cleaning service with 10+ years of experience. Specializing in residential cleaning with eco-friendly products.",
+          featured: true,
+          images: [
+            "/services/cleaning-1.jpg",
+            "/services/cleaning-2.jpg",
+            "/services/cleaning-3.jpg",
+            "/services/cleaning-4.jpg"
+          ].map(() => "/placeholder.svg"), // Using placeholder since real images might not exist
+          rating: 4.8,
+          reviewCount: 76,
+          createdAt: "2023-01-15T08:30:00.000Z"
+        };
+        
+        setService(mockService);
+        setActiveImage(mockService.images[0]);
+      } catch (error) {
+        console.error("Error fetching service:", error);
+        toast.error("Failed to load service details");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (serviceId) {
+      fetchService();
+    }
+  }, [serviceId]);
+
+  // Mock available times
+  const availableTimes = [
+    "9:00 AM", "10:00 AM", "11:00 AM", 
+    "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM"
+  ];
+
+  const handleBookNow = () => {
+    if (!selectedDate || !selectedTime) {
+      toast.error("Please select a date and time");
+      return;
+    }
+    
+    toast.success(`Booking scheduled for ${selectedDate.toLocaleDateString()} at ${selectedTime}`);
+    navigate("/booking-confirmation");
+  };
+
+  const handleToggleFavorite = () => {
+    if (!isAuthenticated) {
+      toast.error("Please sign in to save favorites");
+      return;
+    }
+    
+    setIsFavorite(!isFavorite);
+    if (isFavorite) {
+      toast.info("Removed from favorites");
+    } else {
+      toast.success("Added to favorites");
+    }
+  };
+
+  if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 container mx-auto py-16 px-4 text-center">
-          <h1 className="text-3xl font-bold mb-4">Service Not Found</h1>
-          <p className="mb-8">The service you are looking for doesn't exist or has been removed.</p>
-          <Button asChild>
-            <Link to="/categories">Browse Services</Link>
-          </Button>
+        <main className="flex-1 py-8">
+          <div className="container px-4">
+            <div className="flex flex-col lg:flex-row gap-8">
+              <div className="w-full lg:w-2/3">
+                <Skeleton className="w-full aspect-video rounded-lg" />
+                <div className="flex gap-2 mt-4">
+                  {[1, 2, 3, 4].map((i) => (
+                    <Skeleton key={i} className="w-20 h-20 rounded" />
+                  ))}
+                </div>
+                <div className="mt-6 space-y-4">
+                  <Skeleton className="h-8 w-3/4" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-2/3" />
+                </div>
+              </div>
+              <div className="w-full lg:w-1/3">
+                <Skeleton className="h-64 w-full rounded-lg" />
+              </div>
+            </div>
+          </div>
         </main>
         <Footer />
       </div>
     );
   }
-  
-  const handleFavorite = () => {
-    setIsFavorite(!isFavorite);
-    toast({
-      title: isFavorite ? "Removed from favorites" : "Added to favorites",
-      description: isFavorite ? "This service has been removed from your favorites" : "This service has been added to your favorites",
-    });
-  };
-  
-  const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-    toast({
-      title: "Link copied!",
-      description: "The link to this service has been copied to your clipboard",
-    });
-  };
+
+  if (!service) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 py-16">
+          <div className="container px-4 text-center">
+            <h1 className="text-2xl font-bold mb-4">Service Not Found</h1>
+            <p className="text-muted-foreground mb-6">
+              The service you're looking for doesn't exist or has been removed.
+            </p>
+            <Button asChild>
+              <Link to="/categories">Browse Services</Link>
+            </Button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 container mx-auto py-8 px-4">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Main Content */}
-          <div className="flex-1">
-            {/* Breadcrumb */}
-            <div className="text-sm text-muted-foreground mb-4">
-              <Link to="/" className="hover:text-servie">Home</Link> / 
-              <Link to="/categories" className="mx-1 hover:text-servie">Categories</Link> / 
-              <Link to={`/categories?category=${service.category}`} className="mx-1 hover:text-servie">{service.category}</Link> /
-              <span className="ml-1 text-foreground">{service.title}</span>
-            </div>
-            
-            {/* Service Title and Badges */}
-            <div className="mb-6">
-              <h1 className="text-2xl md:text-3xl font-bold mb-2">{service.title}</h1>
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline">{service.category}</Badge>
-                {service.tags.map((tag, index) => (
-                  <Badge key={index} variant="outline">{tag}</Badge>
-                ))}
-              </div>
-            </div>
-            
-            {/* Image Gallery */}
-            <div className="mb-8">
-              <div className="rounded-lg overflow-hidden mb-2">
+      <main className="flex-1 py-8">
+        <div className="container px-4">
+          {/* Breadcrumb */}
+          <div className="mb-6">
+            <Link to="/categories" className="flex items-center text-sm text-muted-foreground hover:text-foreground">
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Back to services
+            </Link>
+          </div>
+
+          {/* Service details */}
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Service info */}
+            <div className="w-full lg:w-2/3 space-y-6">
+              {/* Main image */}
+              <div className="aspect-video bg-muted/20 rounded-lg overflow-hidden">
                 <img
-                  src={service.gallery[currentImage]}
+                  src={activeImage || service.images[0]}
                   alt={service.title}
-                  className="w-full h-[400px] object-cover"
+                  className="w-full h-full object-cover"
                 />
               </div>
-              <div className="flex gap-2 overflow-x-auto pb-2">
-                {service.gallery.map((img, index) => (
-                  <div
-                    key={index}
-                    onClick={() => setCurrentImage(index)}
-                    className={`cursor-pointer rounded-md overflow-hidden border-2 ${
-                      currentImage === index ? "border-servie" : "border-transparent"
-                    }`}
-                  >
-                    <img
-                      src={img}
-                      alt={`${service.title} ${index + 1}`}
-                      className="w-20 h-20 object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            {/* Service Tabs */}
-            <Tabs defaultValue="description" className="mb-10">
-              <TabsList className="w-full">
-                <TabsTrigger value="description" className="flex-1">Description</TabsTrigger>
-                <TabsTrigger value="packages" className="flex-1">Packages</TabsTrigger>
-                <TabsTrigger value="reviews" className="flex-1">Reviews</TabsTrigger>
-              </TabsList>
-              
-              {/* Description Tab */}
-              <TabsContent value="description" className="pt-6 space-y-6">
-                <div>
-                  <h3 className="text-xl font-semibold mb-4">About This Service</h3>
-                  <p className="text-muted-foreground">{service.description}</p>
-                </div>
-                
-                <div>
-                  <h3 className="text-xl font-semibold mb-4">Tags</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {service.tags.map((tag, index) => (
-                      <Badge key={index} variant="secondary">{tag}</Badge>
-                    ))}
-                  </div>
-                </div>
-              </TabsContent>
-              
-              {/* Packages Tab */}
-              <TabsContent value="packages" className="pt-6 space-y-6">
-                <h3 className="text-xl font-semibold mb-4">Available Packages</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {service.packages.map((pkg) => (
-                    <Card 
-                      key={pkg.id} 
-                      className={`cursor-pointer ${selectedPackage === pkg.id ? 'border-servie ring-1 ring-servie' : ''}`}
-                      onClick={() => setSelectedPackage(pkg.id)}
+              {/* Thumbnail images */}
+              {service.images.length > 1 && (
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {service.images.map((image, index) => (
+                    <button
+                      key={index}
+                      className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${
+                        activeImage === image ? "border-servie" : "border-muted"
+                      }`}
+                      onClick={() => setActiveImage(image)}
                     >
-                      <CardContent className="p-4 space-y-4">
-                        <div>
-                          <h4 className="font-semibold text-lg">{pkg.name}</h4>
-                          <p className="text-sm text-muted-foreground">{pkg.description}</p>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="font-bold text-xl">{service.currency}{pkg.price}</span>
-                          <div className="flex items-center text-sm text-muted-foreground">
-                            <Clock className="mr-1 h-4 w-4" />
-                            {pkg.delivery}
-                          </div>
-                        </div>
-                        <Separator />
-                        <div className="space-y-2">
-                          <p className="text-sm font-medium">What's Included:</p>
-                          <ul className="space-y-1">
-                            {pkg.features.map((feature, index) => (
-                              <li key={index} className="flex items-center text-sm">
-                                <Check className="mr-2 h-4 w-4 text-green-500" />
-                                {feature}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </CardContent>
-                    </Card>
+                      <img src={image} alt={`${service.title} ${index + 1}`} className="w-full h-full object-cover" />
+                    </button>
                   ))}
                 </div>
-              </TabsContent>
-              
-              {/* Reviews Tab */}
-              <TabsContent value="reviews" className="pt-6 space-y-6">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-xl font-semibold">
-                    {service.reviewCount} Reviews
-                  </h3>
-                  <div className="flex items-center">
-                    <div className="flex">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                          key={star}
-                          className={`h-5 w-5 ${
-                            star <= Math.round(service.rating)
-                              ? "fill-yellow-400 text-yellow-400"
-                              : "text-gray-300"
-                          }`}
-                        />
-                      ))}
+              )}
+
+              {/* Title and rating */}
+              <div>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h1 className="text-2xl md:text-3xl font-bold">{service.title}</h1>
+                    <div className="flex items-center mt-2">
+                      <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
+                      <span className="ml-1 font-medium">{service.rating}</span>
+                      <span className="mx-1 text-muted-foreground">•</span>
+                      <span className="text-muted-foreground">{service.reviewCount} reviews</span>
+                      <span className="mx-1 text-muted-foreground">•</span>
+                      <Badge variant="outline" className="text-xs">
+                        {service.category.replace("-", " ").replace(/\b\w/g, l => l.toUpperCase())}
+                      </Badge>
                     </div>
-                    <span className="ml-2 font-bold">{service.rating.toFixed(1)}</span>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full"
+                    onClick={handleToggleFavorite}
+                  >
+                    <Heart className={`h-6 w-6 ${isFavorite ? "fill-red-500 text-red-500" : ""}`} />
+                  </Button>
                 </div>
-                
-                <Separator />
-                
-                <div className="space-y-6">
-                  {service.reviews.map((review) => (
-                    <div key={review.id} className="space-y-2">
-                      <div className="flex justify-between">
-                        <div className="flex items-center gap-2">
-                          <img
-                            src={review.userAvatar}
-                            alt={review.userName}
-                            className="w-10 h-10 rounded-full"
-                          />
-                          <div>
-                            <p className="font-medium">{review.userName}</p>
-                            <p className="text-sm text-muted-foreground">{review.date}</p>
-                          </div>
-                        </div>
-                        <div className="flex">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              className={`h-4 w-4 ${
-                                star <= Math.round(review.rating)
-                                  ? "fill-yellow-400 text-yellow-400"
-                                  : "text-gray-300"
-                              }`}
-                            />
-                          ))}
+              </div>
+
+              {/* Service tabs */}
+              <Tabs defaultValue="overview" className="mt-4">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="reviews">Reviews</TabsTrigger>
+                  <TabsTrigger value="provider">Provider</TabsTrigger>
+                </TabsList>
+                <TabsContent value="overview" className="py-4">
+                  <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:justify-between gap-4">
+                      <div className="flex items-center">
+                        <Clock className="h-5 w-5 text-servie mr-2" />
+                        <div>
+                          <p className="text-sm text-muted-foreground">Duration</p>
+                          <p className="font-medium">{service.duration}</p>
                         </div>
                       </div>
-                      <p className="text-muted-foreground">{review.comment}</p>
-                      <Separator />
+                      <div className="flex items-center">
+                        <MapPin className="h-5 w-5 text-servie mr-2" />
+                        <div>
+                          <p className="text-sm text-muted-foreground">Location</p>
+                          <p className="font-medium">At your home</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center">
+                        <Calendar className="h-5 w-5 text-servie mr-2" />
+                        <div>
+                          <p className="text-sm text-muted-foreground">Availability</p>
+                          <p className="font-medium">Mon-Sat, 9AM-5PM</p>
+                        </div>
+                      </div>
                     </div>
-                  ))}
-                </div>
-              </TabsContent>
-            </Tabs>
-            
-            {/* Related Services */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold mb-4">Similar Services</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {relatedServices.map((relatedService) => (
-                  <ServiceCard
-                    key={relatedService.id}
-                    id={relatedService.id}
-                    title={relatedService.title}
-                    category={relatedService.category}
-                    imageUrl={relatedService.imageUrl}
-                    providerName={relatedService.providerName}
-                    providerAvatar={relatedService.providerAvatar}
-                    rating={relatedService.rating}
-                    reviewCount={relatedService.reviewCount}
-                    price={relatedService.price}
-                    currency={relatedService.currency}
-                    featured={relatedService.featured}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-          
-          {/* Sidebar */}
-          <div className="w-full lg:w-80">
-            <div className="sticky top-24 space-y-6">
-              {/* Book Service Card */}
-              <Card>
-                <CardContent className="p-6 space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h3 className="font-bold text-xl">
-                      {service.currency}
-                      {service.packages.find(pkg => pkg.id === selectedPackage)?.price || service.price}
-                    </h3>
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-medium">{service.rating.toFixed(1)}</span>
-                      <span className="text-sm text-muted-foreground">
-                        ({service.reviewCount})
-                      </span>
+
+                    <div className="pt-4">
+                      <h3 className="text-lg font-semibold mb-3">About this service</h3>
+                      <div className="space-y-4 text-muted-foreground">
+                        <p>{service.longDescription}</p>
+                      </div>
+                    </div>
+
+                    <div className="pt-4">
+                      <h3 className="text-lg font-semibold mb-3">What's included</h3>
+                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        {[
+                          "Dusting all accessible surfaces",
+                          "Vacuuming floors and carpets",
+                          "Mopping all hard floors",
+                          "Kitchen cleaning",
+                          "Bathroom cleaning and disinfecting",
+                          "Trash removal"
+                        ].map((item, idx) => (
+                          <li key={idx} className="flex items-center">
+                            <CheckCircle className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   </div>
-                  
-                  <div className="space-y-2">
-                    <p className="font-medium">Selected Package:</p>
-                    <p>{service.packages.find(pkg => pkg.id === selectedPackage)?.name || "Standard"}</p>
+                </TabsContent>
+                <TabsContent value="reviews" className="py-4">
+                  <div className="space-y-8">
+                    <div className="bg-muted/30 p-6 rounded-lg">
+                      <div className="flex flex-col md:flex-row md:items-center gap-6">
+                        <div className="text-center">
+                          <span className="text-5xl font-bold">{service.rating}</span>
+                          <div className="flex justify-center mt-2">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={star}
+                                className={`h-5 w-5 ${
+                                  star <= Math.floor(service.rating)
+                                    ? "text-yellow-400 fill-yellow-400"
+                                    : "text-muted-foreground"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <p className="mt-1 text-sm text-muted-foreground">
+                            Based on {service.reviewCount} reviews
+                          </p>
+                        </div>
+                        
+                        <div className="flex-1">
+                          <div className="space-y-2">
+                            {[5, 4, 3, 2, 1].map((rating) => {
+                              // Calculate percentage for each rating (mock data)
+                              const percentage = rating === 5 ? 75 : 
+                                                rating === 4 ? 15 : 
+                                                rating === 3 ? 5 : 
+                                                rating === 2 ? 3 : 2;
+                              return (
+                                <div key={rating} className="flex items-center">
+                                  <div className="flex items-center w-24">
+                                    <span className="mr-2">{rating}</span>
+                                    <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                                  </div>
+                                  <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                                    <div
+                                      className="h-full bg-yellow-400"
+                                      style={{ width: `${percentage}%` }}
+                                    ></div>
+                                  </div>
+                                  <span className="ml-4 text-sm w-12">{percentage}%</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Mock reviews */}
+                    <div className="space-y-6">
+                      {[
+                        {
+                          name: "Sarah Miller",
+                          date: "2025-04-18",
+                          rating: 5,
+                          comment: "The cleaning team was extremely thorough and professional. My home has never looked better! They paid attention to every detail and used eco-friendly products as promised.",
+                          avatar: "/placeholder.svg"
+                        },
+                        {
+                          name: "Mike Thompson",
+                          date: "2025-04-05",
+                          rating: 4,
+                          comment: "Great service overall. They did an excellent job with the bathrooms and kitchen. The only reason for 4 stars is they were about 15 minutes late, but they did call to let me know.",
+                          avatar: "/placeholder.svg"
+                        },
+                        {
+                          name: "Jennifer Adams",
+                          date: "2025-03-22",
+                          rating: 5,
+                          comment: "I've tried several cleaning services, and this is by far the best. The cleaners were friendly, efficient, and left my home spotless. Will definitely use them again!",
+                          avatar: "/placeholder.svg"
+                        }
+                      ].map((review, idx) => (
+                        <div key={idx} className="border-b pb-6 last:border-none">
+                          <div className="flex justify-between">
+                            <div className="flex items-center">
+                              <img
+                                src={review.avatar}
+                                alt={review.name}
+                                className="w-10 h-10 rounded-full mr-3"
+                              />
+                              <div>
+                                <p className="font-medium">{review.name}</p>
+                                <div className="flex items-center">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <Star
+                                      key={star}
+                                      className={`h-4 w-4 ${
+                                        star <= review.rating
+                                          ? "text-yellow-400 fill-yellow-400"
+                                          : "text-muted stroke-muted-foreground"
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {new Date(review.date).toLocaleDateString("en-US", {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric"
+                              })}
+                            </div>
+                          </div>
+                          <p className="mt-3">{review.comment}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <Clock className="mr-2 h-4 w-4" />
-                    Delivery in {service.packages.find(pkg => pkg.id === selectedPackage)?.delivery || service.delivery}
-                  </div>
-                  
-                  <Button className="w-full bg-servie hover:bg-servie-600" asChild>
-                    <Link to={`/booking/${service.id}?package=${selectedPackage}`}>
-                      Book Service
-                    </Link>
-                  </Button>
-                  
-                  <div className="flex gap-2">
-                    <Button variant="outline" className="flex-1" onClick={handleFavorite}>
-                      <Heart className={`mr-2 h-4 w-4 ${isFavorite ? "fill-servie text-servie" : ""}`} />
-                      {isFavorite ? "Saved" : "Save"}
-                    </Button>
-                    <Button variant="outline" className="flex-1" onClick={handleShare}>
-                      <Share2 className="mr-2 h-4 w-4" />
-                      Share
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              {/* Provider Info Card */}
-              <Card>
-                <CardContent className="p-6 space-y-4">
-                  <div className="flex items-center gap-4">
-                    <img
-                      src={service.providerAvatar}
-                      alt={service.providerName}
-                      className="w-16 h-16 rounded-full"
-                    />
+                </TabsContent>
+                <TabsContent value="provider" className="py-4">
+                  <div className="space-y-6">
+                    <div className="flex items-center">
+                      <Avatar className="h-16 w-16 mr-4">
+                        <AvatarImage src={service.providerAvatar} alt={service.providerName} />
+                        <AvatarFallback>{service.providerName.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="text-xl font-semibold">{service.providerName}</h3>
+                        <div className="flex items-center mt-1">
+                          <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                          <span className="ml-1 font-medium">{service.providerRating}</span>
+                          <span className="ml-1 text-muted-foreground">
+                            ({service.providerReviewCount} reviews)
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
                     <div>
-                      <h3 className="font-semibold">{service.providerName}</h3>
-                      <p className="text-sm text-muted-foreground">Service Provider</p>
+                      <p className="text-muted-foreground">{service.providerDescription}</p>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-4">
+                      <Button variant="outline">
+                        <Link to={`/provider/${service.providerId}`}>View Profile</Link>
+                      </Button>
+                      <Button>
+                        <Link to={`/provider/${service.providerId}/contact`}>Contact Provider</Link>
+                      </Button>
                     </div>
                   </div>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-2">
-                      <MapPin className="h-4 w-4 mt-0.5 text-muted-foreground" />
-                      <span className="text-sm">{service.providerLocation}</span>
+                </TabsContent>
+              </Tabs>
+            </div>
+
+            {/* Booking card */}
+            <div className="w-full lg:w-1/3">
+              <div className="sticky top-24">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex justify-between items-start">
+                      <span>
+                        ${service.price}{" "}
+                        <span className="text-sm font-normal text-muted-foreground">
+                          {service.priceType === "hourly" 
+                            ? "/ hour" 
+                            : service.priceType === "starting" 
+                            ? "starting price" 
+                            : "fixed price"}
+                        </span>
+                      </span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <h3 className="font-medium mb-2">Select Date</h3>
+                      <div className="grid grid-cols-3 gap-2">
+                        {[0, 1, 2, 3, 4, 5].map((dayOffset) => {
+                          const date = new Date();
+                          date.setDate(date.getDate() + dayOffset);
+                          return (
+                            <Button
+                              key={dayOffset}
+                              variant={selectedDate && selectedDate.getDate() === date.getDate() ? "default" : "outline"}
+                              className="flex flex-col h-auto py-2"
+                              onClick={() => setSelectedDate(date)}
+                            >
+                              <span className="text-xs">
+                                {date.toLocaleDateString("en-US", { weekday: "short" })}
+                              </span>
+                              <span className="text-lg">{date.getDate()}</span>
+                            </Button>
+                          );
+                        })}
+                      </div>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <User className="h-4 w-4 mt-0.5 text-muted-foreground" />
-                      <span className="text-sm">Member since {new Date(service.providerJoined).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</span>
+                    
+                    <div>
+                      <h3 className="font-medium mb-2">Select Time</h3>
+                      <div className="grid grid-cols-3 gap-2">
+                        {availableTimes.map((time) => (
+                          <Button
+                            key={time}
+                            variant={selectedTime === time ? "default" : "outline"}
+                            className="text-sm"
+                            onClick={() => setSelectedTime(time)}
+                          >
+                            {time}
+                          </Button>
+                        ))}
+                      </div>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <Calendar className="h-4 w-4 mt-0.5 text-muted-foreground" />
-                      <span className="text-sm">Usually responds within a few hours</span>
+                    
+                    <Button 
+                      className="w-full bg-servie hover:bg-servie-600 mt-4" 
+                      size="lg"
+                      onClick={handleBookNow}
+                    >
+                      Book Now
+                    </Button>
+
+                    <div className="flex flex-col space-y-2 text-sm text-muted-foreground">
+                      <div className="flex justify-between">
+                        <span>Service fee</span>
+                        <span>${service.price}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Booking fee</span>
+                        <span>$5.00</span>
+                      </div>
+                      <div className="flex justify-between font-semibold text-foreground pt-2 border-t">
+                        <span>Total</span>
+                        <span>${(service.price + 5).toFixed(2)}</span>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <p className="text-sm">{service.providerDescription}</p>
-                  </div>
-                  
-                  <Button variant="outline" className="w-full">
-                    Contact Provider
-                  </Button>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </div>
         </div>
@@ -358,6 +562,4 @@ const ServiceDetail = () => {
       <Footer />
     </div>
   );
-};
-
-export default ServiceDetail;
+}

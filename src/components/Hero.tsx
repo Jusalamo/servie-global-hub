@@ -7,8 +7,21 @@ import { toast } from "sonner";
 import AnimatedSearchInput from "./AnimatedSearchInput";
 import { useNavigate } from "react-router-dom";
 
+// Popular searches that will simulate dynamic content
+const popularSearches = [
+  "Home Cleaning",
+  "Plumbing",
+  "Tutoring",
+  "Tax Preparation",
+  "Web Design",
+  "Personal Training",
+  "Interior Design",
+  "Car Repair"
+];
+
 export default function Hero() {
   const [subscribeEmail, setSubscribeEmail] = useState("");
+  const [displayedSearches, setDisplayedSearches] = useState(popularSearches.slice(0, 6));
   const navigate = useNavigate();
   
   const handleSubscribe = (e: React.FormEvent) => {
@@ -21,6 +34,11 @@ export default function Hero() {
   };
   
   const handleSearch = (query: string) => {
+    // Simulate adding the search to popular searches
+    if (query && !popularSearches.includes(query)) {
+      const newSearches = [query, ...popularSearches];
+      setDisplayedSearches(newSearches.slice(0, 6));
+    }
     navigate(`/categories?search=${encodeURIComponent(query)}`);
   };
 
@@ -64,25 +82,18 @@ export default function Hero() {
             </p>
           </div>
 
-          {/* Enhanced Search Section */}
-          <div className="w-full max-w-2xl mx-auto bg-white/90 dark:bg-gray-800/90 p-4 rounded-xl shadow-lg animate-fade-in">
+          {/* Enhanced Search Section without background */}
+          <div className="w-full max-w-2xl mx-auto animate-fade-in">
             <AnimatedSearchInput onSearch={handleSearch} />
             
-            <div className="mt-4">
-              <p className="text-sm text-muted-foreground mb-2">Popular searches:</p>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  "Home Cleaning",
-                  "Plumbing",
-                  "Tutoring",
-                  "Tax Preparation",
-                  "Web Design",
-                  "Personal Training"
-                ].map((term, index) => (
+            <div className="mt-3">
+              <div className="flex flex-wrap gap-2 items-center">
+                <span className="text-sm text-muted-foreground">Popular:</span>
+                {displayedSearches.map((term, index) => (
                   <button
                     key={index}
                     onClick={() => navigate(`/categories?search=${encodeURIComponent(term)}`)}
-                    className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm hover:bg-servie/10 transition-colors"
+                    className="px-2 py-1 text-sm hover:text-servie transition-colors"
                   >
                     {term}
                   </button>
