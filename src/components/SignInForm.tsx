@@ -1,157 +1,126 @@
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { useNavigate, useLocation, Link } from "react-router-dom";
-import { Loader2, Eye, EyeOff } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "sonner";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
 
-const formSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(1, { message: "Password is required" }),
-  rememberMe: z.boolean().optional(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
-const SignInForm = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const { signIn } = useAuth();
+export function SignInForm() {
   const navigate = useNavigate();
-  const location = useLocation();
-  // Get the redirect path from the location state, or default to dashboard
-  const from = location.state?.from?.pathname || "/dashboard";
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      rememberMe: false,
-    },
+  const { login } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    rememberMe: false
   });
 
-  const onSubmit = async (data: FormValues) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === 'checkbox' ? checked : value
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setIsLoading(true);
+
     try {
-      await signIn(data.email, data.password);
+      // In a real implementation, this would call an API
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Simulate successful login
+      login({
+        id: '123',
+        email: formData.email,
+        user_metadata: {
+          first_name: 'Demo',
+          last_name: 'User',
+          avatar_url: '/placeholder.svg'
+        }
+      });
+      
       toast.success("Successfully signed in!");
-      navigate(from, { replace: true });
+      
+      // Navigate to dashboard based on user role
+      if (formData.email.includes('provider')) {
+        navigate('/dashboard/provider');
+      } else if (formData.email.includes('seller')) {
+        navigate('/dashboard/seller');
+      } else {
+        navigate('/dashboard/client');
+      }
     } catch (error) {
-      console.error('Error in sign-in form:', error);
-      toast.error(error instanceof Error ? error.message : "Failed to sign in. Please try again.");
+      toast.error("Failed to sign in. Please check your credentials.");
+      console.error("Login error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-2">
+        <Label htmlFor="email">Email</Label>
+        <Input
+          id="email"
           name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email address</FormLabel>
-              <FormControl>
-                <Input 
-                  placeholder="you@example.com" 
-                  type="email"
-                  autoComplete="email"
-                  {...field} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          type="email"
+          autoComplete="email"
+          required
+          value={formData.email}
+          onChange={handleInputChange}
         />
-
-        <FormField
-          control={form.control}
+      </div>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label htmlFor="password">Password</Label>
+          <Button variant="link" className="p-0" asChild>
+            <a href="/forgot-password">Forgot password?</a>
+          </Button>
+        </div>
+        <Input
+          id="password"
           name="password"
-          render={({ field }) => (
-            <FormItem>
-              <div className="flex items-center justify-between">
-                <FormLabel>Password</FormLabel>
-                <Link 
-                  to="/forgot-password" 
-                  className="text-sm font-medium text-servie hover:underline"
-                >
-                  Forgot password?
-                </Link>
-              </div>
-              <FormControl>
-                <div className="relative">
-                  <Input 
-                    type={showPassword ? "text" : "password"}
-                    placeholder="********"
-                    autoComplete="current-password"
-                    className="pr-10"
-                    {...field} 
-                  />
-                  <button 
-                    type="button" 
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          type="password"
+          autoComplete="current-password"
+          required
+          value={formData.password}
+          onChange={handleInputChange}
         />
-
-        <FormField
-          control={form.control}
+      </div>
+      <div className="flex items-center space-x-2">
+        <Checkbox 
+          id="rememberMe" 
           name="rememberMe"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>
-                  Remember me
-                </FormLabel>
-              </div>
-            </FormItem>
-          )}
+          checked={formData.rememberMe}
+          onCheckedChange={(checked) => 
+            setFormData({...formData, rememberMe: checked === true})
+          }
         />
-
-        <Button type="submit" className="w-full bg-servie hover:bg-servie-600 text-white" disabled={isLoading}>
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Signing in...
-            </>
-          ) : (
-            "Sign in"
-          )}
-        </Button>
-      </form>
-    </Form>
+        <Label htmlFor="rememberMe">Remember me</Label>
+      </div>
+      <Button
+        type="submit"
+        className="w-full bg-servie hover:bg-servie-600"
+        disabled={isLoading}
+      >
+        {isLoading ? "Signing in..." : "Sign in"}
+      </Button>
+      
+      <div className="text-sm text-center text-gray-500">
+        <p>
+          For testing, use any email. Add "provider" or "seller" to the email 
+          to access those dashboards (e.g., user.provider@example.com)
+        </p>
+      </div>
+    </form>
   );
-};
+}
 
 export default SignInForm;

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -97,6 +96,9 @@ export default function Checkout() {
     try {
       // In a real app, this would be an API call to process the payment
       await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Set a flag to indicate that checkout was completed successfully
+      sessionStorage.setItem("fromCheckout", "true");
       
       toast.success("Payment successful! Your order has been placed.");
       navigate("/order-confirmation");

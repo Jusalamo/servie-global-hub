@@ -1,199 +1,200 @@
-
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import SellerSidebar from "@/components/dashboard/SellerSidebar";
-import AIAssistant from "@/components/dashboard/AIAssistant";
-import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
-import OverviewTab from "@/components/dashboard/seller/OverviewTab";
-import OrdersTab from "@/components/dashboard/seller/OrdersTab";
-import AddProductForm from "@/components/dashboard/seller/AddProductForm";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { 
+  Package, 
+  ShoppingBag, 
+  BarChart2, 
+  Tag, 
+  Users, 
+  CreditCard, 
+  Settings, 
+  HelpCircle, 
+  MessageSquare, 
+  TrendingUp, 
+  Store 
+} from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
+import OverviewTab from "@/components/dashboard/seller/OverviewTab";
+import AddProductForm from "@/components/dashboard/seller/AddProductForm";
+import OrdersTab from "@/components/dashboard/seller/OrdersTab";
 
-// Mock products data
-const products = [
-  {
-    id: "prod_1",
-    name: "Professional Cleaning Kit",
-    description: "Complete kit with eco-friendly cleaning supplies for professionals.",
-    price: 79.99,
-    stock: 24,
-    sold: 156,
-    rating: 4.8,
-    reviewCount: 45,
-    image: "https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
-    category: "Cleaning Supplies"
-  },
-  {
-    id: "prod_2",
-    name: "Microfiber Cleaning Cloths (24-Pack)",
-    description: "High-quality microfiber cloths for streak-free cleaning of all surfaces.",
-    price: 19.99,
-    stock: 120,
-    sold: 342,
-    rating: 4.9,
-    reviewCount: 128,
-    image: "https://images.unsplash.com/photo-1583907659441-addbe699e921?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
-    category: "Cleaning Supplies"
-  },
-  {
-    id: "prod_3",
-    name: "All-Purpose Cleaner (Organic)",
-    description: "Plant-based, biodegradable all-purpose cleaner for any surface.",
-    price: 12.99,
-    stock: 0,
-    sold: 89,
-    rating: 4.7,
-    reviewCount: 34,
-    image: "https://images.unsplash.com/photo-1622668211424-c1e7d91445f2?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
-    category: "Cleaning Supplies"
-  }
-];
+interface SidebarLinkProps {
+  icon: React.ReactNode;
+  label: string;
+  isActive: boolean;
+  onClick: () => void;
+}
 
-export default function SellerDashboard() {
+interface SellerDashboardProps {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+}
+
+const SidebarLink = ({ icon, label, isActive, onClick }: SidebarLinkProps) => {
+  return (
+    <Button
+      variant="ghost"
+      className={`w-full justify-start ${isActive ? "bg-muted" : ""}`}
+      onClick={onClick}
+    >
+      {icon}
+      <span className="ml-2">{label}</span>
+    </Button>
+  );
+};
+
+export default function SellerSidebar({ activeTab, onTabChange }: SellerDashboardProps) {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [activeTab, setActiveTab] = useState("overview");
   const { user } = useAuth();
   
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const tab = params.get("tab");
-    if (tab) {
-      setActiveTab(tab);
-    }
-  }, [location]);
-  
   const handleTabClick = (tabName: string) => {
-    setActiveTab(tabName);
-    navigate(`/dashboard/seller?tab=${tabName}`);
+    onTabChange(tabName);
   };
-  
+
+  // Render the appropriate tab content based on activeTab
   const renderTabContent = () => {
-    switch(activeTab) {
+    switch (activeTab) {
       case "overview":
         return <OverviewTab />;
+      case "products":
+        return <AddProductForm onSuccess={() => onTabChange("overview")} />;
       case "orders":
         return <OrdersTab />;
-      case "products":
-        return <ProductsTab products={products} />;
-      case "add-product":
-        return <AddProductForm />;
+      case "inventory":
+        return <PlaceholderContent title="Inventory Management" message="Track stock levels, set alerts, and manage product inventory." />;
+      case "analytics":
+        return <PlaceholderContent title="Analytics & Reports" message="Get insights on sales performance, customer behavior, and growth trends." />;
+      case "store":
+        return <PlaceholderContent title="Store Settings" message="Configure your online store appearance, policies, and shipping options." />;
+      case "customers":
+        return <PlaceholderContent title="Customers" message="Manage customer relationships, view purchase history, and create loyalty programs." />;
+      case "messages":
+        return <PlaceholderContent title="Messages" message="Communicate with customers about orders and products." />;
+      case "payments":
+        return <PlaceholderContent title="Payments" message="Track your revenue, payment history, and manage payout settings." />;
+      case "settings":
+        return <PlaceholderContent title="Settings" message="Configure your seller profile, notifications, and account settings." />;
+      case "help":
+        return <PlaceholderContent title="Help & Support" message="Get assistance with using the platform and growing your business." />;
       default:
-        return <PlaceholderTab name={activeTab} />;
+        return <OverviewTab />;
     }
   };
-  
-  const breadcrumbItems = [
-    { label: "Overview", path: activeTab === "overview" ? undefined : `/dashboard/seller?tab=overview` },
-    ...(activeTab !== "overview" ? [{ label: activeTab.charAt(0).toUpperCase() + activeTab.slice(1) }] : [])
-  ];
-  
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1 flex">
-        <SellerSidebar activeTab={activeTab} onTabChange={handleTabClick} />
-        <div className="flex-1 p-6 overflow-auto">
-          <div className="max-w-7xl mx-auto space-y-6">
-            <DashboardBreadcrumb 
-              items={breadcrumbItems}
-              userRole="seller"
-            />
-            
-            {renderTabContent()}
+    <div className="w-64 border-r h-full py-6 px-3 hidden md:block">
+      {/* User Profile Card */}
+      <Card className="mb-6">
+        <CardContent className="p-4 flex flex-col items-center space-y-2">
+          <Avatar className="h-16 w-16">
+            <AvatarImage src={user?.user_metadata?.avatar_url || "/placeholder.svg"} alt="Profile" />
+            <AvatarFallback>{user?.user_metadata?.first_name?.charAt(0) || 'S'}</AvatarFallback>
+          </Avatar>
+          <div className="text-center">
+            <h3 className="font-semibold">
+              {user?.user_metadata?.first_name} {user?.user_metadata?.last_name || 'Seller'}
+            </h3>
+            <p className="text-sm text-muted-foreground">Seller Account</p>
           </div>
-        </div>
-        <AIAssistant />
-      </main>
-      <Footer />
+        </CardContent>
+      </Card>
+
+      <div className="mb-6">
+        <h2 className="font-semibold text-lg px-4">Seller Dashboard</h2>
+        <p className="text-muted-foreground text-sm mt-1 px-4">Manage your seller account</p>
+      </div>
+
+      <div className="space-y-1">
+        <SidebarLink
+          icon={<BarChart2 className="h-5 w-5" />}
+          label="Overview"
+          isActive={activeTab === "overview"}
+          onClick={() => handleTabClick("overview")}
+        />
+        
+        <SidebarLink
+          icon={<ShoppingBag className="h-5 w-5" />}
+          label="Orders"
+          isActive={activeTab === "orders"}
+          onClick={() => handleTabClick("orders")}
+        />
+        
+        <SidebarLink
+          icon={<Package className="h-5 w-5" />}
+          label="Products"
+          isActive={activeTab === "products"}
+          onClick={() => handleTabClick("products")}
+        />
+        
+        <SidebarLink
+          icon={<Tag className="h-5 w-5" />}
+          label="Inventory"
+          isActive={activeTab === "inventory"}
+          onClick={() => handleTabClick("inventory")}
+        />
+        
+        <SidebarLink
+          icon={<TrendingUp className="h-5 w-5" />}
+          label="Analytics"
+          isActive={activeTab === "analytics"}
+          onClick={() => handleTabClick("analytics")}
+        />
+        
+        <SidebarLink
+          icon={<Store className="h-5 w-5" />}
+          label="Store Settings"
+          isActive={activeTab === "store"}
+          onClick={() => handleTabClick("store")}
+        />
+        
+        <SidebarLink
+          icon={<Users className="h-5 w-5" />}
+          label="Customers"
+          isActive={activeTab === "customers"}
+          onClick={() => handleTabClick("customers")}
+        />
+        
+        <SidebarLink
+          icon={<MessageSquare className="h-5 w-5" />}
+          label="Messages"
+          isActive={activeTab === "messages"}
+          onClick={() => handleTabClick("messages")}
+        />
+        
+        <SidebarLink
+          icon={<CreditCard className="h-5 w-5" />}
+          label="Payments"
+          isActive={activeTab === "payments"}
+          onClick={() => handleTabClick("payments")}
+        />
+        
+        <SidebarLink
+          icon={<Settings className="h-5 w-5" />}
+          label="Settings"
+          isActive={activeTab === "settings"}
+          onClick={() => handleTabClick("settings")}
+        />
+        
+        <SidebarLink
+          icon={<HelpCircle className="h-5 w-5" />}
+          label="Help"
+          isActive={activeTab === "help"}
+          onClick={() => handleTabClick("help")}
+        />
+      </div>
     </div>
   );
 }
 
-// Tab Components
-const ProductsTab = ({ products }: { products: any[] }) => {
-  const navigate = useNavigate();
-  
+// Add this PlaceholderContent component at the bottom of the file
+const PlaceholderContent = ({ title, message }: { title: string; message: string }) => {
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold tracking-tight">Your Products</h2>
-        <Button onClick={() => navigate('/dashboard/seller?tab=add-product')}>
-          Add New Product
-        </Button>
-      </div>
-      
-      {products.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product) => (
-            <Card key={product.id} className="overflow-hidden">
-              <div className="aspect-video w-full relative">
-                <img 
-                  src={product.image} 
-                  alt={product.name} 
-                  className="w-full h-full object-cover"
-                />
-                {product.stock === 0 && (
-                  <div className="absolute top-2 right-2">
-                    <Badge className="bg-purple-500 text-white">Out of Stock</Badge>
-                  </div>
-                )}
-              </div>
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="line-clamp-1">{product.name}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{product.category}</p>
-                  </div>
-                  <p className="text-lg font-bold">${product.price.toFixed(2)}</p>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm line-clamp-2">{product.description}</p>
-                
-                <div className="flex justify-between text-sm">
-                  <div className="flex items-center text-purple-600">
-                    <span>Stock: {product.stock > 0 ? product.stock : "Out of stock"}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span>Sold: {product.sold}</span>
-                  </div>
-                </div>
-                
-                <div className="pt-2 flex space-x-2">
-                  <Button variant="default" className="flex-1">Edit</Button>
-                  <Button variant="outline" className="flex-1">View Details</Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-12 bg-muted/50 rounded-lg">
-          <h3 className="text-xl font-medium mb-2">No products yet</h3>
-          <p className="text-muted-foreground mb-6">Start by adding your first product to your store</p>
-          <Button onClick={() => navigate('/dashboard/seller?tab=add-product')}>
-            Add Your First Product
-          </Button>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// Placeholder Tab for other menu items
-const PlaceholderTab = ({ name }: { name: string }) => {
-  return (
-    <div className="text-center py-12">
-      <h2 className="text-2xl font-bold mb-4">{name.charAt(0).toUpperCase() + name.slice(1)} Content</h2>
-      <p className="text-muted-foreground max-w-md mx-auto">
-        This section is under development. Check back soon for updates.
-      </p>
+    <div className="text-center py-16">
+      <h2 className="text-2xl font-bold mb-2">{title}</h2>
+      <p className="text-muted-foreground mb-6">{message}</p>
+      <p>This section is coming soon. Check back for updates!</p>
     </div>
   );
 };
