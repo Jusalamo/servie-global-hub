@@ -22,6 +22,12 @@ import AddProductForm from "@/components/dashboard/seller/AddProductForm";
 import OrdersTab from "@/components/dashboard/seller/OrdersTab";
 import SellerSidebar from "@/components/dashboard/SellerSidebar";
 
+// Define SellerDashboardProps interface
+interface SellerDashboardProps {
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
+}
+
 // Define the PlaceholderContent component
 const PlaceholderContent = ({ title, message }: { title: string; message: string }) => {
   return (
@@ -33,11 +39,14 @@ const PlaceholderContent = ({ title, message }: { title: string; message: string
   );
 };
 
-export default function SellerDashboard() {
-  const [activeTab, setActiveTab] = useState("overview");
+export default function SellerDashboard({ activeTab: initialTab, onTabChange: externalTabChange }: SellerDashboardProps) {
+  const [activeTab, setActiveTab] = useState(initialTab || "overview");
   
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
+    if (externalTabChange) {
+      externalTabChange(tab);
+    }
   };
 
   // Render the appropriate tab content based on activeTab
@@ -46,7 +55,6 @@ export default function SellerDashboard() {
       case "overview":
         return <OverviewTab />;
       case "products":
-        // Only pass onSuccess if the component supports it
         return <AddProductForm />;
       case "orders":
         return <OrdersTab />;

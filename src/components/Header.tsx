@@ -46,7 +46,7 @@ export default function Header() {
   // Function to navigate to role-specific dashboards
   const navigateToUserFeature = (feature: string) => {
     if (!isAuthenticated) {
-      navigate("/signin");
+      navigate("/sign-in");
       return;
     }
     
@@ -264,10 +264,10 @@ export default function Header() {
           ) : (
             <>
               <Button variant="outline" size="sm" className="hidden md:inline-flex" asChild>
-                <Link to="/signin">Sign In</Link>
+                <Link to="/sign-in">Sign In</Link>
               </Button>
               <Button size="sm" className="hidden md:inline-flex bg-servie hover:bg-servie-600" asChild>
-                <Link to="/signup">Sign Up</Link>
+                <Link to="/sign-up">Sign Up</Link>
               </Button>
             </>
           )}
@@ -358,14 +358,14 @@ export default function Header() {
                     ) : (
                       <>
                         <Link
-                          to="/signin"
+                          to="/sign-in"
                           className="block px-3 py-2 rounded-md hover:bg-muted"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           Sign In
                         </Link>
                         <Link
-                          to="/signup"
+                          to="/sign-up"
                           className="block px-3 py-2 rounded-md hover:bg-muted"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >

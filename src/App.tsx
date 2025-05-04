@@ -26,6 +26,18 @@ import ProductDetail from "@/pages/ecommerce/ProductDetail";
 import Cart from "@/pages/ecommerce/Cart";
 import Checkout from "@/pages/ecommerce/Checkout";
 import OrderConfirmation from "@/pages/ecommerce/OrderConfirmation";
+import AboutUs from "@/pages/AboutUs";
+import OurStory from "@/pages/OurStory";
+import Team from "@/pages/Team";
+import Careers from "@/pages/Careers";
+import Press from "@/pages/Press";
+import HelpCenter from "@/pages/HelpCenter";
+import FAQs from "@/pages/FAQs";
+import Returns from "@/pages/Returns";
+import Shipping from "@/pages/Shipping";
+import Privacy from "@/pages/Privacy";
+import Sitemap from "@/pages/Sitemap";
+import ProviderContact from "@/pages/ProviderContact";
 
 const queryClient = new QueryClient();
 
@@ -45,17 +57,35 @@ function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-confirmation" element={<OrderConfirmation />} />
             <Route path="/sign-in" element={<SignIn />} />
+            <Route path="/signin" element={<SignIn />} />
             <Route path="/sign-up" element={<SignUp />} />
+            <Route path="/signup" element={<SignUp />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/become-provider" element={<BecomeProvider />} />
             <Route path="/become-seller" element={<BecomeSeller />} />
             <Route path="/booking/:bookingId" element={<BookingPage />} />
+            <Route path="/provider/:providerId/contact" element={<ProviderContact />} />
             <Route path="/contact-support" element={<ContactSupport />} />
             <Route path="/terms-conditions" element={<TermsConditions />} />
             <Route path="/dashboard/client" element={<ClientDashboard />} />
             <Route path="/dashboard/provider" element={<ProviderDashboard />} />
             <Route path="/dashboard/seller" element={<SellerDashboard />} />
             <Route path="/dashboard" element={<UserDashboard />} />
+            
+            {/* Footer routes */}
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/our-story" element={<OurStory />} />
+            <Route path="/team" element={<Team />} />
+            <Route path="/careers" element={<Careers />} />
+            <Route path="/press" element={<Press />} />
+            <Route path="/help" element={<HelpCenter />} />
+            <Route path="/faqs" element={<FAQs />} />
+            <Route path="/returns" element={<Returns />} />
+            <Route path="/shipping" element={<Shipping />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<TermsConditions />} />
+            <Route path="/sitemap" element={<Sitemap />} />
+            
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Toaster />

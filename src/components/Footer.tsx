@@ -7,6 +7,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useLocalization } from "./LangCurrencySelector";
 
 // Service Categories
 const categories = [
@@ -44,6 +45,7 @@ export default function Footer() {
   const [email, setEmail] = useState("");
   const { isAuthenticated, userRole } = useAuth();
   const navigate = useNavigate();
+  const { formatPrice, currentCurrency } = useLocalization();
   
   const handleNewsletterSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

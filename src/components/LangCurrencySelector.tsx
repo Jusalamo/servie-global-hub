@@ -1,5 +1,5 @@
 
-import { useState, createContext, useContext, ReactNode } from "react";
+import { useState, createContext, useContext, ReactNode, useEffect } from "react";
 import { Check, ChevronDown, Globe, DollarSign } from "lucide-react";
 import {
   Popover,
@@ -122,9 +122,47 @@ const exchangeRates: Record<string, number> = {
 };
 
 export function LocalizationProvider({ children }: { children: ReactNode }) {
-  const [currentLanguage, setCurrentLanguage] = useState<Language>(languages[0]);
-  const [currentCurrency, setCurrentCurrency] = useState<Currency>(currencies[0]);
+  // Use local storage to persist language and currency preferences
+  const [currentLanguage, setCurrentLanguage] = useState<Language>(() => {
+    const savedLanguage = localStorage.getItem('preferredLanguage');
+    if (savedLanguage) {
+      try {
+        return JSON.parse(savedLanguage);
+      } catch (e) {
+        return languages[0];
+      }
+    }
+    return languages[0];
+  });
   
+  const [currentCurrency, setCurrentCurrency] = useState<Currency>(() => {
+    const savedCurrency = localStorage.getItem('preferredCurrency');
+    if (savedCurrency) {
+      try {
+        return JSON.parse(savedCurrency);
+      } catch (e) {
+        return currencies[0];
+      }
+    }
+    return currencies[0];
+  });
+
+  // Save preferences to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('preferredLanguage', JSON.stringify(currentLanguage));
+    document.documentElement.setAttribute('lang', currentLanguage.code);
+  }, [currentLanguage]);
+  
+  useEffect(() => {
+    localStorage.setItem('preferredCurrency', JSON.stringify(currentCurrency));
+  }, [currentCurrency]);
+
+  const handleSetCurrentLanguage = (language: Language) => {
+    setCurrentLanguage(language);
+    // Apply language change to document
+    document.documentElement.setAttribute('lang', language.code);
+  };
+
   const formatPrice = (amount: number): string => {
     const rate = exchangeRates[currentCurrency.code] || 1;
     const convertedAmount = amount * rate;
@@ -147,7 +185,7 @@ export function LocalizationProvider({ children }: { children: ReactNode }) {
     <LocalizationContext.Provider value={{
       currentLanguage,
       currentCurrency,
-      setCurrentLanguage,
+      setCurrentLanguage: handleSetCurrentLanguage,
       setCurrentCurrency,
       formatPrice,
       translate
@@ -166,31 +204,16 @@ export function useLocalization() {
 }
 
 export function LangCurrencySelector() {
-  // Use context if available, otherwise use local state
-  let currentLanguage: Language;
-  let currentCurrency: Currency;
-  let setCurrentLanguage: (language: Language) => void;
-  let setCurrentCurrency: (currency: Currency) => void;
-  
-  try {
-    const localization = useLocalization();
-    currentLanguage = localization.currentLanguage;
-    currentCurrency = localization.currentCurrency;
-    setCurrentLanguage = localization.setCurrentLanguage;
-    setCurrentCurrency = localization.setCurrentCurrency;
-  } catch {
-    // Fallback to local state if context isn't available
-    const [langState, setLangState] = useState<Language>(languages[0]);
-    const [currState, setCurrState] = useState<Currency>(currencies[0]);
-    currentLanguage = langState;
-    currentCurrency = currState;
-    setCurrentLanguage = setLangState;
-    setCurrentCurrency = setCurrState;
-  }
+  // Use context
+  const { 
+    currentLanguage, 
+    currentCurrency, 
+    setCurrentLanguage, 
+    setCurrentCurrency 
+  } = useLocalization();
 
   const handleLanguageChange = (language: Language) => {
     setCurrentLanguage(language);
-    document.documentElement.setAttribute('lang', language.code);
     // In a real app, this would update the app's localization
     toast.success(`Language changed to ${language.name}`);
   };

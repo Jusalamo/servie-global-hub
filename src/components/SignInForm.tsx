@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 
 export function SignInForm() {
   const navigate = useNavigate();
-  const { signIn } = useAuth(); // Changed from 'login' to 'signIn' to match AuthContext
+  const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -34,19 +34,7 @@ export function SignInForm() {
       // In a real implementation, this would call an API
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Simulate successful login
-      // Mock user object to match what AuthContext expects
-      const mockUser = {
-        id: '123',
-        email: formData.email,
-        user_metadata: {
-          first_name: 'Demo',
-          last_name: 'User',
-          avatar_url: '/placeholder.svg'
-        }
-      };
-      
-      // Call signIn with email and password (though we're using the mock user here)
+      // Call signIn with email and password
       await signIn(formData.email, formData.password);
       
       toast.success("Successfully signed in!");
