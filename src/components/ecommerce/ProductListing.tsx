@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -6,12 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ProductCard } from "@/components/ecommerce/ProductCard";
 import { Search } from "lucide-react";
+import { type Product } from "@/components/ecommerce/ProductCard";
 
 export default function ProductListing({ initialCategory = 'all', initialSearch = '' }) {
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [category, setCategory] = useState(initialCategory);
   const [sortBy, setSortBy] = useState("featured");
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,139 +28,103 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
     { id: 'toys', name: 'Toys & Games' },
   ];
 
-  // Mock products data
-  const mockProducts = [
+  // Mock products data transformed to match Product interface
+  const mockProducts: Product[] = [
     {
-      id: 1,
-      title: "Wireless Bluetooth Earbuds",
+      id: "1",
+      name: "Wireless Bluetooth Earbuds",
       price: 49.99,
       rating: 4.5,
       reviewCount: 128,
       category: "electronics",
-      image: "/products/earbuds.jpg",
-      seller: "AudioTech",
-      description: "High-quality wireless earbuds with noise cancellation."
+      images: ["/products/earbuds.jpg"],
+      providerName: "AudioTech",
+      providerAvatar: "/placeholder.svg",
+      providerId: "provider1",
+      description: "High-quality wireless earbuds with noise cancellation.",
+      featured: false,
+      inStock: true,
+      createdAt: new Date().toISOString()
     },
     {
-      id: 2,
-      title: "Smart Home Security Camera",
+      id: "2",
+      name: "Smart Home Security Camera",
       price: 89.99,
       rating: 4.2,
       reviewCount: 75,
       category: "electronics",
-      image: "/products/camera.jpg",
-      seller: "SecureView",
-      description: "HD security camera with motion detection and night vision."
+      images: ["/products/camera.jpg"],
+      providerName: "SecureView",
+      providerAvatar: "/placeholder.svg",
+      providerId: "provider2",
+      description: "HD security camera with motion detection and night vision.",
+      featured: true,
+      inStock: true,
+      createdAt: new Date().toISOString()
     },
     {
-      id: 3,
-      title: "Ergonomic Office Chair",
+      id: "3",
+      name: "Ergonomic Office Chair",
       price: 199.99,
       rating: 4.7,
       reviewCount: 42,
       category: "home",
-      image: "/products/chair.jpg",
-      seller: "ComfortPlus",
-      description: "Adjustable office chair with lumbar support."
+      images: ["/products/chair.jpg"],
+      providerName: "ComfortPlus",
+      providerAvatar: "/placeholder.svg",
+      providerId: "provider3",
+      description: "Adjustable office chair with lumbar support.",
+      featured: false,
+      inStock: true,
+      createdAt: new Date().toISOString()
     },
     {
-      id: 4,
-      title: "Non-Stick Cookware Set",
+      id: "4",
+      name: "Non-Stick Cookware Set",
       price: 129.99,
       rating: 4.4,
       reviewCount: 89,
       category: "home",
-      image: "/products/cookware.jpg",
-      seller: "KitchenPro",
-      description: "10-piece non-stick cookware set for all cooking needs."
+      images: ["/products/cookware.jpg"],
+      providerName: "KitchenPro",
+      providerAvatar: "/placeholder.svg",
+      providerId: "provider4",
+      description: "10-piece non-stick cookware set for all cooking needs.",
+      featured: false,
+      inStock: true,
+      createdAt: new Date().toISOString()
     },
     {
-      id: 5,
-      title: "Organic Face Serum",
+      id: "5",
+      name: "Organic Face Serum",
       price: 34.99,
       rating: 4.8,
       reviewCount: 156,
       category: "beauty",
-      image: "/products/serum.jpg",
-      seller: "NaturalGlow",
-      description: "Hydrating face serum with vitamin C and hyaluronic acid."
+      images: ["/products/serum.jpg"],
+      providerName: "NaturalGlow",
+      providerAvatar: "/placeholder.svg",
+      providerId: "provider5",
+      description: "Hydrating face serum with vitamin C and hyaluronic acid.",
+      featured: true,
+      inStock: true,
+      createdAt: new Date().toISOString()
     },
     {
-      id: 6,
-      title: "Men's Running Shoes",
+      id: "6",
+      name: "Men's Running Shoes",
       price: 79.99,
       rating: 4.3,
       reviewCount: 67,
       category: "clothing",
-      image: "/products/shoes.jpg",
-      seller: "ActiveStep",
-      description: "Lightweight running shoes with cushioned soles."
-    },
-    {
-      id: 7,
-      title: "Cordless Drill Set",
-      price: 149.99,
-      rating: 4.6,
-      reviewCount: 93,
-      category: "tools",
-      image: "/products/drill.jpg",
-      seller: "PowerTools",
-      description: "20V cordless drill with multiple attachments and carrying case."
-    },
-    {
-      id: 8,
-      title: "Yoga Mat",
-      price: 29.99,
-      rating: 4.5,
-      reviewCount: 112,
-      category: "sports",
-      image: "/products/yoga-mat.jpg",
-      seller: "ZenFitness",
-      description: "Non-slip yoga mat with alignment markings."
-    },
-    {
-      id: 9,
-      title: "Building Blocks Set",
-      price: 39.99,
-      rating: 4.7,
-      reviewCount: 78,
-      category: "toys",
-      image: "/products/blocks.jpg",
-      seller: "CreativeKids",
-      description: "Educational building blocks set with 100+ pieces."
-    },
-    {
-      id: 10,
-      title: "Smart Watch",
-      price: 159.99,
-      rating: 4.4,
-      reviewCount: 203,
-      category: "electronics",
-      image: "/products/smartwatch.jpg",
-      seller: "TechWear",
-      description: "Fitness tracker and smartwatch with heart rate monitoring."
-    },
-    {
-      id: 11,
-      title: "Blender",
-      price: 69.99,
-      rating: 4.3,
-      reviewCount: 87,
-      category: "home",
-      image: "/products/blender.jpg",
-      seller: "KitchenPro",
-      description: "High-speed blender for smoothies and food processing."
-    },
-    {
-      id: 12,
-      title: "Moisturizing Cream",
-      price: 24.99,
-      rating: 4.6,
-      reviewCount: 134,
-      category: "beauty",
-      image: "/products/cream.jpg",
-      seller: "NaturalGlow",
-      description: "24-hour hydrating face and body cream."
+      images: ["/products/shoes.jpg"],
+      providerName: "ActiveStep",
+      providerAvatar: "/placeholder.svg",
+      providerId: "provider6",
+      description: "Lightweight running shoes with cushioned soles.",
+      featured: false,
+      inStock: true,
+      createdAt: new Date().toISOString()
     }
   ];
 
@@ -186,9 +150,9 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filteredProducts = filteredProducts.filter(product => 
-        product.title.toLowerCase().includes(query) || 
+        product.name.toLowerCase().includes(query) || 
         product.description.toLowerCase().includes(query) ||
-        product.seller.toLowerCase().includes(query)
+        product.providerName.toLowerCase().includes(query)
       );
     }
     

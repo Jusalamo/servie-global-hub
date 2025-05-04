@@ -37,8 +37,21 @@ export const ProductCard = ({ product, layout = "grid" }: ProductCardProps) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   
-  const discount = product.compareAtPrice 
-    ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100) 
+  // Ensure product has all required properties with fallbacks
+  const safeProduct = {
+    ...product,
+    images: Array.isArray(product.images) && product.images.length > 0 
+      ? product.images 
+      : ["/placeholder.svg"],
+    price: product.price || 0,
+    rating: product.rating || 0,
+    reviewCount: product.reviewCount || 0,
+    providerAvatar: product.providerAvatar || "/placeholder.svg",
+    providerName: product.providerName || "Unknown Provider",
+  };
+  
+  const discount = safeProduct.compareAtPrice 
+    ? Math.round(((safeProduct.compareAtPrice - safeProduct.price) / safeProduct.compareAtPrice) * 100) 
     : 0;
     
   const handleFavoriteClick = (e: React.MouseEvent) => {
@@ -66,21 +79,21 @@ export const ProductCard = ({ product, layout = "grid" }: ProductCardProps) => {
     
     setTimeout(() => {
       setIsAddingToCart(false);
-      toast.success(`${product.name} added to cart`);
+      toast.success(`${safeProduct.name} added to cart`);
     }, 600);
   };
   
   if (layout === "list") {
     return (
       <Card className="overflow-hidden hover:shadow-md transition-all duration-300">
-        <Link to={`/product/${product.id}`} className="flex flex-col md:flex-row">
+        <Link to={`/product/${safeProduct.id}`} className="flex flex-col md:flex-row">
           <div className="relative h-48 md:h-auto md:w-1/3">
             <img 
-              src={product.images[0]} 
-              alt={product.name} 
+              src={safeProduct.images[0]} 
+              alt={safeProduct.name} 
               className="w-full h-full object-cover"
             />
-            {product.featured && (
+            {safeProduct.featured && (
               <Badge className="absolute top-3 right-3 bg-servie hover:bg-servie-600">Featured</Badge>
             )}
             {discount > 0 && (
@@ -88,7 +101,7 @@ export const ProductCard = ({ product, layout = "grid" }: ProductCardProps) => {
                 {discount}% OFF
               </Badge>
             )}
-            {!product.inStock && (
+            {!safeProduct.inStock && (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                 <Badge variant="outline" className="text-white border-white text-lg">Out of Stock</Badge>
               </div>
@@ -97,7 +110,7 @@ export const ProductCard = ({ product, layout = "grid" }: ProductCardProps) => {
           <div className="flex flex-col flex-1">
             <CardContent className="p-4 space-y-3">
               <div className="flex justify-between">
-                <h3 className="font-semibold text-lg">{product.name}</h3>
+                <h3 className="font-semibold text-lg">{safeProduct.name}</h3>
                 <Button 
                   variant="ghost" 
                   size="icon" 
@@ -107,29 +120,29 @@ export const ProductCard = ({ product, layout = "grid" }: ProductCardProps) => {
                   <Heart className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
                 </Button>
               </div>
-              <p className="text-muted-foreground line-clamp-2">{product.description}</p>
+              <p className="text-muted-foreground line-clamp-2">{safeProduct.description}</p>
               <div className="flex items-center gap-1">
                 <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                <span className="text-sm font-medium">{product.rating.toFixed(1)}</span>
-                <span className="text-sm text-muted-foreground">({product.reviewCount} reviews)</span>
+                <span className="text-sm font-medium">{safeProduct.rating.toFixed(1)}</span>
+                <span className="text-sm text-muted-foreground">({safeProduct.reviewCount} reviews)</span>
               </div>
               <div className="flex items-center gap-2">
                 <img
-                  src={product.providerAvatar}
-                  alt={product.providerName}
+                  src={safeProduct.providerAvatar}
+                  alt={safeProduct.providerName}
                   className="w-6 h-6 rounded-full"
                 />
-                <span className="text-sm">{product.providerName}</span>
+                <span className="text-sm">{safeProduct.providerName}</span>
               </div>
             </CardContent>
             <CardFooter className="mt-auto px-4 py-3 bg-muted/30 flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-lg">
-                  {product.currency || "$"}{product.price.toFixed(2)}
+                  {safeProduct.currency || "$"}{safeProduct.price.toFixed(2)}
                 </span>
-                {product.compareAtPrice && (
+                {safeProduct.compareAtPrice && (
                   <span className="text-muted-foreground line-through text-sm">
-                    {product.currency || "$"}{product.compareAtPrice.toFixed(2)}
+                    {safeProduct.currency || "$"}{safeProduct.compareAtPrice.toFixed(2)}
                   </span>
                 )}
               </div>
@@ -137,7 +150,7 @@ export const ProductCard = ({ product, layout = "grid" }: ProductCardProps) => {
                 <Button 
                   size="sm" 
                   onClick={handleAddToCart}
-                  disabled={!product.inStock || isAddingToCart}
+                  disabled={!safeProduct.inStock || isAddingToCart}
                 >
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   {isAddingToCart ? "Adding..." : "Add to Cart"}
@@ -153,14 +166,14 @@ export const ProductCard = ({ product, layout = "grid" }: ProductCardProps) => {
   // Grid view (default)
   return (
     <Card className="overflow-hidden hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
-      <Link to={`/product/${product.id}`} className="block">
+      <Link to={`/product/${safeProduct.id}`} className="block">
         <div className="relative h-52 overflow-hidden">
           <img 
-            src={product.images[0]} 
-            alt={product.name} 
+            src={safeProduct.images[0]} 
+            alt={safeProduct.name} 
             className="w-full h-full object-cover transition-transform hover:scale-105 duration-500"
           />
-          {product.featured && (
+          {safeProduct.featured && (
             <Badge className="absolute top-3 right-3 bg-servie hover:bg-servie-600">Featured</Badge>
           )}
           {discount > 0 && (
@@ -168,7 +181,7 @@ export const ProductCard = ({ product, layout = "grid" }: ProductCardProps) => {
               {discount}% OFF
             </Badge>
           )}
-          {!product.inStock && (
+          {!safeProduct.inStock && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
               <Badge variant="outline" className="text-white border-white">Out of Stock</Badge>
             </div>
@@ -185,37 +198,37 @@ export const ProductCard = ({ product, layout = "grid" }: ProductCardProps) => {
           </Button>
         </div>
         <CardContent className="p-4 space-y-2">
-          <h3 className="font-semibold text-lg line-clamp-1">{product.name}</h3>
+          <h3 className="font-semibold text-lg line-clamp-1">{safeProduct.name}</h3>
           <div className="flex items-center gap-1">
             <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-            <span className="text-sm font-medium">{product.rating.toFixed(1)}</span>
-            <span className="text-sm text-muted-foreground">({product.reviewCount} reviews)</span>
+            <span className="text-sm font-medium">{safeProduct.rating.toFixed(1)}</span>
+            <span className="text-sm text-muted-foreground">({safeProduct.reviewCount} reviews)</span>
           </div>
           <div className="flex items-center gap-2">
             <img
-              src={product.providerAvatar}
-              alt={product.providerName}
+              src={safeProduct.providerAvatar}
+              alt={safeProduct.providerName}
               className="w-5 h-5 rounded-full"
             />
-            <span className="text-xs text-muted-foreground">{product.providerName}</span>
+            <span className="text-xs text-muted-foreground">{safeProduct.providerName}</span>
           </div>
-          <p className="text-sm text-muted-foreground line-clamp-2">{product.description}</p>
+          <p className="text-sm text-muted-foreground line-clamp-2">{safeProduct.description}</p>
         </CardContent>
         <CardFooter className="px-4 py-3 bg-muted/30 flex justify-between items-center">
           <div className="flex flex-col">
             <span className="font-semibold text-lg">
-              {product.currency || "$"}{product.price.toFixed(2)}
+              {safeProduct.currency || "$"}{safeProduct.price.toFixed(2)}
             </span>
-            {product.compareAtPrice && (
+            {safeProduct.compareAtPrice && (
               <span className="text-muted-foreground line-through text-xs">
-                {product.currency || "$"}{product.compareAtPrice.toFixed(2)}
+                {safeProduct.currency || "$"}{safeProduct.compareAtPrice.toFixed(2)}
               </span>
             )}
           </div>
           <Button 
             size="sm" 
             onClick={handleAddToCart}
-            disabled={!product.inStock || isAddingToCart}
+            disabled={!safeProduct.inStock || isAddingToCart}
           >
             {isAddingToCart ? "Adding..." : "Add to Cart"}
           </Button>
