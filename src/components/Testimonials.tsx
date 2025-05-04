@@ -1,92 +1,100 @@
 
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Star } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent } from '@/components/ui/card';
 
-// Testimonial data
 const testimonials = [
   {
     id: 1,
-    name: "Sarah Johnson",
-    role: "Homeowner",
-    avatar: "https://i.pravatar.cc/150?img=1",
-    content: "I've been using Servie for all my home maintenance needs. The platform is so easy to use, and I've found reliable professionals every time. Highly recommend!",
+    name: 'Sarah Johnson',
+    avatar: '/placeholder.svg',
+    role: 'Homeowner',
     rating: 5,
+    text: 'Found an amazing plumber in my area within minutes! The service was prompt and professional. Will definitely use this platform for all my home service needs.',
   },
   {
     id: 2,
-    name: "Michael Chen",
-    role: "Small Business Owner",
-    avatar: "https://i.pravatar.cc/150?img=8",
-    content: "As a business owner, I need reliable service providers for various tasks. Servie has been a game changer - from IT support to office cleaning, I can find and book professionals quickly.",
+    name: 'Michael Chen',
+    avatar: '/placeholder.svg',
+    role: 'Small Business Owner',
     rating: 5,
+    text: 'As a business owner, finding reliable services is crucial. This platform connected me with top-notch professionals that helped my business thrive.',
   },
   {
     id: 3,
-    name: "Emily Rodriguez",
-    role: "Freelance Designer",
-    avatar: "https://i.pravatar.cc/150?img=5",
-    content: "I joined Servie as a service provider last year, and my client base has grown tremendously. The platform makes it easy to showcase my work and connect with clients.",
-    rating: 5,
+    name: 'Emily Rodriguez',
+    avatar: '/placeholder.svg',
+    role: 'Event Planner',
+    rating: 4,
+    text: 'I regularly book services for events, and this platform has made my life so much easier. Great selection of vendors and seamless booking process.',
   },
   {
     id: 4,
-    name: "James Wilson",
-    role: "Property Manager",
-    avatar: "https://i.pravatar.cc/150?img=3",
-    content: "Managing multiple properties became so much easier with Servie. I can quickly find reliable plumbers, electricians, and cleaners all in one place. The service history tracking is invaluable.",
-    rating: 4,
+    name: 'David Wilson',
+    avatar: '/placeholder.svg',
+    role: 'Property Manager',
+    rating: 5,
+    text: 'Managing multiple properties requires reliable service providers. Found excellent maintenance professionals that deliver consistent quality.',
   },
   {
     id: 5,
-    name: "Olivia Taylor",
-    role: "Event Planner",
-    avatar: "https://i.pravatar.cc/150?img=9",
-    content: "I rely on Servie to find specialty services for my clients' events. From caterers to photographers, the quality of professionals on this platform is outstanding.",
+    name: 'Jessica Patel',
+    avatar: '/placeholder.svg',
+    role: 'Freelancer',
     rating: 5,
-  },
-  {
-    id: 6,
-    name: "David Okafor",
-    role: "Home Remodeler",
-    avatar: "https://i.pravatar.cc/150?img=12",
-    content: "As a service provider on Servie, I've been able to grow my business and reach a wider audience. The booking and payment system makes everything streamlined.",
-    rating: 5,
+    text: 'The platform helped me connect with clients looking for my design services. The interface is intuitive, and the payment system is secure and reliable.',
   },
 ];
 
 export default function Testimonials() {
   return (
-    <section className="py-16 bg-muted/30 overflow-hidden">
-      <div className="container px-4 text-center mb-12">
-        <h2 className="text-3xl font-bold mb-4">What Our Users Say</h2>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
-          Join thousands of satisfied customers and service providers who use our platform every day
-        </p>
+    <section id="testimonials" className="py-16 bg-gray-50 dark:bg-gray-900">
+      <div className="container px-4 mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold mb-4">What Our Users Say</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Hear from our community of service providers and customers about their experiences
+          </p>
+        </div>
+
+        <div className="relative overflow-hidden">
+          <div className="flex animate-testimonials">
+            {[...testimonials, ...testimonials].map((testimonial, index) => (
+              <div key={`${testimonial.id}-${index}`} className="w-[350px] flex-shrink-0 px-4">
+                <Card className="h-full">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4 mb-4">
+                      <Avatar>
+                        <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
+                        <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h4 className="font-semibold">{testimonial.name}</h4>
+                        <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                      </div>
+                    </div>
+                    <div className="flex mb-3">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`w-4 h-4 ${
+                            i < testimonial.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-300'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <p className="text-sm">{testimonial.text}</p>
+                  </CardContent>
+                </Card>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
       
-      <div className="relative">
-        {/* First row - moves left to right */}
-        <div className="flex animate-marquee-left mb-6">
-          {[...testimonials, ...testimonials.slice(0,3)].map((testimonial, i) => (
-            <div key={`left-${testimonial.id}-${i}`} className="w-[350px] flex-shrink-0 px-4">
-              <TestimonialCard testimonial={testimonial} />
-            </div>
-          ))}
-        </div>
-        
-        {/* Second row - moves right to left */}
-        <div className="flex animate-marquee-right">
-          {[...testimonials.reverse(), ...testimonials.slice(0,3).reverse()].map((testimonial, i) => (
-            <div key={`right-${testimonial.id}-${i}`} className="w-[350px] flex-shrink-0 px-4">
-              <TestimonialCard testimonial={testimonial} />
-            </div>
-          ))}
-        </div>
-      </div>
-      
-      <style jsx>{`
-        @keyframes marquee-left {
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes testimonials {
           0% {
             transform: translateX(0);
           }
@@ -95,51 +103,10 @@ export default function Testimonials() {
           }
         }
         
-        @keyframes marquee-right {
-          0% {
-            transform: translateX(calc(-350px * ${testimonials.length}));
-          }
-          100% {
-            transform: translateX(0);
-          }
+        .animate-testimonials {
+          animation: testimonials 35s linear infinite; /* Slightly increased speed */
         }
-        
-        .animate-marquee-left {
-          animation: marquee-left 35s linear infinite; /* Faster animation */
-        }
-        
-        .animate-marquee-right {
-          animation: marquee-right 30s linear infinite; /* Faster animation */
-        }
-      `}</style>
+      `}} />
     </section>
   );
 }
-
-// Testimonial Card Component
-const TestimonialCard = ({ testimonial }: { testimonial: any }) => {
-  return (
-    <Card className="h-full">
-      <CardContent className="p-6">
-        <div className="flex items-center mb-4">
-          <Avatar className="h-10 w-10 mr-4">
-            <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
-            <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
-          </Avatar>
-          <div>
-            <h4 className="font-semibold">{testimonial.name}</h4>
-            <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-          </div>
-        </div>
-        <div className="mb-4">
-          {[...Array(5)].map((_, i) => (
-            <span key={i} className={`text-lg ${i < testimonial.rating ? 'text-yellow-500' : 'text-gray-300'}`}>
-              ★
-            </span>
-          ))}
-        </div>
-        <p className="text-muted-foreground">&ldquo;{testimonial.content}&rdquo;</p>
-      </CardContent>
-    </Card>
-  );
-};

@@ -2,7 +2,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
 const categories = [
   {
@@ -80,9 +79,6 @@ export default function ServiceCategoriesCarousel() {
                       <p className="text-muted-foreground text-sm mb-4">
                         {category.description}
                       </p>
-                      <Button variant="outline" size="sm">
-                        Explore
-                      </Button>
                     </CardContent>
                   </Card>
                 </Link>
@@ -92,13 +88,13 @@ export default function ServiceCategoriesCarousel() {
         </div>
         
         <div className="text-center mt-10">
-          <Button asChild size="lg" className="bg-servie hover:bg-servie-600">
-            <Link to="/categories">View All Categories</Link>
-          </Button>
+          <Link to="/categories" className="bg-servie hover:bg-servie-600 text-white px-6 py-2 rounded-md inline-flex items-center">
+            View All Categories
+          </Link>
         </div>
       </div>
       
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{__html: `
         @keyframes carousel {
           0% {
             transform: translateX(0);
@@ -109,9 +105,9 @@ export default function ServiceCategoriesCarousel() {
         }
         
         .animate-carousel {
-          animation: carousel 40s linear infinite; /* Slowed down from the default */
+          animation: carousel 60s linear infinite; /* Slowed down more than before */
         }
-      `}</style>
+      `}} />
     </section>
   );
 }

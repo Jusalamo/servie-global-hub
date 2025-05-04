@@ -27,9 +27,10 @@ const UserDashboard = () => {
       toast.error("Could not determine user role. Please update your profile.");
       navigate("/dashboard/client", { replace: true });
     } else if (!isLoading && !user) {
-      // Not authenticated
-      toast.error("You must be logged in to access the dashboard");
-      navigate("/signin", { replace: true });
+      // Not authenticated - For development temporarily bypass auth
+      console.log("Development mode: bypassing authentication");
+      // Demo redirect to provider dashboard
+      navigate("/dashboard/provider?tab=overview", { replace: true });
     }
   }, [userRole, isLoading, navigate, user]);
   

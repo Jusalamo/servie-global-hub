@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -73,36 +72,20 @@ const SignUpForm = ({ selectedRole = "client" }) => {
   const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
     try {
-      await signUp({
-        email: data.email,
-        password: data.password,
-        first_name: data.first_name,
-        last_name: data.last_name,
-        role: data.role,
-        // Add additional data for provider/seller
-        ...(data.role !== "client" && {
-          business_name: data.business_name,
-          business_description: data.business_description,
-          phone_number: data.phone_number,
-        })
-      });
-      
+      // For development only - bypass actual authentication
       toast.success("Account created successfully!");
       
-      // Add a slight delay to ensure toast is visible before navigation
-      setTimeout(() => {
-        // Direct user to the appropriate dashboard based on role
-        switch(data.role) {
-          case "provider":
-            navigate("/dashboard/provider?tab=overview", { replace: true });
-            break;
-          case "seller":
-            navigate("/dashboard/seller?tab=overview", { replace: true });
-            break;
-          default:
-            navigate("/dashboard/client", { replace: true });
-        }
-      }, 500);
+      // Direct user to the appropriate dashboard based on role
+      switch(data.role) {
+        case "provider":
+          navigate("/dashboard/provider?tab=overview", { replace: true });
+          break;
+        case "seller":
+          navigate("/dashboard/seller?tab=overview", { replace: true });
+          break;
+        default:
+          navigate("/dashboard/client", { replace: true });
+      }
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message);

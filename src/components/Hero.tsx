@@ -5,24 +5,11 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { toast } from "sonner";
 import AnimatedSearchInput from "./AnimatedSearchInput";
-import { Input } from "@/components/ui/input";
-import { Search, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Hero() {
   const [subscribeEmail, setSubscribeEmail] = useState("");
-  const [searchQuery, setSearchQuery] = useState('');
-  const [location, setLocation] = useState('');
   const navigate = useNavigate();
-  
-  const popularSearches = [
-    "Home Cleaning",
-    "Plumbing",
-    "Tutoring",
-    "Tax Preparation",
-    "Web Design",
-    "Personal Training"
-  ];
   
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,19 +20,8 @@ export default function Hero() {
     setSubscribeEmail("");
   };
   
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) {
-      toast.error("Please enter a search term");
-      return;
-    }
-    
-    // Navigate to search results
-    navigate(`/categories?search=${encodeURIComponent(searchQuery)}&location=${encodeURIComponent(location)}`);
-  };
-  
-  const handlePopularSearch = (term: string) => {
-    navigate(`/categories?search=${encodeURIComponent(term)}`);
+  const handleSearch = (query: string) => {
+    navigate(`/categories?search=${encodeURIComponent(query)}`);
   };
 
   return (
@@ -90,47 +66,22 @@ export default function Hero() {
 
           {/* Enhanced Search Section */}
           <div className="w-full max-w-2xl mx-auto bg-white/90 dark:bg-gray-800/90 p-4 rounded-xl shadow-lg animate-fade-in">
-            <form onSubmit={handleSearch} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="md:col-span-3">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      type="text"
-                      placeholder="What service are you looking for?"
-                      className="pl-10"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                  </div>
-                </div>
-                
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    type="text"
-                    placeholder="Location"
-                    className="pl-10"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                  />
-                </div>
-              </div>
-              
-              <div className="flex justify-center">
-                <Button type="submit" className="bg-servie hover:bg-servie-600 w-full md:w-auto">
-                  Find Services
-                </Button>
-              </div>
-            </form>
+            <AnimatedSearchInput onSearch={handleSearch} />
             
             <div className="mt-4">
               <p className="text-sm text-muted-foreground mb-2">Popular searches:</p>
               <div className="flex flex-wrap gap-2">
-                {popularSearches.map((term, index) => (
+                {[
+                  "Home Cleaning",
+                  "Plumbing",
+                  "Tutoring",
+                  "Tax Preparation",
+                  "Web Design",
+                  "Personal Training"
+                ].map((term, index) => (
                   <button
                     key={index}
-                    onClick={() => handlePopularSearch(term)}
+                    onClick={() => navigate(`/categories?search=${encodeURIComponent(term)}`)}
                     className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm hover:bg-servie/10 transition-colors"
                   >
                     {term}
