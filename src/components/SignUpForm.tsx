@@ -19,6 +19,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
 
 const formSchema = z.object({
   first_name: z.string().min(2, { message: "First name must be at least 2 characters" }),
@@ -29,7 +30,11 @@ const formSchema = z.object({
   terms: z.boolean().refine(val => val === true, {
     message: "You must accept the terms and conditions"
   }),
-  role: z.enum(["client", "provider", "seller"]).default("client")
+  role: z.enum(["client", "provider", "seller"]).default("client"),
+  // Additional fields for provider/seller
+  business_name: z.string().optional(),
+  business_description: z.string().optional(),
+  phone_number: z.string().optional(),
 }).refine(data => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],
@@ -57,7 +62,11 @@ const SignUpForm = ({ selectedRole = "client" }) => {
       password: "",
       confirmPassword: "",
       terms: false,
-      role: typedSelectedRole
+      role: typedSelectedRole,
+      // Additional fields initialized
+      business_name: "",
+      business_description: "",
+      phone_number: "",
     },
   });
 
@@ -69,7 +78,13 @@ const SignUpForm = ({ selectedRole = "client" }) => {
         password: data.password,
         first_name: data.first_name,
         last_name: data.last_name,
-        role: data.role
+        role: data.role,
+        // Add additional data for provider/seller
+        ...(data.role !== "client" && {
+          business_name: data.business_name,
+          business_description: data.business_description,
+          phone_number: data.phone_number,
+        })
       });
       
       toast.success("Account created successfully!");
@@ -99,6 +114,8 @@ const SignUpForm = ({ selectedRole = "client" }) => {
       setTimeout(() => setIsLoading(false), 300);
     }
   };
+
+  const showBusinessFields = typedSelectedRole === "provider" || typedSelectedRole === "seller";
 
   return (
     <Form {...form}>
@@ -145,6 +162,61 @@ const SignUpForm = ({ selectedRole = "client" }) => {
             </FormItem>
           )}
         />
+
+        {showBusinessFields && (
+          <>
+            <FormField
+              control={form.control}
+              name="business_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{typedSelectedRole === "provider" ? "Business Name" : "Shop Name"}</FormLabel>
+                  <FormControl>
+                    <Input placeholder={typedSelectedRole === "provider" ? "ABC Services" : "My Shop"} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="phone_number"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormControl>
+                    <Input placeholder="+1 234 567 8900" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="business_description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {typedSelectedRole === "provider" ? "Business Description" : "Shop Description"}
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder={
+                        typedSelectedRole === "provider" 
+                          ? "Tell us about your services..." 
+                          : "Describe your shop and products..."
+                      }
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
 
         <FormField
           control={form.control}

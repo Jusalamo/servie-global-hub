@@ -1,189 +1,117 @@
 
-import { useRef, useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Home, Briefcase, Scissors, Calendar, Truck, GraduationCap, Heart, Palette, Wrench, Hammer, Package, Users } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-
-// Map category IDs to their corresponding Lucide icons
-const categoryIcons = {
-  'home-cleaning': Home,
-  'plumbing': Wrench,
-  'electrical': Palette,
-  'landscaping': Palette,
-  'home-repair': Hammer,
-  'moving': Truck,
-  'beauty': Heart,
-  'tech': Wrench,
-  'tutoring': GraduationCap,
-  'pet-care': Heart,
-  'design': Palette,
-  'business': Briefcase
-};
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 const categories = [
   {
-    id: 'home-cleaning',
-    name: 'Home Cleaning',
-    icon: 'home-cleaning',
-    color: 'bg-blue-100 dark:bg-blue-950',
+    id: 'home-services',
+    name: 'Home Services',
+    icon: '🏠',
+    description: 'Cleaning, repairs, gardening and more',
   },
   {
-    id: 'plumbing',
-    name: 'Plumbing',
-    icon: 'plumbing',
-    color: 'bg-green-100 dark:bg-green-950',
-  },
-  {
-    id: 'electrical',
-    name: 'Electrical',
-    icon: 'electrical',
-    color: 'bg-yellow-100 dark:bg-yellow-950',
-  },
-  {
-    id: 'landscaping',
-    name: 'Landscaping',
-    icon: 'landscaping',
-    color: 'bg-emerald-100 dark:bg-emerald-950',
-  },
-  {
-    id: 'home-repair',
-    name: 'Home Repair',
-    icon: 'home-repair',
-    color: 'bg-orange-100 dark:bg-orange-950',
-  },
-  {
-    id: 'moving',
-    name: 'Moving',
-    icon: 'moving',
-    color: 'bg-purple-100 dark:bg-purple-950',
-  },
-  {
-    id: 'beauty',
-    name: 'Beauty & Wellness',
-    icon: 'beauty',
-    color: 'bg-pink-100 dark:bg-pink-950',
+    id: 'professional',
+    name: 'Professional',
+    icon: '💼',
+    description: 'Legal, financial, consulting services',
   },
   {
     id: 'tech',
-    name: 'Tech Support',
-    icon: 'tech',
-    color: 'bg-cyan-100 dark:bg-cyan-950',
+    name: 'Tech & Digital',
+    icon: '💻',
+    description: 'Web development, IT support, digital marketing',
   },
   {
-    id: 'tutoring',
-    name: 'Tutoring',
-    icon: 'tutoring',
-    color: 'bg-red-100 dark:bg-red-950',
+    id: 'health',
+    name: 'Health & Wellness',
+    icon: '🩺',
+    description: 'Fitness, nutrition, therapy services',
   },
   {
-    id: 'pet-care',
-    name: 'Pet Services',
-    icon: 'pet-care',
-    color: 'bg-teal-100 dark:bg-teal-950',
+    id: 'personal-care',
+    name: 'Personal Care',
+    icon: '💇',
+    description: 'Hair, beauty, spa and wellness',
   },
   {
-    id: 'design',
-    name: 'Design & Creative',
-    icon: 'design',
-    color: 'bg-indigo-100 dark:bg-indigo-950',
+    id: 'events',
+    name: 'Events',
+    icon: '🎉',
+    description: 'Planning, catering, entertainment',
   },
   {
-    id: 'business',
-    name: 'Business Services',
-    icon: 'business',
-    color: 'bg-gray-100 dark:bg-gray-800',
+    id: 'education',
+    name: 'Education',
+    icon: '📚',
+    description: 'Tutoring, courses, skill development',
+  },
+  {
+    id: 'creative',
+    name: 'Creative',
+    icon: '🎨',
+    description: 'Design, photography, writing services',
   }
 ];
 
 export default function ServiceCategoriesCarousel() {
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const [isPaused, setIsPaused] = useState(false);
-  
-  // Duplicate categories for infinite scrolling effect
-  const allCategories = [...categories, ...categories];
-  
-  // Continuous auto-scrolling
-  useEffect(() => {
-    let animationId: number;
-    let lastTimestamp = 0;
-    const speed = 0.25; // Reduced speed for categories (was 0.5)
-    
-    const scroll = (timestamp: number) => {
-      if (!carouselRef.current || isPaused) {
-        animationId = requestAnimationFrame(scroll);
-        return;
-      }
-      
-      if (!lastTimestamp) lastTimestamp = timestamp;
-      const elapsed = timestamp - lastTimestamp;
-      lastTimestamp = timestamp;
-      
-      carouselRef.current.scrollLeft += speed * elapsed;
-      
-      // Reset to start when we reach the end of the first set
-      if (carouselRef.current.scrollLeft >= carouselRef.current.scrollWidth / 2) {
-        carouselRef.current.scrollLeft = 0;
-      }
-      
-      animationId = requestAnimationFrame(scroll);
-    };
-    
-    animationId = requestAnimationFrame(scroll);
-    
-    return () => {
-      if (animationId) {
-        cancelAnimationFrame(animationId);
-      }
-    };
-  }, [isPaused]);
-  
-  // Get the appropriate icon component for a category
-  const getCategoryIcon = (iconName: string) => {
-    const IconComponent = categoryIcons[iconName as keyof typeof categoryIcons] || Package;
-    return <IconComponent className="w-8 h-8" />;
-  };
-
   return (
-    <section className="py-12 relative bg-background">
-      <div className="container px-4 md:px-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-bold">Popular Service Categories</h2>
-          <Link to="/categories" className="text-servie hover:underline">
-            View All Categories
-          </Link>
+    <section className="py-16 bg-muted/30">
+      <div className="container px-4">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold mb-4">Explore Service Categories</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Browse through our wide range of service categories to find exactly what you need
+          </p>
         </div>
         
-        <div className="relative"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-        >
-          {/* Gradient overlays for infinite scroll effect */}
-          <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-background to-transparent z-10"></div>
-          <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-background to-transparent z-10"></div>
-          
-          {/* Continuously scrolling carousel without scrollbar */}
-          <div 
-            ref={carouselRef}
-            className="grid grid-flow-col auto-cols-max gap-4 overflow-x-auto pb-6 pt-2 px-2 scrollbar-none"
-          >
-            {allCategories.map((category, index) => (
-              <Card 
-                key={`${category.id}-${index}`}
-                className="w-[200px] sm:w-[220px] hover:shadow-lg transition-transform hover:scale-105 transform"
-              >
-                <Link to={`/categories/${category.id}`}>
-                  <CardContent className="p-6 flex flex-col items-center text-center space-y-3">
-                    <div className={`w-16 h-16 rounded-full flex items-center justify-center ${category.color}`}>
-                      {getCategoryIcon(category.id)}
-                    </div>
-                    <h3 className="font-medium">{category.name}</h3>
-                  </CardContent>
+        {/* Carousel */}
+        <div className="relative overflow-hidden">
+          {/* Duplicated for continuous scrolling */}
+          <div className="flex animate-carousel">
+            {[...categories, ...categories].map((category, index) => (
+              <div key={`${category.id}-${index}`} className="w-[300px] flex-shrink-0 px-4">
+                <Link to={`/categories?category=${category.id}`}>
+                  <Card className="h-full hover:shadow-md transition-shadow">
+                    <CardContent className="p-6 flex flex-col items-center text-center">
+                      <div className="text-4xl mb-4">{category.icon}</div>
+                      <h3 className="text-xl font-medium mb-2">{category.name}</h3>
+                      <p className="text-muted-foreground text-sm mb-4">
+                        {category.description}
+                      </p>
+                      <Button variant="outline" size="sm">
+                        Explore
+                      </Button>
+                    </CardContent>
+                  </Card>
                 </Link>
-              </Card>
+              </div>
             ))}
           </div>
         </div>
+        
+        <div className="text-center mt-10">
+          <Button asChild size="lg" className="bg-servie hover:bg-servie-600">
+            <Link to="/categories">View All Categories</Link>
+          </Button>
+        </div>
       </div>
+      
+      <style jsx>{`
+        @keyframes carousel {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(calc(-300px * ${categories.length}));
+          }
+        }
+        
+        .animate-carousel {
+          animation: carousel 40s linear infinite; /* Slowed down from the default */
+        }
+      `}</style>
     </section>
   );
 }

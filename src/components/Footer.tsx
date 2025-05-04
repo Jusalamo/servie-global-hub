@@ -1,53 +1,71 @@
 
-import { Facebook, Instagram, Twitter, Linkedin } from "lucide-react"
-import { Input } from "./ui/input"
-import { Button } from "./ui/button"
+import { Link } from "react-router-dom";
+import { Facebook, Instagram, Twitter, Linkedin } from "lucide-react";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 // Service Categories
 const categories = [
-  "Home Services",
-  "Professional Services",
-  "Personal Care",
-  "Events & Catering",
-  "Transportation",
-  "Education",
-  "Health & Wellness",
-  "Creative Services",
-]
+  { name: "Home Services", path: "/categories?category=home-services" },
+  { name: "Professional Services", path: "/categories?category=professional" },
+  { name: "Personal Care", path: "/categories?category=personal-care" },
+  { name: "Events & Catering", path: "/categories?category=events" },
+  { name: "Transportation", path: "/categories?category=transportation" },
+  { name: "Education", path: "/categories?category=education" },
+  { name: "Health & Wellness", path: "/categories?category=health" },
+  { name: "Creative Services", path: "/categories?category=creative" },
+];
 
 // Company Information
 const company = [
-  "About Us",
-  "Our Story",
-  "Team",
-  "Careers",
-  "Press",
-  "Contact Us",
-]
+  { name: "About Us", path: "/about" },
+  { name: "Our Story", path: "/our-story" },
+  { name: "Team", path: "/team" },
+  { name: "Careers", path: "/careers" },
+  { name: "Press", path: "/press" },
+  { name: "Contact Us", path: "/contact-support" },
+];
 
 // Support Links
 const support = [
-  "Help Center",
-  "FAQs",
-  "Returns & Refunds",
-  "Shipping Information",
-  "Privacy Policy",
-  "Terms of Service",
-]
-
-// Payment Methods
-const paymentMethods = [
-  "Visa",
-  "MasterCard",
-  "PayPal",
-  "Apple Pay",
-  "Google Pay",
-]
+  { name: "Help Center", path: "/help" },
+  { name: "FAQs", path: "/faqs" },
+  { name: "Returns & Refunds", path: "/returns" },
+  { name: "Shipping Information", path: "/shipping" },
+  { name: "Privacy Policy", path: "/privacy" },
+  { name: "Terms of Service", path: "/terms" },
+];
 
 export default function Footer() {
+  const [email, setEmail] = useState("");
+  const { isAuthenticated, userRole } = useAuth();
+  const navigate = useNavigate();
+  
   const handleNewsletterSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Implementation for newsletter subscription would go here
+    if (!email) {
+      toast.error("Please enter your email address");
+      return;
+    }
+    toast.success(`Thank you for subscribing with ${email}!`);
+    setEmail("");
+  };
+  
+  const navigateToDashboard = () => {
+    switch(userRole) {
+      case "provider":
+        navigate("/dashboard/provider?tab=overview");
+        break;
+      case "seller":
+        navigate("/dashboard/seller?tab=overview");
+        break;
+      default:
+        navigate("/dashboard/client");
+    }
   };
 
   return (
@@ -71,6 +89,8 @@ export default function Footer() {
                   placeholder="Your email address" 
                   className="rounded-full flex-1"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
                 <Button type="submit" className="rounded-full bg-servie hover:bg-servie-600">
                   Subscribe
@@ -104,10 +124,10 @@ export default function Footer() {
             <h3 className="font-semibold mb-4 text-lg">Categories</h3>
             <ul className="space-y-2">
               {categories.map((item) => (
-                <li key={item}>
-                  <a href="#" className="text-muted-foreground hover:text-servie">
-                    {item}
-                  </a>
+                <li key={item.name}>
+                  <Link to={item.path} className="text-muted-foreground hover:text-servie">
+                    {item.name}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -118,17 +138,26 @@ export default function Footer() {
             <h3 className="font-semibold mb-4 text-lg">Company</h3>
             <ul className="space-y-2">
               {company.map((item) => (
-                <li key={item}>
-                  <a href="#" className="text-muted-foreground hover:text-servie">
-                    {item}
-                  </a>
+                <li key={item.name}>
+                  <Link to={item.path} className="text-muted-foreground hover:text-servie">
+                    {item.name}
+                  </Link>
                 </li>
               ))}
-              <li>
-                <a href="/become-seller" className="text-servie font-medium hover:underline">
-                  Become a Seller
-                </a>
-              </li>
+              {!isAuthenticated && (
+                <>
+                  <li>
+                    <Link to="/become-seller" className="text-servie font-medium hover:underline">
+                      Become a Seller
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/become-provider" className="text-servie font-medium hover:underline">
+                      Become a Provider
+                    </Link>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
           
@@ -137,10 +166,10 @@ export default function Footer() {
             <h3 className="font-semibold mb-4 text-lg">Support</h3>
             <ul className="space-y-2">
               {support.map((item) => (
-                <li key={item}>
-                  <a href="#" className="text-muted-foreground hover:text-servie">
-                    {item}
-                  </a>
+                <li key={item.name}>
+                  <Link to={item.path} className="text-muted-foreground hover:text-servie">
+                    {item.name}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -148,7 +177,7 @@ export default function Footer() {
             {/* Payment Methods */}
             <h3 className="font-semibold mt-6 mb-3 text-lg">We Accept</h3>
             <div className="flex flex-wrap gap-2">
-              {paymentMethods.map((method) => (
+              {["Visa", "MasterCard", "PayPal", "Apple Pay", "Google Pay"].map((method) => (
                 <span key={method} className="px-3 py-1 bg-background rounded-md text-sm">
                   {method}
                 </span>
@@ -164,19 +193,19 @@ export default function Footer() {
               © {new Date().getFullYear()} Servie. All rights reserved.
             </p>
             <div className="flex gap-4 mt-4 md:mt-0">
-              <a href="#" className="text-sm text-muted-foreground hover:text-servie">
+              <Link to="/privacy" className="text-sm text-muted-foreground hover:text-servie">
                 Privacy Policy
-              </a>
-              <a href="#" className="text-sm text-muted-foreground hover:text-servie">
+              </Link>
+              <Link to="/terms" className="text-sm text-muted-foreground hover:text-servie">
                 Terms of Service
-              </a>
-              <a href="#" className="text-sm text-muted-foreground hover:text-servie">
+              </Link>
+              <Link to="/sitemap" className="text-sm text-muted-foreground hover:text-servie">
                 Sitemap
-              </a>
+              </Link>
             </div>
           </div>
         </div>
       </div>
     </footer>
-  )
+  );
 }

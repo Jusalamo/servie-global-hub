@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 const UserDashboard = () => {
-  const { userRole, isLoading } = useAuth();
+  const { userRole, isLoading, user } = useAuth();
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -21,13 +21,17 @@ const UserDashboard = () => {
       } else {
         navigate("/dashboard/client", { replace: true });
       }
-    } else if (!isLoading && !userRole) {
-      // Handle case where role is not set
+    } else if (!isLoading && !userRole && user) {
+      // Handle case where user exists but role is not set
       console.error("User role not set properly");
-      toast.error("Could not determine user role. Redirecting to default dashboard.");
+      toast.error("Could not determine user role. Please update your profile.");
       navigate("/dashboard/client", { replace: true });
+    } else if (!isLoading && !user) {
+      // Not authenticated
+      toast.error("You must be logged in to access the dashboard");
+      navigate("/signin", { replace: true });
     }
-  }, [userRole, isLoading, navigate]);
+  }, [userRole, isLoading, navigate, user]);
   
   return (
     <div className="min-h-screen flex flex-col items-center justify-center">

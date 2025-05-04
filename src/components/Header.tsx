@@ -1,39 +1,10 @@
+
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "./ui/ThemeToggle";
-import { LangCurrencySelector } from "./LangCurrencySelector";
-import ServiceIcon from "./ServiceIcon";
-import { 
-  Menu, 
-  X, 
-  User, 
-  Bell, 
-  MessageSquare, 
-  Briefcase, 
-  LogIn,
-  ShoppingCart,
-  Store,
-  Package,
-  ShoppingBag,
-  Settings,
-  LogOut,
-  UserCog,
-  Home,
-  Heart,
-  Calendar,
-  Search,
-  HelpCircle,
-  Star
-} from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { LangCurrencySelector } from "@/components/LangCurrencySelector";
+import ServieIcon from "@/components/ServieIcon";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -43,613 +14,377 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Menu, X, User, Bell, MessageSquare, ShoppingCart } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { isAuthenticated, userRole, signOut, user } = useAuth();
+  const { isAuthenticated, userRole, signOut } = useAuth();
+  const navigate = useNavigate();
 
-  // Add scroll effect for the header
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-    
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const scrollToSection = (sectionId: string) => {
-    // Close the mobile menu if it's open
-    if (isMenuOpen) {
-      setIsMenuOpen(false);
-    }
-
-    // If we're on the home page, scroll to the section
-    if (location.pathname === '/') {
-      const element = document.getElementById(sectionId);
-      if (element) {
-        const headerOffset = 100; // Adjust based on header height
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-        
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        });
-      }
-    } else {
-      // If we're not on the home page, navigate to the home page with the section as a hash
-      navigate(`/?scrollTo=${sectionId}`);
-      toast.info(`Navigating to ${sectionId.replace('-', ' ')} section`);
-    }
-  };
-
-  // Effect to handle scrolling to section when navigating from another page
-  useEffect(() => {
-    if (location.pathname === '/') {
-      const urlParams = new URLSearchParams(location.search);
-      const scrollToParam = urlParams.get('scrollTo');
-      
-      if (scrollToParam) {
-        setTimeout(() => {
-          const element = document.getElementById(scrollToParam);
-          if (element) {
-            const headerOffset = 100; // Adjust based on header height
-            const elementPosition = element.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-            
-            window.scrollTo({
-              top: offsetPosition,
-              behavior: 'smooth'
-            });
-          }
-        }, 300); // Slightly longer timeout to ensure the page is fully rendered
-      }
-    }
-  }, [location]);
-
-  const handleNavigation = (path: string) => {
-    if (isMenuOpen) {
-      setIsMenuOpen(false);
-    }
-    navigate(path);
-  };
-  
   const handleSignOut = async () => {
     try {
       await signOut();
-      navigate("/");
+      navigate("/", { replace: true });
     } catch (error) {
-      console.error("Error signing out:", error);
+      console.error("Sign out error:", error);
     }
   };
 
-  // Function to check if a path is active
-  const isActivePath = (path: string): boolean => {
-    if (path === '/') {
-      return location.pathname === '/';
-    }
-    return location.pathname.startsWith(path);
-  };
-
-  // Helper function to get active class
-  const getActiveClass = (path: string): string => {
-    return isActivePath(path) ? 
-      "bg-accent text-accent-foreground font-medium" : 
-      "hover:bg-accent hover:text-accent-foreground";
-  };
-
-  // Group navigation items for better organization
-  const mainNavItems = [
-    { label: "Home", onClick: () => handleNavigation('/') },
-    { label: "Browse Services", onClick: () => handleNavigation('/categories') },
-    { label: "How It Works", onClick: () => scrollToSection('how-it-works') },
-    { label: "Shop", onClick: () => handleNavigation('/shop') },
-  ];
+  // Check if it's a landing page or other specific page
+  const isLanding = location.pathname === "/";
+  const isDashboard = location.pathname.startsWith("/dashboard");
   
-  const secondaryNavItems = [
-    { label: "Testimonials", onClick: () => scrollToSection('testimonials') },
-    { label: "Become a Provider", onClick: () => handleNavigation('/become-provider') },
-    { label: "Become a Seller", onClick: () => handleNavigation('/become-seller') },
-  ];
+  // Function to navigate to role-specific dashboards
+  const navigateToUserFeature = (feature: string) => {
+    if (!isAuthenticated) {
+      navigate("/signin");
+      return;
+    }
+    
+    switch (userRole) {
+      case "provider":
+        navigate(`/dashboard/provider?tab=${feature}`);
+        break;
+      case "seller":
+        navigate(`/dashboard/seller?tab=${feature}`);
+        break;
+      default:
+        navigate(`/dashboard/client?tab=${feature}`);
+        break;
+    }
+  };
 
-  // Desktop navigation using Navigation Menu for better organization
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
-    <header className={`sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-shadow ${isScrolled ? 'shadow-md' : ''}`}>
-      <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Link to="/" className="flex items-center gap-2">
-            <ServiceIcon className="h-8 w-8" color="#ea384c" />
-            <span className="text-2xl font-bold text-servie">Servie</span>
-          </Link>
-        </div>
+    <header
+      className={cn(
+        "sticky top-0 z-50 w-full transition-all duration-300",
+        isScrolled || !isLanding || isDashboard
+          ? "bg-background/95 backdrop-blur border-b"
+          : "bg-transparent"
+      )}
+    >
+      <div className="container flex items-center justify-between h-16 px-4">
+        <Link to="/" className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
+          <ServieIcon className="w-8 h-8 text-servie" />
+          <span className="font-bold text-xl">Servie</span>
+        </Link>
 
-        {/* Mobile menu button */}
-        <button
-          className="lg:hidden"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          aria-label="Toggle menu"
-        >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-
-        {/* Desktop navigation using Navigation Menu for better organization */}
-        <NavigationMenu className="hidden lg:flex">
-          <NavigationMenuList className="gap-2">
-            {/* Home Link */}
+        {/* Desktop Navigation */}
+        <NavigationMenu className="hidden md:flex">
+          <NavigationMenuList>
             <NavigationMenuItem>
-              <Link to="/">
-                <NavigationMenuLink className={cn(
-                  navigationMenuTriggerStyle(),
-                  isActivePath('/') && "bg-accent/50"
-                )}>
-                  <Home className="w-4 h-4 mr-2" />
-                  Home
-                </NavigationMenuLink>
+              <Link to="/" className={navigationMenuTriggerStyle()}>
+                Home
               </Link>
             </NavigationMenuItem>
-            
-            {/* Services Dropdown */}
             <NavigationMenuItem>
-              <NavigationMenuTrigger className={isActivePath('/categories') ? "bg-accent/50" : ""}>
-                Services
-              </NavigationMenuTrigger>
+              <NavigationMenuTrigger>Services</NavigationMenuTrigger>
               <NavigationMenuContent>
-                <ul className="grid gap-3 p-4 w-[400px] grid-cols-2">
-                  <li className="row-span-3">
+                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                  <li className="col-span-2">
                     <NavigationMenuLink asChild>
-                      <a
-                        className="flex flex-col justify-end w-full h-full p-6 no-underline rounded-md outline-none focus:shadow-md bg-gradient-to-b from-muted/50 to-muted"
-                        href="/categories"
+                      <Link
+                        to="/categories"
+                        className="flex items-center justify-between w-full rounded-md border p-4 hover:bg-muted"
                       >
-                        <div className="mt-4 mb-2 text-lg font-medium">
-                          Browse All Services
+                        <div>
+                          <h3 className="text-sm font-medium">Browse All Services</h3>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Explore and book from thousands of service providers
+                          </p>
                         </div>
-                        <p className="text-sm leading-tight text-muted-foreground">
-                          Find professional services for any task you need done
-                        </p>
-                      </a>
+                      </Link>
                     </NavigationMenuLink>
                   </li>
                   <li>
                     <NavigationMenuLink asChild>
-                      <a
-                        href="/categories?category=home-services"
-                        className="block p-3 space-y-1 leading-none no-underline rounded-md outline-none hover:bg-muted focus:shadow-md"
+                      <Link
+                        to="/categories?category=home-services"
+                        className="block select-none rounded-md border p-3 text-sm hover:bg-muted"
                       >
-                        <div className="text-sm font-medium">Home Services</div>
-                        <p className="text-xs text-muted-foreground">
-                          Cleaning, repairs, and maintenance
-                        </p>
-                      </a>
+                        Home Services
+                      </Link>
                     </NavigationMenuLink>
                   </li>
                   <li>
                     <NavigationMenuLink asChild>
-                      <a
-                        href="/categories?category=professional"
-                        className="block p-3 space-y-1 leading-none no-underline rounded-md outline-none hover:bg-muted focus:shadow-md"
+                      <Link
+                        to="/categories?category=professional"
+                        className="block select-none rounded-md border p-3 text-sm hover:bg-muted"
                       >
-                        <div className="text-sm font-medium">Professional</div>
-                        <p className="text-xs text-muted-foreground">
-                          Design, accounting, and legal services
-                        </p>
-                      </a>
+                        Professional Services
+                      </Link>
                     </NavigationMenuLink>
                   </li>
                   <li>
                     <NavigationMenuLink asChild>
-                      <a
-                        href="/categories?category=wellness"
-                        className="block p-3 space-y-1 leading-none no-underline rounded-md outline-none hover:bg-muted focus:shadow-md"
+                      <Link
+                        to="/categories?category=personal-care"
+                        className="block select-none rounded-md border p-3 text-sm hover:bg-muted"
                       >
-                        <div className="text-sm font-medium">Wellness</div>
-                        <p className="text-xs text-muted-foreground">
-                          Fitness, health, and self-care
-                        </p>
-                      </a>
+                        Personal Care
+                      </Link>
                     </NavigationMenuLink>
                   </li>
                   <li>
                     <NavigationMenuLink asChild>
-                      <a
-                        href="/categories?category=beauty"
-                        className="block p-3 space-y-1 leading-none no-underline rounded-md outline-none hover:bg-muted focus:shadow-md"
+                      <Link
+                        to="/categories?category=tech"
+                        className="block select-none rounded-md border p-3 text-sm hover:bg-muted"
                       >
-                        <div className="text-sm font-medium">Beauty</div>
-                        <p className="text-xs text-muted-foreground">
-                          Hair, makeup, and nail services
-                        </p>
-                      </a>
+                        Tech & Digital Services
+                      </Link>
                     </NavigationMenuLink>
                   </li>
                 </ul>
               </NavigationMenuContent>
             </NavigationMenuItem>
-
-            {/* Shop Dropdown */}
             <NavigationMenuItem>
-              <NavigationMenuTrigger className={isActivePath('/shop') || isActivePath('/cart') ? "bg-accent/50" : ""}>
-                <Store className="w-4 h-4 mr-1" />
+              <Link to="/shop" className={navigationMenuTriggerStyle()}>
                 Shop
-              </NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid gap-3 p-4 w-[350px]">
-                  <li>
-                    <NavigationMenuLink asChild>
-                      <a
-                        href="/shop"
-                        className="block p-3 space-y-1 leading-none no-underline rounded-md outline-none hover:bg-muted focus:shadow-md"
-                      >
-                        <div className="text-sm font-medium">All Products</div>
-                        <p className="text-xs text-muted-foreground">
-                          Browse our full catalog of products
-                        </p>
-                      </a>
-                    </NavigationMenuLink>
-                  </li>
-                  <li>
-                    <NavigationMenuLink asChild>
-                      <a
-                        href="/shop?category=tools"
-                        className="block p-3 space-y-1 leading-none no-underline rounded-md outline-none hover:bg-muted focus:shadow-md"
-                      >
-                        <div className="text-sm font-medium">Tools & Equipment</div>
-                        <p className="text-xs text-muted-foreground">
-                          High-quality tools for any project
-                        </p>
-                      </a>
-                    </NavigationMenuLink>
-                  </li>
-                  <li>
-                    <NavigationMenuLink asChild>
-                      <a
-                        href="/shop?category=home"
-                        className="block p-3 space-y-1 leading-none no-underline rounded-md outline-none hover:bg-muted focus:shadow-md"
-                      >
-                        <div className="text-sm font-medium">Home & Living</div>
-                        <p className="text-xs text-muted-foreground">
-                          Products to enhance your living space
-                        </p>
-                      </a>
-                    </NavigationMenuLink>
-                  </li>
-                  <li>
-                    <NavigationMenuLink asChild>
-                      <a
-                        href="/cart"
-                        className="flex items-center p-3 space-y-1 leading-none no-underline rounded-md outline-none hover:bg-muted focus:shadow-md"
-                      >
-                        <ShoppingCart className="w-4 h-4 mr-2" />
-                        <span>View Shopping Cart</span>
-                      </a>
-                    </NavigationMenuLink>
-                  </li>
-                </ul>
-              </NavigationMenuContent>
+              </Link>
             </NavigationMenuItem>
-            
-            {/* About Links */}
-            <NavigationMenuItem>
-              <NavigationMenuTrigger className={isActivePath('/contact') ? "bg-accent/50" : ""}>
-                About
-              </NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid gap-3 p-4 w-[350px]">
-                  <li>
-                    <button 
-                      onClick={() => scrollToSection('how-it-works')}
-                      className="block w-full text-left p-3 space-y-1 leading-none no-underline rounded-md outline-none hover:bg-muted focus:shadow-md"
-                    >
-                      <div className="text-sm font-medium">How It Works</div>
-                      <p className="text-xs text-muted-foreground">
-                        Learn about our platform and process
-                      </p>
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => scrollToSection('testimonials')}
-                      className="block w-full text-left p-3 space-y-1 leading-none no-underline rounded-md outline-none hover:bg-muted focus:shadow-md"
-                    >
-                      <div className="text-sm font-medium">Testimonials</div>
-                      <p className="text-xs text-muted-foreground">
-                        See what our users are saying
-                      </p>
-                    </button>
-                  </li>
-                  <li>
-                    <NavigationMenuLink asChild>
-                      <a
-                        href="/contact"
-                        className="block p-3 space-y-1 leading-none no-underline rounded-md outline-none hover:bg-muted focus:shadow-md"
-                      >
-                        <div className="text-sm font-medium">Contact Us</div>
-                        <p className="text-xs text-muted-foreground">
-                          Get in touch with our support team
-                        </p>
-                      </a>
-                    </NavigationMenuLink>
-                  </li>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-            
-            {/* Join Us Links */}
-            <NavigationMenuItem>
-              <NavigationMenuTrigger className={
-                isActivePath('/become-provider') || isActivePath('/become-seller') ? "bg-accent/50" : ""
-              }>
-                Join Us
-              </NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid gap-3 p-4 md:w-[400px] md:grid-cols-2">
-                  <li>
-                    <NavigationMenuLink asChild>
-                      <a
-                        href="/become-provider"
-                        className="block p-3 space-y-1 leading-none no-underline rounded-md outline-none hover:bg-muted focus:shadow-md"
-                      >
-                        <div className="flex items-center mb-2">
-                          <Briefcase className="w-4 h-4 mr-2 text-servie" />
-                          <span className="text-sm font-medium">Service Provider</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Offer your professional services and grow your business
-                        </p>
-                      </a>
-                    </NavigationMenuLink>
-                  </li>
-                  <li>
-                    <NavigationMenuLink asChild>
-                      <a
-                        href="/become-seller"
-                        className="block p-3 space-y-1 leading-none no-underline rounded-md outline-none hover:bg-muted focus:shadow-md"
-                      >
-                        <div className="flex items-center mb-2">
-                          <ShoppingBag className="w-4 h-4 mr-2 text-servie" />
-                          <span className="text-sm font-medium">Seller</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Sell your products on our marketplace
-                        </p>
-                      </a>
-                    </NavigationMenuLink>
-                  </li>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
+            {!isAuthenticated && (
+              <NavigationMenuItem>
+                <NavigationMenuTrigger>Join As</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid w-[400px] gap-3 p-4">
+                    <li>
+                      <NavigationMenuLink asChild>
+                        <Link
+                          to="/become-provider"
+                          className="flex items-center justify-between w-full rounded-md border p-4 hover:bg-muted"
+                        >
+                          <div>
+                            <h3 className="text-sm font-medium">Service Provider</h3>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              Offer your skills and services
+                            </p>
+                          </div>
+                        </Link>
+                      </NavigationMenuLink>
+                    </li>
+                    <li>
+                      <NavigationMenuLink asChild>
+                        <Link
+                          to="/become-seller"
+                          className="flex items-center justify-between w-full rounded-md border p-4 hover:bg-muted"
+                        >
+                          <div>
+                            <h3 className="text-sm font-medium">Seller</h3>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              Sell your products in our marketplace
+                            </p>
+                          </div>
+                        </Link>
+                      </NavigationMenuLink>
+                    </li>
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            )}
           </NavigationMenuList>
         </NavigationMenu>
 
-        {/* user authentication UI */}
-        <div className="hidden lg:flex items-center space-x-2">
-          {!isAuthenticated ? (
-            <>
-              <Button variant="outline" className="rounded-full" onClick={() => handleNavigation('/signin')}>
-                <LogIn className="mr-2 h-4 w-4" />
-                Sign In
-              </Button>
-              <Button className="rounded-full bg-servie hover:bg-servie-600" onClick={() => handleNavigation('/signup')}>
-                <User className="mr-2 h-4 w-4" />
-                Sign Up
-              </Button>
-            </>
-          ) : (
-            <>
-              {/* Shopping Cart Button */}
-              <Button variant="ghost" size="icon" className={cn(
-                "rounded-full relative group",
-                isActivePath('/cart') && "bg-accent/50"
-              )} 
-                onClick={() => handleNavigation('/cart')} title="Shopping Cart">
-                <ShoppingCart size={20} />
-                <span className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-foreground text-background text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                  Shopping Cart
-                </span>
-              </Button>
-              
-              {/* Notifications Button */}
-              <Button variant="ghost" size="icon" className="rounded-full relative group" title="Notifications">
-                <Bell size={20} />
-                <span className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-foreground text-background text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                  Notifications
-                </span>
-              </Button>
-              
-              {/* Messages Button */}
+        <div className="flex items-center gap-2">
+          {/* Action Icons */}
+          {isAuthenticated ? (
+            <div className="hidden md:flex items-center gap-2">
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="rounded-full relative group"
-                title="Messages"
+                onClick={() => navigateToUserFeature("messages")}
+                aria-label="Messages"
               >
-                <MessageSquare size={20} />
-                <span className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-foreground text-background text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                  Messages
-                </span>
+                <MessageSquare className="h-5 w-5" />
               </Button>
-              
-              {/* User Menu Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className={cn(
-                    "rounded-full relative",
-                    isActivePath('/dashboard') || isActivePath('/profile') && "bg-accent/50"
-                  )}>
-                    <User size={20} />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>
-                    <div className="flex flex-col">
-                      <span>{user?.user_metadata?.first_name} {user?.user_metadata?.last_name}</span>
-                      <span className="text-xs text-muted-foreground">{user?.email}</span>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => handleNavigation('/dashboard')}>
-                    {userRole === "provider" ? (
-                      <>
-                        <Briefcase className="mr-2 h-4 w-4" />
-                        Provider Dashboard
-                      </>
-                    ) : userRole === "seller" ? (
-                      <>
-                        <ShoppingBag className="mr-2 h-4 w-4" />
-                        Seller Dashboard
-                      </>
-                    ) : (
-                      <>
-                        <User className="mr-2 h-4 w-4" />
-                        Client Dashboard
-                      </>
-                    )}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleNavigation('/profile/edit')}>
-                    <UserCog className="mr-2 h-4 w-4" />
-                    Edit Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleNavigation('/dashboard?tab=settings')}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Account Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              
-              <LangCurrencySelector />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => navigateToUserFeature("notifications")}
+                aria-label="Notifications"
+              >
+                <Bell className="h-5 w-5" />
+              </Button>
+              <Link to="/cart">
+                <Button variant="ghost" size="icon" aria-label="Shopping Cart">
+                  <ShoppingCart className="h-5 w-5" />
+                </Button>
+              </Link>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => navigate("/dashboard")} 
+                aria-label="User Profile"
+              >
+                <User className="h-5 w-5" />
+              </Button>
+            </div>
+          ) : null}
+
+          <div className="hidden md:flex items-center gap-2">
+            <LangCurrencySelector />
+            <ThemeToggle />
+          </div>
+
+          {isAuthenticated ? (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleSignOut}
+              className="hidden md:inline-flex"
+            >
+              Sign Out
+            </Button>
+          ) : (
+            <>
+              <Button variant="outline" size="sm" className="hidden md:inline-flex" asChild>
+                <Link to="/signin">Sign In</Link>
+              </Button>
+              <Button size="sm" className="hidden md:inline-flex bg-servie hover:bg-servie-600" asChild>
+                <Link to="/signup">Sign Up</Link>
+              </Button>
             </>
           )}
-          
-          <ThemeToggle />
-        </div>
 
-        {/* Mobile menu */}
-        {isMenuOpen && (
-          <div className="fixed inset-0 top-16 z-50 grid h-[calc(100vh-4rem)] grid-flow-row auto-rows-max overflow-auto bg-background p-6 pb-32 shadow-lg animate-in slide-in-from-top lg:hidden">
-            <div className="flex flex-col space-y-4">
-              {/* Mobile Navigation Items */}
-              <button onClick={() => handleNavigation('/')} className="text-lg font-medium flex items-center">
-                <Home className="w-5 h-5 mr-2" />
-                Home
-              </button>
-              
-              <button onClick={() => handleNavigation('/categories')} className="text-lg font-medium flex items-center">
-                <Search className="w-5 h-5 mr-2" />
-                Browse Services
-              </button>
-              
-              <button onClick={() => handleNavigation('/shop')} className="text-lg font-medium flex items-center">
-                <Store className="w-5 h-5 mr-2" />
-                Shop
-              </button>
-              
-              <button onClick={() => handleNavigation('/cart')} className="text-lg font-medium flex items-center ml-4">
-                <ShoppingCart className="w-5 h-5 mr-2" />
-                View Cart
-              </button>
-              
-              <button onClick={() => scrollToSection('how-it-works')} className="text-lg font-medium flex items-center">
-                <HelpCircle className="w-5 h-5 mr-2" />
-                How It Works
-              </button>
-              
-              <button onClick={() => scrollToSection('testimonials')} className="text-lg font-medium flex items-center">
-                <Star className="w-5 h-5 mr-2" />
-                Testimonials
-              </button>
-              
-              {/* rest of mobile menu items */}
-              <button onClick={() => handleNavigation('/become-provider')} className="text-lg font-medium flex items-center">
-                <Briefcase className="w-5 h-5 mr-2" />
-                Become a Provider
-              </button>
-              
-              <button onClick={() => handleNavigation('/become-seller')} className="text-lg font-medium flex items-center">
-                <ShoppingBag className="w-5 h-5 mr-2" />
-                Become a Seller
-              </button>
-              
-              {userRole === "provider" && (
-                <button onClick={() => handleNavigation('/dashboard/provider?tab=products')} className="text-lg font-medium flex items-center ml-4">
-                  <Package className="w-5 h-5 mr-2" />
-                  Manage Products
-                </button>
-              )}
-              
-              {userRole === "seller" && (
-                <button onClick={() => handleNavigation('/dashboard/seller?tab=products')} className="text-lg font-medium flex items-center ml-4">
-                  <Package className="w-5 h-5 mr-2" />
-                  Manage Products
-                </button>
-              )}
-              
-              {isAuthenticated && (
-                <>
-                  <button onClick={() => handleNavigation('/profile/edit')} className="text-lg font-medium flex items-center">
-                    <UserCog className="w-5 h-5 mr-2" />
-                    Edit Profile
-                  </button>
-                  
-                  <button onClick={handleSignOut} className="text-lg font-medium flex items-center">
-                    <LogOut className="w-5 h-5 mr-2" />
-                    Sign Out
-                  </button>
-                </>
-              )}
-              
-              <div className="flex flex-col space-y-2 pt-4">
-                {!isAuthenticated ? (
-                  <>
-                    <Button variant="outline" className="w-full rounded-full" onClick={() => handleNavigation('/signin')}>
-                      <LogIn className="mr-2 h-4 w-4" />
-                      Sign In
-                    </Button>
-                    <Button className="w-full rounded-full bg-servie hover:bg-servie-600" onClick={() => handleNavigation('/signup')}>
-                      <User className="mr-2 h-4 w-4" />
-                      Sign Up
-                    </Button>
-                  </>
-                ) : (
-                  <Button variant="outline" className="w-full rounded-full" onClick={() => handleNavigation('/dashboard')}>
-                    {userRole === "provider" ? (
+          {/* Mobile Menu Button */}
+          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden">
+                {isMobileMenuOpen ? <X /> : <Menu />}
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[85vw] sm:w-[350px]">
+              <div className="flex flex-col h-full">
+                <div className="flex-1 py-6">
+                  <div className="mb-6 space-y-1">
+                    <Link
+                      to="/"
+                      className="block px-3 py-2 rounded-md hover:bg-muted"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Home
+                    </Link>
+                    <Link
+                      to="/categories"
+                      className="block px-3 py-2 rounded-md hover:bg-muted"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Services
+                    </Link>
+                    <Link
+                      to="/shop"
+                      className="block px-3 py-2 rounded-md hover:bg-muted"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Shop
+                    </Link>
+                    {!isAuthenticated && (
                       <>
-                        <Briefcase className="mr-2 h-4 w-4" />
-                        Provider Dashboard
+                        <Link
+                          to="/become-provider"
+                          className="block px-3 py-2 rounded-md hover:bg-muted"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          Become a Provider
+                        </Link>
+                        <Link
+                          to="/become-seller"
+                          className="block px-3 py-2 rounded-md hover:bg-muted"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          Become a Seller
+                        </Link>
                       </>
-                    ) : userRole === "seller" ? (
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <div className="px-3 text-xs font-semibold text-muted-foreground">
+                      Account
+                    </div>
+                    {isAuthenticated ? (
                       <>
-                        <ShoppingBag className="mr-2 h-4 w-4" />
-                        Seller Dashboard
+                        <Link
+                          to="/dashboard"
+                          className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-muted"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <User size={16} />
+                          Dashboard
+                        </Link>
+                        <Link
+                          to="/cart"
+                          className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-muted"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <ShoppingCart size={16} />
+                          Cart
+                        </Link>
+                        <button
+                          className="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-muted text-left"
+                          onClick={() => {
+                            handleSignOut();
+                            setIsMobileMenuOpen(false);
+                          }}
+                        >
+                          Sign Out
+                        </button>
                       </>
                     ) : (
                       <>
-                        <User className="mr-2 h-4 w-4" />
-                        Client Dashboard
+                        <Link
+                          to="/signin"
+                          className="block px-3 py-2 rounded-md hover:bg-muted"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          Sign In
+                        </Link>
+                        <Link
+                          to="/signup"
+                          className="block px-3 py-2 rounded-md hover:bg-muted"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          Sign Up
+                        </Link>
                       </>
                     )}
-                  </Button>
-                )}
-                
-                <div className="flex justify-center py-2">
-                  <LangCurrencySelector />
-                  <ThemeToggle />
+                  </div>
+                </div>
+                <div className="border-t pt-4">
+                  <div className="flex justify-between px-3">
+                    <LangCurrencySelector />
+                    <ThemeToggle />
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </header>
   );
