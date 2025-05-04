@@ -12,7 +12,8 @@ import {
   Calendar as CalendarIcon,
   ArrowRight, 
   Check,
-  X
+  X,
+  Star
 } from "lucide-react";
 
 interface Booking {
@@ -92,7 +93,7 @@ export default function BookingCalendar({
           <Badge 
             variant={
               booking.status === 'upcoming' ? 'default' : 
-              booking.status === 'completed' ? 'success' : 
+              booking.status === 'completed' ? 'secondary' : 
               'destructive'
             }
             className="capitalize"
