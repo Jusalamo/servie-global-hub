@@ -1,12 +1,13 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, ShoppingCart, Heart, Check, Loader2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
+import { useLocalization } from "@/components/LangCurrencySelector";
 
 // Product type definition
 export interface Product {
@@ -28,15 +29,6 @@ export interface Product {
   currency?: string;
 }
 
-// Cart context interface for future implementation
-export interface CartContextType {
-  addToCart: (product: Product, quantity: number) => void;
-  removeFromCart: (productId: string) => void;
-  isInCart: (productId: string) => boolean;
-  getCartItemQuantity: (productId: string) => number;
-  cartItems: { product: Product; quantity: number }[];
-}
-
 interface ProductCardProps {
   product: Product;
   showAddToCart?: boolean;
@@ -44,11 +36,16 @@ interface ProductCardProps {
 
 export function ProductCard({ product, showAddToCart = true }: ProductCardProps) {
   const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const { formatPrice, translate } = useLocalization();
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
   
-  const handleAddToCart = () => {
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     setIsAddingToCart(true);
     
     // Simulate adding to cart
@@ -86,6 +83,41 @@ export function ProductCard({ product, showAddToCart = true }: ProductCardProps)
     }, 600);
   };
   
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Add to cart first
+    const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    
+    // Check if product is already in cart
+    const existingItemIndex = cartItems.findIndex((item: any) => item.id === product.id);
+    
+    if (existingItemIndex >= 0) {
+      // Increment quantity
+      cartItems[existingItemIndex].quantity += 1;
+    } else {
+      // Add new item
+      cartItems.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.images[0] || '/placeholder.svg',
+        quantity: 1,
+        providerId: product.providerId,
+        providerName: product.providerName
+      });
+    }
+    
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    
+    // Update cart count in UI - dispatch custom event
+    window.dispatchEvent(new CustomEvent('cart-updated'));
+    
+    // Navigate to checkout
+    navigate('/checkout');
+  };
+  
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -100,10 +132,13 @@ export function ProductCard({ product, showAddToCart = true }: ProductCardProps)
   };
 
   // Check if product is in cart on mount
-  useState(() => {
+  useEffect(() => {
     const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
     setIsInCart(cartItems.some((item: any) => item.id === product.id));
-  });
+  }, [product.id]);
+  
+  const discountPercentage = product.compareAtPrice ? 
+    Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100) : null;
   
   return (
     <Card className={`overflow-hidden hover:shadow-md transition-all duration-300 ${
@@ -127,6 +162,14 @@ export function ProductCard({ product, showAddToCart = true }: ProductCardProps)
           >
             {product.category}
           </Badge>
+          
+          {discountPercentage && (
+            <Badge 
+              className="absolute bottom-2 left-2 bg-red-500 hover:bg-red-600"
+            >
+              {discountPercentage}% OFF
+            </Badge>
+          )}
           
           <Button
             variant="ghost"
@@ -169,35 +212,54 @@ export function ProductCard({ product, showAddToCart = true }: ProductCardProps)
       </CardContent>
       
       <CardFooter className="px-4 py-3 border-t flex justify-between items-center">
-        <span className="font-semibold text-lg">
-          ${product.price.toFixed(2)}
-        </span>
+        <div className="flex flex-col">
+          <span className="font-semibold text-lg">
+            {formatPrice(product.price)}
+          </span>
+          {product.compareAtPrice && product.compareAtPrice > product.price && (
+            <span className="text-sm text-muted-foreground line-through">
+              {formatPrice(product.compareAtPrice)}
+            </span>
+          )}
+        </div>
         
         {showAddToCart && (
-          isInCart ? (
-            <Button size="sm" variant="secondary" className="bg-green-50 text-green-700 hover:bg-green-100">
-              <Check className="h-4 w-4 mr-1" />
-              In Cart
-            </Button>
-          ) : (
+          <div className="flex gap-2">
+            {isInCart ? (
+              <Button size="sm" variant="secondary" className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30">
+                <Check className="h-4 w-4 mr-1" />
+                {translate('added_to_cart')}
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                variant="default" 
+                onClick={handleAddToCart}
+                disabled={isAddingToCart || !product.inStock}
+              >
+                {isAddingToCart ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                    {translate('adding')}...
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="h-4 w-4 mr-1" />
+                    {translate('add_to_cart')}
+                  </>
+                )}
+              </Button>
+            )}
+            
             <Button
-              size="sm" 
-              onClick={handleAddToCart}
-              disabled={isAddingToCart || !product.inStock}
+              size="sm"
+              variant="secondary"
+              onClick={handleBuyNow}
+              disabled={!product.inStock}
             >
-              {isAddingToCart ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                  Adding...
-                </>
-              ) : (
-                <>
-                  <ShoppingCart className="h-4 w-4 mr-1" />
-                  Add to Cart
-                </>
-              )}
+              {translate('buy_now')}
             </Button>
-          )
+          </div>
         )}
       </CardFooter>
     </Card>

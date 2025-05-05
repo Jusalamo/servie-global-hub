@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useParams, useSearchParams, Link } from "react-router-dom";
+import { useParams, useSearchParams, Link, useNavigate } from "react-router-dom";
 import { Calendar as CalendarIcon, Clock, ChevronDown, CreditCard, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -23,7 +23,8 @@ import {
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { services } from "@/data/mockData";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+import { useLocalization } from "@/components/LangCurrencySelector";
 
 const timeSlots = [
   "09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", 
@@ -34,11 +35,14 @@ const BookingPage = () => {
   const { serviceId } = useParams<{ serviceId: string }>();
   const [searchParams] = useSearchParams();
   const packageId = searchParams.get("package") || "";
+  const navigate = useNavigate();
+  const { formatPrice } = useLocalization();
   
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [time, setTime] = useState<string | undefined>(undefined);
   const [notes, setNotes] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("credit_card");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Find the service and package based on URL parameters
   const service = services.find(s => s.id === serviceId);
@@ -62,24 +66,53 @@ const BookingPage = () => {
   
   const handleBooking = () => {
     if (!date || !time) {
-      toast({
-        title: "Missing information",
-        description: "Please select a date and time for your booking",
-        variant: "destructive"
-      });
+      toast.error("Please select a date and time for your booking");
       return;
     }
     
-    // Here you would typically connect to a backend API to create the booking
-    // For now, we'll just show a success message
-    toast({
-      title: "Booking Successful!",
-      description: "Your service has been booked successfully. You'll receive a confirmation email shortly.",
-    });
+    setIsSubmitting(true);
     
-    // Redirect to dashboard (we would add this in a real application)
-    // navigate("/dashboard/client");
+    // Simulate API call
+    setTimeout(() => {
+      // Store booking in local storage for demo purposes
+      const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+      const newBooking = {
+        id: `booking-${Date.now()}`,
+        serviceId: service.id,
+        serviceName: service.title,
+        packageName: selectedPackage.name,
+        price: selectedPackage.price,
+        date: format(date, "yyyy-MM-dd"),
+        time,
+        notes,
+        paymentMethod,
+        status: 'confirmed',
+        createdAt: new Date().toISOString()
+      };
+      
+      bookings.push(newBooking);
+      localStorage.setItem('bookings', JSON.stringify(bookings));
+      
+      toast.success("Booking Successful!", {
+        description: "Your service has been booked successfully. You'll receive a confirmation email shortly.",
+      });
+      
+      setIsSubmitting(false);
+      
+      // Redirect to confirmation page
+      navigate("/booking-confirmation", { 
+        state: { 
+          booking: newBooking,
+          service,
+          selectedPackage
+        } 
+      });
+    }, 1500);
   };
+
+  // Calculate service fee and total
+  const serviceFee = selectedPackage.price * 0.07;
+  const total = selectedPackage.price + serviceFee;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -246,11 +279,11 @@ const BookingPage = () => {
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span>Package price</span>
-                      <span>{service.currency}{selectedPackage.price}</span>
+                      <span>{formatPrice(selectedPackage.price)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Service fee</span>
-                      <span>{service.currency}{(selectedPackage.price * 0.07).toFixed(2)}</span>
+                      <span>{formatPrice(serviceFee)}</span>
                     </div>
                   </div>
                   
@@ -258,12 +291,23 @@ const BookingPage = () => {
                   
                   <div className="flex justify-between font-bold">
                     <span>Total</span>
-                    <span>{service.currency}{(selectedPackage.price * 1.07).toFixed(2)}</span>
+                    <span>{formatPrice(total)}</span>
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button className="w-full bg-servie hover:bg-servie-600" onClick={handleBooking}>
-                    Confirm & Pay
+                  <Button 
+                    className="w-full bg-servie hover:bg-servie-600" 
+                    onClick={handleBooking}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <span className="mr-2">Processing...</span>
+                        <span className="animate-spin">⏳</span>
+                      </>
+                    ) : (
+                      "Confirm & Pay"
+                    )}
                   </Button>
                 </CardFooter>
               </Card>

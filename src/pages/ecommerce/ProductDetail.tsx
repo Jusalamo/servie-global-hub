@@ -1,13 +1,13 @@
 
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Heart, Star, ChevronLeft, Share, MessageSquare } from "lucide-react";
+import { ShoppingCart, Heart, Star, ChevronLeft, Share, MessageSquare, Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,7 +15,7 @@ import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import ReviewForm from "@/components/ecommerce/ReviewForm";
 import ReviewList from "@/components/ecommerce/ReviewList";
 import { type Product } from "@/components/ecommerce/ProductCard";
-import { mockProduct } from "@/hooks/useProductData";
+import { useLocalization } from "@/components/LangCurrencySelector";
 
 export default function ProductDetail() {
   const { productId } = useParams<{ productId: string }>();
@@ -24,7 +24,11 @@ export default function ProductDetail() {
   const [activeImage, setActiveImage] = useState<string>("");
   const [isFavorite, setIsFavorite] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [isInCart, setIsInCart] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const { isAuthenticated } = useAuth();
+  const { formatPrice, translate } = useLocalization();
+  const navigate = useNavigate();
 
   // Simulate fetching product data
   useEffect(() => {
@@ -49,7 +53,7 @@ export default function ProductDetail() {
             "/products/headphones-3.jpg",
             "/products/headphones-4.jpg"
           ].map(() => "/placeholder.svg"), // Using placeholder since real images might not exist
-          category: "electronics",
+          category: "Electronics",
           providerId: "seller123",
           providerName: "AudioTech",
           providerAvatar: "/placeholder.svg",
@@ -70,6 +74,10 @@ export default function ProductDetail() {
       }
     };
 
+    // Check if product is in cart
+    const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    setIsInCart(cartItems.some((item: any) => item.id === productId));
+
     if (productId) {
       fetchProduct();
     }
@@ -83,12 +91,76 @@ export default function ProductDetail() {
   };
 
   const handleAddToCart = () => {
-    toast.success(`${quantity} ${quantity === 1 ? 'item' : 'items'} added to cart`);
+    if (!product) return;
+    
+    setIsAddingToCart(true);
+    
+    // Simulate adding to cart
+    setTimeout(() => {
+      const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+      
+      // Check if product is already in cart
+      const existingItemIndex = cartItems.findIndex((item: any) => item.id === product.id);
+      
+      if (existingItemIndex >= 0) {
+        // Increment quantity
+        cartItems[existingItemIndex].quantity += quantity;
+        toast.success(`Added ${quantity} ${quantity === 1 ? 'unit' : 'units'} of ${product.name} to cart`);
+      } else {
+        // Add new item
+        cartItems.push({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.images[0] || '/placeholder.svg',
+          quantity: quantity,
+          providerId: product.providerId,
+          providerName: product.providerName
+        });
+        toast.success(`Added ${product.name} to cart`);
+      }
+      
+      localStorage.setItem('cartItems', JSON.stringify(cartItems));
+      setIsInCart(true);
+      setIsAddingToCart(false);
+      
+      // Update cart count in UI - dispatch custom event
+      window.dispatchEvent(new CustomEvent('cart-updated'));
+    }, 600);
   };
 
   const handleBuyNow = () => {
-    toast.success(`Proceeding to checkout`);
-    // In a real app, this would navigate to checkout
+    if (!product) return;
+    
+    // Add to cart first
+    const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    
+    // Check if product is already in cart
+    const existingItemIndex = cartItems.findIndex((item: any) => item.id === product.id);
+    
+    if (existingItemIndex >= 0) {
+      // Update quantity
+      cartItems[existingItemIndex].quantity = quantity;
+    } else {
+      // Add new item
+      cartItems.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.images[0] || '/placeholder.svg',
+        quantity: quantity,
+        providerId: product.providerId,
+        providerName: product.providerName
+      });
+    }
+    
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    
+    // Update cart count in UI - dispatch custom event
+    window.dispatchEvent(new CustomEvent('cart-updated'));
+    
+    // Navigate to checkout
+    navigate('/checkout');
   };
 
   const handleToggleFavorite = () => {
@@ -158,8 +230,8 @@ export default function ProductDetail() {
     );
   }
 
-  // Use the currency from product or default to "$"
-  const displayCurrency = product.currency || "$";
+  const discountPercentage = product.compareAtPrice ? 
+    Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100) : null;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -170,7 +242,7 @@ export default function ProductDetail() {
           <div className="mb-6">
             <Link to="/shop" className="flex items-center text-sm text-muted-foreground hover:text-foreground">
               <ChevronLeft className="h-4 w-4 mr-1" />
-              Back to products
+              {translate('back_to_products')}
             </Link>
           </div>
 
@@ -224,18 +296,24 @@ export default function ProductDetail() {
                   <span className="mx-2 text-muted-foreground">•</span>
                   <span className="text-muted-foreground">{product.reviewCount} reviews</span>
                 </div>
+                
+                {product.category && (
+                  <div className="mt-2">
+                    <Badge variant="secondary">{product.category}</Badge>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-baseline">
-                <span className="text-3xl font-bold">{displayCurrency}{product.price.toFixed(2)}</span>
+                <span className="text-3xl font-bold">{formatPrice(product.price)}</span>
                 {product.compareAtPrice && product.compareAtPrice > product.price && (
                   <span className="ml-2 text-muted-foreground line-through">
-                    {displayCurrency}{product.compareAtPrice.toFixed(2)}
+                    {formatPrice(product.compareAtPrice)}
                   </span>
                 )}
-                {product.compareAtPrice && product.compareAtPrice > product.price && (
+                {discountPercentage && (
                   <Badge className="ml-2 bg-red-500">
-                    {Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)}% OFF
+                    {discountPercentage}% OFF
                   </Badge>
                 )}
               </div>
@@ -244,7 +322,7 @@ export default function ProductDetail() {
 
               <div>
                 <div className="flex items-center mb-4">
-                  <span className="font-medium mr-4">Quantity:</span>
+                  <span className="font-medium mr-4">{translate('quantity')}:</span>
                   <div className="flex items-center border rounded-md">
                     <Button
                       variant="ghost"
@@ -268,20 +346,40 @@ export default function ProductDetail() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Button 
-                    onClick={handleAddToCart} 
-                    className="flex-1"
-                    disabled={!product.inStock}
-                  >
-                    <ShoppingCart className="mr-2 h-5 w-5" />
-                    Add to Cart
-                  </Button>
+                  {isInCart ? (
+                    <Button 
+                      className="flex-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30"
+                      variant="secondary"
+                      onClick={() => navigate('/cart')}
+                    >
+                      <Check className="mr-2 h-5 w-5" />
+                      {translate('view_cart')}
+                    </Button>
+                  ) : (
+                    <Button 
+                      onClick={handleAddToCart} 
+                      className="flex-1"
+                      disabled={isAddingToCart || !product.inStock}
+                    >
+                      {isAddingToCart ? (
+                        <>
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          {translate('adding')}...
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingCart className="mr-2 h-5 w-5" />
+                          {translate('add_to_cart')}
+                        </>
+                      )}
+                    </Button>
+                  )}
                   <Button 
                     onClick={handleBuyNow} 
                     className="flex-1 bg-servie hover:bg-servie-600"
                     disabled={!product.inStock}
                   >
-                    Buy Now
+                    {translate('buy_now')}
                   </Button>
                 </div>
               </div>
@@ -297,7 +395,7 @@ export default function ProductDetail() {
                 </div>
                 <div className="flex items-center">
                   <Share className="h-4 w-4 mr-1" />
-                  <button className="hover:text-foreground">Share</button>
+                  <button className="hover:text-foreground">{translate('share')}</button>
                 </div>
               </div>
             </div>
@@ -307,12 +405,12 @@ export default function ProductDetail() {
           <div className="mt-12">
             <Tabs defaultValue="description">
               <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="description">Description</TabsTrigger>
-                <TabsTrigger value="reviews">Reviews</TabsTrigger>
-                <TabsTrigger value="shipping">Shipping & Returns</TabsTrigger>
+                <TabsTrigger value="description">{translate('description')}</TabsTrigger>
+                <TabsTrigger value="reviews">{translate('reviews')}</TabsTrigger>
+                <TabsTrigger value="shipping">{translate('shipping_returns')}</TabsTrigger>
               </TabsList>
               <TabsContent value="description" className="py-6">
-                <h3 className="text-lg font-semibold mb-4">Product Description</h3>
+                <h3 className="text-lg font-semibold mb-4">{translate('product_description')}</h3>
                 <div className="space-y-4">
                   <p>
                     {product.description}
@@ -323,7 +421,7 @@ export default function ProductDetail() {
                     Vestibulum varius diam velit, ac suscipit enim euismod non.
                   </p>
                   <div>
-                    <h4 className="font-medium mb-2">Key Features:</h4>
+                    <h4 className="font-medium mb-2">{translate('key_features')}:</h4>
                     <ul className="list-disc pl-5 space-y-1">
                       <li>High-quality materials for durability</li>
                       <li>Ergonomic design for comfort</li>
@@ -338,10 +436,10 @@ export default function ProductDetail() {
               <TabsContent value="reviews" className="py-6">
                 <div className="space-y-8">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Customer Reviews</h3>
+                    <h3 className="text-lg font-semibold">{translate('customer_reviews')}</h3>
                     <Button variant="outline">
                       <MessageSquare className="mr-2 h-4 w-4" />
-                      Write a Review
+                      {translate('write_review')}
                     </Button>
                   </div>
 
@@ -362,7 +460,7 @@ export default function ProductDetail() {
                           ))}
                         </div>
                         <p className="mt-1 text-sm text-muted-foreground">
-                          Based on {product.reviewCount} reviews
+                          {translate('based_on')} {product.reviewCount} {translate('reviews')}
                         </p>
                       </div>
                       
@@ -461,7 +559,7 @@ export default function ProductDetail() {
               <TabsContent value="shipping" className="py-6">
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold mb-3">Shipping Information</h3>
+                    <h3 className="text-lg font-semibold mb-3">{translate('shipping_information')}</h3>
                     <p className="text-muted-foreground">
                       We ship to all 50 US states as well as international destinations.
                       Standard shipping typically takes 3-7 business days. Express shipping
@@ -470,7 +568,7 @@ export default function ProductDetail() {
                   </div>
                   
                   <div>
-                    <h3 className="text-lg font-semibold mb-3">Returns & Refunds</h3>
+                    <h3 className="text-lg font-semibold mb-3">{translate('returns_refunds')}</h3>
                     <p className="text-muted-foreground">
                       We want you to be completely satisfied with your purchase. If you're not
                       happy with your order, we accept returns within 30 days of delivery for a
@@ -479,7 +577,7 @@ export default function ProductDetail() {
                   </div>
                   
                   <div>
-                    <h3 className="text-lg font-semibold mb-3">Warranty</h3>
+                    <h3 className="text-lg font-semibold mb-3">{translate('warranty')}</h3>
                     <p className="text-muted-foreground">
                       This product comes with a 1-year manufacturer's warranty that covers
                       defects in materials and workmanship.
@@ -493,7 +591,7 @@ export default function ProductDetail() {
           {/* Checkout preview panel */}
           <div className="mt-16">
             <Card className="p-6 max-w-lg mx-auto">
-              <h3 className="text-xl font-semibold mb-4">Complete Your Purchase</h3>
+              <h3 className="text-xl font-semibold mb-4">{translate('complete_purchase')}</h3>
               <PaymentMethodSelector onSelect={(method) => console.log(`Selected payment method: ${method}`)} />
             </Card>
           </div>

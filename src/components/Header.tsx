@@ -1,23 +1,35 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, User, ChevronDown, Globe } from 'lucide-react';
+import { Menu, X, User, ChevronDown, Globe, ShoppingCart } from 'lucide-react';
 import { Button } from './ui/button';
 import ServieIcon from './ServieIcon';
 import { useAuth } from '@/context/AuthContext';
-import { LangCurrencySelector } from './LangCurrencySelector';
+import { useLocalization } from './LangCurrencySelector';
 import CartIndicator from './CartIndicator';
 import NotificationBell from './NotificationBell';
 import { ThemeToggle } from './ui/ThemeToggle';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { LangCurrencySelector } from './LangCurrencySelector';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const { isAuthenticated, user, signOut } = useAuth();
   const location = useLocation();
   const { pathname } = location;
+  const { currentLanguage, currentCurrency, translate } = useLocalization();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -45,40 +57,47 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-1">
             <Link to="/categories" className={`px-3 py-2 rounded-md text-sm ${pathname === '/categories' ? 'font-medium text-servie' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800'}`}>
-              Services
+              {translate('services')}
             </Link>
             <Link to="/shop" className={`px-3 py-2 rounded-md text-sm ${pathname === '/shop' ? 'font-medium text-servie' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800'}`}>
-              Shop
+              {translate('shop')}
             </Link>
-            <div className="relative">
-              <button 
-                className={`px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800 flex items-center`}
-                onClick={() => setShowLanguageMenu(!showLanguageMenu)}
-              >
-                <Globe className="h-4 w-4 mr-1" />
-                <span>Language</span>
-                <ChevronDown className="h-3 w-3 ml-1" />
-              </button>
-              {showLanguageMenu && (
-                <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 shadow-lg rounded-md overflow-hidden">
-                  <LangCurrencySelector />
-                  <div className="p-2 border-t dark:border-gray-700">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="w-full text-right text-muted-foreground"
-                      onClick={() => setShowLanguageMenu(false)}
-                    >
-                      Close
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
           </nav>
 
           {/* Right side buttons */}
           <div className="flex items-center gap-2">
+            {/* Language selector */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="sm" className="flex items-center gap-1">
+                  <Globe className="h-4 w-4" />
+                  <span className="hidden sm:inline">{currentLanguage.name}</span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72 p-0" align="end">
+                <LangCurrencySelector />
+              </PopoverContent>
+            </Popover>
+            
+            {/* Currency selector */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="sm" className="flex items-center gap-1">
+                  <span className="text-base font-medium">{currentCurrency.symbol}</span>
+                  <span className="hidden sm:inline">{currentCurrency.code}</span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72 p-0" align="end">
+                <div className="py-4 px-2 max-h-[300px] overflow-y-auto">
+                  <p className="text-sm font-medium mb-3 px-2">Select Currency</p>
+                  <div className="grid grid-cols-1 gap-1">
+                    {/* Render currencies from LangCurrencySelector */}
+                    <LangCurrencySelector showLanguages={false} />
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+
             <ThemeToggle />
             
             <CartIndicator />
@@ -86,42 +105,34 @@ const Header = () => {
             {isAuthenticated && <NotificationBell />}
 
             {isAuthenticated ? (
-              <div className="relative">
-                <button 
-                  onClick={() => setShowMenu(!showMenu)}
-                  className="flex items-center px-2 py-1 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
-                >
-                  <div className="h-8 w-8 rounded-full bg-servie/10 text-servie flex items-center justify-center mr-1">
-                    <User size={16} />
-                  </div>
-                  <ChevronDown size={16} className="text-gray-500 dark:text-gray-400" />
-                </button>
-                
-                {/* User menu dropdown */}
-                {showMenu && (
-                  <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 dark:ring-gray-700">
-                    <Link to="/dashboard" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                      Dashboard
-                    </Link>
-                    <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                      Profile
-                    </Link>
-                    <button
-                      onClick={signOut}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      Sign out
-                    </button>
-                  </div>
-                )}
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="flex items-center gap-1 p-1">
+                    <div className="h-8 w-8 rounded-full bg-servie/10 text-servie flex items-center justify-center">
+                      <User size={16} />
+                    </div>
+                    <ChevronDown size={16} className="text-gray-500 dark:text-gray-400" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard" className="w-full cursor-pointer">Dashboard</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="w-full cursor-pointer">Profile</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={signOut} className="cursor-pointer">
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <div className="flex items-center gap-2">
                 <Button variant="ghost" asChild size="sm">
-                  <Link to="/sign-in">Sign in</Link>
+                  <Link to="/sign-in">{translate('signIn')}</Link>
                 </Button>
                 <Button className="bg-servie hover:bg-servie-600" asChild size="sm">
-                  <Link to="/sign-up">Sign up</Link>
+                  <Link to="/sign-up">{translate('signUp')}</Link>
                 </Button>
               </div>
             )}
@@ -140,10 +151,10 @@ const Header = () => {
         {isMobileMenuOpen && (
           <div className="md:hidden py-2 pb-3 space-y-1">
             <Link to="/categories" className="block px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
-              Services
+              {translate('services')}
             </Link>
             <Link to="/shop" className="block px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
-              Shop
+              {translate('shop')}
             </Link>
             {isAuthenticated ? (
               <>
@@ -163,10 +174,10 @@ const Header = () => {
             ) : (
               <>
                 <Link to="/sign-in" className="block px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
-                  Sign in
+                  {translate('signIn')}
                 </Link>
                 <Link to="/sign-up" className="block px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
-                  Sign up
+                  {translate('signUp')}
                 </Link>
               </>
             )}

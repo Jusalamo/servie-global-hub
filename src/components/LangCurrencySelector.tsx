@@ -1,13 +1,9 @@
 
-import { useState, createContext, useContext, ReactNode, useEffect } from "react";
+import React, { useState, createContext, useContext, ReactNode, useEffect } from "react";
 import { Check, ChevronDown, Globe, DollarSign } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 type Language = {
   code: string;
@@ -68,38 +64,6 @@ interface LocalizationContextType {
 
 const LocalizationContext = createContext<LocalizationContextType | undefined>(undefined);
 
-// Simple translation dictionary (to be expanded)
-const translations: Record<string, Record<string, string>> = {
-  en: {
-    welcome: "Welcome to Servie",
-    services: "Services",
-    shop: "Shop",
-    about: "About",
-    contact: "Contact Us",
-    signIn: "Sign In",
-    signUp: "Sign Up",
-  },
-  es: {
-    welcome: "Bienvenido a Servie",
-    services: "Servicios",
-    shop: "Tienda",
-    about: "Acerca de",
-    contact: "Contáctenos",
-    signIn: "Iniciar Sesión",
-    signUp: "Registrarse",
-  },
-  fr: {
-    welcome: "Bienvenue à Servie",
-    services: "Services",
-    shop: "Boutique",
-    about: "À propos",
-    contact: "Contactez-nous",
-    signIn: "Se Connecter",
-    signUp: "S'inscrire",
-  },
-  // Add more translations as needed
-};
-
 // Exchange rates (approximate, would be fetched from API in production)
 const exchangeRates: Record<string, number> = {
   USD: 1,
@@ -122,6 +86,8 @@ const exchangeRates: Record<string, number> = {
 };
 
 export function LocalizationProvider({ children }: { children: ReactNode }) {
+  const { i18n, t } = useTranslation();
+  
   // Use local storage to persist language and currency preferences
   const [currentLanguage, setCurrentLanguage] = useState<Language>(() => {
     const savedLanguage = localStorage.getItem('preferredLanguage');
@@ -147,11 +113,16 @@ export function LocalizationProvider({ children }: { children: ReactNode }) {
     return currencies[0];
   });
 
-  // Save preferences to localStorage when they change
+  // Save preferences to localStorage and update i18n language
   useEffect(() => {
     localStorage.setItem('preferredLanguage', JSON.stringify(currentLanguage));
     document.documentElement.setAttribute('lang', currentLanguage.code);
-  }, [currentLanguage]);
+    
+    // Update i18n language
+    i18n.changeLanguage(currentLanguage.code).catch(error => {
+      console.error("Error changing language:", error);
+    });
+  }, [currentLanguage, i18n]);
   
   useEffect(() => {
     localStorage.setItem('preferredCurrency', JSON.stringify(currentCurrency));
@@ -159,8 +130,16 @@ export function LocalizationProvider({ children }: { children: ReactNode }) {
 
   const handleSetCurrentLanguage = (language: Language) => {
     setCurrentLanguage(language);
-    // Apply language change to document
-    document.documentElement.setAttribute('lang', language.code);
+    
+    // Force a refresh of any components that might need it
+    window.dispatchEvent(new CustomEvent('languageChanged', { detail: language.code }));
+  };
+
+  const handleSetCurrentCurrency = (currency: Currency) => {
+    setCurrentCurrency(currency);
+    
+    // Force a refresh of price displays
+    window.dispatchEvent(new CustomEvent('currencyChanged', { detail: currency.code }));
   };
 
   const formatPrice = (amount: number): string => {
@@ -176,9 +155,7 @@ export function LocalizationProvider({ children }: { children: ReactNode }) {
   };
   
   const translate = (key: string): string => {
-    const langCode = currentLanguage.code;
-    // Fallback to English if translation not available
-    return (translations[langCode]?.[key] || translations.en?.[key] || key);
+    return t(key) || key; // Use i18n translation
   };
   
   return (
@@ -186,7 +163,7 @@ export function LocalizationProvider({ children }: { children: ReactNode }) {
       currentLanguage,
       currentCurrency,
       setCurrentLanguage: handleSetCurrentLanguage,
-      setCurrentCurrency,
+      setCurrentCurrency: handleSetCurrentCurrency,
       formatPrice,
       translate
     }}>
@@ -203,8 +180,15 @@ export function useLocalization() {
   return context;
 }
 
-export function LangCurrencySelector() {
-  // Use context
+interface LangCurrencySelectorProps {
+  showLanguages?: boolean;
+  showCurrencies?: boolean;
+}
+
+export function LangCurrencySelector({ 
+  showLanguages = true,
+  showCurrencies = true
+}: LangCurrencySelectorProps) {
   const { 
     currentLanguage, 
     currentCurrency, 
@@ -214,13 +198,11 @@ export function LangCurrencySelector() {
 
   const handleLanguageChange = (language: Language) => {
     setCurrentLanguage(language);
-    // In a real app, this would update the app's localization
     toast.success(`Language changed to ${language.name}`);
   };
 
   const handleCurrencyChange = (currency: Currency) => {
     setCurrentCurrency(currency);
-    // In a real app, this would update the app's currency settings
     toast.success(`Currency changed to ${currency.name}`);
   };
 
@@ -230,64 +212,68 @@ export function LangCurrencySelector() {
 
   return (
     <div className="p-4">
-      <div className="mb-4">
-        <p className="text-sm font-medium mb-3">Select Language</p>
-        <div className="grid grid-cols-2 gap-2">
-          {languages.map((language) => (
-            <Button
-              key={language.code}
-              variant="ghost"
-              size="sm"
-              className="justify-start"
-              onClick={() => handleLanguageChange(language)}
-            >
-              <span className="mr-2">{language.flag}</span>
-              {language.name}
-              {currentLanguage.code === language.code && (
-                <Check className="h-4 w-4 ml-auto" />
-              )}
-            </Button>
-          ))}
+      {showLanguages && (
+        <div className="mb-4">
+          <p className="text-sm font-medium mb-3">Select Language</p>
+          <div className="grid grid-cols-2 gap-2">
+            {languages.map((language) => (
+              <Button
+                key={language.code}
+                variant="ghost"
+                size="sm"
+                className="justify-start"
+                onClick={() => handleLanguageChange(language)}
+              >
+                <span className="mr-2">{language.flag}</span>
+                {language.name}
+                {currentLanguage.code === language.code && (
+                  <Check className="h-4 w-4 ml-auto" />
+                )}
+              </Button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
       
-      <div className="mt-6">
-        <p className="text-sm font-medium mb-3">Select Currency</p>
-        <div className="grid grid-cols-1 gap-1 max-h-[200px] overflow-y-auto pr-2">
-          <p className="text-xs font-medium text-muted-foreground mt-2">Common Currencies</p>
-          {otherCurrencies.map((currency) => (
-            <Button
-              key={currency.code}
-              variant="ghost"
-              size="sm"
-              className="justify-start"
-              onClick={() => handleCurrencyChange(currency)}
-            >
-              <span className="mr-2">{currency.symbol}</span>
-              {currency.code} - {currency.name}
-              {currentCurrency.code === currency.code && (
-                <Check className="h-4 w-4 ml-auto" />
-              )}
-            </Button>
-          ))}
-          <p className="text-xs font-medium text-muted-foreground mt-2">African Currencies</p>
-          {africanCurrencies.map((currency) => (
-            <Button
-              key={currency.code}
-              variant="ghost"
-              size="sm"
-              className="justify-start"
-              onClick={() => handleCurrencyChange(currency)}
-            >
-              <span className="mr-2">{currency.symbol}</span>
-              {currency.code} - {currency.name}
-              {currentCurrency.code === currency.code && (
-                <Check className="h-4 w-4 ml-auto" />
-              )}
-            </Button>
-          ))}
+      {showCurrencies && (
+        <div className="mt-6">
+          <p className="text-sm font-medium mb-3">Select Currency</p>
+          <div className="grid grid-cols-1 gap-1 max-h-[200px] overflow-y-auto pr-2">
+            <p className="text-xs font-medium text-muted-foreground mt-2">Common Currencies</p>
+            {otherCurrencies.map((currency) => (
+              <Button
+                key={currency.code}
+                variant="ghost"
+                size="sm"
+                className="justify-start"
+                onClick={() => handleCurrencyChange(currency)}
+              >
+                <span className="mr-2">{currency.symbol}</span>
+                {currency.code} - {currency.name}
+                {currentCurrency.code === currency.code && (
+                  <Check className="h-4 w-4 ml-auto" />
+                )}
+              </Button>
+            ))}
+            <p className="text-xs font-medium text-muted-foreground mt-2">African Currencies</p>
+            {africanCurrencies.map((currency) => (
+              <Button
+                key={currency.code}
+                variant="ghost"
+                size="sm"
+                className="justify-start"
+                onClick={() => handleCurrencyChange(currency)}
+              >
+                <span className="mr-2">{currency.symbol}</span>
+                {currency.code} - {currency.name}
+                {currentCurrency.code === currency.code && (
+                  <Check className="h-4 w-4 ml-auto" />
+                )}
+              </Button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
