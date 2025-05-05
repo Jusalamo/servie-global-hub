@@ -1,60 +1,90 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Star, ShoppingCart, Heart } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { Star, ShoppingCart, Heart, Check, Loader2 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
 
+// Product type definition
 export interface Product {
   id: string;
   name: string;
-  description: string;
   price: number;
-  compareAtPrice?: number;
-  currency?: string;
-  images: string[];
-  category: string;
-  providerId: string;
-  providerName: string;
-  providerAvatar: string;
   rating: number;
   reviewCount: number;
-  featured: boolean;
-  inStock: boolean;
-  createdAt: string;
+  category: string;
+  images: string[];
+  providerName: string;
+  providerAvatar: string;
+  providerId: string;
+  description: string;
+  featured?: boolean;
+  inStock?: boolean;
+  createdAt?: string;
+}
+
+// Cart context interface for future implementation
+export interface CartContextType {
+  addToCart: (product: Product, quantity: number) => void;
+  removeFromCart: (productId: string) => void;
+  isInCart: (productId: string) => boolean;
+  getCartItemQuantity: (productId: string) => number;
+  cartItems: { product: Product; quantity: number }[];
 }
 
 interface ProductCardProps {
   product: Product;
-  layout?: "grid" | "list";
+  showAddToCart?: boolean;
 }
 
-export const ProductCard = ({ product, layout = "grid" }: ProductCardProps) => {
+export function ProductCard({ product, showAddToCart = true }: ProductCardProps) {
   const { isAuthenticated } = useAuth();
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isInCart, setIsInCart] = useState(false);
   
-  // Ensure product has all required properties with fallbacks
-  const safeProduct = {
-    ...product,
-    images: Array.isArray(product.images) && product.images.length > 0 
-      ? product.images 
-      : ["/placeholder.svg"],
-    price: product.price || 0,
-    rating: product.rating || 0,
-    reviewCount: product.reviewCount || 0,
-    providerAvatar: product.providerAvatar || "/placeholder.svg",
-    providerName: product.providerName || "Unknown Provider",
+  const handleAddToCart = () => {
+    setIsAddingToCart(true);
+    
+    // Simulate adding to cart
+    setTimeout(() => {
+      // Store in local storage as temporary solution
+      const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+      
+      // Check if product is already in cart
+      const existingItemIndex = cartItems.findIndex((item: any) => item.id === product.id);
+      
+      if (existingItemIndex >= 0) {
+        // Increment quantity
+        cartItems[existingItemIndex].quantity += 1;
+        toast.success(`Increased quantity of ${product.name} in cart`);
+      } else {
+        // Add new item
+        cartItems.push({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.images[0] || '/placeholder.svg',
+          quantity: 1,
+          providerId: product.providerId,
+          providerName: product.providerName
+        });
+        toast.success(`Added ${product.name} to cart`);
+      }
+      
+      localStorage.setItem('cartItems', JSON.stringify(cartItems));
+      setIsInCart(true);
+      setIsAddingToCart(false);
+      
+      // Update cart count in UI - dispatch custom event
+      window.dispatchEvent(new CustomEvent('cart-updated'));
+    }, 600);
   };
   
-  const discount = safeProduct.compareAtPrice 
-    ? Math.round(((safeProduct.compareAtPrice - safeProduct.price) / safeProduct.compareAtPrice) * 100) 
-    : 0;
-    
-  const handleFavoriteClick = (e: React.MouseEvent) => {
+  const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -64,176 +94,109 @@ export const ProductCard = ({ product, layout = "grid" }: ProductCardProps) => {
     }
     
     setIsFavorite(!isFavorite);
-    if (isFavorite) {
-      toast.info("Removed from wishlist");
-    } else {
-      toast.success("Added to wishlist");
-    }
+    toast.success(isFavorite ? "Removed from favorites" : "Added to favorites");
   };
+
+  // Check if product is in cart on mount
+  useState(() => {
+    const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    setIsInCart(cartItems.some((item: any) => item.id === product.id));
+  });
   
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    setIsAddingToCart(true);
-    
-    setTimeout(() => {
-      setIsAddingToCart(false);
-      toast.success(`${safeProduct.name} added to cart`);
-    }, 600);
-  };
-  
-  if (layout === "list") {
-    return (
-      <Card className="overflow-hidden hover:shadow-md transition-all duration-300">
-        <Link to={`/product/${safeProduct.id}`} className="flex flex-col md:flex-row">
-          <div className="relative h-48 md:h-auto md:w-1/3">
-            <img 
-              src={safeProduct.images[0]} 
-              alt={safeProduct.name} 
-              className="w-full h-full object-cover"
-            />
-            {safeProduct.featured && (
-              <Badge className="absolute top-3 right-3 bg-servie hover:bg-servie-600">Featured</Badge>
-            )}
-            {discount > 0 && (
-              <Badge className="absolute top-3 left-3 bg-red-500 hover:bg-red-600">
-                {discount}% OFF
-              </Badge>
-            )}
-            {!safeProduct.inStock && (
-              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                <Badge variant="outline" className="text-white border-white text-lg">Out of Stock</Badge>
-              </div>
-            )}
-          </div>
-          <div className="flex flex-col flex-1">
-            <CardContent className="p-4 space-y-3">
-              <div className="flex justify-between">
-                <h3 className="font-semibold text-lg">{safeProduct.name}</h3>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-8 w-8"
-                  onClick={handleFavoriteClick}
-                >
-                  <Heart className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
-                </Button>
-              </div>
-              <p className="text-muted-foreground line-clamp-2">{safeProduct.description}</p>
-              <div className="flex items-center gap-1">
-                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                <span className="text-sm font-medium">{safeProduct.rating.toFixed(1)}</span>
-                <span className="text-sm text-muted-foreground">({safeProduct.reviewCount} reviews)</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <img
-                  src={safeProduct.providerAvatar}
-                  alt={safeProduct.providerName}
-                  className="w-6 h-6 rounded-full"
-                />
-                <span className="text-sm">{safeProduct.providerName}</span>
-              </div>
-            </CardContent>
-            <CardFooter className="mt-auto px-4 py-3 bg-muted/30 flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-lg">
-                  {safeProduct.currency || "$"}{safeProduct.price.toFixed(2)}
-                </span>
-                {safeProduct.compareAtPrice && (
-                  <span className="text-muted-foreground line-through text-sm">
-                    {safeProduct.currency || "$"}{safeProduct.compareAtPrice.toFixed(2)}
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                <Button 
-                  size="sm" 
-                  onClick={handleAddToCart}
-                  disabled={!safeProduct.inStock || isAddingToCart}
-                >
-                  <ShoppingCart className="h-4 w-4 mr-2" />
-                  {isAddingToCart ? "Adding..." : "Add to Cart"}
-                </Button>
-              </div>
-            </CardFooter>
-          </div>
-        </Link>
-      </Card>
-    );
-  }
-  
-  // Grid view (default)
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
-      <Link to={`/product/${safeProduct.id}`} className="block">
-        <div className="relative h-52 overflow-hidden">
+    <Card className={`overflow-hidden hover:shadow-md transition-all duration-300 ${
+      product.featured ? 'border-servie border-2' : ''
+    }`}>
+      <Link to={`/product/${product.id}`} className="block">
+        <div className="relative h-48 overflow-hidden">
           <img 
-            src={safeProduct.images[0]} 
-            alt={safeProduct.name} 
+            src={product.images[0] || '/placeholder.svg'} 
+            alt={product.name} 
             className="w-full h-full object-cover transition-transform hover:scale-105 duration-500"
           />
-          {safeProduct.featured && (
-            <Badge className="absolute top-3 right-3 bg-servie hover:bg-servie-600">Featured</Badge>
-          )}
-          {discount > 0 && (
-            <Badge className="absolute top-3 left-3 bg-red-500 hover:bg-red-600">
-              {discount}% OFF
+          {product.featured && (
+            <Badge className="absolute top-2 right-2 bg-servie hover:bg-servie-600">
+              Featured
             </Badge>
           )}
-          {!safeProduct.inStock && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-              <Badge variant="outline" className="text-white border-white">Out of Stock</Badge>
-            </div>
-          )}
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="absolute bottom-3 right-3 bg-background/80 hover:bg-background rounded-full p-1.5"
-            onClick={handleFavoriteClick}
+          <Badge 
+            className="absolute top-2 left-2 bg-background/80 text-foreground hover:bg-background/90"
           >
-            <Heart 
-              className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} 
-            />
+            {product.category}
+          </Badge>
+          
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute bottom-2 right-2 bg-background/80 hover:bg-background rounded-full"
+            onClick={toggleFavorite}
+          >
+            <Heart className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
           </Button>
         </div>
-        <CardContent className="p-4 space-y-2">
-          <h3 className="font-semibold text-lg line-clamp-1">{safeProduct.name}</h3>
-          <div className="flex items-center gap-1">
-            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-            <span className="text-sm font-medium">{safeProduct.rating.toFixed(1)}</span>
-            <span className="text-sm text-muted-foreground">({safeProduct.reviewCount} reviews)</span>
-          </div>
+      </Link>
+      
+      <CardContent className="p-4">
+        <Link to={`/product/${product.id}`}>
+          <h3 className="font-semibold text-lg line-clamp-1">{product.name}</h3>
+        </Link>
+        
+        <div className="flex items-center mt-1 gap-1">
+          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+          <span className="text-sm font-medium">{product.rating.toFixed(1)}</span>
+          <span className="text-sm text-muted-foreground">
+            ({product.reviewCount} reviews)
+          </span>
+        </div>
+        
+        <div className="mt-2">
           <div className="flex items-center gap-2">
             <img
-              src={safeProduct.providerAvatar}
-              alt={safeProduct.providerName}
+              src={product.providerAvatar || '/placeholder.svg'}
+              alt={product.providerName}
               className="w-5 h-5 rounded-full"
             />
-            <span className="text-xs text-muted-foreground">{safeProduct.providerName}</span>
+            <span className="text-xs text-muted-foreground">{product.providerName}</span>
           </div>
-          <p className="text-sm text-muted-foreground line-clamp-2">{safeProduct.description}</p>
-        </CardContent>
-        <CardFooter className="px-4 py-3 bg-muted/30 flex justify-between items-center">
-          <div className="flex flex-col">
-            <span className="font-semibold text-lg">
-              {safeProduct.currency || "$"}{safeProduct.price.toFixed(2)}
-            </span>
-            {safeProduct.compareAtPrice && (
-              <span className="text-muted-foreground line-through text-xs">
-                {safeProduct.currency || "$"}{safeProduct.compareAtPrice.toFixed(2)}
-              </span>
-            )}
-          </div>
-          <Button 
-            size="sm" 
-            onClick={handleAddToCart}
-            disabled={!safeProduct.inStock || isAddingToCart}
-          >
-            {isAddingToCart ? "Adding..." : "Add to Cart"}
-          </Button>
-        </CardFooter>
-      </Link>
+        </div>
+        
+        <p className="mt-2 text-sm line-clamp-2 text-muted-foreground">
+          {product.description}
+        </p>
+      </CardContent>
+      
+      <CardFooter className="px-4 py-3 border-t flex justify-between items-center">
+        <span className="font-semibold text-lg">
+          ${product.price.toFixed(2)}
+        </span>
+        
+        {showAddToCart && (
+          isInCart ? (
+            <Button size="sm" variant="subtle" className="bg-green-50 text-green-700 hover:bg-green-100">
+              <Check className="h-4 w-4 mr-1" />
+              In Cart
+            </Button>
+          ) : (
+            <Button
+              size="sm" 
+              onClick={handleAddToCart}
+              disabled={isAddingToCart || !product.inStock}
+            >
+              {isAddingToCart ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                  Adding...
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="h-4 w-4 mr-1" />
+                  Add to Cart
+                </>
+              )}
+            </Button>
+          )
+        )}
+      </CardFooter>
     </Card>
   );
-};
+}

@@ -1,6 +1,5 @@
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -9,52 +8,22 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { TrashIcon, MinusIcon, PlusIcon, ShoppingCart, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
-
-// Mock cart data
-const mockCartItems = [
-  {
-    id: "prod-1",
-    name: "Premium Tool Set",
-    price: 149.99,
-    image: "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&q=80&w=400",
-    quantity: 1,
-    providerId: "prov-1",
-    providerName: "Quality Tools Inc."
-  },
-  {
-    id: "prod-2",
-    name: "Professional Gardening Kit",
-    price: 89.99,
-    image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&q=80&w=400",
-    quantity: 2,
-    providerId: "prov-2",
-    providerName: "Green Thumb Gardens"
-  }
-];
+import { useEffect, useState } from "react";
+import { useCart } from "@/context/CartContext";
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState(mockCartItems);
+  const navigate = useNavigate();
+  const { cartItems, removeFromCart, updateQuantity, cartTotal } = useCart();
   const [promoCode, setPromoCode] = useState("");
   const [isApplyingPromo, setIsApplyingPromo] = useState(false);
   const [discount, setDiscount] = useState(0);
   
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping = subtotal > 100 ? 0 : 10;
-  const total = subtotal + shipping - discount;
+  const shipping = cartTotal > 100 ? 0 : 10;
+  const total = cartTotal + shipping - discount;
   
   const handleQuantityChange = (id: string, change: number) => {
-    setCartItems(items => 
-      items.map(item => 
-        item.id === id 
-          ? { ...item, quantity: Math.max(1, item.quantity + change) } 
-          : item
-      )
-    );
-  };
-  
-  const handleRemoveItem = (id: string) => {
-    setCartItems(items => items.filter(item => item.id !== id));
-    toast.success("Item removed from cart");
+    const currentQuantity = cartItems.find(item => item.id === id)?.quantity || 0;
+    updateQuantity(id, Math.max(1, currentQuantity + change));
   };
   
   const handleApplyPromo = () => {
@@ -70,7 +39,7 @@ const Cart = () => {
       setIsApplyingPromo(false);
       
       if (promoCode.toUpperCase() === "DISCOUNT20") {
-        const newDiscount = subtotal * 0.2;
+        const newDiscount = cartTotal * 0.2;
         setDiscount(newDiscount);
         toast.success("Promo code applied successfully!");
       } else {
@@ -170,7 +139,7 @@ const Cart = () => {
                               variant="ghost" 
                               size="sm" 
                               className="text-red-500 hover:text-red-600 hover:bg-red-50 -mr-2"
-                              onClick={() => handleRemoveItem(item.id)}
+                              onClick={() => removeFromCart(item.id)}
                             >
                               <TrashIcon className="h-4 w-4 mr-1" />
                               Remove
@@ -194,7 +163,7 @@ const Cart = () => {
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Subtotal</span>
-                      <span>${subtotal.toFixed(2)}</span>
+                      <span>${cartTotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Shipping</span>
@@ -235,7 +204,11 @@ const Cart = () => {
                     </div>
                   </div>
                   
-                  <Button className="w-full" size="lg">
+                  <Button 
+                    className="w-full bg-servie hover:bg-servie-600" 
+                    size="lg"
+                    onClick={() => navigate("/checkout")}
+                  >
                     Checkout
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>

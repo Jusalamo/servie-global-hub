@@ -1,9 +1,10 @@
-
 import { Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/context/AuthContext";
+import { CartProvider } from "@/context/CartContext";
+import { NotificationProvider } from "@/context/NotificationContext";
 import ScrollToTop from "@/components/ScrollToTop";
 import Index from "@/pages/Index";
 import SignIn from "@/pages/SignIn";
@@ -46,49 +47,53 @@ function App() {
     <ThemeProvider defaultTheme="light" storageKey="ui-theme">
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <ScrollToTop />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/categories" element={<ServiceCategories />} />
-            <Route path="/service/:serviceId" element={<ServiceDetail />} />
-            <Route path="/shop" element={<EcommerceShop />} />
-            <Route path="/product/:productId" element={<ProductDetail />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/order-confirmation" element={<OrderConfirmation />} />
-            <Route path="/sign-in" element={<SignIn />} />
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/sign-up" element={<SignUp />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/become-provider" element={<BecomeProvider />} />
-            <Route path="/become-seller" element={<BecomeSeller />} />
-            <Route path="/booking/:bookingId" element={<BookingPage />} />
-            <Route path="/provider/:providerId/contact" element={<ProviderContact />} />
-            <Route path="/contact-support" element={<ContactSupport />} />
-            <Route path="/terms-conditions" element={<TermsConditions />} />
-            <Route path="/dashboard/client" element={<ClientDashboard />} />
-            <Route path="/dashboard/provider" element={<ProviderDashboard />} />
-            <Route path="/dashboard/seller" element={<SellerDashboard />} />
-            <Route path="/dashboard" element={<UserDashboard />} />
-            
-            {/* Footer routes */}
-            <Route path="/about" element={<AboutUs />} />
-            <Route path="/our-story" element={<OurStory />} />
-            <Route path="/team" element={<Team />} />
-            <Route path="/careers" element={<Careers />} />
-            <Route path="/press" element={<Press />} />
-            <Route path="/help" element={<HelpCenter />} />
-            <Route path="/faqs" element={<FAQs />} />
-            <Route path="/returns" element={<Returns />} />
-            <Route path="/shipping" element={<Shipping />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<TermsConditions />} />
-            <Route path="/sitemap" element={<Sitemap />} />
-            
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <Toaster />
+          <NotificationProvider>
+            <CartProvider>
+              <ScrollToTop />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/categories" element={<ServiceCategories />} />
+                <Route path="/service/:serviceId" element={<ServiceDetail />} />
+                <Route path="/shop" element={<EcommerceShop />} />
+                <Route path="/product/:productId" element={<ProductDetail />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/order-confirmation" element={<OrderConfirmation />} />
+                <Route path="/sign-in" element={<SignIn />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/sign-up" element={<SignUp />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/become-provider" element={<BecomeProvider />} />
+                <Route path="/become-seller" element={<BecomeSeller />} />
+                <Route path="/booking/:bookingId" element={<BookingPage />} />
+                <Route path="/provider/:providerId/contact" element={<ProviderContact />} />
+                <Route path="/contact-support" element={<ContactSupport />} />
+                <Route path="/terms-conditions" element={<TermsConditions />} />
+                <Route path="/dashboard/client" element={<ClientDashboard />} />
+                <Route path="/dashboard/provider" element={<ProviderDashboard />} />
+                <Route path="/dashboard/seller" element={<SellerDashboard />} />
+                <Route path="/dashboard" element={<UserDashboard />} />
+                
+                {/* Footer routes */}
+                <Route path="/about" element={<AboutUs />} />
+                <Route path="/our-story" element={<OurStory />} />
+                <Route path="/team" element={<Team />} />
+                <Route path="/careers" element={<Careers />} />
+                <Route path="/press" element={<Press />} />
+                <Route path="/help" element={<HelpCenter />} />
+                <Route path="/faqs" element={<FAQs />} />
+                <Route path="/returns" element={<Returns />} />
+                <Route path="/shipping" element={<Shipping />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/terms" element={<TermsConditions />} />
+                <Route path="/sitemap" element={<Sitemap />} />
+                
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <Toaster />
+            </CartProvider>
+          </NotificationProvider>
         </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>

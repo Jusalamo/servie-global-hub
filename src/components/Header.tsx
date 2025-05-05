@@ -1,391 +1,166 @@
+import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Menu, X, User, ChevronDown, Globe } from 'lucide-react';
+import { Button } from './ui/button';
+import ServieIcon from './ServieIcon';
+import { useAuth } from '@/context/AuthContext';
+import LangCurrencySelector from './LangCurrencySelector';
+import CartIndicator from './CartIndicator';
+import NotificationBell from './NotificationBell';
 
-import { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { LangCurrencySelector } from "@/components/LangCurrencySelector";
-import ServieIcon from "@/components/ServieIcon";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { Menu, X, User, Bell, MessageSquare, ShoppingCart } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useAuth } from "@/context/AuthContext";
-
-export default function Header() {
+const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+  const { isAuthenticated, user, signOut } = useAuth();
   const location = useLocation();
-  const { isAuthenticated, userRole, signOut } = useAuth();
-  const navigate = useNavigate();
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      navigate("/", { replace: true });
-    } catch (error) {
-      console.error("Sign out error:", error);
-    }
-  };
-
-  // Check if it's a landing page or other specific page
-  const isLanding = location.pathname === "/";
-  const isDashboard = location.pathname.startsWith("/dashboard");
-  
-  // Function to navigate to role-specific dashboards
-  const navigateToUserFeature = (feature: string) => {
-    if (!isAuthenticated) {
-      navigate("/sign-in");
-      return;
-    }
-    
-    switch (userRole) {
-      case "provider":
-        navigate(`/dashboard/provider?tab=${feature}`);
-        break;
-      case "seller":
-        navigate(`/dashboard/seller?tab=${feature}`);
-        break;
-      default:
-        navigate(`/dashboard/client?tab=${feature}`);
-        break;
-    }
-  };
+  const { pathname } = location;
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      const scrollPosition = window.scrollY;
+      setIsScrolled(scrollPosition > 50);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-300",
-        isScrolled || !isLanding || isDashboard
-          ? "bg-background/95 backdrop-blur border-b"
-          : "bg-transparent"
-      )}
-    >
-      <div className="container flex items-center justify-between h-16 px-4">
-        <Link to="/" className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
-          <ServieIcon className="w-8 h-8 text-servie" />
-          <span className="font-bold text-xl">Servie</span>
-        </Link>
+    <header className={`sticky top-0 z-50 w-full ${isScrolled ? 'bg-white shadow-md' : 'bg-white/80 backdrop-blur-md'}`}>
+      <div className="container mx-auto px-4">
+        <div className="flex h-16 items-center justify-between">
+          {/* Logo */}
+          <Link to="/" className="flex items-center">
+            <ServieIcon className="h-8 w-8 text-servie" />
+            <span className="ml-2 text-xl font-bold">Servie</span>
+          </Link>
 
-        {/* Desktop Navigation */}
-        <NavigationMenu className="hidden md:flex">
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <Link to="/" className={navigationMenuTriggerStyle()}>
-                Home
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>Services</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                  <li className="col-span-2">
-                    <NavigationMenuLink asChild>
-                      <Link
-                        to="/categories"
-                        className="flex items-center justify-between w-full rounded-md border p-4 hover:bg-muted"
-                      >
-                        <div>
-                          <h3 className="text-sm font-medium">Browse All Services</h3>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            Explore and book from thousands of service providers
-                          </p>
-                        </div>
-                      </Link>
-                    </NavigationMenuLink>
-                  </li>
-                  <li>
-                    <NavigationMenuLink asChild>
-                      <Link
-                        to="/categories?category=home-services"
-                        className="block select-none rounded-md border p-3 text-sm hover:bg-muted"
-                      >
-                        Home Services
-                      </Link>
-                    </NavigationMenuLink>
-                  </li>
-                  <li>
-                    <NavigationMenuLink asChild>
-                      <Link
-                        to="/categories?category=professional"
-                        className="block select-none rounded-md border p-3 text-sm hover:bg-muted"
-                      >
-                        Professional Services
-                      </Link>
-                    </NavigationMenuLink>
-                  </li>
-                  <li>
-                    <NavigationMenuLink asChild>
-                      <Link
-                        to="/categories?category=personal-care"
-                        className="block select-none rounded-md border p-3 text-sm hover:bg-muted"
-                      >
-                        Personal Care
-                      </Link>
-                    </NavigationMenuLink>
-                  </li>
-                  <li>
-                    <NavigationMenuLink asChild>
-                      <Link
-                        to="/categories?category=tech"
-                        className="block select-none rounded-md border p-3 text-sm hover:bg-muted"
-                      >
-                        Tech & Digital Services
-                      </Link>
-                    </NavigationMenuLink>
-                  </li>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link to="/shop" className={navigationMenuTriggerStyle()}>
-                Shop
-              </Link>
-            </NavigationMenuItem>
-            {!isAuthenticated && (
-              <NavigationMenuItem>
-                <NavigationMenuTrigger>Join As</NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid w-[400px] gap-3 p-4">
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <Link
-                          to="/become-provider"
-                          className="flex items-center justify-between w-full rounded-md border p-4 hover:bg-muted"
-                        >
-                          <div>
-                            <h3 className="text-sm font-medium">Service Provider</h3>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Offer your skills and services
-                            </p>
-                          </div>
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <Link
-                          to="/become-seller"
-                          className="flex items-center justify-between w-full rounded-md border p-4 hover:bg-muted"
-                        >
-                          <div>
-                            <h3 className="text-sm font-medium">Seller</h3>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Sell your products in our marketplace
-                            </p>
-                          </div>
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            )}
-          </NavigationMenuList>
-        </NavigationMenu>
-
-        <div className="flex items-center gap-2">
-          {/* Action Icons */}
-          {isAuthenticated ? (
-            <div className="hidden md:flex items-center gap-2">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => navigateToUserFeature("messages")}
-                aria-label="Messages"
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-1">
+            <Link to="/categories" className={`px-3 py-2 rounded-md text-sm ${pathname === '/categories' ? 'font-medium text-servie' : 'text-gray-700 hover:bg-gray-100'}`}>
+              Services
+            </Link>
+            <Link to="/shop" className={`px-3 py-2 rounded-md text-sm ${pathname === '/shop' ? 'font-medium text-servie' : 'text-gray-700 hover:bg-gray-100'}`}>
+              Shop
+            </Link>
+            <div className="relative">
+              <button 
+                className={`px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 flex items-center`}
+                onClick={() => setShowLanguageMenu(!showLanguageMenu)}
               >
-                <MessageSquare className="h-5 w-5" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => navigateToUserFeature("notifications")}
-                aria-label="Notifications"
-              >
-                <Bell className="h-5 w-5" />
-              </Button>
-              <Link to="/cart">
-                <Button variant="ghost" size="icon" aria-label="Shopping Cart">
-                  <ShoppingCart className="h-5 w-5" />
-                </Button>
-              </Link>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => navigate("/dashboard")} 
-                aria-label="User Profile"
-              >
-                <User className="h-5 w-5" />
-              </Button>
+                <Globe className="h-4 w-4 mr-1" />
+                <span>Language</span>
+                <ChevronDown className="h-3 w-3 ml-1" />
+              </button>
+              {showLanguageMenu && (
+                <LangCurrencySelector 
+                  onClose={() => setShowLanguageMenu(false)} 
+                />
+              )}
             </div>
-          ) : null}
+          </nav>
 
-          <div className="hidden md:flex items-center gap-2">
-            <LangCurrencySelector />
-            <ThemeToggle />
-          </div>
+          {/* Right side buttons */}
+          <div className="flex items-center gap-2">
+            <CartIndicator />
+            
+            {isAuthenticated && <NotificationBell />}
 
-          {isAuthenticated ? (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleSignOut}
-              className="hidden md:inline-flex"
-            >
-              Sign Out
-            </Button>
-          ) : (
-            <>
-              <Button variant="outline" size="sm" className="hidden md:inline-flex" asChild>
-                <Link to="/sign-in">Sign In</Link>
-              </Button>
-              <Button size="sm" className="hidden md:inline-flex bg-servie hover:bg-servie-600" asChild>
-                <Link to="/sign-up">Sign Up</Link>
-              </Button>
-            </>
-          )}
-
-          {/* Mobile Menu Button */}
-          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
-                {isMobileMenuOpen ? <X /> : <Menu />}
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-[85vw] sm:w-[350px]">
-              <div className="flex flex-col h-full">
-                <div className="flex-1 py-6">
-                  <div className="mb-6 space-y-1">
-                    <Link
-                      to="/"
-                      className="block px-3 py-2 rounded-md hover:bg-muted"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Home
-                    </Link>
-                    <Link
-                      to="/categories"
-                      className="block px-3 py-2 rounded-md hover:bg-muted"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Services
-                    </Link>
-                    <Link
-                      to="/shop"
-                      className="block px-3 py-2 rounded-md hover:bg-muted"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Shop
-                    </Link>
-                    {!isAuthenticated && (
-                      <>
-                        <Link
-                          to="/become-provider"
-                          className="block px-3 py-2 rounded-md hover:bg-muted"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          Become a Provider
-                        </Link>
-                        <Link
-                          to="/become-seller"
-                          className="block px-3 py-2 rounded-md hover:bg-muted"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          Become a Seller
-                        </Link>
-                      </>
-                    )}
+            {isAuthenticated ? (
+              <div className="relative">
+                <button 
+                  onClick={() => setShowMenu(!showMenu)}
+                  className="flex items-center px-2 py-1 rounded-full bg-gray-100 hover:bg-gray-200"
+                >
+                  <div className="h-8 w-8 rounded-full bg-servie/10 text-servie flex items-center justify-center mr-1">
+                    <User size={16} />
                   </div>
-                  <div className="space-y-2">
-                    <div className="px-3 text-xs font-semibold text-muted-foreground">
-                      Account
-                    </div>
-                    {isAuthenticated ? (
-                      <>
-                        <Link
-                          to="/dashboard"
-                          className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-muted"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          <User size={16} />
-                          Dashboard
-                        </Link>
-                        <Link
-                          to="/cart"
-                          className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-muted"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          <ShoppingCart size={16} />
-                          Cart
-                        </Link>
-                        <button
-                          className="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-muted text-left"
-                          onClick={() => {
-                            handleSignOut();
-                            setIsMobileMenuOpen(false);
-                          }}
-                        >
-                          Sign Out
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <Link
-                          to="/sign-in"
-                          className="block px-3 py-2 rounded-md hover:bg-muted"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          Sign In
-                        </Link>
-                        <Link
-                          to="/sign-up"
-                          className="block px-3 py-2 rounded-md hover:bg-muted"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          Sign Up
-                        </Link>
-                      </>
-                    )}
+                  <ChevronDown size={16} className="text-gray-500" />
+                </button>
+                
+                {/* User menu dropdown */}
+                {showMenu && (
+                  <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5">
+                    <Link to="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      Dashboard
+                    </Link>
+                    <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      Profile
+                    </Link>
+                    <button
+                      onClick={signOut}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Sign out
+                    </button>
                   </div>
-                </div>
-                <div className="border-t pt-4">
-                  <div className="flex justify-between px-3">
-                    <LangCurrencySelector />
-                    <ThemeToggle />
-                  </div>
-                </div>
+                )}
               </div>
-            </SheetContent>
-          </Sheet>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" asChild size="sm">
+                  <Link to="/sign-in">Sign in</Link>
+                </Button>
+                <Button className="bg-servie hover:bg-servie-600" asChild size="sm">
+                  <Link to="/sign-up">Sign up</Link>
+                </Button>
+              </div>
+            )}
+            
+            {/* Mobile menu button */}
+            <button 
+              className="md:hidden p-2 rounded-md text-gray-500 hover:bg-gray-100" 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X /> : <Menu />}
+            </button>
+          </div>
         </div>
+        
+        {/* Mobile menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden py-2 pb-3 space-y-1">
+            <Link to="/categories" className="block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100">
+              Services
+            </Link>
+            <Link to="/shop" className="block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100">
+              Shop
+            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link to="/dashboard" className="block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100">
+                  Dashboard
+                </Link>
+                <Link to="/profile" className="block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100">
+                  Profile
+                </Link>
+                <button
+                  onClick={signOut}
+                  className="block w-full text-left px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/sign-in" className="block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100">
+                  Sign in
+                </Link>
+                <Link to="/sign-up" className="block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100">
+                  Sign up
+                </Link>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </header>
   );
-}
+};
+
+export default Header;

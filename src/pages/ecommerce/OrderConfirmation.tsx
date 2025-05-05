@@ -1,204 +1,247 @@
 
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle, ShoppingBag, Truck, Calendar } from "lucide-react";
+import { Check, ShoppingBag, Calendar, ArrowRight } from "lucide-react";
+import { useCart } from "@/context/CartContext";
 
-export default function OrderConfirmation() {
+const OrderConfirmation = () => {
   const navigate = useNavigate();
+  const { cartItems, clearCart, cartTotal } = useCart();
   const [orderNumber, setOrderNumber] = useState("");
   const [orderDate, setOrderDate] = useState("");
-  const [estimatedDelivery, setEstimatedDelivery] = useState("");
-
+  const [orderItems, setOrderItems] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Check if user came from checkout
   useEffect(() => {
-    // Generate a random order number
-    const randomOrderId = Math.floor(10000000 + Math.random() * 90000000).toString();
-    setOrderNumber(`ORD-${randomOrderId}`);
-    
-    // Get current date for order date
-    const now = new Date();
-    setOrderDate(now.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric"
-    }));
-    
-    // Calculate estimated delivery date (5-7 days from now)
-    const deliveryDate = new Date();
-    deliveryDate.setDate(deliveryDate.getDate() + 5 + Math.floor(Math.random() * 3));
-    setEstimatedDelivery(deliveryDate.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric"
-    }));
-    
-    // If user navigates directly to this page without checkout flow, redirect after a short delay
     const fromCheckout = sessionStorage.getItem("fromCheckout");
+    
     if (!fromCheckout) {
-      const timeoutId = setTimeout(() => {
-        navigate("/shop");
-      }, 5000);
-      return () => clearTimeout(timeoutId);
-    } else {
-      sessionStorage.removeItem("fromCheckout");
+      // If user didn't come from checkout, redirect to home
+      navigate("/");
+      return;
     }
-  }, [navigate]);
+    
+    // Clear the flag
+    sessionStorage.removeItem("fromCheckout");
+    
+    // Save order items before clearing cart
+    setOrderItems(cartItems);
+    
+    // Generate random order number
+    const randomOrderNumber = "ORD-" + Math.floor(100000 + Math.random() * 900000);
+    setOrderNumber(randomOrderNumber);
+    
+    // Set order date to current date
+    setOrderDate(new Date().toLocaleDateString('en-US', {
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric'
+    }));
+    
+    // Simulate processing time
+    setTimeout(() => {
+      // Clear cart after order is processed
+      clearCart();
+      setIsLoading(false);
+      
+      // Store order in local storage for history (in a real app this would be in a database)
+      const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+      orders.push({
+        id: randomOrderNumber,
+        date: new Date().toISOString(),
+        items: cartItems,
+        total: cartTotal,
+        status: "confirmed"
+      });
+      localStorage.setItem("orders", JSON.stringify(orders));
+      
+      // Send notifications (simulated)
+      console.log("Order notifications would be sent to providers:", 
+        cartItems.map(item => item.providerId)
+      );
+    }, 1500);
+  }, [navigate, cartItems, clearCart, cartTotal]);
+
+  const subtotal = orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const shipping = subtotal > 100 ? 0 : 10;
+  const tax = subtotal * 0.08;
+  const total = subtotal + shipping + tax;
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 py-12">
-        <div className="container px-4">
-          <div className="max-w-3xl mx-auto text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-600 mb-4">
-              <CheckCircle className="h-8 w-8" />
-            </div>
-            <h1 className="text-3xl font-bold mb-2">Order Confirmed!</h1>
-            <p className="text-muted-foreground">
-              Thank you for your purchase. We've received your order and are processing it now.
-            </p>
-          </div>
-          
-          <Card className="max-w-3xl mx-auto mb-8">
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row justify-between mb-6">
-                <div>
-                  <p className="text-sm text-muted-foreground">Order Number</p>
-                  <p className="font-medium">{orderNumber}</p>
+      <main className="flex-1 py-10 bg-gray-50">
+        <div className="container px-4 max-w-4xl mx-auto">
+          {isLoading ? (
+            <Card className="text-center py-12">
+              <CardContent className="space-y-4">
+                <div className="flex justify-center">
+                  <div className="h-16 w-16 rounded-full bg-servie/10 flex items-center justify-center animate-pulse">
+                    <ShoppingBag className="h-8 w-8 text-servie" />
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Order Date</p>
-                  <p className="font-medium">{orderDate}</p>
+                <h2 className="text-2xl font-semibold">Processing your order...</h2>
+                <p className="text-muted-foreground">
+                  Please wait while we confirm your purchase
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              <div className="text-center mb-10">
+                <div className="flex justify-center mb-4">
+                  <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center">
+                    <Check className="h-8 w-8 text-green-600" />
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Estimated Delivery</p>
-                  <p className="font-medium">{estimatedDelivery}</p>
-                </div>
+                <h1 className="text-3xl font-bold mb-2">Order Confirmed!</h1>
+                <p className="text-muted-foreground mb-2">
+                  Thank you for your purchase. We've received your order.
+                </p>
+                <p className="text-sm">
+                  Order #{orderNumber} • {orderDate}
+                </p>
               </div>
               
-              <Separator className="mb-6" />
-              
-              <div className="space-y-4 mb-6">
-                <h3 className="font-semibold">Order Details</h3>
-                
-                <div className="space-y-3">
-                  {/* Mock ordered items */}
-                  {[
-                    { id: "item1", name: "Wireless Headphones", price: 249.99, quantity: 1, image: "/placeholder.svg" },
-                    { id: "item2", name: "Bluetooth Speaker", price: 89.99, quantity: 2, image: "/placeholder.svg" }
-                  ].map(item => (
-                    <div key={item.id} className="flex items-center">
-                      <div className="h-16 w-16 rounded bg-muted flex-shrink-0 mr-4">
-                        <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2">
+                  <Card>
+                    <CardContent className="p-6 space-y-6">
+                      <h2 className="text-xl font-semibold mb-4">Order Details</h2>
+                      
+                      {orderItems.length > 0 ? (
+                        <div className="space-y-4">
+                          {orderItems.map((item, index) => (
+                            <div key={item.id} className="flex gap-4">
+                              <div className="h-16 w-16 rounded-md overflow-hidden flex-shrink-0">
+                                <img 
+                                  src={item.image} 
+                                  alt={item.name} 
+                                  className="h-full w-full object-cover"
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <div className="font-medium">{item.name}</div>
+                                <div className="text-sm text-muted-foreground">
+                                  Quantity: {item.quantity}
+                                </div>
+                                <div className="text-sm text-muted-foreground">
+                                  Sold by: {item.providerName}
+                                </div>
+                              </div>
+                              <div className="font-medium">
+                                ${(item.price * item.quantity).toFixed(2)}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p>No items in your order.</p>
+                      )}
+                      
+                      <Separator />
+                      
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Subtotal</span>
+                          <span>${subtotal.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>Shipping</span>
+                          <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>Tax</span>
+                          <span>${tax.toFixed(2)}</span>
+                        </div>
+                        <Separator />
+                        <div className="flex justify-between font-medium">
+                          <span>Total</span>
+                          <span>${total.toFixed(2)}</span>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <p className="font-medium">{item.name}</p>
-                        <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
-                      </div>
-                      <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              <Separator className="mb-6" />
-              
-              <div className="space-y-4">
-                <h3 className="font-semibold">Order Summary</h3>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Subtotal</span>
-                    <span>$429.97</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Shipping</span>
-                    <span>$4.99</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Tax</span>
-                    <span>$34.40</span>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between font-semibold">
-                    <span>Total</span>
-                    <span>$469.36</span>
-                  </div>
-                </div>
-              </div>
-              
-              <Separator className="my-6" />
-              
-              <div className="space-y-4">
-                <h3 className="font-semibold">Shipping Information</h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Shipping Address</p>
-                    <p>John Doe</p>
-                    <p>123 Main Street</p>
-                    <p>Apt 4B</p>
-                    <p>New York, NY 10001</p>
-                    <p>United States</p>
-                  </div>
+                    </CardContent>
+                  </Card>
                   
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Shipping Method</p>
-                    <p>Standard Shipping (3-5 business days)</p>
+                  <div className="mt-6">
+                    <Card>
+                      <CardContent className="p-6">
+                        <h2 className="text-xl font-semibold mb-4">Shipping Information</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                          <div>
+                            <h3 className="font-medium text-sm text-muted-foreground mb-1">
+                              Shipping Address
+                            </h3>
+                            <p>
+                              123 Main Street<br />
+                              Apt 4B<br />
+                              New York, NY 10001<br />
+                              United States
+                            </p>
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-sm text-muted-foreground mb-1">
+                              Shipping Method
+                            </h3>
+                            <p>Standard Shipping (3-5 business days)</p>
+                            <p className="mt-4">
+                              <span className="flex items-center text-sm text-green-600 font-medium">
+                                <Calendar className="h-4 w-4 mr-1" />
+                                Estimated delivery: {new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                              </span>
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
                 </div>
-              </div>
-              
-              <Separator className="my-6" />
-              
-              <div className="space-y-4">
-                <h3 className="font-semibold">Payment Information</h3>
                 
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Payment Method</p>
-                  <p>Credit Card (ending in 4242)</p>
+                  <Card>
+                    <CardContent className="p-6 space-y-6">
+                      <h2 className="text-xl font-semibold">What's Next?</h2>
+                      <div className="space-y-4">
+                        <p className="text-sm">
+                          You will receive an email confirmation with your order details and tracking information once your order ships.
+                        </p>
+                        <p className="text-sm">
+                          Need help with your order? Contact our customer support team.
+                        </p>
+                      </div>
+                      <div className="space-y-3">
+                        <Button 
+                          className="w-full bg-servie hover:bg-servie-600"
+                          onClick={() => navigate("/dashboard/client")}
+                        >
+                          View My Orders
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => navigate("/shop")}
+                        >
+                          Continue Shopping
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-          
-          <div className="max-w-3xl mx-auto space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 border rounded-lg text-center">
-                <ShoppingBag className="h-8 w-8 mx-auto text-servie mb-2" />
-                <h3 className="font-semibold mb-1">Order Processing</h3>
-                <p className="text-sm text-muted-foreground">Your order is being prepared for shipment.</p>
-              </div>
-              
-              <div className="p-4 border rounded-lg text-center">
-                <Truck className="h-8 w-8 mx-auto text-servie mb-2" />
-                <h3 className="font-semibold mb-1">Shipping Updates</h3>
-                <p className="text-sm text-muted-foreground">You'll receive email updates about your shipment.</p>
-              </div>
-              
-              <div className="p-4 border rounded-lg text-center">
-                <Calendar className="h-8 w-8 mx-auto text-servie mb-2" />
-                <h3 className="font-semibold mb-1">Estimated Delivery</h3>
-                <p className="text-sm text-muted-foreground">Your order should arrive by {estimatedDelivery}.</p>
-              </div>
-            </div>
-            
-            <div className="flex flex-col md:flex-row gap-4 justify-center">
-              <Button asChild className="bg-servie hover:bg-servie-600">
-                <Link to="/dashboard/client?tab=orders">View My Orders</Link>
-              </Button>
-              <Button asChild variant="outline">
-                <Link to="/shop">Continue Shopping</Link>
-              </Button>
-            </div>
-          </div>
+            </>
+          )}
         </div>
       </main>
       <Footer />
     </div>
   );
-}
+};
+
+export default OrderConfirmation;

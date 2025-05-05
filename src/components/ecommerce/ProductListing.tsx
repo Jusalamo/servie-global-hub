@@ -1,11 +1,13 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ProductCard, type Product } from "@/components/ecommerce/ProductCard";
-import { Search } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 export default function ProductListing({ initialCategory = 'all', initialSearch = '' }) {
   const [searchQuery, setSearchQuery] = useState(initialSearch);
@@ -13,10 +15,12 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
   const [sortBy, setSortBy] = useState("featured");
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [realtimeEnabled, setRealtimeEnabled] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-
-  // Mock categories
+  const { isAuthenticated } = useAuth();
+  
+  // Mock categories - in production, these would come from the database
   const categories = [
     { id: 'all', name: 'All Products' },
     { id: 'electronics', name: 'Electronics' },
@@ -28,7 +32,129 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
     { id: 'toys', name: 'Toys & Games' },
   ];
 
-  // Mock products data transformed to match Product interface
+  // Set up Supabase realtime subscription
+  useEffect(() => {
+    const setupRealtime = async () => {
+      try {
+        const channel = supabase.channel('public:products')
+          .on('postgres_changes', { 
+            event: '*', 
+            schema: 'public', 
+            table: 'products' 
+          }, (payload) => {
+            console.log('Real-time update received:', payload);
+            if (payload.eventType === 'INSERT') {
+              // Add new product to the list if it matches current filters
+              const newProduct = payload.new as Product;
+              if (category === 'all' || newProduct.category === category) {
+                setProducts(prev => [newProduct, ...prev]);
+                toast.success(`New product added: ${newProduct.name}`);
+              }
+            } else if (payload.eventType === 'UPDATE') {
+              // Update existing product in the list
+              const updatedProduct = payload.new as Product;
+              setProducts(prev => 
+                prev.map(p => p.id === updatedProduct.id ? updatedProduct : p)
+              );
+            } else if (payload.eventType === 'DELETE') {
+              // Remove deleted product from the list
+              const deletedId = payload.old.id;
+              setProducts(prev => prev.filter(p => p.id !== deletedId));
+            }
+          })
+          .subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+              setRealtimeEnabled(true);
+              console.log('Realtime subscription active for products');
+            }
+          });
+
+        return () => {
+          channel.unsubscribe();
+        };
+      } catch (error) {
+        console.error("Error setting up realtime:", error);
+      }
+    };
+
+    setupRealtime();
+  }, [category]);
+
+  // Fetch products from Supabase
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      // Update URL with current filters
+      const params = new URLSearchParams();
+      if (category !== 'all') params.set('category', category);
+      if (searchQuery) params.set('search', searchQuery);
+      
+      const newUrl = `${location.pathname}?${params.toString()}`;
+      navigate(newUrl, { replace: true });
+      
+      let query = supabase.from('products').select('*');
+      
+      // Apply category filter if not 'all'
+      if (category !== 'all') {
+        query = query.eq('category', category);
+      }
+      
+      // Apply search query if provided
+      if (searchQuery) {
+        query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+      }
+      
+      // Apply sorting
+      switch (sortBy) {
+        case 'price-low':
+          query = query.order('price', { ascending: true });
+          break;
+        case 'price-high':
+          query = query.order('price', { ascending: false });
+          break;
+        case 'rating':
+          query = query.order('rating', { ascending: false });
+          break;
+        case 'featured':
+        default:
+          query = query.order('featured', { ascending: false }).order('created_at', { ascending: false });
+          break;
+      }
+      
+      const { data, error } = await query;
+      
+      if (error) {
+        throw error;
+      }
+      
+      // If no products in database yet, use mock data
+      if (!data || data.length === 0) {
+        // Use mock data as fallback
+        setProducts(mockProducts);
+      } else {
+        setProducts(data as Product[]);
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      toast.error("Failed to load products. Using sample data instead.");
+      // Use mock data as fallback on error
+      setProducts(mockProducts);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load products when filters change
+  useEffect(() => {
+    fetchProducts();
+  }, [category, searchQuery, sortBy]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    fetchProducts();
+  };
+
+  // Mock products data transformed to match Product interface (fallback data)
   const mockProducts: Product[] = [
     {
       id: "1",
@@ -128,63 +254,6 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
     }
   ];
 
-  // Filter and sort products
-  useEffect(() => {
-    setLoading(true);
-    
-    // Update URL with current filters
-    const params = new URLSearchParams();
-    if (category !== 'all') params.set('category', category);
-    if (searchQuery) params.set('search', searchQuery);
-    
-    const newUrl = `${location.pathname}?${params.toString()}`;
-    navigate(newUrl, { replace: true });
-    
-    // Filter products based on category and search query
-    let filteredProducts = [...mockProducts];
-    
-    if (category !== 'all') {
-      filteredProducts = filteredProducts.filter(product => product.category === category);
-    }
-    
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filteredProducts = filteredProducts.filter(product => 
-        product.name.toLowerCase().includes(query) || 
-        product.description.toLowerCase().includes(query) ||
-        product.providerName.toLowerCase().includes(query)
-      );
-    }
-    
-    // Sort products
-    switch (sortBy) {
-      case 'price-low':
-        filteredProducts.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-high':
-        filteredProducts.sort((a, b) => b.price - a.price);
-        break;
-      case 'rating':
-        filteredProducts.sort((a, b) => b.rating - a.rating);
-        break;
-      case 'featured':
-      default:
-        // Keep original order for featured
-        break;
-    }
-    
-    // Simulate API delay
-    setTimeout(() => {
-      setProducts(filteredProducts);
-      setLoading(false);
-    }, 500);
-  }, [category, searchQuery, sortBy, navigate, location.pathname]);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Search is already handled by the useEffect
-  };
-
   return (
     <div className="container px-4 py-8">
       <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-8">
@@ -224,6 +293,27 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
               Rating filtering coming soon
             </div>
           </div>
+
+          {isAuthenticated && (
+            <div className="mt-8">
+              <Button 
+                onClick={() => navigate("/dashboard/seller")} 
+                variant="outline" 
+                className="w-full"
+              >
+                Sell Your Products
+              </Button>
+            </div>
+          )}
+
+          {realtimeEnabled && (
+            <div className="mt-4 bg-green-50 border border-green-200 rounded-md p-2">
+              <p className="text-xs text-green-700">
+                <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                Real-time updates active
+              </p>
+            </div>
+          )}
         </div>
         
         {/* Main content - Product grid */}
@@ -262,6 +352,12 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
           <div className="mb-6">
             <p className="text-sm text-muted-foreground">
               {loading ? "Loading products..." : `Showing ${products.length} products`}
+              {!loading && (
+                <Button variant="ghost" size="sm" className="ml-2" onClick={fetchProducts}>
+                  <Loader2 className={`h-3 w-3 mr-1 ${loading ? 'animate-spin' : ''}`} />
+                  Refresh
+                </Button>
+              )}
             </p>
           </div>
           
