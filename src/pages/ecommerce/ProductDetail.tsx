@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Header from "@/components/Header";
@@ -14,6 +15,7 @@ import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import ReviewForm from "@/components/ecommerce/ReviewForm";
 import ReviewList from "@/components/ecommerce/ReviewList";
 import { type Product } from "@/components/ecommerce/ProductCard";
+import { mockProduct } from "@/hooks/useProductData";
 
 export default function ProductDetail() {
   const { productId } = useParams<{ productId: string }>();
@@ -33,8 +35,8 @@ export default function ProductDetail() {
         // Simulating API call with timeout
         await new Promise(resolve => setTimeout(resolve, 600));
         
-        // Mock product data
-        const mockProduct: Product = {
+        // Use mock product data but ensure it has the required fields
+        const defaultProduct: Product = {
           id: productId || "1",
           name: "Premium Wireless Headphones",
           description: "Enjoy premium sound quality with these wireless headphones. Features active noise cancellation, 30-hour battery life, and comfortable ear cushions for all-day listening.",
@@ -58,8 +60,8 @@ export default function ProductDetail() {
           createdAt: "2023-01-15T08:30:00.000Z"
         };
         
-        setProduct(mockProduct);
-        setActiveImage(mockProduct.images[0]);
+        setProduct(defaultProduct);
+        setActiveImage(defaultProduct.images[0]);
       } catch (error) {
         console.error("Error fetching product:", error);
         toast.error("Failed to load product details");
@@ -156,6 +158,9 @@ export default function ProductDetail() {
     );
   }
 
+  // Use the currency from product or default to "$"
+  const displayCurrency = product.currency || "$";
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -222,13 +227,13 @@ export default function ProductDetail() {
               </div>
 
               <div className="flex items-baseline">
-                <span className="text-3xl font-bold">{product.currency || "$"}{product.price.toFixed(2)}</span>
-                {product.compareAtPrice && (
+                <span className="text-3xl font-bold">{displayCurrency}{product.price.toFixed(2)}</span>
+                {product.compareAtPrice && product.compareAtPrice > product.price && (
                   <span className="ml-2 text-muted-foreground line-through">
-                    {product.currency || "$"}{product.compareAtPrice.toFixed(2)}
+                    {displayCurrency}{product.compareAtPrice.toFixed(2)}
                   </span>
                 )}
-                {product.compareAtPrice && (
+                {product.compareAtPrice && product.compareAtPrice > product.price && (
                   <Badge className="ml-2 bg-red-500">
                     {Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)}% OFF
                   </Badge>

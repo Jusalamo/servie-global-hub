@@ -181,6 +181,7 @@ export const useProductData = () => {
     isLoading,
     error,
     fetchProducts,
-    getProductById
+    getProductById,
+    mockProducts // Export the mock products for use elsewhere
   };
 };

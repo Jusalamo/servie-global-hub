@@ -59,9 +59,19 @@ const Header = () => {
                 <ChevronDown className="h-3 w-3 ml-1" />
               </button>
               {showLanguageMenu && (
-                <LangCurrencySelector 
-                  onClose={() => setShowLanguageMenu(false)} 
-                />
+                <div className="absolute right-0 mt-2 w-72 bg-white shadow-lg rounded-md overflow-hidden">
+                  <LangCurrencySelector />
+                  <div className="p-2 border-t">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="w-full text-right text-muted-foreground"
+                      onClick={() => setShowLanguageMenu(false)}
+                    >
+                      Close
+                    </Button>
+                  </div>
+                </div>
               )}
             </div>
           </nav>

@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { initializeRealtime } from "@/utils/supabaseRealtime";
+import { useProductData } from "@/hooks/useProductData";
 
 export default function ProductListing({ initialCategory = 'all', initialSearch = '' }) {
   const [searchQuery, setSearchQuery] = useState(initialSearch);
@@ -21,6 +22,7 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuth();
+  const { mockProducts } = useProductData();
   
   // Mock categories - in production, these would come from the database
   const categories = [
@@ -89,16 +91,14 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
       
       // Try to fetch from Supabase, but use mock data as fallback
       try {
-        // Check if products table exists first
-        const { error: tableCheckError } = await supabase
-          .from('products')
-          .select('count')
-          .limit(1)
+        // Check if products table exists first - using raw SQL to check
+        const { data: tableExists, error: tableCheckError } = await supabase
+          .rpc('check_table_exists', { table_name: 'products' })
           .single();
         
         // If products table exists, query it
-        if (!tableCheckError) {
-          let query = supabase.from('products');
+        if (!tableCheckError && tableExists) {
+          let query = supabase.from('products').select('*');
           
           // Apply category filter if not 'all'
           if (category !== 'all') {
@@ -127,27 +127,27 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
               break;
           }
           
-          const { data, error } = await query.select('*');
+          const { data, error } = await query;
           
           if (error) {
             throw error;
           }
           
           if (data && data.length > 0) {
-            // Map DB schema to Product type
+            // Map DB schema to Product type - careful with type safety
             const formattedData = data.map(item => ({
-              id: item.id,
-              name: item.name || item.title,
-              price: item.price,
+              id: item.id || '',
+              name: item.name || item.title || '',
+              price: item.price || 0,
               rating: item.rating || 4.5,
               reviewCount: item.review_count || 0,
-              category: item.category,
-              images: item.images || ['/placeholder.svg'],
+              category: item.category || '',
+              images: Array.isArray(item.images) ? item.images : ['/placeholder.svg'],
               providerName: item.provider_name || 'Unknown Seller',
               providerAvatar: item.provider_avatar || '/placeholder.svg',
-              providerId: item.provider_id,
-              description: item.description,
-              featured: item.featured,
+              providerId: item.provider_id || '',
+              description: item.description || '',
+              featured: !!item.featured,
               inStock: item.in_stock !== false,
               createdAt: item.created_at,
               compareAtPrice: item.compare_at_price,
@@ -155,6 +155,7 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
             })) as Product[];
             
             setProducts(formattedData);
+            setLoading(false);
             return;
           }
         }
@@ -177,7 +178,7 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
   
   // Filter mock products based on current filters
   const filterMockProducts = () => {
-    let filtered = [...mockProducts];
+    let filtered = [...(mockProducts || [])];
     
     if (category !== 'all') {
       filtered = filtered.filter(p => p.category === category);
@@ -225,113 +226,6 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
     e.preventDefault();
     fetchProducts();
   };
-
-  // Mock products data transformed to match Product interface (fallback data)
-  const mockProducts: Product[] = [
-    {
-      id: "1",
-      name: "Wireless Bluetooth Earbuds",
-      price: 49.99,
-      rating: 4.5,
-      reviewCount: 128,
-      category: "electronics",
-      images: ["/products/earbuds.jpg"],
-      providerName: "AudioTech",
-      providerAvatar: "/placeholder.svg",
-      providerId: "provider1",
-      description: "High-quality wireless earbuds with noise cancellation.",
-      featured: false,
-      inStock: true,
-      createdAt: new Date().toISOString(),
-      currency: "$",
-    },
-    {
-      id: "2",
-      name: "Smart Home Security Camera",
-      price: 89.99,
-      rating: 4.2,
-      reviewCount: 75,
-      category: "electronics",
-      images: ["/products/camera.jpg"],
-      providerName: "SecureView",
-      providerAvatar: "/placeholder.svg",
-      providerId: "provider2",
-      description: "HD security camera with motion detection and night vision.",
-      featured: true,
-      inStock: true,
-      createdAt: new Date().toISOString(),
-      currency: "$",
-    },
-    {
-      id: "3",
-      name: "Ergonomic Office Chair",
-      price: 199.99,
-      rating: 4.7,
-      reviewCount: 42,
-      category: "home",
-      images: ["/products/chair.jpg"],
-      providerName: "ComfortPlus",
-      providerAvatar: "/placeholder.svg",
-      providerId: "provider3",
-      description: "Adjustable office chair with lumbar support.",
-      featured: false,
-      inStock: true,
-      createdAt: new Date().toISOString(),
-      currency: "$",
-    },
-    {
-      id: "4",
-      name: "Non-Stick Cookware Set",
-      price: 129.99,
-      rating: 4.4,
-      reviewCount: 89,
-      category: "home",
-      images: ["/products/cookware.jpg"],
-      providerName: "KitchenPro",
-      providerAvatar: "/placeholder.svg",
-      providerId: "provider4",
-      description: "10-piece non-stick cookware set for all cooking needs.",
-      featured: false,
-      inStock: true,
-      createdAt: new Date().toISOString(),
-      currency: "$",
-    },
-    {
-      id: "5",
-      name: "Organic Face Serum",
-      price: 34.99,
-      rating: 4.8,
-      reviewCount: 156,
-      category: "beauty",
-      images: ["/products/serum.jpg"],
-      providerName: "NaturalGlow",
-      providerAvatar: "/placeholder.svg",
-      providerId: "provider5",
-      description: "Hydrating face serum with vitamin C and hyaluronic acid.",
-      featured: true,
-      inStock: true,
-      createdAt: new Date().toISOString(),
-      compareAtPrice: 44.99,
-      currency: "$",
-    },
-    {
-      id: "6",
-      name: "Men's Running Shoes",
-      price: 79.99,
-      rating: 4.3,
-      reviewCount: 67,
-      category: "clothing",
-      images: ["/products/shoes.jpg"],
-      providerName: "ActiveStep",
-      providerAvatar: "/placeholder.svg",
-      providerId: "provider6",
-      description: "Lightweight running shoes with cushioned soles.",
-      featured: false,
-      inStock: true,
-      createdAt: new Date().toISOString(),
-      currency: "$",
-    }
-  ];
 
   return (
     <div className="container px-4 py-8">

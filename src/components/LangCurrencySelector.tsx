@@ -229,95 +229,65 @@ export function LangCurrencySelector() {
   const otherCurrencies = currencies.filter(c => c.region !== 'Africa');
 
   return (
-    <div className="flex space-x-2">
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="outline" size="sm" className="flex items-center gap-1">
-            <Globe className="h-4 w-4 mr-1" />
-            {currentLanguage.flag} <ChevronDown className="h-3 w-3 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-56 p-0" align="end">
-          <div className="p-2">
-            <p className="text-sm font-medium px-2 py-1.5">Select Language</p>
-            <div className="mt-2 space-y-1">
-              {languages.map((language) => (
-                <Button
-                  key={language.code}
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start"
-                  onClick={() => handleLanguageChange(language)}
-                >
-                  <span className="mr-2">{language.flag}</span>
-                  {language.name}
-                  {currentLanguage.code === language.code && (
-                    <Check className="h-4 w-4 ml-auto" />
-                  )}
-                </Button>
-              ))}
-            </div>
-          </div>
-        </PopoverContent>
-      </Popover>
+    <div className="p-4">
+      <div className="mb-4">
+        <p className="text-sm font-medium mb-3">Select Language</p>
+        <div className="grid grid-cols-2 gap-2">
+          {languages.map((language) => (
+            <Button
+              key={language.code}
+              variant="ghost"
+              size="sm"
+              className="justify-start"
+              onClick={() => handleLanguageChange(language)}
+            >
+              <span className="mr-2">{language.flag}</span>
+              {language.name}
+              {currentLanguage.code === language.code && (
+                <Check className="h-4 w-4 ml-auto" />
+              )}
+            </Button>
+          ))}
+        </div>
+      </div>
       
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="outline" size="sm" className="flex items-center gap-1">
-            <DollarSign className="h-4 w-4 mr-1" />
-            {currentCurrency.symbol} {currentCurrency.code} <ChevronDown className="h-3 w-3 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-72 p-0 max-h-[400px] overflow-y-auto" align="end">
-          <div className="p-2">
-            <p className="text-sm font-medium px-2 py-1.5">Select Currency</p>
-            
-            {/* Common currencies */}
-            <div className="mt-2">
-              <p className="text-xs font-medium text-muted-foreground px-2 py-1">Common Currencies</p>
-              <div className="space-y-1 mt-1">
-                {otherCurrencies.map((currency) => (
-                  <Button
-                    key={currency.code}
-                    variant="ghost"
-                    size="sm"
-                    className="w-full justify-start"
-                    onClick={() => handleCurrencyChange(currency)}
-                  >
-                    <span className="mr-2">{currency.symbol}</span>
-                    {currency.code} - {currency.name}
-                    {currentCurrency.code === currency.code && (
-                      <Check className="h-4 w-4 ml-auto" />
-                    )}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            
-            {/* African currencies */}
-            <div className="mt-4">
-              <p className="text-xs font-medium text-muted-foreground px-2 py-1">African Currencies</p>
-              <div className="space-y-1 mt-1">
-                {africanCurrencies.map((currency) => (
-                  <Button
-                    key={currency.code}
-                    variant="ghost"
-                    size="sm"
-                    className="w-full justify-start"
-                    onClick={() => handleCurrencyChange(currency)}
-                  >
-                    <span className="mr-2">{currency.symbol}</span>
-                    {currency.code} - {currency.name}
-                    {currentCurrency.code === currency.code && (
-                      <Check className="h-4 w-4 ml-auto" />
-                    )}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </PopoverContent>
-      </Popover>
+      <div className="mt-6">
+        <p className="text-sm font-medium mb-3">Select Currency</p>
+        <div className="grid grid-cols-1 gap-1 max-h-[200px] overflow-y-auto pr-2">
+          <p className="text-xs font-medium text-muted-foreground mt-2">Common Currencies</p>
+          {otherCurrencies.map((currency) => (
+            <Button
+              key={currency.code}
+              variant="ghost"
+              size="sm"
+              className="justify-start"
+              onClick={() => handleCurrencyChange(currency)}
+            >
+              <span className="mr-2">{currency.symbol}</span>
+              {currency.code} - {currency.name}
+              {currentCurrency.code === currency.code && (
+                <Check className="h-4 w-4 ml-auto" />
+              )}
+            </Button>
+          ))}
+          <p className="text-xs font-medium text-muted-foreground mt-2">African Currencies</p>
+          {africanCurrencies.map((currency) => (
+            <Button
+              key={currency.code}
+              variant="ghost"
+              size="sm"
+              className="justify-start"
+              onClick={() => handleCurrencyChange(currency)}
+            >
+              <span className="mr-2">{currency.symbol}</span>
+              {currency.code} - {currency.name}
+              {currentCurrency.code === currency.code && (
+                <Check className="h-4 w-4 ml-auto" />
+              )}
+            </Button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
