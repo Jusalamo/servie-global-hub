@@ -24,6 +24,8 @@ export interface Product {
   featured?: boolean;
   inStock?: boolean;
   createdAt?: string;
+  compareAtPrice?: number;
+  currency?: string;
 }
 
 // Cart context interface for future implementation
@@ -172,7 +174,7 @@ export function ProductCard({ product, showAddToCart = true }: ProductCardProps)
         
         {showAddToCart && (
           isInCart ? (
-            <Button size="sm" variant="subtle" className="bg-green-50 text-green-700 hover:bg-green-100">
+            <Button size="sm" variant="secondary" className="bg-green-50 text-green-700 hover:bg-green-100">
               <Check className="h-4 w-4 mr-1" />
               In Cart
             </Button>

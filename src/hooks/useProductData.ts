@@ -32,7 +32,8 @@ const mockProducts: Product[] = [
     reviewCount: 124,
     featured: true,
     inStock: true,
-    createdAt: "2023-06-15T10:30:00Z"
+    createdAt: "2023-06-15T10:30:00Z",
+    currency: "$"
   },
   {
     id: "prod2",
@@ -50,7 +51,8 @@ const mockProducts: Product[] = [
     reviewCount: 86,
     featured: false,
     inStock: true,
-    createdAt: "2023-07-22T14:15:00Z"
+    createdAt: "2023-07-22T14:15:00Z",
+    currency: "$"
   },
   {
     id: "prod3",
@@ -69,7 +71,8 @@ const mockProducts: Product[] = [
     reviewCount: 57,
     featured: true,
     inStock: true,
-    createdAt: "2023-08-05T09:45:00Z"
+    createdAt: "2023-08-05T09:45:00Z",
+    currency: "$"
   },
   {
     id: "prod4",
@@ -87,7 +90,8 @@ const mockProducts: Product[] = [
     reviewCount: 42,
     featured: false,
     inStock: false,
-    createdAt: "2023-09-12T11:20:00Z"
+    createdAt: "2023-09-12T11:20:00Z",
+    currency: "$"
   },
   {
     id: "prod5",
@@ -107,7 +111,8 @@ const mockProducts: Product[] = [
     reviewCount: 98,
     featured: true,
     inStock: true,
-    createdAt: "2023-10-01T16:30:00Z"
+    createdAt: "2023-10-01T16:30:00Z",
+    currency: "$"
   },
   {
     id: "prod6",
@@ -126,7 +131,8 @@ const mockProducts: Product[] = [
     reviewCount: 64,
     featured: false,
     inStock: true,
-    createdAt: "2023-07-18T08:50:00Z"
+    createdAt: "2023-07-18T08:50:00Z",
+    currency: "$"
   }
 ];
 

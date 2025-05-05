@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,7 @@ import { Search, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
+import { initializeRealtime } from "@/utils/supabaseRealtime";
 
 export default function ProductListing({ initialCategory = 'all', initialSearch = '' }) {
   const [searchQuery, setSearchQuery] = useState(initialSearch);
@@ -36,42 +38,35 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
   useEffect(() => {
     const setupRealtime = async () => {
       try {
-        const channel = supabase.channel('public:products')
-          .on('postgres_changes', { 
-            event: '*', 
-            schema: 'public', 
-            table: 'products' 
-          }, (payload) => {
-            console.log('Real-time update received:', payload);
-            if (payload.eventType === 'INSERT') {
-              // Add new product to the list if it matches current filters
-              const newProduct = payload.new as Product;
-              if (category === 'all' || newProduct.category === category) {
-                setProducts(prev => [newProduct, ...prev]);
-                toast.success(`New product added: ${newProduct.name}`);
-              }
-            } else if (payload.eventType === 'UPDATE') {
-              // Update existing product in the list
-              const updatedProduct = payload.new as Product;
-              setProducts(prev => 
-                prev.map(p => p.id === updatedProduct.id ? updatedProduct : p)
-              );
-            } else if (payload.eventType === 'DELETE') {
-              // Remove deleted product from the list
-              const deletedId = payload.old.id;
-              setProducts(prev => prev.filter(p => p.id !== deletedId));
+        // Use the realtimeUtils to properly initialize
+        const { setupProductsRealtime } = initializeRealtime();
+        
+        const unsubscribe = setupProductsRealtime((payload) => {
+          console.log('Real-time update received:', payload);
+          if (payload.eventType === 'INSERT') {
+            // Add new product to the list if it matches current filters
+            const newProduct = payload.new as unknown as Product;
+            if (category === 'all' || newProduct.category === category) {
+              setProducts(prev => [newProduct, ...prev]);
+              toast.success(`New product added: ${newProduct.name}`);
             }
-          })
-          .subscribe((status) => {
-            if (status === 'SUBSCRIBED') {
-              setRealtimeEnabled(true);
-              console.log('Realtime subscription active for products');
-            }
-          });
+          } else if (payload.eventType === 'UPDATE') {
+            // Update existing product in the list
+            const updatedProduct = payload.new as unknown as Product;
+            setProducts(prev => 
+              prev.map(p => p.id === updatedProduct.id ? updatedProduct : p)
+            );
+          } else if (payload.eventType === 'DELETE') {
+            // Remove deleted product from the list
+            const deletedId = payload.old.id;
+            setProducts(prev => prev.filter(p => p.id !== deletedId));
+          }
+        });
 
-        return () => {
-          channel.unsubscribe();
-        };
+        setRealtimeEnabled(true);
+        console.log('Realtime subscription active for products');
+        
+        return unsubscribe;
       } catch (error) {
         console.error("Error setting up realtime:", error);
       }
@@ -92,63 +87,140 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
       const newUrl = `${location.pathname}?${params.toString()}`;
       navigate(newUrl, { replace: true });
       
-      let query = supabase.from('products').select('*');
-      
-      // Apply category filter if not 'all'
-      if (category !== 'all') {
-        query = query.eq('category', category);
+      // Try to fetch from Supabase, but use mock data as fallback
+      try {
+        // Check if products table exists first
+        const { error: tableCheckError } = await supabase
+          .from('products')
+          .select('count')
+          .limit(1)
+          .single();
+        
+        // If products table exists, query it
+        if (!tableCheckError) {
+          let query = supabase.from('products');
+          
+          // Apply category filter if not 'all'
+          if (category !== 'all') {
+            query = query.eq('category', category);
+          }
+          
+          // Apply search query if provided
+          if (searchQuery) {
+            query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+          }
+          
+          // Apply sorting
+          switch (sortBy) {
+            case 'price-low':
+              query = query.order('price', { ascending: true });
+              break;
+            case 'price-high':
+              query = query.order('price', { ascending: false });
+              break;
+            case 'rating':
+              query = query.order('rating', { ascending: false });
+              break;
+            case 'featured':
+            default:
+              query = query.order('featured', { ascending: false }).order('created_at', { ascending: false });
+              break;
+          }
+          
+          const { data, error } = await query.select('*');
+          
+          if (error) {
+            throw error;
+          }
+          
+          if (data && data.length > 0) {
+            // Map DB schema to Product type
+            const formattedData = data.map(item => ({
+              id: item.id,
+              name: item.name || item.title,
+              price: item.price,
+              rating: item.rating || 4.5,
+              reviewCount: item.review_count || 0,
+              category: item.category,
+              images: item.images || ['/placeholder.svg'],
+              providerName: item.provider_name || 'Unknown Seller',
+              providerAvatar: item.provider_avatar || '/placeholder.svg',
+              providerId: item.provider_id,
+              description: item.description,
+              featured: item.featured,
+              inStock: item.in_stock !== false,
+              createdAt: item.created_at,
+              compareAtPrice: item.compare_at_price,
+              currency: item.currency || '$'
+            })) as Product[];
+            
+            setProducts(formattedData);
+            return;
+          }
+        }
+      } catch (supabaseError) {
+        console.error("Supabase error:", supabaseError);
       }
       
-      // Apply search query if provided
-      if (searchQuery) {
-        query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
-      }
+      // If we got here, use mock data
+      setProducts(filterMockProducts());
       
-      // Apply sorting
-      switch (sortBy) {
-        case 'price-low':
-          query = query.order('price', { ascending: true });
-          break;
-        case 'price-high':
-          query = query.order('price', { ascending: false });
-          break;
-        case 'rating':
-          query = query.order('rating', { ascending: false });
-          break;
-        case 'featured':
-        default:
-          query = query.order('featured', { ascending: false }).order('created_at', { ascending: false });
-          break;
-      }
-      
-      const { data, error } = await query;
-      
-      if (error) {
-        throw error;
-      }
-      
-      // If no products in database yet, use mock data
-      if (!data || data.length === 0) {
-        // Use mock data as fallback
-        setProducts(mockProducts);
-      } else {
-        setProducts(data as Product[]);
-      }
     } catch (error) {
       console.error("Error fetching products:", error);
       toast.error("Failed to load products. Using sample data instead.");
       // Use mock data as fallback on error
-      setProducts(mockProducts);
+      setProducts(filterMockProducts());
     } finally {
       setLoading(false);
     }
+  };
+  
+  // Filter mock products based on current filters
+  const filterMockProducts = () => {
+    let filtered = [...mockProducts];
+    
+    if (category !== 'all') {
+      filtered = filtered.filter(p => p.category === category);
+    }
+    
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(p => 
+        p.name.toLowerCase().includes(query) || 
+        p.description.toLowerCase().includes(query)
+      );
+    }
+    
+    // Apply sorting
+    switch (sortBy) {
+      case 'price-low':
+        filtered.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-high':
+        filtered.sort((a, b) => b.price - a.price);
+        break;
+      case 'rating':
+        filtered.sort((a, b) => b.rating - a.rating);
+        break;
+      case 'featured':
+      default:
+        filtered.sort((a, b) => {
+          if (a.featured && !b.featured) return -1;
+          if (!a.featured && b.featured) return 1;
+          return new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime();
+        });
+        break;
+    }
+    
+    return filtered;
   };
 
   // Load products when filters change
   useEffect(() => {
     fetchProducts();
-  }, [category, searchQuery, sortBy]);
-
+  }, [category, sortBy]);
+  
+  // Only trigger search when explicitly submitted
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     fetchProducts();
@@ -170,7 +242,8 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
       description: "High-quality wireless earbuds with noise cancellation.",
       featured: false,
       inStock: true,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      currency: "$",
     },
     {
       id: "2",
@@ -186,7 +259,8 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
       description: "HD security camera with motion detection and night vision.",
       featured: true,
       inStock: true,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      currency: "$",
     },
     {
       id: "3",
@@ -202,7 +276,8 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
       description: "Adjustable office chair with lumbar support.",
       featured: false,
       inStock: true,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      currency: "$",
     },
     {
       id: "4",
@@ -218,7 +293,8 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
       description: "10-piece non-stick cookware set for all cooking needs.",
       featured: false,
       inStock: true,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      currency: "$",
     },
     {
       id: "5",
@@ -234,7 +310,9 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
       description: "Hydrating face serum with vitamin C and hyaluronic acid.",
       featured: true,
       inStock: true,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      compareAtPrice: 44.99,
+      currency: "$",
     },
     {
       id: "6",
@@ -250,7 +328,8 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
       description: "Lightweight running shoes with cushioned soles.",
       featured: false,
       inStock: true,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      currency: "$",
     }
   ];
 

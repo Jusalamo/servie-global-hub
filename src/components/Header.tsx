@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, User, ChevronDown, Globe } from 'lucide-react';
 import { Button } from './ui/button';
 import ServieIcon from './ServieIcon';
 import { useAuth } from '@/context/AuthContext';
-import LangCurrencySelector from './LangCurrencySelector';
+import { LangCurrencySelector } from './LangCurrencySelector';
 import CartIndicator from './CartIndicator';
 import NotificationBell from './NotificationBell';
 
