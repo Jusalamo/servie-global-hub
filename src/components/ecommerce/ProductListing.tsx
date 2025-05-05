@@ -6,10 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ProductCard, type Product } from "@/components/ecommerce/ProductCard";
 import { Search, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
-import { initializeRealtime } from "@/utils/supabaseRealtime";
 import { useProductData } from "@/hooks/useProductData";
 
 export default function ProductListing({ initialCategory = 'all', initialSearch = '' }) {
@@ -27,57 +25,25 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
   // Mock categories - in production, these would come from the database
   const categories = [
     { id: 'all', name: 'All Products' },
-    { id: 'electronics', name: 'Electronics' },
-    { id: 'home', name: 'Home & Kitchen' },
-    { id: 'beauty', name: 'Beauty & Personal Care' },
-    { id: 'clothing', name: 'Clothing' },
-    { id: 'tools', name: 'Tools & Home Improvement' },
-    { id: 'sports', name: 'Sports & Outdoors' },
-    { id: 'toys', name: 'Toys & Games' },
+    { id: 'cat1', name: 'Tools' },
+    { id: 'cat2', name: 'Gardening' },
+    { id: 'cat3', name: 'Cleaning' },
+    { id: 'cat4', name: 'Home Decor' },
+    { id: 'cat5', name: 'Electronics' },
   ];
 
-  // Set up Supabase realtime subscription
+  // Enable mock realtime updates
   useEffect(() => {
-    const setupRealtime = async () => {
-      try {
-        // Use the realtimeUtils to properly initialize
-        const { setupProductsRealtime } = initializeRealtime();
-        
-        const unsubscribe = setupProductsRealtime((payload) => {
-          console.log('Real-time update received:', payload);
-          if (payload.eventType === 'INSERT') {
-            // Add new product to the list if it matches current filters
-            const newProduct = payload.new as unknown as Product;
-            if (category === 'all' || newProduct.category === category) {
-              setProducts(prev => [newProduct, ...prev]);
-              toast.success(`New product added: ${newProduct.name}`);
-            }
-          } else if (payload.eventType === 'UPDATE') {
-            // Update existing product in the list
-            const updatedProduct = payload.new as unknown as Product;
-            setProducts(prev => 
-              prev.map(p => p.id === updatedProduct.id ? updatedProduct : p)
-            );
-          } else if (payload.eventType === 'DELETE') {
-            // Remove deleted product from the list
-            const deletedId = payload.old.id;
-            setProducts(prev => prev.filter(p => p.id !== deletedId));
-          }
-        });
+    // Simulate real-time setup
+    const timeout = setTimeout(() => {
+      setRealtimeEnabled(true);
+      console.log('Mock realtime subscription active for products');
+    }, 1000);
+    
+    return () => clearTimeout(timeout);
+  }, []);
 
-        setRealtimeEnabled(true);
-        console.log('Realtime subscription active for products');
-        
-        return unsubscribe;
-      } catch (error) {
-        console.error("Error setting up realtime:", error);
-      }
-    };
-
-    setupRealtime();
-  }, [category]);
-
-  // Fetch products from Supabase
+  // Fetch products using mock data
   const fetchProducts = async () => {
     setLoading(true);
     try {
@@ -89,89 +55,17 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
       const newUrl = `${location.pathname}?${params.toString()}`;
       navigate(newUrl, { replace: true });
       
-      // Try to fetch from Supabase, but use mock data as fallback
-      try {
-        // Check if products table exists first - using raw SQL to check
-        const { data: tableExists, error: tableCheckError } = await supabase
-          .rpc('check_table_exists', { table_name: 'products' })
-          .single();
-        
-        // If products table exists, query it
-        if (!tableCheckError && tableExists) {
-          let query = supabase.from('products').select('*');
-          
-          // Apply category filter if not 'all'
-          if (category !== 'all') {
-            query = query.eq('category', category);
-          }
-          
-          // Apply search query if provided
-          if (searchQuery) {
-            query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
-          }
-          
-          // Apply sorting
-          switch (sortBy) {
-            case 'price-low':
-              query = query.order('price', { ascending: true });
-              break;
-            case 'price-high':
-              query = query.order('price', { ascending: false });
-              break;
-            case 'rating':
-              query = query.order('rating', { ascending: false });
-              break;
-            case 'featured':
-            default:
-              query = query.order('featured', { ascending: false }).order('created_at', { ascending: false });
-              break;
-          }
-          
-          const { data, error } = await query;
-          
-          if (error) {
-            throw error;
-          }
-          
-          if (data && data.length > 0) {
-            // Map DB schema to Product type - careful with type safety
-            const formattedData = data.map(item => ({
-              id: item.id || '',
-              name: item.name || item.title || '',
-              price: item.price || 0,
-              rating: item.rating || 4.5,
-              reviewCount: item.review_count || 0,
-              category: item.category || '',
-              images: Array.isArray(item.images) ? item.images : ['/placeholder.svg'],
-              providerName: item.provider_name || 'Unknown Seller',
-              providerAvatar: item.provider_avatar || '/placeholder.svg',
-              providerId: item.provider_id || '',
-              description: item.description || '',
-              featured: !!item.featured,
-              inStock: item.in_stock !== false,
-              createdAt: item.created_at,
-              compareAtPrice: item.compare_at_price,
-              currency: item.currency || '$'
-            })) as Product[];
-            
-            setProducts(formattedData);
-            setLoading(false);
-            return;
-          }
-        }
-      } catch (supabaseError) {
-        console.error("Supabase error:", supabaseError);
-      }
-      
-      // If we got here, use mock data
+      // Use mock data as our source
       setProducts(filterMockProducts());
       
+      // Simulate network delay
+      setTimeout(() => {
+        setLoading(false);
+      }, 500);
     } catch (error) {
       console.error("Error fetching products:", error);
-      toast.error("Failed to load products. Using sample data instead.");
-      // Use mock data as fallback on error
-      setProducts(filterMockProducts());
-    } finally {
+      toast.error("Failed to load products");
+      setProducts([]);
       setLoading(false);
     }
   };

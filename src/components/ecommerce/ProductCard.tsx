@@ -123,6 +123,7 @@ export function ProductCard({ product, showAddToCart = true }: ProductCardProps)
           )}
           <Badge 
             className="absolute top-2 left-2 bg-background/80 text-foreground hover:bg-background/90"
+            variant="secondary"
           >
             {product.category}
           </Badge>
