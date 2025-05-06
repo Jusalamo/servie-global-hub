@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import ProviderSidebar from "@/components/dashboard/ProviderSidebar";
@@ -13,7 +12,7 @@ import PaymentMethods from "@/components/dashboard/PaymentMethods";
 import ProfileSettings from "@/components/dashboard/ProfileSettings";
 import NotificationsSettings from "@/components/dashboard/NotificationsSettings";
 import { useLocation } from "react-router-dom";
-import Breadcrumb from "@/components/Breadcrumb";
+import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
 
 // Mock data for calendar bookings
 const mockBookings = [
@@ -101,14 +100,14 @@ export default function ProviderDashboard() {
     }
   };
 
+  // Create breadcrumb items
+  const breadcrumbItems = [
+    { label: getBreadcrumbLabel() }
+  ];
+
   return (
     <div className="min-h-screen flex flex-col">
-      <Breadcrumb 
-        additionalCrumbs={[
-          { label: "Provider Dashboard", href: "/dashboard/provider" },
-          { label: getBreadcrumbLabel() }
-        ]} 
-      />
+      <DashboardBreadcrumb items={breadcrumbItems} userRole="provider" />
       <DashboardLayout sidebar={<ProviderSidebar activeTab={activeTab} onTabChange={handleTabChange} />}>
         {renderTabContent()}
       </DashboardLayout>
@@ -167,8 +166,8 @@ const HelpSupportTab = () => {
             <div className="space-y-2">
               <h4 className="font-medium">How do I handle cancellations?</h4>
               <p className="text-sm text-muted-foreground">
-                You can set your own cancellation policy. Navigate to Settings > 
-                Services > Policies to configure cancellation terms.
+                You can set your own cancellation policy. Navigate to Settings {'=>'} 
+                Services {'=>'} Policies to configure cancellation terms.
               </p>
             </div>
             <div className="space-y-2">
