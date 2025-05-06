@@ -17,7 +17,7 @@ const Footer = () => {
           <div>
             <Link to="/" className="flex items-center mb-4">
               <ServieIcon className="h-8 w-8 text-servie" />
-              <span className="ml-2 text-xl font-bold">Servie</span>
+              <span className="ml-2 text-xl font-bold text-servie">Servie</span>
             </Link>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
               Connecting service providers with customers across Africa. The comprehensive marketplace for services and products.
@@ -54,7 +54,7 @@ const Footer = () => {
             </div>
           </div>
           
-          {/* Quick links */}
+          {/* Company info */}
           <div>
             <h3 className="text-sm font-semibold mb-4 uppercase tracking-wider">Company</h3>
             <ul className="space-y-2">
@@ -130,7 +130,7 @@ const Footer = () => {
                 placeholder="Your email" 
                 className="flex-1 focus-visible:ring-primary"
               />
-              <Button className="bg-servie hover:bg-servie-600">
+              <Button className="bg-servie hover:bg-servie-600 text-white">
                 <Mail size={16} className="mr-2" />
                 Subscribe
               </Button>

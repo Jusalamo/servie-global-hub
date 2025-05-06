@@ -24,7 +24,7 @@ const CurrencySelector = () => {
   return (
     <div className="p-4">
       <p className="text-sm font-medium mb-3">Select Currency</p>
-      <div className="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+      <div className="max-h-[300px] overflow-y-auto scrollbar-none">
         <div className="space-y-1">
           <p className="text-xs font-medium text-muted-foreground mt-2">Common Currencies</p>
           {otherCurrencies.map((currency) => (
@@ -32,13 +32,13 @@ const CurrencySelector = () => {
               key={currency.code}
               variant="ghost"
               size="sm"
-              className={`w-full justify-start mb-1 ${currentCurrency.code === currency.code ? 'bg-servie/10 text-servie' : ''}`}
+              className={`w-full justify-start mb-1 ${currentCurrency.code === currency.code ? 'bg-primary/10 text-primary' : ''}`}
               onClick={() => handleCurrencyChange(currency)}
             >
               <span className="mr-2">{currency.symbol}</span>
               {currency.code} - {currency.name}
               {currentCurrency.code === currency.code && (
-                <Check className="h-4 w-4 ml-auto text-servie" />
+                <Check className="h-4 w-4 ml-auto text-primary" />
               )}
             </Button>
           ))}
@@ -49,13 +49,13 @@ const CurrencySelector = () => {
               key={currency.code}
               variant="ghost"
               size="sm" 
-              className={`w-full justify-start mb-1 ${currentCurrency.code === currency.code ? 'bg-servie/10 text-servie' : ''}`}
+              className={`w-full justify-start mb-1 ${currentCurrency.code === currency.code ? 'bg-primary/10 text-primary' : ''}`}
               onClick={() => handleCurrencyChange(currency)}
             >
               <span className="mr-2">{currency.symbol}</span>
               {currency.code} - {currency.name}
               {currentCurrency.code === currency.code && (
-                <Check className="h-4 w-4 ml-auto text-servie" />
+                <Check className="h-4 w-4 ml-auto text-primary" />
               )}
             </Button>
           ))}

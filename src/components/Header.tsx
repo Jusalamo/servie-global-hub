@@ -27,6 +27,7 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isAuthenticated, user, signOut } = useAuth();
   const { currentLanguage, translate } = useLocalization();
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,6 +42,11 @@ const Header = () => {
     };
   }, []);
 
+  // Close mobile menu when changing routes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
+
   return (
     <header className={`sticky top-0 z-50 w-full ${isScrolled ? 'bg-white shadow-md dark:bg-gray-900' : 'bg-white/80 backdrop-blur-md dark:bg-gray-900/90'}`}>
       <div className="container mx-auto px-4">
@@ -49,63 +55,70 @@ const Header = () => {
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
               <ServieIcon className="h-8 w-8 text-servie" />
-              <span className="ml-2 text-xl font-bold">Servie</span>
+              <span className="ml-2 text-xl font-bold text-servie">Servie</span>
             </Link>
           </div>
 
           {/* Right side buttons */}
           <div className="flex items-center gap-2">
-            {/* Language selector */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                  <Globe className="h-4 w-4" />
-                  <span className="hidden sm:inline">{currentLanguage.name}</span>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-72 p-0 max-h-[400px] overflow-hidden" align="end">
-                <LangCurrencySelector showCurrencies={false} />
-              </PopoverContent>
-            </Popover>
-            
-            <ThemeToggle />
-            
-            {isAuthenticated && <CartIndicator />}
-            
-            {isAuthenticated && <NotificationBell />}
-
-            {isAuthenticated ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="flex items-center gap-1 p-1">
-                    <div className="h-8 w-8 rounded-full bg-servie/10 text-servie flex items-center justify-center">
-                      <User size={16} />
-                    </div>
-                    <ChevronDown size={16} className="text-gray-500 dark:text-gray-400" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem asChild>
-                    <Link to="/dashboard" className="w-full cursor-pointer">Dashboard</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/profile" className="w-full cursor-pointer">Profile</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={signOut} className="cursor-pointer">
-                    Sign out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" asChild size="sm">
-                  <Link to="/sign-in">{translate('signIn')}</Link>
-                </Button>
-                <Button className="bg-servie hover:bg-servie-600" asChild size="sm">
-                  <Link to="/sign-up">{translate('signUp')}</Link>
-                </Button>
-              </div>
+            {/* Only show these when authenticated */}
+            {isAuthenticated && (
+              <>
+                <CartIndicator />
+                <NotificationBell />
+              </>
             )}
+
+            {/* For desktop view */}
+            <div className="hidden md:flex items-center gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="ghost" size="sm" className="flex items-center gap-1">
+                    <Globe className="h-4 w-4" />
+                    <span className="hidden sm:inline">{currentLanguage.name}</span>
+                    <ChevronDown className="h-4 w-4 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-72 p-0 max-h-[400px] overflow-hidden" align="end">
+                  <LangCurrencySelector showCurrencies={false} />
+                </PopoverContent>
+              </Popover>
+              
+              <ThemeToggle />
+              
+              {isAuthenticated ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="flex items-center gap-1 p-1">
+                      <div className="h-8 w-8 rounded-full bg-servie/10 text-servie flex items-center justify-center">
+                        <User size={16} />
+                      </div>
+                      <ChevronDown size={16} className="text-gray-500 dark:text-gray-400" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem asChild>
+                      <Link to="/dashboard" className="w-full cursor-pointer">Dashboard</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/profile" className="w-full cursor-pointer">Profile</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={signOut} className="cursor-pointer">
+                      Sign out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" asChild size="sm">
+                    <Link to="/sign-in">{translate('signIn')}</Link>
+                  </Button>
+                  <Button className="bg-servie hover:bg-servie-600" asChild size="sm">
+                    <Link to="/sign-up">{translate('signUp')}</Link>
+                  </Button>
+                </div>
+              )}
+            </div>
             
             {/* Mobile menu button */}
             <button 
@@ -121,36 +134,53 @@ const Header = () => {
         {/* Mobile menu */}
         {isMobileMenuOpen && (
           <div className="md:hidden py-2 pb-3 space-y-1 animate-fade-in">
+            <div className="px-3 py-2 flex items-center justify-between mb-2">
+              <span className="text-sm font-medium">Language</span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="flex items-center gap-1">
+                    <Globe className="h-4 w-4" />
+                    {currentLanguage.name}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-72 p-0" align="end">
+                  <LangCurrencySelector showCurrencies={false} />
+                </PopoverContent>
+              </Popover>
+            </div>
+            
+            <div className="px-3 py-2 flex items-center justify-between mb-2">
+              <span className="text-sm font-medium">Theme</span>
+              <ThemeToggle />
+            </div>
+            
+            <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+            
             {isAuthenticated ? (
               <>
-                <Link to="/dashboard" className="block px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
+                <Link to="/dashboard" className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
                   Dashboard
                 </Link>
-                <Link to="/profile" className="block px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
+                <Link to="/profile" className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
                   Profile
                 </Link>
                 <button
                   onClick={signOut}
-                  className="block w-full text-left px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="flex w-full items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
                   Sign out
                 </button>
               </>
             ) : (
               <>
-                <Link to="/sign-in" className="block px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
+                <Link to="/sign-in" className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
                   {translate('signIn')}
                 </Link>
-                <Link to="/sign-up" className="block px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
+                <Link to="/sign-up" className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
                   {translate('signUp')}
                 </Link>
               </>
             )}
-            
-            <div className="px-3 py-2 flex items-center justify-between">
-              <span className="text-sm text-gray-700 dark:text-gray-200">Theme</span>
-              <ThemeToggle />
-            </div>
           </div>
         )}
       </div>
