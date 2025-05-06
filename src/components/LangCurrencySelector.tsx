@@ -5,20 +5,20 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
-type Language = {
+export type Language = {
   code: string;
   name: string;
   flag: string;
 };
 
-type Currency = {
+export type Currency = {
   code: string;
   name: string;
   symbol: string;
   region?: string;
 };
 
-const languages: Language[] = [
+export const languages: Language[] = [
   { code: "en", name: "English", flag: "🇺🇸" },
   { code: "es", name: "Español", flag: "🇪🇸" },
   { code: "fr", name: "Français", flag: "🇫🇷" },
@@ -31,7 +31,7 @@ const languages: Language[] = [
   { code: "ha", name: "Hausa", flag: "🇳🇬" },
 ];
 
-const currencies: Currency[] = [
+export const currencies: Currency[] = [
   { code: "USD", name: "US Dollar", symbol: "$" },
   { code: "EUR", name: "Euro", symbol: "€" },
   { code: "GBP", name: "British Pound", symbol: "£" },
@@ -60,6 +60,8 @@ interface LocalizationContextType {
   setCurrentCurrency: (currency: Currency) => void;
   formatPrice: (amount: number) => string;
   translate: (key: string) => string;
+  languages: Language[];
+  currencies: Currency[];
 }
 
 const LocalizationContext = createContext<LocalizationContextType | undefined>(undefined);
@@ -165,7 +167,9 @@ export function LocalizationProvider({ children }: { children: ReactNode }) {
       setCurrentLanguage: handleSetCurrentLanguage,
       setCurrentCurrency: handleSetCurrentCurrency,
       formatPrice,
-      translate
+      translate,
+      languages,
+      currencies
     }}>
       {children}
     </LocalizationContext.Provider>
@@ -193,7 +197,9 @@ export function LangCurrencySelector({
     currentLanguage, 
     currentCurrency, 
     setCurrentLanguage, 
-    setCurrentCurrency 
+    setCurrentCurrency,
+    languages,
+    currencies
   } = useLocalization();
 
   const handleLanguageChange = (language: Language) => {
@@ -206,16 +212,12 @@ export function LangCurrencySelector({
     toast.success(`Currency changed to ${currency.name}`);
   };
 
-  // Group currencies by region to show African currencies separately
-  const africanCurrencies = currencies.filter(c => c.region === 'Africa');
-  const otherCurrencies = currencies.filter(c => c.region !== 'Africa');
-
   return (
-    <div className="p-4">
+    <div className="p-4 max-h-[400px]">
       {showLanguages && (
         <div className="mb-4">
           <p className="text-sm font-medium mb-3">Select Language</p>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto pr-2">
             {languages.map((language) => (
               <Button
                 key={language.code}
@@ -236,16 +238,16 @@ export function LangCurrencySelector({
       )}
       
       {showCurrencies && (
-        <div className="mt-6">
+        <div className={showLanguages ? "mt-6" : ""}>
           <p className="text-sm font-medium mb-3">Select Currency</p>
-          <div className="grid grid-cols-1 gap-1 max-h-[200px] overflow-y-auto pr-2">
+          <div className="max-h-[200px] overflow-y-auto pr-2">
             <p className="text-xs font-medium text-muted-foreground mt-2">Common Currencies</p>
-            {otherCurrencies.map((currency) => (
+            {currencies.filter(c => c.region !== 'Africa').map((currency) => (
               <Button
                 key={currency.code}
                 variant="ghost"
                 size="sm"
-                className="justify-start"
+                className="w-full justify-start mb-1"
                 onClick={() => handleCurrencyChange(currency)}
               >
                 <span className="mr-2">{currency.symbol}</span>
@@ -256,12 +258,12 @@ export function LangCurrencySelector({
               </Button>
             ))}
             <p className="text-xs font-medium text-muted-foreground mt-2">African Currencies</p>
-            {africanCurrencies.map((currency) => (
+            {currencies.filter(c => c.region === 'Africa').map((currency) => (
               <Button
                 key={currency.code}
                 variant="ghost"
                 size="sm"
-                className="justify-start"
+                className="w-full justify-start mb-1"
                 onClick={() => handleCurrencyChange(currency)}
               >
                 <span className="mr-2">{currency.symbol}</span>

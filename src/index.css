@@ -91,6 +91,30 @@
   #hero-section .border-white {
     border-color: white !important;
   }
+  
+  /* Custom styling for form elements focused state */
+  .focus-visible\:ring-primary:focus-visible {
+    --tw-ring-color: hsl(var(--primary)) !important;
+  }
+  
+  /* Currency select styling */
+  .currency-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--primary)) transparent;
+  }
+  
+  .currency-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .currency-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .currency-scrollbar::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground)/0.3);
+    border-radius: 20px;
+  }
 }
 
 body {
@@ -306,8 +330,8 @@ body {
 }
 
 .input-focus-effect:focus {
-  border-color: hsl(var(--servie));
-  box-shadow: 0 0 0 2px hsla(var(--servie), 0.2);
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 2px hsla(var(--primary), 0.2);
 }
 
 /* Button style updates for consistency */
@@ -347,4 +371,61 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--primary));
+}
+
+/* Mobile responsive improvements */
+@media (max-width: 640px) {
+  h1 {
+    font-size: clamp(1.5rem, 5vw, 2.25rem) !important;
+  }
+  
+  h2 {
+    font-size: clamp(1.25rem, 4vw, 1.875rem) !important;
+  }
+  
+  .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  /* Better button text handling on small screens */
+  button, .button {
+    font-size: 0.875rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    white-space: nowrap !important;
+  }
+  
+  /* Smaller inputs on mobile */
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+  }
+  
+  /* Adjust spacing in mobile view */
+  .py-16 {
+    padding-top: 3rem !important;
+    padding-bottom: 3rem !important;
+  }
+}
+
+/* Make popover content scrollable on small screens */
+.popover-content-scroll {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Styling for checkbox consistent with primary color */
+[data-state="checked"].checkbox-primary {
+  background-color: hsl(var(--primary)) !important;
+  border-color: hsl(var(--primary)) !important;
+}
+
+/* Fix for double scrollbars in currency dropdown */
+.currency-dropdown::-webkit-scrollbar {
+  display: none;
+}
+
+.currency-dropdown {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

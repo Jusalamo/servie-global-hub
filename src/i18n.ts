@@ -49,10 +49,33 @@ const enTranslations = {
   "price_low_to_high": "Price: Low to High",
   "price_high_to_low": "Price: High to Low",
   "popularity": "Popularity",
-  "rating_high_to_low": "Rating: High to Low"
+  "rating_high_to_low": "Rating: High to Low",
+  "careers": "Careers",
+  "job_openings": "Job Openings",
+  "join_our_team": "Join Our Team",
+  "submit_application": "Submit Application",
+  "full_name": "Full Name",
+  "phone_number": "Phone Number",
+  "upload_resume": "Upload Resume",
+  "cover_letter": "Cover Letter",
+  "submit": "Submit",
+  "application_sent": "Your application has been submitted successfully!",
+  "application_form": "Application Form",
+  "position": "Position",
+  "select_position": "Select a position",
+  "open_application": "Open Application",
+  "portfolio_url": "Portfolio URL (Optional)",
+  "linkedin_profile": "LinkedIn Profile (Optional)",
+  "years_of_experience": "Years of Experience",
+  "why_join_us": "Why do you want to join our team?",
+  "education": "Education",
+  "skills": "Skills",
+  "application_success": "Application Submitted Successfully",
+  "application_error": "Error submitting application",
+  "try_again": "Please try again later or contact us directly."
 };
 
-// Spanish translations as an example
+// Spanish translations
 const esTranslations = {
   "Home": "Inicio",
   "Contact Support": "Contactar con Soporte",
@@ -99,7 +122,30 @@ const esTranslations = {
   "price_low_to_high": "Precio: Menor a Mayor",
   "price_high_to_low": "Precio: Mayor a Menor",
   "popularity": "Popularidad",
-  "rating_high_to_low": "Calificación: Mayor a Menor"
+  "rating_high_to_low": "Calificación: Mayor a Menor",
+  "careers": "Carreras",
+  "job_openings": "Ofertas de Trabajo",
+  "join_our_team": "Únete a Nuestro Equipo",
+  "submit_application": "Enviar Solicitud",
+  "full_name": "Nombre Completo",
+  "phone_number": "Número de Teléfono",
+  "upload_resume": "Subir Curriculum",
+  "cover_letter": "Carta de Presentación",
+  "submit": "Enviar",
+  "application_sent": "¡Tu solicitud ha sido enviada exitosamente!",
+  "application_form": "Formulario de Solicitud",
+  "position": "Puesto",
+  "select_position": "Selecciona un puesto",
+  "open_application": "Solicitud Abierta",
+  "portfolio_url": "URL de Portafolio (Opcional)",
+  "linkedin_profile": "Perfil de LinkedIn (Opcional)",
+  "years_of_experience": "Años de Experiencia",
+  "why_join_us": "¿Por qué quieres unirte a nuestro equipo?",
+  "education": "Educación",
+  "skills": "Habilidades",
+  "application_success": "Solicitud Enviada Exitosamente",
+  "application_error": "Error al enviar la solicitud",
+  "try_again": "Por favor intenta de nuevo más tarde o contáctanos directamente."
 };
 
 // French translations
@@ -130,7 +176,30 @@ const frTranslations = {
   "price_low_to_high": "Prix: Croissant",
   "price_high_to_low": "Prix: Décroissant",
   "popularity": "Popularité",
-  "rating_high_to_low": "Évaluation: Décroissante"
+  "rating_high_to_low": "Évaluation: Décroissante",
+  "careers": "Carrières",
+  "job_openings": "Offres d'Emploi",
+  "join_our_team": "Rejoignez Notre Équipe",
+  "submit_application": "Soumettre une Candidature",
+  "full_name": "Nom Complet",
+  "phone_number": "Numéro de Téléphone",
+  "upload_resume": "Télécharger CV",
+  "cover_letter": "Lettre de Motivation",
+  "submit": "Soumettre",
+  "application_sent": "Votre candidature a été soumise avec succès!",
+  "application_form": "Formulaire de Candidature",
+  "position": "Poste",
+  "select_position": "Sélectionner un poste",
+  "open_application": "Candidature Ouverte",
+  "portfolio_url": "URL du Portfolio (Optionnel)",
+  "linkedin_profile": "Profil LinkedIn (Optionnel)",
+  "years_of_experience": "Années d'Expérience",
+  "why_join_us": "Pourquoi voulez-vous rejoindre notre équipe?",
+  "education": "Formation",
+  "skills": "Compétences",
+  "application_success": "Candidature Soumise avec Succès",
+  "application_error": "Erreur lors de la soumission de la candidature",
+  "try_again": "Veuillez réessayer plus tard ou nous contacter directement."
 };
 
 // German translations
@@ -161,7 +230,30 @@ const deTranslations = {
   "price_low_to_high": "Preis: Aufsteigend",
   "price_high_to_low": "Preis: Absteigend",
   "popularity": "Beliebtheit",
-  "rating_high_to_low": "Bewertung: Absteigend"
+  "rating_high_to_low": "Bewertung: Absteigend",
+  "careers": "Karriere",
+  "job_openings": "Stellenangebote",
+  "join_our_team": "Unserem Team Beitreten",
+  "submit_application": "Bewerbung Einreichen",
+  "full_name": "Vollständiger Name",
+  "phone_number": "Telefonnummer",
+  "upload_resume": "Lebenslauf Hochladen",
+  "cover_letter": "Anschreiben",
+  "submit": "Absenden",
+  "application_sent": "Ihre Bewerbung wurde erfolgreich eingereicht!",
+  "application_form": "Bewerbungsformular",
+  "position": "Position",
+  "select_position": "Position auswählen",
+  "open_application": "Offene Bewerbung",
+  "portfolio_url": "Portfolio-URL (Optional)",
+  "linkedin_profile": "LinkedIn-Profil (Optional)",
+  "years_of_experience": "Jahre Erfahrung",
+  "why_join_us": "Warum möchten Sie unserem Team beitreten?",
+  "education": "Bildung",
+  "skills": "Fähigkeiten",
+  "application_success": "Bewerbung Erfolgreich Eingereicht",
+  "application_error": "Fehler beim Einreichen der Bewerbung",
+  "try_again": "Bitte versuchen Sie es später erneut oder kontaktieren Sie uns direkt."
 };
 
 i18n

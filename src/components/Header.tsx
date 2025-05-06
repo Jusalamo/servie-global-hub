@@ -25,11 +25,10 @@ import { LangCurrencySelector } from './LangCurrencySelector';
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
   const { isAuthenticated, user, signOut } = useAuth();
   const location = useLocation();
   const { pathname } = location;
-  const { currentLanguage, currentCurrency, translate } = useLocalization();
+  const { currentLanguage, translate } = useLocalization();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -49,10 +48,12 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <ServieIcon className="h-8 w-8 text-servie" />
-            <span className="ml-2 text-xl font-bold">Servie</span>
-          </Link>
+          <div className="flex items-center">
+            <Link to="/" className="flex items-center">
+              <ServieIcon className="h-8 w-8 text-servie" />
+              <span className="ml-2 text-xl font-bold">Servie</span>
+            </Link>
+          </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-1">
@@ -61,6 +62,15 @@ const Header = () => {
             </Link>
             <Link to="/shop" className={`px-3 py-2 rounded-md text-sm ${pathname === '/shop' ? 'font-medium text-servie' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800'}`}>
               {translate('shop')}
+            </Link>
+            <Link to="/about" className={`px-3 py-2 rounded-md text-sm ${pathname === '/about' ? 'font-medium text-servie' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800'}`}>
+              {translate('about')}
+            </Link>
+            <Link to="/careers" className={`px-3 py-2 rounded-md text-sm ${pathname === '/careers' ? 'font-medium text-servie' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800'}`}>
+              {translate('careers')}
+            </Link>
+            <Link to="/contact-support" className={`px-3 py-2 rounded-md text-sm ${pathname === '/contact-support' ? 'font-medium text-servie' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800'}`}>
+              {translate('contact')}
             </Link>
           </nav>
 
@@ -74,30 +84,11 @@ const Header = () => {
                   <span className="hidden sm:inline">{currentLanguage.name}</span>
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-72 p-0" align="end">
-                <LangCurrencySelector />
+              <PopoverContent className="w-72 p-0 max-h-[400px] overflow-hidden" align="end">
+                <LangCurrencySelector showCurrencies={false} />
               </PopoverContent>
             </Popover>
             
-            {/* Currency selector */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                  <span className="text-base font-medium">{currentCurrency.symbol}</span>
-                  <span className="hidden sm:inline">{currentCurrency.code}</span>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-72 p-0" align="end">
-                <div className="py-4 px-2 max-h-[300px] overflow-y-auto">
-                  <p className="text-sm font-medium mb-3 px-2">Select Currency</p>
-                  <div className="grid grid-cols-1 gap-1">
-                    {/* Render currencies from LangCurrencySelector */}
-                    <LangCurrencySelector showLanguages={false} />
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
-
             <ThemeToggle />
             
             <CartIndicator />
@@ -141,6 +132,7 @@ const Header = () => {
             <button 
               className="md:hidden p-2 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800" 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle menu"
             >
               {isMobileMenuOpen ? <X /> : <Menu />}
             </button>
@@ -149,13 +141,25 @@ const Header = () => {
         
         {/* Mobile menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden py-2 pb-3 space-y-1">
+          <div className="md:hidden py-2 pb-3 space-y-1 animate-fade-in">
             <Link to="/categories" className="block px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
               {translate('services')}
             </Link>
             <Link to="/shop" className="block px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
               {translate('shop')}
             </Link>
+            <Link to="/about" className="block px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
+              {translate('about')}
+            </Link>
+            <Link to="/careers" className="block px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
+              {translate('careers')}
+            </Link>
+            <Link to="/contact-support" className="block px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
+              {translate('contact')}
+            </Link>
+            
+            <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+            
             {isAuthenticated ? (
               <>
                 <Link to="/dashboard" className="block px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
@@ -181,6 +185,7 @@ const Header = () => {
                 </Link>
               </>
             )}
+            
             <div className="px-3 py-2 flex items-center justify-between">
               <span className="text-sm text-gray-700 dark:text-gray-200">Theme</span>
               <ThemeToggle />

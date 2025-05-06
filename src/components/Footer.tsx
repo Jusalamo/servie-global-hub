@@ -128,9 +128,9 @@ const Footer = () => {
               <Input 
                 type="email" 
                 placeholder="Your email" 
-                className="flex-1"
+                className="flex-1 focus-visible:ring-primary"
               />
-              <Button>
+              <Button className="bg-servie hover:bg-servie-600">
                 <Mail size={16} className="mr-2" />
                 Subscribe
               </Button>
@@ -143,7 +143,7 @@ const Footer = () => {
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 md:mb-0">
               &copy; {new Date().getFullYear()} Servie. All rights reserved.
             </p>
-            <div className="flex space-x-4">
+            <div className="flex flex-wrap gap-4 justify-center">
               <Link to="/privacy" className="text-sm text-gray-600 hover:text-servie dark:text-gray-400 dark:hover:text-servie">
                 Privacy Policy
               </Link>
