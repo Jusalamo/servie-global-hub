@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, User, ChevronDown, Globe, ShoppingCart } from 'lucide-react';
+import { Menu, X, Globe, ChevronDown, User } from 'lucide-react';
 import { Button } from './ui/button';
 import ServieIcon from './ServieIcon';
 import { useAuth } from '@/context/AuthContext';
@@ -26,8 +26,6 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isAuthenticated, user, signOut } = useAuth();
-  const location = useLocation();
-  const { pathname } = location;
   const { currentLanguage, translate } = useLocalization();
 
   useEffect(() => {
@@ -55,25 +53,6 @@ const Header = () => {
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-1">
-            <Link to="/categories" className={`px-3 py-2 rounded-md text-sm ${pathname === '/categories' ? 'font-medium text-servie' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800'}`}>
-              {translate('services')}
-            </Link>
-            <Link to="/shop" className={`px-3 py-2 rounded-md text-sm ${pathname === '/shop' ? 'font-medium text-servie' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800'}`}>
-              {translate('shop')}
-            </Link>
-            <Link to="/about" className={`px-3 py-2 rounded-md text-sm ${pathname === '/about' ? 'font-medium text-servie' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800'}`}>
-              {translate('about')}
-            </Link>
-            <Link to="/careers" className={`px-3 py-2 rounded-md text-sm ${pathname === '/careers' ? 'font-medium text-servie' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800'}`}>
-              {translate('careers')}
-            </Link>
-            <Link to="/contact-support" className={`px-3 py-2 rounded-md text-sm ${pathname === '/contact-support' ? 'font-medium text-servie' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800'}`}>
-              {translate('contact')}
-            </Link>
-          </nav>
-
           {/* Right side buttons */}
           <div className="flex items-center gap-2">
             {/* Language selector */}
@@ -91,7 +70,7 @@ const Header = () => {
             
             <ThemeToggle />
             
-            <CartIndicator />
+            {isAuthenticated && <CartIndicator />}
             
             {isAuthenticated && <NotificationBell />}
 
@@ -142,24 +121,6 @@ const Header = () => {
         {/* Mobile menu */}
         {isMobileMenuOpen && (
           <div className="md:hidden py-2 pb-3 space-y-1 animate-fade-in">
-            <Link to="/categories" className="block px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
-              {translate('services')}
-            </Link>
-            <Link to="/shop" className="block px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
-              {translate('shop')}
-            </Link>
-            <Link to="/about" className="block px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
-              {translate('about')}
-            </Link>
-            <Link to="/careers" className="block px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
-              {translate('careers')}
-            </Link>
-            <Link to="/contact-support" className="block px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
-              {translate('contact')}
-            </Link>
-            
-            <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
-            
             {isAuthenticated ? (
               <>
                 <Link to="/dashboard" className="block px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
