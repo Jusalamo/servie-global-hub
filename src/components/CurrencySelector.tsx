@@ -24,7 +24,7 @@ const CurrencySelector = () => {
   return (
     <div className="p-4">
       <p className="text-sm font-medium mb-3">Select Currency</p>
-      <div className="max-h-[300px] overflow-y-auto scrollbar-none">
+      <div className="max-h-[300px] overflow-y-auto">
         <div className="space-y-1">
           <p className="text-xs font-medium text-muted-foreground mt-2">Common Currencies</p>
           {otherCurrencies.map((currency) => (

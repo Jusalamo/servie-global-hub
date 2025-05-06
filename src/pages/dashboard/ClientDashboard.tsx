@@ -13,6 +13,10 @@ import AIAssistant from "@/components/dashboard/AIAssistant";
 import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
 import { useAuth } from "@/context/AuthContext";
 import Breadcrumb from "@/components/Breadcrumb";
+import MessagingSystem from "@/components/dashboard/MessagingSystem";
+import PaymentMethods from "@/components/dashboard/PaymentMethods";
+import ProfileSettings from "@/components/dashboard/ProfileSettings";
+import NotificationsSettings from "@/components/dashboard/NotificationsSettings";
 
 // Use the first client for demo purposes
 const clientUser = users.find(user => user.role === "client");
@@ -51,6 +55,8 @@ const ClientDashboard = () => {
         return [{ label: "Payment Methods" }];
       case "settings":
         return [{ label: "Account Settings" }];
+      case "notifications":
+        return [{ label: "Notifications" }];
       default:
         return [{ label: "Overview" }];
     }
@@ -73,29 +79,13 @@ const ClientDashboard = () => {
       case "favorites":
         return <FavoritesTab favoriteServices={favoriteServices} />;
       case "messages":
-        return (
-          <PlaceholderTab
-            title="Messages"
-            message="Your message center will be implemented in a future update"
-            setActiveTab={setActiveTab}
-          />
-        );
+        return <MessagingSystem userRole="client" />;
       case "payments":
-        return (
-          <PlaceholderTab
-            title="Payment Methods"
-            message="The payment management system will be implemented in a future update"
-            setActiveTab={setActiveTab}
-          />
-        );
+        return <PaymentMethods />;
       case "settings":
-        return (
-          <PlaceholderTab
-            title="Account Settings"
-            message="Account settings and preferences will be implemented in a future update"
-            setActiveTab={setActiveTab}
-          />
-        );
+        return <ProfileSettings userRole="client" />;
+      case "notifications":
+        return <NotificationsSettings />;
       default:
         return <div>Tab not found</div>;
     }
@@ -106,7 +96,7 @@ const ClientDashboard = () => {
       <Header />
       <Breadcrumb 
         additionalCrumbs={[
-          { label: "Dashboard", href: "/dashboard" },
+          { label: "Client Dashboard", href: "/dashboard/client" },
           { label: activeTab.charAt(0).toUpperCase() + activeTab.slice(1) }
         ]} 
       />
