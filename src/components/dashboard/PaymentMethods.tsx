@@ -213,13 +213,26 @@ const PaymentMethods = () => {
     
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
-      setNewCard(prev => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent as keyof typeof prev],
-          [child]: value
+      setNewCard(prev => {
+        // Fix for the spread operator issue
+        if (parent === 'billingAddress') {
+          return {
+            ...prev,
+            billingAddress: {
+              ...prev.billingAddress,
+              [child]: value
+            }
+          };
         }
-      }));
+        // Handle other nested objects if they exist
+        return {
+          ...prev,
+          [parent]: {
+            ...(prev[parent as keyof typeof prev] as Record<string, unknown>),
+            [child]: value
+          }
+        };
+      });
     } else {
       setNewCard(prev => ({
         ...prev,

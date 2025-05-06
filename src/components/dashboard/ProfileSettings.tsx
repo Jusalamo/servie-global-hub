@@ -204,27 +204,39 @@ const ProfileSettings = ({ userRole = 'client' }: ProfileSettingsProps) => {
   ) => {
     setProfile(prev => {
       if (nestedField && nestedSubField) {
-        return {
-          ...prev,
-          [nestedField]: {
-            ...prev[nestedField as keyof UserProfile],
-            [nestedSubField]: value
-          }
-        };
+        // Handle double nested objects
+        const nestedObj = prev[nestedField as keyof UserProfile] as Record<string, any>;
+        if (nestedObj) {
+          return {
+            ...prev,
+            [nestedField]: {
+              ...nestedObj,
+              [nestedSubField]: {
+                ...(nestedObj[nestedSubField] as Record<string, any>),
+                [field]: value
+              }
+            }
+          };
+        }
       } else if (nestedField) {
-        return {
-          ...prev,
-          [nestedField]: {
-            ...prev[nestedField as keyof UserProfile],
-            [field]: value
-          }
-        };
-      } else {
-        return {
-          ...prev,
-          [field]: value
-        };
+        // Handle single nested objects
+        const nestedObj = prev[nestedField as keyof UserProfile] as Record<string, any>;
+        if (nestedObj) {
+          return {
+            ...prev,
+            [nestedField]: {
+              ...nestedObj,
+              [field]: value
+            }
+          };
+        }
       }
+      
+      // Default case - direct field update
+      return {
+        ...prev,
+        [field]: value
+      };
     });
   };
 
