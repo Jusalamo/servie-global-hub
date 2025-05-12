@@ -1,5 +1,6 @@
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 
 interface CartItem {
   id: string;
@@ -49,60 +50,85 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       if (savedCart) {
         const parsedCart = JSON.parse(savedCart);
         setCartItems(parsedCart);
+        updateCartMetrics(parsedCart);
       }
     } catch (error) {
       console.error("Failed to load cart from localStorage:", error);
     }
   }, []);
   
-  // Update cart count and total whenever cart items change
-  useEffect(() => {
-    const count = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-    const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  // Update cart metrics (count and total)
+  const updateCartMetrics = useCallback((items: CartItem[]) => {
+    const count = items.reduce((sum, item) => sum + item.quantity, 0);
+    const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     
     setCartCount(count);
     setCartTotal(total);
     
     // Save cart to localStorage
     try {
-      localStorage.setItem("cart", JSON.stringify(cartItems));
+      localStorage.setItem("cart", JSON.stringify(items));
     } catch (error) {
       console.error("Failed to save cart to localStorage:", error);
     }
-  }, [cartItems]);
+  }, []);
+  
+  // Update cart count and total whenever cart items change
+  useEffect(() => {
+    updateCartMetrics(cartItems);
+  }, [cartItems, updateCartMetrics]);
   
   const addToCart = (item: CartItem) => {
     setCartItems(prevItems => {
       const existingItemIndex = prevItems.findIndex(i => i.id === item.id);
+      let updatedItems;
       
       if (existingItemIndex > -1) {
         // Item already exists, update quantity
-        const updatedItems = [...prevItems];
+        updatedItems = [...prevItems];
         updatedItems[existingItemIndex].quantity += item.quantity;
-        return updatedItems;
       } else {
         // Item doesn't exist, add it
-        return [...prevItems, item];
+        updatedItems = [...prevItems, item];
       }
+      
+      // Immediately display feedback
+      toast.success(`${item.name} added to cart!`);
+      
+      // Update metrics immediately
+      setTimeout(() => updateCartMetrics(updatedItems), 0);
+      
+      return updatedItems;
     });
   };
   
   const removeFromCart = (itemId: string) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== itemId));
+    setCartItems(prevItems => {
+      const updatedItems = prevItems.filter(item => item.id !== itemId);
+      toast.info("Item removed from cart");
+      return updatedItems;
+    });
   };
   
   const updateQuantity = (itemId: string, quantity: number) => {
-    setCartItems(prevItems => 
-      prevItems.map(item => 
+    if (quantity < 1) {
+      removeFromCart(itemId);
+      return;
+    }
+    
+    setCartItems(prevItems => {
+      const updatedItems = prevItems.map(item => 
         item.id === itemId 
-          ? { ...item, quantity: quantity } 
+          ? { ...item, quantity } 
           : item
-      )
-    );
+      );
+      return updatedItems;
+    });
   };
   
   const clearCart = () => {
     setCartItems([]);
+    toast.info("Cart cleared");
   };
   
   return (

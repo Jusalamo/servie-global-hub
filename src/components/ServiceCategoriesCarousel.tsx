@@ -2,7 +2,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
-import { Home, Briefcase, Laptop, Heart, Scissors, PartyPopper, GraduationCap, Paintbrush } from "lucide-react";
+import { 
+  Home, Briefcase, Scissors, CalendarClock, Truck, GraduationCap, 
+  Heart, Palette, Wrench, Baby, Car, Camera, Globe
+} from "lucide-react";
 
 const categories = [
   {
@@ -20,20 +23,6 @@ const categories = [
     color: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300',
   },
   {
-    id: 'tech',
-    name: 'Tech & Digital',
-    icon: Laptop,
-    description: 'Web development, IT support, digital marketing',
-    color: 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300',
-  },
-  {
-    id: 'health',
-    name: 'Health & Wellness',
-    icon: Heart,
-    description: 'Fitness, nutrition, therapy services',
-    color: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300',
-  },
-  {
     id: 'personal-care',
     name: 'Personal Care',
     icon: Scissors,
@@ -43,9 +32,16 @@ const categories = [
   {
     id: 'events',
     name: 'Events',
-    icon: PartyPopper,
+    icon: CalendarClock,
     description: 'Planning, catering, entertainment',
     color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300',
+  },
+  {
+    id: 'transportation',
+    name: 'Transportation',
+    icon: Truck,
+    description: 'Delivery, moving, ride services',
+    color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300',
   },
   {
     id: 'education',
@@ -55,11 +51,53 @@ const categories = [
     color: 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300',
   },
   {
+    id: 'health',
+    name: 'Health & Wellness',
+    icon: Heart,
+    description: 'Fitness, nutrition, therapy services',
+    color: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300',
+  },
+  {
     id: 'creative',
     name: 'Creative',
-    icon: Paintbrush,
+    icon: Palette,
     description: 'Design, photography, writing services',
-    color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300',
+    color: 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300',
+  },
+  {
+    id: 'technical',
+    name: 'Technical',
+    icon: Wrench,
+    description: 'IT support, repairs, technical services',
+    color: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300',
+  },
+  {
+    id: 'childcare',
+    name: 'Child Care',
+    icon: Baby,
+    description: 'Babysitting, nannying, daycare',
+    color: 'bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300',
+  },
+  {
+    id: 'automotive',
+    name: 'Automotive',
+    icon: Car,
+    description: 'Car repair, detailing, driving lessons',
+    color: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
+  },
+  {
+    id: 'photography',
+    name: 'Photography',
+    icon: Camera,
+    description: 'Professional photography and video services',
+    color: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
+  },
+  {
+    id: 'travel',
+    name: 'Travel',
+    icon: Globe,
+    description: 'Travel planning, guides, tourism',
+    color: 'bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-300',
   }
 ];
 

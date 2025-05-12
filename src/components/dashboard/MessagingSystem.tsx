@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
-import { User, Send, Search, Image, Paperclip, ChevronLeft, MoreVertical, Check, Clock } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { User, Send, Search, Image, Paperclip, ChevronLeft, MoreVertical, Check, Clock, Phone, Video } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Mock data for conversations
 const mockConversations = [
@@ -68,6 +69,40 @@ const mockConversations = [
       sender: 'user3'
     },
     unreadCount: 1
+  },
+  {
+    id: '4',
+    recipient: {
+      id: 'user4',
+      name: 'James Wilson',
+      avatar: 'https://randomuser.me/api/portraits/men/33.jpg',
+      lastSeen: '2023-05-16T14:22:00',
+      online: false,
+    },
+    lastMessage: {
+      content: 'Could you provide a quote for the additional services we discussed?',
+      timestamp: '2023-05-16T14:22:00',
+      read: true,
+      sender: 'user4'
+    },
+    unreadCount: 0
+  },
+  {
+    id: '5',
+    recipient: {
+      id: 'user5',
+      name: 'Olivia Parker',
+      avatar: 'https://randomuser.me/api/portraits/women/65.jpg',
+      lastSeen: '2023-05-15T20:10:00',
+      online: true,
+    },
+    lastMessage: {
+      content: 'The appointment is confirmed for tomorrow at 2PM.',
+      timestamp: '2023-05-15T20:10:00',
+      read: true,
+      sender: 'currentUser'
+    },
+    unreadCount: 0
   }
 ];
 
@@ -116,7 +151,40 @@ const messageTemplates = [
   "Your booking has been confirmed for the requested date and time.",
   "I need to reschedule our appointment. Are you available at an alternative time?",
   "Your payment has been successfully received. Thank you!",
-  "Please provide more details about your requirements so I can assist you better."
+  "Please provide more details about your requirements so I can assist you better.",
+  "I've completed the service as requested. Please let me know if you need any adjustments.",
+  "I'm currently unavailable but will respond as soon as possible.",
+  "I've updated your service package based on our discussion.",
+  "Here's a quote for the additional services you requested.",
+  "Happy to help! When would you like to schedule your appointment?"
+];
+
+// Customer support scripts for sellers
+const sellerTemplates = [
+  "Thank you for your order. It has been processed and will ship soon.",
+  "Your order has been shipped. Here's the tracking number: [TRACKING]",
+  "We apologize for the delay. Your order will be processed within 24 hours.",
+  "Thank you for your feedback on our product.",
+  "We offer a 30-day return policy on all unused items.",
+  "Your item is in stock and will ship tomorrow.",
+  "Would you like to add any complementary products to your order?",
+  "We've issued a refund for your return. It should appear in 3-5 business days.",
+  "Here's the care instructions for your purchased item.",
+  "Thank you for shopping with us!"
+];
+
+// Client message templates
+const clientTemplates = [
+  "I'd like to book an appointment for your service.",
+  "What is your availability next week?",
+  "Could you provide a quote for this job?",
+  "I need to cancel my appointment scheduled for tomorrow.",
+  "Thank you for the excellent service!",
+  "I have some additional questions before booking.",
+  "Could you explain your pricing structure?",
+  "Is there a discount for recurring services?",
+  "How long will this service take to complete?",
+  "Do you have any availability this weekend?"
 ];
 
 interface MessagingSystemProps {
@@ -131,11 +199,21 @@ const MessagingSystem = ({ userRole = 'provider' }: MessagingSystemProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showTemplates, setShowTemplates] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [activeFilter, setActiveFilter] = useState('all');
   const { user } = useAuth();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  const filteredConversations = conversations.filter(conv => 
-    conv.recipient.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredConversations = conversations.filter(conv => {
+    // Filter by search term
+    const matchesSearch = conv.recipient.name.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Filter by unread if selected
+    if (activeFilter === 'unread') {
+      return matchesSearch && conv.unreadCount > 0;
+    }
+    
+    return matchesSearch;
+  });
   
   const currentConversation = conversations.find(conv => conv.id === selectedConversation);
   
@@ -151,6 +229,13 @@ const MessagingSystem = ({ userRole = 'provider' }: MessagingSystemProps) => {
       );
     }
   }, [selectedConversation]);
+
+  useEffect(() => {
+    // Scroll to bottom when messages change
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
 
   const handleSendMessage = () => {
     if (!newMessage.trim() || !selectedConversation) return;
@@ -266,11 +351,31 @@ const MessagingSystem = ({ userRole = 'provider' }: MessagingSystemProps) => {
       hour12: true
     }).format(date);
   };
+  
+  const getTemplatesForRole = () => {
+    switch (userRole) {
+      case 'client':
+        return clientTemplates;
+      case 'seller':
+        return sellerTemplates;
+      case 'provider':
+      default:
+        return messageTemplates;
+    }
+  };
+
+  const handleStartVideoCall = () => {
+    toast.info("Video call feature coming soon!");
+  };
+
+  const handleStartAudioCall = () => {
+    toast.info("Audio call feature coming soon!");
+  };
 
   return (
-    <div className="flex h-[calc(100vh-200px)] border rounded-lg overflow-hidden">
+    <div className="flex h-[calc(100vh-200px)] border rounded-lg overflow-hidden shadow-sm bg-card">
       {/* Left sidebar - Conversations */}
-      <div className={`w-full md:w-80 border-r bg-background flex flex-col ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
+      <div className={`w-full md:w-96 border-r bg-background flex flex-col ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
         <div className="p-4 border-b">
           <h2 className="text-lg font-semibold mb-4">Messages</h2>
           <div className="relative">
@@ -281,6 +386,15 @@ const MessagingSystem = ({ userRole = 'provider' }: MessagingSystemProps) => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+          </div>
+          
+          <div className="mt-4">
+            <Tabs value={activeFilter} onValueChange={setActiveFilter}>
+              <TabsList className="w-full">
+                <TabsTrigger value="all" className="flex-1">All</TabsTrigger>
+                <TabsTrigger value="unread" className="flex-1">Unread</TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
         </div>
         
@@ -311,12 +425,12 @@ const MessagingSystem = ({ userRole = 'provider' }: MessagingSystemProps) => {
                         {formatTime(conversation.lastMessage.timestamp)}
                       </span>
                     </div>
-                    <p className="text-sm text-muted-foreground truncate">
+                    <p className={`text-sm truncate ${conversation.unreadCount > 0 && conversation.lastMessage.sender !== 'currentUser' ? 'font-medium' : 'text-muted-foreground'}`}>
                       {conversation.lastMessage.sender === 'currentUser' && 'You: '}
                       {conversation.lastMessage.content}
                     </p>
                   </div>
-                  {conversation.unreadCount > 0 && (
+                  {conversation.unreadCount > 0 && conversation.lastMessage.sender !== 'currentUser' && (
                     <Badge variant="destructive" className="rounded-full px-2 py-1 h-5 min-w-[20px] flex items-center justify-center">
                       {conversation.unreadCount}
                     </Badge>
@@ -329,6 +443,12 @@ const MessagingSystem = ({ userRole = 'provider' }: MessagingSystemProps) => {
               No conversations found
             </div>
           )}
+        </div>
+        
+        <div className="p-4 border-t">
+          <Button className="w-full bg-servie hover:bg-servie-600">
+            Start New Conversation
+          </Button>
         </div>
       </div>
       
@@ -362,23 +482,36 @@ const MessagingSystem = ({ userRole = 'provider' }: MessagingSystemProps) => {
                   </p>
                 </div>
               </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <MoreVertical className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>View Contact</DropdownMenuItem>
-                  <DropdownMenuItem>Search in Conversation</DropdownMenuItem>
-                  <DropdownMenuItem>Clear Messages</DropdownMenuItem>
-                  <DropdownMenuItem className="text-destructive">Block Contact</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" onClick={handleStartAudioCall} title="Start audio call">
+                  <Phone className="h-5 w-5" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={handleStartVideoCall} title="Start video call">
+                  <Video className="h-5 w-5" />
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <MoreVertical className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem>View Profile</DropdownMenuItem>
+                    <DropdownMenuItem>Search in Conversation</DropdownMenuItem>
+                    <DropdownMenuItem>View Shared Files</DropdownMenuItem>
+                    <DropdownMenuItem>Clear Messages</DropdownMenuItem>
+                    <DropdownMenuItem className="text-destructive">Block Contact</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
             
             {/* Chat messages */}
             <div className="flex-1 p-4 overflow-y-auto flex flex-col space-y-4">
+              <div className="py-2 px-3 rounded-lg bg-muted/50 text-center text-sm text-muted-foreground mx-auto mb-4">
+                {new Date().toLocaleDateString()}
+              </div>
+              
               {messages.map((message) => {
                 const isSender = message.sender === 'currentUser';
                 
@@ -386,12 +519,12 @@ const MessagingSystem = ({ userRole = 'provider' }: MessagingSystemProps) => {
                   <div key={message.id} className={`flex ${isSender ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[70%] rounded-lg p-3 ${
                       isSender 
-                        ? 'bg-servie text-white rounded-br-none' 
+                        ? 'bg-servie text-servie-foreground rounded-br-none' 
                         : 'bg-muted rounded-bl-none'
                     }`}>
-                      <p>{message.content}</p>
+                      <p className="break-words whitespace-pre-wrap">{message.content}</p>
                       <div className={`flex items-center justify-end text-xs mt-1 ${
-                        isSender ? 'text-white/70' : 'text-muted-foreground'
+                        isSender ? 'text-servie-foreground/80' : 'text-muted-foreground'
                       }`}>
                         {formatTime(message.timestamp)}
                         {isSender && (
@@ -423,18 +556,20 @@ const MessagingSystem = ({ userRole = 'provider' }: MessagingSystemProps) => {
                   </div>
                 </div>
               )}
+              
+              <div ref={messagesEndRef} />
             </div>
             
             {/* Chat input */}
             <div className="p-4 border-t">
-              {showTemplates && userRole === 'provider' && (
+              {showTemplates && (
                 <div className="mb-3 p-2 bg-muted rounded-lg max-h-32 overflow-y-auto">
                   <p className="text-xs text-muted-foreground mb-1">Quick responses:</p>
                   <div className="space-y-1">
-                    {messageTemplates.map((template, i) => (
+                    {getTemplatesForRole().map((template, i) => (
                       <button
                         key={i}
-                        className="text-sm p-1 hover:bg-primary/10 rounded w-full text-left"
+                        className="text-sm p-1 hover:bg-servie/10 rounded w-full text-left"
                         onClick={() => handleSelectTemplate(template)}
                       >
                         {template}
@@ -447,7 +582,7 @@ const MessagingSystem = ({ userRole = 'provider' }: MessagingSystemProps) => {
               <div className="flex items-end gap-2">
                 <Textarea
                   placeholder="Type a message..."
-                  className="min-h-10 max-h-28"
+                  className="min-h-10 max-h-28 resize-none"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyDown={(e) => {
@@ -458,16 +593,14 @@ const MessagingSystem = ({ userRole = 'provider' }: MessagingSystemProps) => {
                   }}
                 />
                 <div className="flex flex-col gap-2">
-                  {userRole === 'provider' && (
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
-                      onClick={() => setShowTemplates(!showTemplates)}
-                      title="Quick responses"
-                    >
-                      <User className="h-4 w-4" />
-                    </Button>
-                  )}
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    onClick={() => setShowTemplates(!showTemplates)}
+                    title="Quick responses"
+                  >
+                    <User className="h-4 w-4" />
+                  </Button>
                   <Button 
                     variant="outline" 
                     size="icon"

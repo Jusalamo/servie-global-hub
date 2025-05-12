@@ -1,7 +1,11 @@
+
 import { 
   Home, Briefcase, Scissors, CalendarClock, Truck, GraduationCap, 
   Heart, Palette, Wrench, Hammer, Laptop, Utensils, ShoppingBag, 
-  Car, Music, Camera, Globe, UserCog, Award, BookOpen
+  Car, Music, Camera, Globe, UserCog, Award, BookOpen,
+  Baby, Dumbbell, Building, Gamepad, ThermometerSnowflake, Shirt,
+  BadgeDollarSign, Bus, PawPrint, ShieldPlus, HelpCircle, Download,
+  Printer, ScrollText
 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 
@@ -66,7 +70,6 @@ const categories = [
     description: "Handmade goods, custom crafts, and more",
     color: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
   },
-  // Additional categories
   {
     icon: Laptop,
     name: "Digital Services",
@@ -126,6 +129,91 @@ const categories = [
     name: "Writing & Editing",
     description: "Content writing, editing, proofreading services",
     color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
+  },
+  // New categories
+  {
+    icon: Baby,
+    name: "Child Care",
+    description: "Babysitting, nannying, daycare services",
+    color: "bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300",
+  },
+  {
+    icon: Dumbbell,
+    name: "Fitness & Training",
+    description: "Personal training, group classes, fitness programs",
+    color: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300",
+  },
+  {
+    icon: Building,
+    name: "Construction",
+    description: "Building, renovation, construction management",
+    color: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
+  },
+  {
+    icon: Gamepad,
+    name: "Gaming Services",
+    description: "Coaching, streaming assistance, game development",
+    color: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300",
+  },
+  {
+    icon: ThermometerSnowflake,
+    name: "HVAC Services",
+    description: "Heating, ventilation, air conditioning repair",
+    color: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+  },
+  {
+    icon: Shirt,
+    name: "Clothing & Alterations",
+    description: "Custom clothing, alterations, tailoring",
+    color: "bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300",
+  },
+  {
+    icon: BadgeDollarSign,
+    name: "Financial Services",
+    description: "Financial planning, tax preparation, investment advice",
+    color: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300",
+  },
+  {
+    icon: Bus,
+    name: "Public Transportation",
+    description: "Bus services, shuttle services, transportation planning",
+    color: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+  },
+  {
+    icon: PawPrint,
+    name: "Pet Services",
+    description: "Pet sitting, dog walking, grooming, training",
+    color: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
+  },
+  {
+    icon: ShieldPlus,
+    name: "Security Services",
+    description: "Home security, personal protection, security consulting",
+    color: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300",
+  },
+  {
+    icon: HelpCircle,
+    name: "Counseling & Therapy",
+    description: "Personal counseling, therapy, mental health services",
+    color: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+  },
+  {
+    icon: Download,
+    name: "Digital Downloads",
+    description: "Templates, digital products, ready-to-use assets",
+    color: "bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300",
+  },
+  {
+    icon: Printer,
+    name: "Printing Services",
+    description: "Custom printing, business cards, promotional materials",
+    color: "bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300",
+  },
+  {
+    icon: ScrollText,
+    name: "Documentation Services",
+    description: "Notarization, certification, document preparation",
+    color: "bg-slate-100 text-slate-700 dark:bg-slate-900 dark:text-slate-300",
   }
 ]
 

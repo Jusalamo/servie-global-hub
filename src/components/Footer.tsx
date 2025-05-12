@@ -5,9 +5,21 @@ import ServieIcon from "./ServieIcon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLocalization } from "./LangCurrencySelector";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const Footer = () => {
   const { translate } = useLocalization();
+  const [email, setEmail] = useState("");
+  
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      return toast.error("Please enter your email address");
+    }
+    toast.success(`Thank you for subscribing with ${email}!`);
+    setEmail("");
+  };
   
   return (
     <footer className="bg-gray-50 dark:bg-gray-900 border-t">
@@ -124,17 +136,19 @@ const Footer = () => {
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
               Subscribe to our newsletter for the latest services and offers.
             </p>
-            <div className="flex space-x-2">
+            <form onSubmit={handleSubscribe} className="flex space-x-2">
               <Input 
                 type="email" 
                 placeholder="Your email" 
-                className="flex-1 focus-visible:ring-primary"
+                className="flex-1 focus-visible:ring-servie"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
-              <Button className="bg-servie hover:bg-servie-600 text-white">
+              <Button type="submit" className="bg-servie hover:bg-servie-600 text-servie-foreground">
                 <Mail size={16} className="mr-2" />
                 Subscribe
               </Button>
-            </div>
+            </form>
           </div>
         </div>
         

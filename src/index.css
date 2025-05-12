@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -401,14 +402,6 @@ textarea:focus {
 }
 
 /* Button style updates for consistency */
-.btn-primary {
-  background-color: hsl(var(--servie));
-  color: white;
-}
-.btn-primary:hover {
-  background-color: hsl(var(--servie-600));
-}
-
 .btn-outline-primary {
   border: 1px solid hsl(var(--servie));
   color: hsl(var(--servie));
@@ -508,4 +501,70 @@ textarea:focus {
 .currency-dropdown {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Improvements for language changes */
+/* Add more space between nav items to prevent squishing when language changes */
+.header-nav-item {
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+  min-width: fit-content;
+}
+
+/* Ensure buttons have adequate spacing when text grows */
+button, .button {
+  min-width: max-content;
+}
+
+/* Fix for navigation menu items */
+.nav-menu-item {
+  white-space: nowrap;
+  margin: 0 0.5rem;
+}
+
+/* Ensure dropdown menus have adequate width */
+.dropdown-menu {
+  min-width: 200px;
+  max-width: 300px;
+}
+
+/* Consistent banner styling */
+.page-banner {
+  background: linear-gradient(to right, hsl(var(--servie)), hsl(var(--servie-600)));
+  color: hsl(var(--servie-foreground));
+}
+
+/* Ensure consistent button styling across all pages */
+.banner-button {
+  background-color: hsl(var(--servie-foreground));
+  color: hsl(var(--servie));
+  border: 1px solid transparent;
+}
+
+.banner-button:hover {
+  background-color: transparent;
+  color: hsl(var(--servie-foreground));
+  border-color: hsl(var(--servie-foreground));
+}
+
+/* Fix navigation menu behavior with longer text */
+@media (min-width: 768px) {
+  .header-nav {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .header-nav-start {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+  
+  .header-nav-end {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
 }

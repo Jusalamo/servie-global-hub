@@ -43,8 +43,8 @@ export default function Hero() {
   };
 
   return (
-    <section id="hero" className="relative py-16 md:py-24 overflow-hidden">
-      {/* Animated gradient background with red tones */}
+    <section id="hero-section" className="relative py-16 md:py-24 overflow-hidden">
+      {/* Consistent gradient background using servie color */}
       <div 
         className="absolute inset-0 -z-10 bg-gradient-to-br from-servie/30 via-servie/10 to-background/50 animate-gradient"
         style={{
@@ -102,12 +102,12 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* CTA buttons */}
+          {/* CTA buttons - using consistent servie color */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
-            <Button asChild size="lg" className="bg-servie text-white hover:bg-servie-600">
+            <Button asChild size="lg" className="bg-servie text-servie-foreground hover:bg-servie-600">
               <Link to="/categories">Browse Services</Link>
             </Button>
-            <Button asChild size="lg" variant="outline">
+            <Button asChild size="lg" variant="outline" className="border-servie text-servie hover:bg-servie hover:text-servie-foreground">
               <Link to="/shop">Shop Products</Link>
             </Button>
           </div>
