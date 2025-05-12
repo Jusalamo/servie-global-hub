@@ -20,6 +20,30 @@ interface CategoryFilterProps {
   onFilterChange?: (filters: any) => void;
 }
 
+// Extended list of categories for when Supabase data isn't available
+const fallbackCategories: Category[] = [
+  { id: "cat1", name: "Home Services", description: "Cleaning, repairs, gardening" },
+  { id: "cat2", name: "Professional Services", description: "Business, legal, consulting" },
+  { id: "cat3", name: "Personal Care", description: "Beauty, wellness, styling" },
+  { id: "cat4", name: "Events & Catering", description: "Event planning, catering" },
+  { id: "cat5", name: "Transportation", description: "Delivery, moving, rides" },
+  { id: "cat6", name: "Education & Tutoring", description: "Academic help, coaching" },
+  { id: "cat7", name: "Health & Wellness", description: "Fitness, nutrition, counseling" },
+  { id: "cat8", name: "Creative Services", description: "Design, writing, arts" },
+  { id: "cat9", name: "Technical Support", description: "IT, computer repair" },
+  { id: "cat10", name: "Craft & Artisanal", description: "Handcrafted goods, custom work" },
+  { id: "cat11", name: "Digital Services", description: "Web, digital marketing, apps" },
+  { id: "cat12", name: "Food & Culinary", description: "Cooking, baking, food prep" },
+  { id: "cat13", name: "Shopping & Styling", description: "Personal shopping, fashion advice" },
+  { id: "cat14", name: "Automotive Services", description: "Car repair, maintenance" },
+  { id: "cat15", name: "Music & Entertainment", description: "Music lessons, DJ services" },
+  { id: "cat16", name: "Photography & Video", description: "Professional visual services" },
+  { id: "cat17", name: "Travel Services", description: "Travel planning, concierge" },
+  { id: "cat18", name: "Business Consulting", description: "Strategy, marketing, finance" },
+  { id: "cat19", name: "Legal & Professional", description: "Legal advice, professional services" },
+  { id: "cat20", name: "Writing & Editing", description: "Content creation, editing" }
+];
+
 export default function CategoryFilter({ onFilterChange }: CategoryFilterProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -43,11 +67,16 @@ export default function CategoryFilter({ onFilterChange }: CategoryFilterProps) 
 
         if (error) {
           console.error('Error fetching categories:', error);
-        } else if (data) {
+          setCategories(fallbackCategories);
+        } else if (data && data.length > 0) {
           setCategories(data);
+        } else {
+          // Use fallback categories if no data from Supabase
+          setCategories(fallbackCategories);
         }
       } catch (error) {
         console.error('Unexpected error:', error);
+        setCategories(fallbackCategories);
       } finally {
         setLoading(false);
       }
@@ -203,7 +232,7 @@ export default function CategoryFilter({ onFilterChange }: CategoryFilterProps) 
                 {filter}
                 <button 
                   onClick={() => removeFilter(filter)}
-                  className="ml-1 hover:text-destructive focus:outline-none"
+                  className="ml-1 hover:text-servie focus:outline-none"
                   aria-label={`Remove ${filter} filter`}
                 >
                   <X size={14} />
@@ -214,7 +243,7 @@ export default function CategoryFilter({ onFilterChange }: CategoryFilterProps) 
               variant="ghost" 
               size="sm" 
               onClick={resetFilters}
-              className="text-xs h-8"
+              className="text-xs h-8 hover:text-servie"
             >
               Clear All
             </Button>
@@ -226,19 +255,20 @@ export default function CategoryFilter({ onFilterChange }: CategoryFilterProps) 
       <div className="space-y-3">
         <h3 className="font-medium text-lg">Categories</h3>
         {loading ? (
-          <div className="grid grid-cols-2 gap-2">
-            {[...Array(6)].map((_, i) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {[...Array(8)].map((_, i) => (
               <div key={i} className="h-10 bg-muted animate-pulse rounded-md"></div>
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[400px] overflow-y-auto pr-2">
             {categories.map((category) => (
               <div key={category.id} className="flex items-center space-x-2">
                 <Checkbox 
                   id={category.id}
                   checked={selectedCategory === category.name}
                   onCheckedChange={() => handleCategorySelect(category.name)}
+                  className="data-[state=checked]:bg-servie data-[state=checked]:border-servie"
                 />
                 <Label 
                   htmlFor={category.id}
@@ -279,6 +309,7 @@ export default function CategoryFilter({ onFilterChange }: CategoryFilterProps) 
                 id={`rating-${rating}`}
                 checked={ratings.includes(rating)}
                 onCheckedChange={() => handleRatingToggle(rating)}
+                className="data-[state=checked]:bg-servie data-[state=checked]:border-servie"
               />
               <Label 
                 htmlFor={`rating-${rating}`}

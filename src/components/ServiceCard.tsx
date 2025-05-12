@@ -164,10 +164,10 @@ const ServiceCard = ({
                   disabled={isLoading}
                 >
                   <Heart 
-                    className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} 
+                    className={`h-5 w-5 ${isFavorite ? 'fill-purple-500 text-purple-500' : 'text-muted-foreground'}`} 
                   />
                 </Button>
-                <Button size="sm" variant="secondary">View Details</Button>
+                <Button size="sm" variant="secondary" className="bg-servie text-white hover:bg-servie-600">View Details</Button>
               </div>
             </CardFooter>
           </div>
@@ -200,7 +200,7 @@ const ServiceCard = ({
             disabled={isLoading}
           >
             <Heart 
-              className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} 
+              className={`h-5 w-5 ${isFavorite ? 'fill-purple-500 text-purple-500' : 'text-muted-foreground'}`} 
             />
           </Button>
         </div>
@@ -234,7 +234,7 @@ const ServiceCard = ({
           <span className="font-semibold text-lg">
             {currency}{price}
           </span>
-          <Button size="sm" variant="secondary">View Details</Button>
+          <Button size="sm" className="bg-servie text-white hover:bg-servie-600">View Details</Button>
         </CardFooter>
       </Link>
     </Card>

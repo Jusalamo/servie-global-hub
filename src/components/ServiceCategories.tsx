@@ -1,7 +1,8 @@
 
 import { 
   Home, Briefcase, Scissors, CalendarClock, Truck, GraduationCap, 
-  Heart, Palette, Wrench, Hammer 
+  Heart, Palette, Wrench, Hammer, Laptop, Utensils, ShoppingBag, 
+  Car, MusicNote, Camera, Globe, UserCog, Award, BookOpen
 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 
@@ -66,6 +67,67 @@ const categories = [
     description: "Handmade goods, custom crafts, and more",
     color: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
   },
+  // Additional categories
+  {
+    icon: Laptop,
+    name: "Digital Services",
+    description: "Web development, digital marketing, SEO",
+    color: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+  },
+  {
+    icon: Utensils,
+    name: "Food & Culinary",
+    description: "Personal chefs, cooking lessons, meal prep",
+    color: "bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300",
+  },
+  {
+    icon: ShoppingBag,
+    name: "Shopping & Styling",
+    description: "Personal shopping, wardrobe styling, fashion advice",
+    color: "bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300",
+  },
+  {
+    icon: Car,
+    name: "Automotive Services",
+    description: "Car repair, detailing, driving lessons",
+    color: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+  },
+  {
+    icon: MusicNote,
+    name: "Music & Entertainment",
+    description: "Music lessons, DJs, entertainment planning",
+    color: "bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300",
+  },
+  {
+    icon: Camera,
+    name: "Photography & Video",
+    description: "Professional photography, videography, editing",
+    color: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300",
+  },
+  {
+    icon: Globe,
+    name: "Travel Services",
+    description: "Travel planning, tour guides, concierge services",
+    color: "bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-300",
+  },
+  {
+    icon: UserCog,
+    name: "Business Consulting",
+    description: "Business strategy, marketing advice, finance consulting",
+    color: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+  },
+  {
+    icon: Award,
+    name: "Legal & Professional",
+    description: "Legal advice, accounting, professional services",
+    color: "bg-slate-100 text-slate-700 dark:bg-slate-900 dark:text-slate-300",
+  },
+  {
+    icon: BookOpen,
+    name: "Writing & Editing",
+    description: "Content writing, editing, proofreading services",
+    color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
+  }
 ]
 
 export default function ServiceCategories() {
@@ -89,7 +151,7 @@ export default function ServiceCategories() {
             </p>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6 mt-12">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 mt-12">
           {categories.map((category) => (
             <div 
               key={category.name} 
@@ -99,8 +161,8 @@ export default function ServiceCategories() {
               <div className={`p-3 rounded-full mb-4 ${category.color}`}>
                 <category.icon className="h-6 w-6" />
               </div>
-              <h3 className="font-bold text-lg mb-1">{category.name}</h3>
-              <p className="text-sm text-center text-muted-foreground">{category.description}</p>
+              <h3 className="font-bold text-lg mb-1 text-center">{category.name}</h3>
+              <p className="text-sm text-center text-muted-foreground line-clamp-2">{category.description}</p>
             </div>
           ))}
         </div>

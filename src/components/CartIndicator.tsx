@@ -9,17 +9,19 @@ import { useCart } from "@/context/CartContext";
 export function CartIndicator() {
   const { cartCount } = useCart();
   const [isAnimating, setIsAnimating] = useState(false);
+  const [prevCartCount, setPrevCartCount] = useState(cartCount);
   
   // Animation effect when the cart updates
   useEffect(() => {
-    if (cartCount > 0) {
+    if (cartCount > prevCartCount) {
       setIsAnimating(true);
       const timeout = setTimeout(() => {
         setIsAnimating(false);
       }, 300);
       return () => clearTimeout(timeout);
     }
-  }, [cartCount]);
+    setPrevCartCount(cartCount);
+  }, [cartCount, prevCartCount]);
   
   return (
     <Link to="/cart">

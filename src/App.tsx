@@ -8,6 +8,7 @@ import { CartProvider } from "@/context/CartContext";
 import { NotificationProvider } from "@/context/NotificationContext";
 import { LocalizationProvider } from "@/components/LangCurrencySelector";
 import ScrollToTop from "@/components/ScrollToTop";
+import ScrollToPage from "@/components/ScrollToPage";
 import Index from "@/pages/Index";
 import SignIn from "@/pages/SignIn";
 import SignUp from "@/pages/SignUp";
@@ -55,6 +56,7 @@ function App() {
             <CartProvider>
               <LocalizationProvider>
                 <ScrollToTop />
+                <ScrollToPage />
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/categories" element={<ServiceCategories />} />
