@@ -50,10 +50,19 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       if (savedCart) {
         const parsedCart = JSON.parse(savedCart);
         setCartItems(parsedCart);
-        updateCartMetrics(parsedCart);
+        // Calculate metrics directly here to avoid delay
+        const count = parsedCart.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
+        const total = parsedCart.reduce((sum: number, item: CartItem) => sum + (item.price * item.quantity), 0);
+        setCartCount(count);
+        setCartTotal(total);
       }
     } catch (error) {
       console.error("Failed to load cart from localStorage:", error);
+      // In case of error, reset cart to empty state
+      localStorage.removeItem("cart");
+      setCartItems([]);
+      setCartCount(0);
+      setCartTotal(0);
     }
   }, []);
   
@@ -70,10 +79,11 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       localStorage.setItem("cart", JSON.stringify(items));
     } catch (error) {
       console.error("Failed to save cart to localStorage:", error);
+      toast.error("Failed to save your cart. Please check your browser storage settings.");
     }
   }, []);
   
-  // Update cart count and total whenever cart items change
+  // Immediately update metrics whenever cart items change
   useEffect(() => {
     updateCartMetrics(cartItems);
   }, [cartItems, updateCartMetrics]);
@@ -94,9 +104,6 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       
       // Immediately display feedback
       toast.success(`${item.name} added to cart!`);
-      
-      // Update metrics immediately
-      setTimeout(() => updateCartMetrics(updatedItems), 0);
       
       return updatedItems;
     });
@@ -128,6 +135,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   
   const clearCart = () => {
     setCartItems([]);
+    localStorage.removeItem("cart");
     toast.info("Cart cleared");
   };
   

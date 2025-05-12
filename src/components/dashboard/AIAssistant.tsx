@@ -9,27 +9,14 @@ import {
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
-import { Bot, Send, User, Loader2, X } from "lucide-react";
+import { Bot, Send, User, Loader2, X, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-
-// Mock AI response function - in a real app, this would call your AI service
-const getAIResponse = async (message: string): Promise<string> => {
-  // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Simple responses based on keywords
-  if (message.toLowerCase().includes('hello') || message.toLowerCase().includes('hi')) {
-    return "Hello! How can I help you today with your Servie account?";
-  } else if (message.toLowerCase().includes('book') || message.toLowerCase().includes('appointment')) {
-    return "To book a service, you can browse our categories, select a provider, and click the 'Book Now' button on their profile.";
-  } else if (message.toLowerCase().includes('payment') || message.toLowerCase().includes('pay')) {
-    return "We accept multiple payment methods including credit cards, PayPal, and Apple Pay. All payments are securely processed.";
-  } else if (message.toLowerCase().includes('cancel')) {
-    return "You can cancel a booking from your dashboard under 'My Bookings' section. Please note our cancellation policy.";
-  } else {
-    return "I'm here to help with any questions about services, bookings, or your account. Could you provide more details about what you need?";
-  }
-};
+import { 
+  generateAIResponse, 
+  saveConversationHistory,
+  loadConversationHistory,
+  clearConversationHistory
+} from "@/utils/AIAssistantService";
 
 type Message = {
   id: string;
@@ -41,17 +28,33 @@ type Message = {
 const AIAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputMessage, setInputMessage] = useState('');
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      content: 'Hi, I\'m your Servie AI assistant. How can I help you today?',
-      sender: 'ai',
-      timestamp: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // Load conversation history on initial mount
+  useEffect(() => {
+    const savedHistory = loadConversationHistory();
+    if (savedHistory && savedHistory.length > 0) {
+      setMessages(savedHistory);
+    } else {
+      // Initialize with welcome message if no history
+      setMessages([{
+        id: '1',
+        content: 'Hi, I\'m your Servie AI assistant. How can I help you today?',
+        sender: 'ai',
+        timestamp: new Date()
+      }]);
+    }
+  }, []);
+  
+  // Save conversation history when messages change
+  useEffect(() => {
+    if (messages.length > 0) {
+      saveConversationHistory(messages);
+    }
+  }, [messages]);
   
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -78,7 +81,7 @@ const AIAssistant = () => {
     setIsLoading(true);
     
     try {
-      const response = await getAIResponse(inputMessage);
+      const response = await generateAIResponse(inputMessage, messages);
       
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -93,6 +96,17 @@ const AIAssistant = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleClearConversation = () => {
+    clearConversationHistory();
+    setMessages([{
+      id: '1',
+      content: 'Hi, I\'m your Servie AI assistant. How can I help you today?',
+      sender: 'ai',
+      timestamp: new Date()
+    }]);
+    toast.success("Conversation history cleared");
   };
   
   return (
@@ -109,11 +123,20 @@ const AIAssistant = () => {
       {/* Chat window */}
       {isOpen && (
         <Card className="fixed bottom-20 right-4 w-80 md:w-96 shadow-xl z-50 border border-gray-200 max-h-[80vh] flex flex-col">
-          <CardHeader className="bg-servie text-white py-3">
+          <CardHeader className="bg-servie text-white py-3 flex flex-row items-center justify-between">
             <CardTitle className="text-base flex items-center gap-2">
               <Bot className="h-5 w-5" />
               Servie AI Assistant
             </CardTitle>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-white hover:bg-servie-600 p-1 h-auto" 
+              onClick={handleClearConversation}
+              title="Clear conversation"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
           </CardHeader>
           <CardContent className="p-3 overflow-y-auto flex-grow max-h-[400px]">
             <div className="space-y-4">

@@ -11,15 +11,17 @@ export function CartIndicator() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [prevCartCount, setPrevCartCount] = useState(cartCount);
   
-  // Enhanced animation effect when the cart updates
+  // Enhanced animation effect when the cart updates with improved responsiveness
   useEffect(() => {
+    // Always update the animation state when cart count changes
     if (cartCount > prevCartCount) {
       setIsAnimating(true);
       const timeout = setTimeout(() => {
         setIsAnimating(false);
-      }, 600); // Longer animation for better visibility
+      }, 600);
       return () => clearTimeout(timeout);
     }
+    // Update previous count immediately to ensure proper comparison for next changes
     setPrevCartCount(cartCount);
   }, [cartCount, prevCartCount]);
   
