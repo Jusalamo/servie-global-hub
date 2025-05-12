@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -102,41 +101,62 @@ body {
 }
 
 /* Consistent button styling */
-.btn-primary,
+.btn-primary {
+  background-color: hsl(var(--servie));
+  color: white;
+}
+.btn-primary:hover {
+  background-color: hsl(var(--servie-600));
+}
+
+/* Fixed bg-servie class without circular reference */
 .bg-servie {
-  @apply bg-servie hover:bg-servie-600 text-white !important;
+  background-color: hsl(var(--servie));
+  color: white;
+}
+.bg-servie:hover {
+  background-color: hsl(var(--servie-600));
 }
 
 /* Featured tags styling */
 .badge-featured {
-  @apply bg-servie text-white !important;
+  background-color: hsl(var(--servie));
+  color: white !important;
 }
 
 /* Heart/favorite button styling */
 .heart-favorite.active {
-  @apply fill-purple-500 text-purple-500 !important;
+  fill: hsl(var(--primary));
+  color: hsl(var(--primary)) !important;
 }
 
 /* Standard View Details button */
 .view-details-btn {
-  @apply bg-servie text-white hover:bg-servie-600 !important;
+  background-color: hsl(var(--servie));
+  color: white !important;
+}
+.view-details-btn:hover {
+  background-color: hsl(var(--servie-600));
 }
 
 /* Consistent form elements */
 .form-checkbox:checked {
-  @apply bg-servie border-servie !important;
+  background-color: hsl(var(--servie));
+  border-color: hsl(var(--servie)) !important;
 }
 
 /* Consistent form inputs */
 input:focus, 
 select:focus, 
 textarea:focus {
-  @apply border-servie ring-servie/20 !important;
+  border-color: hsl(var(--servie));
+  box-shadow: 0 0 0 2px hsla(var(--servie), 0.2) !important;
 }
 
 /* Responsive grid system */
 .product-grid {
-  @apply grid gap-4;
+  display: grid;
+  gap: 1rem;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 }
 
@@ -382,21 +402,35 @@ textarea:focus {
 
 /* Button style updates for consistency */
 .btn-primary {
-  @apply bg-servie hover:bg-servie-600 text-white;
+  background-color: hsl(var(--servie));
+  color: white;
+}
+.btn-primary:hover {
+  background-color: hsl(var(--servie-600));
 }
 
 .btn-outline-primary {
-  @apply border border-servie text-servie hover:bg-servie hover:text-white;
+  border: 1px solid hsl(var(--servie));
+  color: hsl(var(--servie));
+}
+.btn-outline-primary:hover {
+  background-color: hsl(var(--servie));
+  color: white;
 }
 
 /* Add to cart and major action buttons */
 .btn-action {
-  @apply bg-servie hover:bg-servie-600 text-white;
+  background-color: hsl(var(--servie));
+  color: white;
+}
+.btn-action:hover {
+  background-color: hsl(var(--servie-600));
 }
 
 /* Purple highlight elements */
 .highlight-element {
-  @apply text-primary border-primary;
+  color: hsl(var(--primary));
+  border-color: hsl(var(--primary));
 }
 
 /* Custom scrollbar with purple color scheme */
