@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import ProviderSidebar from "@/components/dashboard/ProviderSidebar";
@@ -12,6 +11,9 @@ import MessagingSystem from "@/components/dashboard/MessagingSystem";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 // Mock data for calendar bookings
 const mockBookings = [
