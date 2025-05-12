@@ -1,8 +1,7 @@
-
 import { 
   Home, Briefcase, Scissors, CalendarClock, Truck, GraduationCap, 
   Heart, Palette, Wrench, Hammer, Laptop, Utensils, ShoppingBag, 
-  Car, MusicNote, Camera, Globe, UserCog, Award, BookOpen
+  Car, Music, Camera, Globe, UserCog, Award, BookOpen
 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 
@@ -93,7 +92,7 @@ const categories = [
     color: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
   },
   {
-    icon: MusicNote,
+    icon: Music,
     name: "Music & Entertainment",
     description: "Music lessons, DJs, entertainment planning",
     color: "bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300",
