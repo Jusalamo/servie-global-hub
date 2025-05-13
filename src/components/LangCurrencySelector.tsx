@@ -128,6 +128,9 @@ export function LocalizationProvider({ children }: { children: ReactNode }) {
   
   useEffect(() => {
     localStorage.setItem('preferredCurrency', JSON.stringify(currentCurrency));
+    
+    // Force a refresh of any components that might need it
+    window.dispatchEvent(new CustomEvent('currencyChanged', { detail: currentCurrency.code }));
   }, [currentCurrency]);
 
   const handleSetCurrentLanguage = (language: Language) => {
@@ -142,18 +145,32 @@ export function LocalizationProvider({ children }: { children: ReactNode }) {
     
     // Force a refresh of price displays
     window.dispatchEvent(new CustomEvent('currencyChanged', { detail: currency.code }));
+    
+    // Trigger a UI refresh by dispatching a global event
+    document.dispatchEvent(new Event('currency-changed'));
   };
 
   const formatPrice = (amount: number): string => {
+    if (typeof amount !== 'number') {
+      console.error('Invalid amount provided to formatPrice:', amount);
+      return ''; // Or a default value like '$0.00'
+    }
+
     const rate = exchangeRates[currentCurrency.code] || 1;
     const convertedAmount = amount * rate;
     
-    return new Intl.NumberFormat(currentLanguage.code, { 
-      style: 'currency', 
-      currency: currentCurrency.code,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(convertedAmount);
+    try {
+      return new Intl.NumberFormat(currentLanguage.code, { 
+        style: 'currency', 
+        currency: currentCurrency.code,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(convertedAmount);
+    } catch (error) {
+      console.error(`Error formatting price: ${error}`)
+      // Fallback formatting
+      return `${currentCurrency.symbol}${convertedAmount.toFixed(2)}`;
+    }
   };
   
   const translate = (key: string): string => {
@@ -213,7 +230,7 @@ export function LangCurrencySelector({
   };
 
   return (
-    <div className="p-4 max-h-[400px]">
+    <div className="p-4 max-h-[400px] overflow-y-auto">
       {showLanguages && (
         <div className="mb-4">
           <p className="text-sm font-medium mb-3">Select Language</p>

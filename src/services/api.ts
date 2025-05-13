@@ -51,7 +51,6 @@ const mapServiceToDBService = (service: Partial<DBTypes.Service>): any => {
     price: service.price,
     category_id: service.category,
     featured: service.featured,
-    // Add other fields as needed
   };
 };
 
@@ -106,7 +105,7 @@ export const userApi = {
         first_name: userData.firstName,
         last_name: userData.lastName,
         avatar_url: userData.avatar,
-        // Add other fields as needed
+        role: userData.role
       };
       
       const { data, error } = await supabase

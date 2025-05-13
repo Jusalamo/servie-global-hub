@@ -1,22 +1,27 @@
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
 export function SignInForm() {
   const navigate = useNavigate();
-  const { signIn } = useAuth();
+  const location = useLocation();
+  const { signIn, userRole } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     rememberMe: false
   });
+
+  // Get redirect path from location state or default to dashboard
+  const from = location.state?.from?.pathname || "/dashboard";
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -31,22 +36,13 @@ export function SignInForm() {
     setIsLoading(true);
 
     try {
-      // In a real implementation, this would call an API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
       // Call signIn with email and password
       await signIn(formData.email, formData.password);
       
       toast.success("Successfully signed in!");
       
-      // Navigate to dashboard based on user role
-      if (formData.email.includes('provider')) {
-        navigate('/dashboard/provider');
-      } else if (formData.email.includes('seller')) {
-        navigate('/dashboard/seller');
-      } else {
-        navigate('/dashboard/client');
-      }
+      // Navigate to dashboard or the page user was trying to access
+      navigate(from, { replace: true });
     } catch (error) {
       toast.error("Failed to sign in. Please check your credentials.");
       console.error("Login error:", error);
@@ -102,7 +98,14 @@ export function SignInForm() {
         className="w-full bg-servie hover:bg-servie-600"
         disabled={isLoading}
       >
-        {isLoading ? "Signing in..." : "Sign in"}
+        {isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Signing in...
+          </>
+        ) : (
+          "Sign in"
+        )}
       </Button>
       
       <div className="text-sm text-center text-gray-500">

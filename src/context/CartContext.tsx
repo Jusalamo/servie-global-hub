@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
+import { useLocalization } from "@/components/LangCurrencySelector";
 
 interface CartItem {
   id: string;
@@ -42,6 +43,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartCount, setCartCount] = useState(0);
   const [cartTotal, setCartTotal] = useState(0);
+  const { formatPrice } = useLocalization();
   
   // Load cart from localStorage on initial load
   useEffect(() => {
@@ -102,8 +104,9 @@ export const CartProvider = ({ children }: CartProviderProps) => {
         updatedItems = [...prevItems, item];
       }
       
-      // Immediately display feedback
-      toast.success(`${item.name} added to cart!`);
+      // Immediately display feedback with formatted price
+      const formattedPrice = formatPrice(item.price * item.quantity);
+      toast.success(`${item.name} (${formattedPrice}) added to cart!`);
       
       return updatedItems;
     });
@@ -111,8 +114,13 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   
   const removeFromCart = (itemId: string) => {
     setCartItems(prevItems => {
+      const itemToRemove = prevItems.find(item => item.id === itemId);
       const updatedItems = prevItems.filter(item => item.id !== itemId);
-      toast.info("Item removed from cart");
+      
+      if (itemToRemove) {
+        toast.info(`${itemToRemove.name} removed from cart`);
+      }
+      
       return updatedItems;
     });
   };

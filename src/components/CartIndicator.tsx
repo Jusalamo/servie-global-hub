@@ -13,7 +13,7 @@ export function CartIndicator() {
   
   // Enhanced animation effect when the cart updates with improved responsiveness
   useEffect(() => {
-    // Always update the animation state when cart count changes
+    // Trigger animation when cart count increases
     if (cartCount > prevCartCount) {
       setIsAnimating(true);
       const timeout = setTimeout(() => {
@@ -21,7 +21,7 @@ export function CartIndicator() {
       }, 600);
       return () => clearTimeout(timeout);
     }
-    // Update previous count immediately to ensure proper comparison for next changes
+    // Update previous count for next comparison
     setPrevCartCount(cartCount);
   }, [cartCount, prevCartCount]);
   

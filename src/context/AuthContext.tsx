@@ -127,6 +127,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     try {
       setIsLoading(true);
+      
+      // For development, allow any email with a specific role format
+      if (process.env.NODE_ENV === 'development' && 
+          (email.includes('provider') || email.includes('seller') || email.includes('client'))) {
+        
+        // Mock sign in for development
+        const role = email.includes('provider') 
+          ? 'provider' 
+          : email.includes('seller') 
+            ? 'seller' 
+            : 'client';
+        
+        setUserRole(role);
+        
+        // Create a mock user for development
+        const mockUser = {
+          id: 'dev-user-123',
+          email: email,
+          user_metadata: {
+            first_name: 'Test',
+            last_name: 'User',
+            role: role
+          }
+        };
+        
+        setUser(mockUser as unknown as User);
+        setIsLoading(false);
+        
+        toast.success("Development login successful!");
+        return;
+      }
+      
+      // Real authentication for production
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -158,6 +191,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = async (userData: UserData) => {
     try {
       setIsLoading(true);
+      
+      // For development environment, mock signup
+      if (process.env.NODE_ENV === 'development') {
+        // Create mock user
+        const role = userData.role || 'client';
+        setUserRole(role);
+        
+        const mockUser = {
+          id: 'dev-user-' + Math.random().toString(36).substring(2, 9),
+          email: userData.email,
+          user_metadata: {
+            first_name: userData.first_name,
+            last_name: userData.last_name,
+            role: role
+          }
+        };
+        
+        setUser(mockUser as unknown as User);
+        setIsLoading(false);
+        
+        toast.success("Development signup successful!");
+        return;
+      }
+      
+      // Real signup for production
       const { data, error } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
@@ -202,6 +260,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     try {
       setIsLoading(true);
+      
+      // For development, just clear the state
+      if (process.env.NODE_ENV === 'development' && !session) {
+        setUser(null);
+        setUserRole(null);
+        setIsLoading(false);
+        toast.success("Signed out successfully");
+        return;
+      }
+      
       const { error } = await supabase.auth.signOut();
       
       if (error) {
@@ -213,7 +281,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw error;
       }
       
-      // Auth state listener will handle state updates
+      // Clear local state
+      setUser(null);
+      setUserRole(null);
+      toast.success("Signed out successfully");
+      
       return;
     } catch (error) {
       console.error('Error signing out:', error);

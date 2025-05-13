@@ -25,7 +25,7 @@ import { LangCurrencySelector } from './LangCurrencySelector';
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { isAuthenticated, user, signOut } = useAuth();
+  const { isAuthenticated, user, signOut, userRole } = useAuth();
   const { currentLanguage, translate } = useLocalization();
   const location = useLocation();
 
@@ -46,6 +46,19 @@ const Header = () => {
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
+
+  const getDashboardLink = () => {
+    if (!userRole) return "/dashboard";
+    
+    switch (userRole) {
+      case "provider":
+        return "/dashboard/provider";
+      case "seller":
+        return "/dashboard/seller";
+      default:
+        return "/dashboard/client";
+    }
+  };
 
   return (
     <header className={`sticky top-0 z-50 w-full ${isScrolled ? 'bg-white shadow-md dark:bg-gray-900' : 'bg-white/80 backdrop-blur-md dark:bg-gray-900/90'}`}>
@@ -80,7 +93,7 @@ const Header = () => {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-72 p-0 max-h-[400px] overflow-hidden" align="end">
-                  <LangCurrencySelector showCurrencies={false} />
+                  <LangCurrencySelector showCurrencies={true} />
                 </PopoverContent>
               </Popover>
               
@@ -98,7 +111,7 @@ const Header = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
                     <DropdownMenuItem asChild>
-                      <Link to="/dashboard" className="w-full cursor-pointer">Dashboard</Link>
+                      <Link to={getDashboardLink()} className="w-full cursor-pointer">Dashboard</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to="/profile" className="w-full cursor-pointer">Profile</Link>
@@ -158,7 +171,7 @@ const Header = () => {
             
             {isAuthenticated ? (
               <>
-                <Link to="/dashboard" className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
+                <Link to={getDashboardLink()} className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
                   Dashboard
                 </Link>
                 <Link to="/profile" className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
