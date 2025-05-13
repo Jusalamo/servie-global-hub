@@ -11,7 +11,6 @@ import {
   Settings, 
   HelpCircle, 
   Briefcase, 
-  Package,
   MessageSquare
 } from "lucide-react";
 
@@ -46,6 +45,11 @@ export default function ProviderSidebar({ activeTab, onTabChange }: ProviderSide
 
   const handleTabClick = (tabName: string) => {
     onTabChange(tabName);
+    
+    // Update URL with tab parameter
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set('tab', tabName);
+    navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
   };
 
   return (
@@ -78,13 +82,6 @@ export default function ProviderSidebar({ activeTab, onTabChange }: ProviderSide
         />
         
         <SidebarLink
-          icon={<Calendar className="h-5 w-5" />}
-          label="Schedule"
-          isActive={activeTab === "schedule"}
-          onClick={() => handleTabClick("schedule")}
-        />
-        
-        <SidebarLink
           icon={<Users className="h-5 w-5" />}
           label="Clients"
           isActive={activeTab === "clients"}
@@ -96,13 +93,6 @@ export default function ProviderSidebar({ activeTab, onTabChange }: ProviderSide
           label="Reviews"
           isActive={activeTab === "reviews"}
           onClick={() => handleTabClick("reviews")}
-        />
-        
-        <SidebarLink
-          icon={<Package className="h-5 w-5" />}
-          label="Products"
-          isActive={activeTab === "products"}
-          onClick={() => handleTabClick("products")}
         />
         
         <SidebarLink

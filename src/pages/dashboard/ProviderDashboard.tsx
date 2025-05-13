@@ -1,10 +1,10 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import ProviderSidebar from "@/components/dashboard/ProviderSidebar";
 import { ProviderOverviewTab } from "@/components/dashboard/provider/OverviewTab";
 import AddServiceForm from "@/components/dashboard/provider/AddServiceForm";
 import BookingsTab from "@/components/dashboard/provider/BookingsTab";
-import BookingsCalendarTab from "@/components/dashboard/provider/BookingsCalendarTab";
 import ClientsTab from "@/components/dashboard/provider/ClientsTab";
 import ReviewsTab from "@/components/dashboard/provider/ReviewsTab";
 import MessagingSystem from "@/components/dashboard/MessagingSystem";
@@ -14,36 +14,20 @@ import NotificationsSettings from "@/components/dashboard/NotificationsSettings"
 import { useLocation } from "react-router-dom";
 import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
 
-// Mock data for calendar bookings
-const mockBookings = [
-  {
-    id: "book-1",
-    clientName: "Sarah Johnson",
-    clientAvatar: "https://randomuser.me/api/portraits/women/32.jpg",
-    service: "Home Cleaning",
-    date: new Date(Date.now() + 86400000).toISOString(), // tomorrow
-    status: "confirmed",
-    address: "123 Main St, Cityville",
-    amount: 85
-  },
-  {
-    id: "book-2",
-    clientName: "Michael Chen",
-    clientAvatar: "https://randomuser.me/api/portraits/men/45.jpg",
-    service: "Carpet Cleaning",
-    date: new Date(Date.now() + 172800000).toISOString(), // day after tomorrow
-    status: "pending",
-    address: "456 Oak Ave, Townsburg",
-    amount: 120
-  }
-];
-
 export default function ProviderDashboard() {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(() => {
     const queryParams = new URLSearchParams(location.search);
     return queryParams.get('tab') || "overview";
   });
+
+  useEffect(() => {
+    // Update URL when tab changes
+    const queryParams = new URLSearchParams(location.search);
+    queryParams.set('tab', activeTab);
+    const newUrl = `${location.pathname}?${queryParams.toString()}`;
+    window.history.replaceState({}, '', newUrl);
+  }, [activeTab, location.pathname, location.search]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -55,12 +39,10 @@ export default function ProviderDashboard() {
       case "overview": return "Overview";
       case "services": return "Services";
       case "bookings": return "Bookings";
-      case "schedule": return "Schedule";
       case "clients": return "Clients";
       case "reviews": return "Reviews";
       case "payments": return "Payments";
       case "messages": return "Messages";
-      case "products": return "Products";
       case "settings": return "Account Settings";
       case "help": return "Help & Support";
       case "notifications": return "Notifications";
@@ -77,8 +59,6 @@ export default function ProviderDashboard() {
         return <AddServiceForm />;
       case "bookings":
         return <BookingsTab />;
-      case "schedule":
-        return <BookingsCalendarTab bookings={mockBookings} />;
       case "clients":
         return <ClientsTab />;
       case "reviews":
@@ -87,8 +67,6 @@ export default function ProviderDashboard() {
         return <PaymentMethods />;
       case "messages":
         return <MessagingSystem userRole="provider" />;
-      case "products":
-        return <ProductsTab />;
       case "settings":
         return <ProfileSettings userRole="provider" />;
       case "notifications":
@@ -114,37 +92,6 @@ export default function ProviderDashboard() {
     </div>
   );
 }
-
-// Products Tab component
-const ProductsTab = () => {
-  return (
-    <div>
-      <h2 className="text-2xl font-bold mb-6">Products</h2>
-      <p className="mb-4">Manage physical products that complement your services.</p>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {Array(6).fill(0).map((_, index) => (
-          <div key={index} className="border rounded-lg overflow-hidden">
-            <div className="h-48 bg-muted"></div>
-            <div className="p-4">
-              <h3 className="font-medium">Sample Product {index + 1}</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Product description text goes here. This is a placeholder.
-              </p>
-              <div className="mt-4 flex justify-between items-center">
-                <span className="font-bold">${(19.99 + index * 5).toFixed(2)}</span>
-                <div className="space-x-2">
-                  <button className="px-3 py-1 text-xs bg-muted rounded">Edit</button>
-                  <button className="px-3 py-1 text-xs bg-red-100 text-red-600 rounded">Delete</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
 
 // Help & Support Tab component
 const HelpSupportTab = () => {

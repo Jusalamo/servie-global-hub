@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Send, Search, Image, Paperclip, ChevronLeft, MoreVertical, Check, Clock, Phone, Video } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -372,10 +371,14 @@ const MessagingSystem = ({ userRole = 'provider' }: MessagingSystemProps) => {
     toast.info("Audio call feature coming soon!");
   };
 
+  const handleStartNewConversation = () => {
+    toast.info("New conversation feature will be available soon!");
+  };
+
   return (
     <div className="flex h-[calc(100vh-200px)] border rounded-lg overflow-hidden shadow-sm bg-card">
       {/* Left sidebar - Conversations */}
-      <div className={`w-full md:w-96 border-r bg-background flex flex-col ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
+      <div className={`w-full md:w-80 border-r bg-background flex flex-col ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
         <div className="p-4 border-b">
           <h2 className="text-lg font-semibold mb-4">Messages</h2>
           <div className="relative">
@@ -446,7 +449,7 @@ const MessagingSystem = ({ userRole = 'provider' }: MessagingSystemProps) => {
         </div>
         
         <div className="p-4 border-t">
-          <Button className="w-full bg-servie hover:bg-servie-600">
+          <Button className="w-full bg-servie hover:bg-servie-600" onClick={handleStartNewConversation}>
             Start New Conversation
           </Button>
         </div>
@@ -560,10 +563,10 @@ const MessagingSystem = ({ userRole = 'provider' }: MessagingSystemProps) => {
               <div ref={messagesEndRef} />
             </div>
             
-            {/* Chat input */}
+            {/* Chat input - Improved layout */}
             <div className="p-4 border-t">
               {showTemplates && (
-                <div className="mb-3 p-2 bg-muted rounded-lg max-h-32 overflow-y-auto">
+                <div className="mb-3 p-2 bg-muted rounded-lg max-h-28 overflow-y-auto">
                   <p className="text-xs text-muted-foreground mb-1">Quick responses:</p>
                   <div className="space-y-1">
                     {getTemplatesForRole().map((template, i) => (
@@ -582,7 +585,7 @@ const MessagingSystem = ({ userRole = 'provider' }: MessagingSystemProps) => {
               <div className="flex items-end gap-2">
                 <Textarea
                   placeholder="Type a message..."
-                  className="min-h-10 max-h-28 resize-none"
+                  className="min-h-10 max-h-20 resize-none"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyDown={(e) => {
@@ -592,7 +595,7 @@ const MessagingSystem = ({ userRole = 'provider' }: MessagingSystemProps) => {
                     }
                   }}
                 />
-                <div className="flex flex-col gap-2">
+                <div className="flex gap-2">
                   <Button 
                     variant="outline" 
                     size="icon" 
@@ -608,14 +611,6 @@ const MessagingSystem = ({ userRole = 'provider' }: MessagingSystemProps) => {
                     title="Upload image"
                   >
                     <Image className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    onClick={handleFileUpload}
-                    title="Attach file"
-                  >
-                    <Paperclip className="h-4 w-4" />
                   </Button>
                   <Button 
                     className="bg-servie hover:bg-servie-600" 
@@ -638,7 +633,7 @@ const MessagingSystem = ({ userRole = 'provider' }: MessagingSystemProps) => {
             <p className="text-center text-muted-foreground max-w-sm">
               Select a conversation from the list to start messaging or create a new message.
             </p>
-            <Button className="mt-4 bg-servie hover:bg-servie-600">
+            <Button className="mt-4 bg-servie hover:bg-servie-600" onClick={handleStartNewConversation}>
               Start New Conversation
             </Button>
           </div>
