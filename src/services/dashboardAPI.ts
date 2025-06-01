@@ -86,6 +86,8 @@ const generateMockProducts = (): Product[] => {
     "Power Bank", "Charging Cable", "Screen Protector", "Car Mount"
   ];
 
+  const statuses: ('active' | 'inactive')[] = ['active', 'inactive'];
+
   return products.slice(0, 8).map((name, index) => ({
     id: `prod_${index + 1}`,
     name,
@@ -93,7 +95,7 @@ const generateMockProducts = (): Product[] => {
     stock: Math.floor(Math.random() * 100) + 10,
     category: ['Electronics', 'Accessories', 'Home & Office'][Math.floor(Math.random() * 3)],
     image: `/placeholder.svg`,
-    status: Math.random() > 0.2 ? 'active' : 'inactive' as const,
+    status: Math.random() > 0.2 ? 'active' : 'inactive',
     sales: Math.floor(Math.random() * 500) + 10,
   }));
 };
@@ -112,7 +114,7 @@ const generateMockServices = (): Service[] => {
     duration: [30, 60, 90, 120][Math.floor(Math.random() * 4)],
     category: ['Beauty', 'Home', 'Health', 'Education'][Math.floor(Math.random() * 4)],
     description: `Professional ${name.toLowerCase()} service with high quality standards.`,
-    status: Math.random() > 0.2 ? 'active' : 'inactive' as const,
+    status: Math.random() > 0.2 ? 'active' : 'inactive',
     bookings: Math.floor(Math.random() * 100) + 5,
   }));
 };
@@ -120,13 +122,14 @@ const generateMockServices = (): Service[] => {
 const generateMockOrders = (): Order[] => {
   const customers = ["John Doe", "Jane Smith", "Mike Johnson", "Sarah Wilson", "Tom Brown"];
   const items = ["Product A", "Product B", "Service X", "Product C"];
+  const orderStatuses: Order['status'][] = ['pending', 'processing', 'completed', 'cancelled'];
 
   return Array.from({ length: 10 }, (_, index) => ({
     id: `order_${index + 1}`,
     customerName: customers[Math.floor(Math.random() * customers.length)],
     items: [items[Math.floor(Math.random() * items.length)]],
     total: Math.floor(Math.random() * 300) + 50,
-    status: ['pending', 'processing', 'completed', 'cancelled'][Math.floor(Math.random() * 4)] as const,
+    status: orderStatuses[Math.floor(Math.random() * orderStatuses.length)],
     date: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
   }));
 };
@@ -134,6 +137,7 @@ const generateMockOrders = (): Order[] => {
 const generateMockBookings = (): Booking[] => {
   const clients = ["Alice Johnson", "Bob Smith", "Carol Davis", "David Wilson", "Eva Brown"];
   const services = ["Haircut", "Massage", "Training", "Cleaning", "Tutoring"];
+  const bookingStatuses: Booking['status'][] = ['pending', 'confirmed', 'completed', 'cancelled'];
 
   return Array.from({ length: 15 }, (_, index) => ({
     id: `booking_${index + 1}`,
@@ -141,7 +145,7 @@ const generateMockBookings = (): Booking[] => {
     service: services[Math.floor(Math.random() * services.length)],
     date: new Date(Date.now() + Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     time: ['09:00', '10:30', '14:00', '15:30', '17:00'][Math.floor(Math.random() * 5)],
-    status: ['pending', 'confirmed', 'completed', 'cancelled'][Math.floor(Math.random() * 4)] as const,
+    status: bookingStatuses[Math.floor(Math.random() * bookingStatuses.length)],
     price: Math.floor(Math.random() * 200) + 30,
   }));
 };

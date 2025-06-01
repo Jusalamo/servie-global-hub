@@ -16,13 +16,20 @@ const ProductManagement = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [newProduct, setNewProduct] = useState({
+  const [newProduct, setNewProduct] = useState<{
+    name: string;
+    price: number;
+    stock: number;
+    category: string;
+    image: string;
+    status: 'active' | 'inactive';
+  }>({
     name: '',
     price: 0,
     stock: 0,
     category: '',
     image: '',
-    status: 'active' as const,
+    status: 'active',
   });
 
   useEffect(() => {
