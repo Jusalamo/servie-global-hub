@@ -3,7 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface Message {
   id: string;
-  conversation_id: string;
   sender_id: string;
   receiver_id: string;
   content: string;
@@ -44,28 +43,6 @@ class MessagingAPI {
       if (!user) throw new Error('User not authenticated');
 
       const conversationId = this.getConversationId(user.id, otherUserId);
-      
-      // Check if conversation exists
-      const { data: existingConversation } = await supabase
-        .from('conversations')
-        .select('id')
-        .eq('id', conversationId)
-        .single();
-
-      if (existingConversation) {
-        return conversationId;
-      }
-
-      // Create new conversation
-      const { error } = await supabase
-        .from('conversations')
-        .insert({
-          id: conversationId,
-          participant_1: user.id,
-          participant_2: otherUserId,
-        });
-
-      if (error) throw error;
       return conversationId;
     } catch (error) {
       console.error('Error creating/getting conversation:', error);
@@ -78,34 +55,36 @@ class MessagingAPI {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      const conversationId = await this.createOrGetConversation(receiverId);
-
+      // Use notifications table for basic messaging
       const { data, error } = await supabase
-        .from('messages')
+        .from('notifications')
         .insert({
-          conversation_id: conversationId,
-          sender_id: user.id,
-          receiver_id: receiverId,
-          content,
+          user_id: receiverId,
+          title: 'New Message',
+          message: content,
+          type: 'message',
+          data: {
+            sender_id: user.id,
+            receiver_id: receiverId,
+            conversation_id: this.getConversationId(user.id, receiverId)
+          }
         })
-        .select(`
-          *,
-          sender_profile:profiles!sender_id(first_name, last_name, avatar_url)
-        `)
+        .select()
         .single();
 
       if (error) throw error;
 
-      // Update conversation's last message
-      await supabase
-        .from('conversations')
-        .update({
-          last_message: content,
-          last_message_at: new Date().toISOString(),
-        })
-        .eq('id', conversationId);
+      // Transform notification to message format
+      const message: Message = {
+        id: data.id,
+        sender_id: user.id,
+        receiver_id: receiverId,
+        content: content,
+        is_read: data.is_read || false,
+        created_at: data.created_at || new Date().toISOString()
+      };
 
-      return data;
+      return message;
     } catch (error) {
       console.error('Error sending message:', error);
       throw error;
@@ -114,18 +93,38 @@ class MessagingAPI {
 
   async getMessages(conversationId: string, limit: number = 50): Promise<Message[]> {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      // Get messages from notifications table
       const { data, error } = await supabase
-        .from('messages')
+        .from('notifications')
         .select(`
           *,
-          sender_profile:profiles!sender_id(first_name, last_name, avatar_url)
+          profiles!notifications_user_id_fkey(first_name, last_name, avatar_url)
         `)
-        .eq('conversation_id', conversationId)
+        .eq('type', 'message')
         .order('created_at', { ascending: true })
         .limit(limit);
 
       if (error) throw error;
-      return data || [];
+
+      // Transform notifications to messages
+      const messages: Message[] = (data || []).map(notification => ({
+        id: notification.id,
+        sender_id: notification.data?.sender_id || '',
+        receiver_id: notification.data?.receiver_id || notification.user_id || '',
+        content: notification.message,
+        is_read: notification.is_read || false,
+        created_at: notification.created_at || new Date().toISOString(),
+        sender_profile: notification.profiles ? {
+          first_name: notification.profiles.first_name || '',
+          last_name: notification.profiles.last_name || '',
+          avatar_url: notification.profiles.avatar_url || undefined
+        } : undefined
+      }));
+
+      return messages;
     } catch (error) {
       console.error('Error fetching messages:', error);
       return [];
@@ -137,42 +136,50 @@ class MessagingAPI {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
+      // Get message notifications for this user
       const { data, error } = await supabase
-        .from('conversations')
+        .from('notifications')
         .select(`
           *,
-          participant_1_profile:profiles!participant_1(id, first_name, last_name, avatar_url),
-          participant_2_profile:profiles!participant_2(id, first_name, last_name, avatar_url)
+          profiles!notifications_user_id_fkey(id, first_name, last_name, avatar_url)
         `)
-        .or(`participant_1.eq.${user.id},participant_2.eq.${user.id}`)
-        .order('last_message_at', { ascending: false });
+        .eq('type', 'message')
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      // Process conversations to add other participant info and unread count
-      const processedConversations = await Promise.all(
-        (data || []).map(async (conv) => {
-          const otherParticipant = conv.participant_1 === user.id 
-            ? conv.participant_2_profile 
-            : conv.participant_1_profile;
+      // Group by conversation and create conversation objects
+      const conversationMap = new Map<string, Conversation>();
+      
+      (data || []).forEach(notification => {
+        const senderId = notification.data?.sender_id;
+        const receiverId = notification.data?.receiver_id || notification.user_id;
+        
+        if (!senderId || !receiverId) return;
+        
+        const conversationId = this.getConversationId(senderId, receiverId);
+        const otherUserId = senderId === user.id ? receiverId : senderId;
+        
+        if (!conversationMap.has(conversationId)) {
+          conversationMap.set(conversationId, {
+            id: conversationId,
+            participant_1: user.id,
+            participant_2: otherUserId,
+            last_message: notification.message,
+            last_message_at: notification.created_at || new Date().toISOString(),
+            created_at: notification.created_at || new Date().toISOString(),
+            other_participant: notification.profiles ? {
+              id: notification.profiles.id,
+              first_name: notification.profiles.first_name || '',
+              last_name: notification.profiles.last_name || '',
+              avatar_url: notification.profiles.avatar_url || undefined
+            } : undefined,
+            unread_count: 0
+          });
+        }
+      });
 
-          // Get unread message count
-          const { count } = await supabase
-            .from('messages')
-            .select('id', { count: 'exact' })
-            .eq('conversation_id', conv.id)
-            .eq('receiver_id', user.id)
-            .eq('is_read', false);
-
-          return {
-            ...conv,
-            other_participant: otherParticipant,
-            unread_count: count || 0,
-          };
-        })
-      );
-
-      return processedConversations;
+      return Array.from(conversationMap.values());
     } catch (error) {
       console.error('Error fetching conversations:', error);
       return [];
@@ -185,10 +192,10 @@ class MessagingAPI {
       if (!user) throw new Error('User not authenticated');
 
       const { error } = await supabase
-        .from('messages')
+        .from('notifications')
         .update({ is_read: true })
-        .eq('conversation_id', conversationId)
-        .eq('receiver_id', user.id)
+        .eq('type', 'message')
+        .eq('user_id', user.id)
         .eq('is_read', false);
 
       if (error) throw error;

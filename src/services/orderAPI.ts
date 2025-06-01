@@ -41,40 +41,48 @@ class OrderAPI {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      // Create the order
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
+      // For now, create a notification as a placeholder for order
+      const { data: notification, error } = await supabase
+        .from('notifications')
         .insert({
           user_id: user.id,
-          total_amount: orderData.total_amount,
-          shipping_address: orderData.shipping_address,
-          status: 'pending',
-          payment_status: 'pending',
+          title: 'New Order Created',
+          message: `Order total: $${orderData.total_amount}`,
+          type: 'system',
+          data: {
+            order_type: 'purchase',
+            total_amount: orderData.total_amount,
+            shipping_address: orderData.shipping_address,
+            items: orderData.items,
+            status: 'pending',
+            payment_status: 'pending'
+          }
         })
         .select()
         .single();
 
-      if (orderError) throw orderError;
+      if (error) throw error;
 
-      // Create order items
-      const orderItems = orderData.items.map(item => ({
-        order_id: order.id,
-        product_id: item.product_id,
-        quantity: item.quantity,
-        price: item.price,
-      }));
-
-      const { data: items, error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems)
-        .select();
-
-      if (itemsError) throw itemsError;
-
-      return {
-        ...order,
-        order_items: items,
+      // Transform notification to order format
+      const order: Order = {
+        id: notification.id,
+        user_id: user.id,
+        total_amount: orderData.total_amount,
+        status: 'pending',
+        shipping_address: orderData.shipping_address,
+        payment_status: 'pending',
+        created_at: notification.created_at || new Date().toISOString(),
+        updated_at: notification.created_at || new Date().toISOString(),
+        order_items: orderData.items.map((item, index) => ({
+          id: `${notification.id}-item-${index}`,
+          order_id: notification.id,
+          product_id: item.product_id,
+          quantity: item.quantity,
+          price: item.price
+        }))
       };
+
+      return order;
     } catch (error) {
       console.error('Error creating order:', error);
       throw error;
@@ -89,19 +97,30 @@ class OrderAPI {
       const targetUserId = userId || user.id;
 
       const { data, error } = await supabase
-        .from('orders')
-        .select(`
-          *,
-          order_items (
-            *,
-            product:products (name, image_url)
-          )
-        `)
+        .from('notifications')
+        .select('*')
         .eq('user_id', targetUserId)
+        .eq('type', 'system')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+
+      // Transform notifications to orders
+      const orders: Order[] = (data || [])
+        .filter(notification => notification.data?.order_type === 'purchase')
+        .map(notification => ({
+          id: notification.id,
+          user_id: notification.user_id || '',
+          total_amount: notification.data?.total_amount || 0,
+          status: notification.data?.status || 'pending',
+          shipping_address: notification.data?.shipping_address || '',
+          payment_status: notification.data?.payment_status || 'pending',
+          created_at: notification.created_at || new Date().toISOString(),
+          updated_at: notification.created_at || new Date().toISOString(),
+          order_items: notification.data?.items || []
+        }));
+
+      return orders;
     } catch (error) {
       console.error('Error fetching orders:', error);
       return [];
@@ -111,17 +130,31 @@ class OrderAPI {
   async updateOrderStatus(orderId: string, status: Order['status']): Promise<Order> {
     try {
       const { data, error } = await supabase
-        .from('orders')
+        .from('notifications')
         .update({ 
-          status,
-          updated_at: new Date().toISOString(),
+          data: { status },
+          updated_at: new Date().toISOString()
         })
         .eq('id', orderId)
         .select()
         .single();
 
       if (error) throw error;
-      return data;
+
+      // Transform back to order format
+      const order: Order = {
+        id: data.id,
+        user_id: data.user_id || '',
+        total_amount: data.data?.total_amount || 0,
+        status: status,
+        shipping_address: data.data?.shipping_address || '',
+        payment_status: data.data?.payment_status || 'pending',
+        created_at: data.created_at || new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        order_items: data.data?.items || []
+      };
+
+      return order;
     } catch (error) {
       console.error('Error updating order status:', error);
       throw error;
@@ -131,17 +164,30 @@ class OrderAPI {
   async updatePaymentStatus(orderId: string, paymentStatus: Order['payment_status']): Promise<Order> {
     try {
       const { data, error } = await supabase
-        .from('orders')
+        .from('notifications')
         .update({ 
-          payment_status: paymentStatus,
-          updated_at: new Date().toISOString(),
+          data: { payment_status: paymentStatus }
         })
         .eq('id', orderId)
         .select()
         .single();
 
       if (error) throw error;
-      return data;
+
+      // Transform back to order format
+      const order: Order = {
+        id: data.id,
+        user_id: data.user_id || '',
+        total_amount: data.data?.total_amount || 0,
+        status: data.data?.status || 'pending',
+        shipping_address: data.data?.shipping_address || '',
+        payment_status: paymentStatus,
+        created_at: data.created_at || new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        order_items: data.data?.items || []
+      };
+
+      return order;
     } catch (error) {
       console.error('Error updating payment status:', error);
       throw error;
@@ -151,14 +197,8 @@ class OrderAPI {
   async getOrderById(orderId: string): Promise<Order | null> {
     try {
       const { data, error } = await supabase
-        .from('orders')
-        .select(`
-          *,
-          order_items (
-            *,
-            product:products (name, image_url)
-          )
-        `)
+        .from('notifications')
+        .select('*')
         .eq('id', orderId)
         .single();
 
@@ -166,8 +206,23 @@ class OrderAPI {
         if (error.code === 'PGRST116') return null;
         throw error;
       }
+
+      if (!data.data?.order_type) return null;
+
+      // Transform to order format
+      const order: Order = {
+        id: data.id,
+        user_id: data.user_id || '',
+        total_amount: data.data?.total_amount || 0,
+        status: data.data?.status || 'pending',
+        shipping_address: data.data?.shipping_address || '',
+        payment_status: data.data?.payment_status || 'pending',
+        created_at: data.created_at || new Date().toISOString(),
+        updated_at: data.created_at || new Date().toISOString(),
+        order_items: data.data?.items || []
+      };
       
-      return data;
+      return order;
     } catch (error) {
       console.error('Error fetching order:', error);
       return null;
@@ -179,19 +234,7 @@ class OrderAPI {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      const { data, error } = await supabase
-        .from('orders')
-        .update({ 
-          status: 'cancelled',
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', orderId)
-        .eq('user_id', user.id) // Ensure user can only cancel their own orders
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return this.updateOrderStatus(orderId, 'cancelled');
     } catch (error) {
       console.error('Error cancelling order:', error);
       throw error;
