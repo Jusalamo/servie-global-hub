@@ -1,69 +1,57 @@
 
 import { ChevronRight, Home } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-interface BreadcrumbItem {
+type BreadcrumbItem = {
   label: string;
-  href?: string;
-}
+  path?: string;
+};
 
 interface DashboardBreadcrumbProps {
   items: BreadcrumbItem[];
-  userRole: "client" | "provider" | "seller";
+  userRole: string;
 }
 
 const DashboardBreadcrumb = ({ items, userRole }: DashboardBreadcrumbProps) => {
-  const navigate = useNavigate();
-
-  const getDashboardPath = () => {
-    switch (userRole) {
-      case "provider":
-        return "/dashboard/provider?tab=overview";
-      case "seller":
-        return "/dashboard/seller?tab=overview";
-      default:
-        return "/dashboard/client";
-    }
-  };
-
-  const handleHomeClick = () => {
-    navigate("/");
-  };
-
-  const handleDashboardClick = () => {
-    navigate(getDashboardPath());
-  };
-
+  const roleLabel = userRole.charAt(0).toUpperCase() + userRole.slice(1);
+  const dashboardPath = `/dashboard/${userRole}`;
+  
+  // Filter out any duplicate items that might cause UI issues
+  const uniqueItems = items.filter((item, index, self) => 
+    index === self.findIndex(t => t.label === item.label)
+  );
+  
   return (
-    <nav className="flex items-center space-x-2 text-sm text-muted-foreground p-4 bg-background border-b">
-      <button
-        onClick={handleHomeClick}
+    <nav className="flex items-center space-x-1 text-sm text-muted-foreground mb-6 overflow-x-auto pb-1 border-b border-border">
+      <Link 
+        to="/"
         className="flex items-center hover:text-servie transition-colors"
       >
-        <Home className="h-4 w-4" />
-      </button>
+        <Home className="h-4 w-4 mr-1" />
+        <span>Home</span>
+      </Link>
       
-      <ChevronRight className="h-4 w-4" />
+      <ChevronRight className="h-4 w-4 mx-1 text-muted-foreground/60" />
       
-      <button
-        onClick={handleDashboardClick}
-        className="hover:text-servie transition-colors capitalize"
+      <Link 
+        to={dashboardPath}
+        className="hover:text-servie transition-colors"
       >
-        {userRole} Dashboard
-      </button>
+        {roleLabel} Dashboard
+      </Link>
       
-      {items.map((item, index) => (
-        <div key={index} className="flex items-center space-x-2">
-          <ChevronRight className="h-4 w-4" />
-          {item.href ? (
+      {uniqueItems.length > 0 && uniqueItems.map((item, index) => (
+        <div key={index} className="flex items-center">
+          <ChevronRight className="h-4 w-4 mx-1 text-muted-foreground/60" />
+          {item.path ? (
             <Link 
-              to={item.href} 
+              to={item.path} 
               className="hover:text-servie transition-colors"
             >
               {item.label}
             </Link>
           ) : (
-            <span className="text-foreground font-medium">{item.label}</span>
+            <span className="font-medium text-foreground">{item.label}</span>
           )}
         </div>
       ))}
