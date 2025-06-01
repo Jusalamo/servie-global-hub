@@ -1,10 +1,10 @@
 
 :root {
-  /* Primary Brand Colors */
-  --servie-primary: #7c3aed;
-  --servie-primary-hover: #6d28d9;
-  --servie-primary-light: #8b5cf6;
-  --servie-primary-dark: #5b21b6;
+  /* Primary Brand Colors - Restored original theme */
+  --servie-primary: #ea384c;
+  --servie-primary-hover: #d41e3f;
+  --servie-primary-light: #f27a8a;
+  --servie-primary-dark: #b01334;
   
   /* Secondary Colors */
   --servie-secondary: #06b6d4;
@@ -35,6 +35,11 @@
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  
+  /* Lava lamp animation support */
+  --lava-primary: #ea384c;
+  --lava-secondary: #f27a8a;
+  --lava-accent: #06b6d4;
 }
 
 /* Dark mode overrides */
@@ -51,7 +56,7 @@
   --response-bg: var(--color-background-alt);
 }
 
-/* Apply consistent styling */
+/* Apply consistent styling with original colors */
 .servie-button-primary {
   background-color: var(--servie-primary);
   color: white;
@@ -123,4 +128,23 @@
 .consistent-card:hover {
   box-shadow: var(--shadow-md);
   transition: box-shadow 0.2s ease;
+}
+
+/* Lava lamp animation styles */
+.lava-background {
+  background: linear-gradient(45deg, var(--lava-primary), var(--lava-secondary), var(--lava-accent));
+  background-size: 400% 400%;
+  animation: lavaLamp 8s ease-in-out infinite;
+}
+
+@keyframes lavaLamp {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }

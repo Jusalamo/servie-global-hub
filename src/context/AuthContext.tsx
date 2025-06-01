@@ -22,6 +22,7 @@ type AuthContextType = {
   signOut: () => Promise<void>;
   isAuthenticated: boolean;
   userRole: string | null;
+  bypassAuth: (role: 'client' | 'provider' | 'seller') => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,8 +34,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [userRole, setUserRole] = useState<string | null>(null);
   const { toast: uiToast } = useToast();
 
+  // Check for bypassed auth on load
   useEffect(() => {
-    // Set up auth state listener first
+    const bypassedAuth = localStorage.getItem('bypassed_auth');
+    if (bypassedAuth) {
+      const authData = JSON.parse(bypassedAuth);
+      setUser(authData.user);
+      setUserRole(authData.role);
+      setIsLoading(false);
+      return;
+    }
+
+    // Set up auth state listener for real auth
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
         console.log('Auth state changed:', event, !!currentSession?.user);
@@ -42,7 +53,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(currentSession?.user ?? null);
         
         if (currentSession?.user) {
-          // Fetch user role immediately
           await fetchUserRole(currentSession.user);
         } else {
           setUserRole(null);
@@ -80,7 +90,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log('Fetching user role for:', currentUser.id, currentUser.email);
       
-      // First check if profile exists
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('role, first_name, last_name')
@@ -89,6 +98,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) {
         console.error('Error fetching user profile:', error);
+        // Set default role if profile fetch fails
+        setUserRole('client');
         return;
       }
 
@@ -96,8 +107,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('Found existing profile:', profile);
         setUserRole(profile.role);
       } else {
-        // No profile exists, determine role from email and create one
-        console.log('No profile found, creating one...');
+        // Create profile with default role
         const role = determineRoleFromEmail(currentUser.email || '');
         
         const { error: insertError } = await supabase
@@ -114,6 +124,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (insertError) {
           console.error('Error creating profile:', insertError);
+          setUserRole('client'); // Fallback to client role
         } else {
           console.log('Created new profile with role:', role);
           setUserRole(role);
@@ -121,43 +132,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error) {
       console.error('Error in fetchUserRole:', error);
+      setUserRole('client'); // Fallback to client role
     }
   };
 
   const determineRoleFromEmail = (email: string): 'client' | 'provider' | 'seller' => {
     if (email.includes('provider')) return 'provider';
     if (email.includes('seller')) return 'seller';
-    return 'client'; // Default role
+    return 'client';
+  };
+
+  // Bypass authentication for testing
+  const bypassAuth = (role: 'client' | 'provider' | 'seller') => {
+    const mockUser = {
+      id: 'test-user-' + Date.now(),
+      email: `test.${role}@example.com`,
+      user_metadata: {
+        first_name: 'Test',
+        last_name: 'User',
+        role: role
+      }
+    };
+    
+    setUser(mockUser as unknown as User);
+    setUserRole(role);
+    setIsLoading(false);
+    
+    // Store in localStorage for persistence
+    localStorage.setItem('bypassed_auth', JSON.stringify({
+      user: mockUser,
+      role: role
+    }));
+    
+    toast.success(`Signed in as test ${role}`);
   };
 
   const signIn = async (email: string, password: string) => {
     try {
       setIsLoading(true);
       
-      // For development, allow mock authentication
-      if (process.env.NODE_ENV === 'development') {
-        const role = determineRoleFromEmail(email);
-        
-        // Create mock user
-        const mockUser = {
-          id: 'dev-user-' + Date.now(),
-          email: email,
-          user_metadata: {
-            first_name: 'Test',
-            last_name: 'User',
-            role: role
-          }
-        };
-        
-        setUser(mockUser as unknown as User);
-        setUserRole(role);
-        setIsLoading(false);
-        
-        toast.success("Successfully signed in!");
-        return;
-      }
-      
-      // Real authentication for production
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -169,7 +182,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       if (data.user) {
-        // Role will be fetched automatically by the auth state listener
         toast.success("Successfully signed in!");
       }
     } catch (error) {
@@ -185,27 +197,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setIsLoading(true);
       
-      // For development environment, mock signup
-      if (process.env.NODE_ENV === 'development') {
-        const role = userData.role || 'client';
-        setUserRole(role);
-        
-        const mockUser = {
-          id: 'dev-user-' + Date.now(),
-          email: userData.email,
-          user_metadata: {
-            first_name: userData.first_name,
-            last_name: userData.last_name,
-            role: role
-          }
-        };
-        
-        setUser(mockUser as unknown as User);
-        toast.success("Account created successfully!");
-        return;
-      }
-      
-      // Real signup for production
       const { data, error } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
@@ -224,7 +215,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (data.user) {
-        // Create profile record immediately
         const { error: profileError } = await supabase
           .from('profiles')
           .insert({
@@ -257,13 +247,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setIsLoading(true);
       
-      // For development, just clear the state
-      if (process.env.NODE_ENV === 'development' && !session) {
-        setUser(null);
-        setUserRole(null);
-        toast.success("Signed out successfully");
-        return;
-      }
+      // Clear bypassed auth
+      localStorage.removeItem('bypassed_auth');
       
       const { error } = await supabase.auth.signOut();
       
@@ -271,7 +256,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw error;
       }
       
-      // Clear local state
       setUser(null);
       setUserRole(null);
       toast.success("Signed out successfully");
@@ -295,6 +279,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signOut,
         isAuthenticated: !!user,
         userRole,
+        bypassAuth,
       }}
     >
       {children}

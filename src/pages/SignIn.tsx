@@ -6,6 +6,7 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { useAuth } from "@/context/AuthContext"
 import SignInForm from "@/components/SignInForm"
+import TestAuthBypass from "@/components/TestAuthBypass"
 
 export default function SignIn() {
   const { isAuthenticated } = useAuth();
@@ -21,7 +22,7 @@ export default function SignIn() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="w-full max-w-md space-y-8">
+        <div className="w-full max-w-2xl space-y-8">
           <div className="text-center">
             <h2 className="mt-6 text-3xl font-bold tracking-tight">
               Welcome back
@@ -31,7 +32,17 @@ export default function SignIn() {
             </p>
           </div>
           
-          <SignInForm />
+          <div className="grid md:grid-cols-2 gap-8">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Regular Sign In</h3>
+              <SignInForm />
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Testing Mode</h3>
+              <TestAuthBypass />
+            </div>
+          </div>
           
           <div className="mt-6">
             <div className="relative">
