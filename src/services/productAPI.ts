@@ -22,6 +22,7 @@ export interface CreateProductData {
   category: string;
   stock: number;
   status: 'active' | 'inactive';
+  image_url?: string;
 }
 
 export interface ProductFilters {
@@ -39,7 +40,7 @@ class ProductAPI {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      let imageUrl = null;
+      let imageUrl = productData.image_url || null;
       
       // Handle image upload if provided (simplified)
       if (imageFile) {
@@ -101,22 +102,28 @@ class ProductAPI {
 
       if (error) throw error;
 
-      // Filter and transform notifications to products
+      // Filter and transform notifications to products with proper type assertions
       let products: Product[] = (data || [])
-        .filter(notification => notification.data?.product_type === 'listing')
-        .map(notification => ({
-          id: notification.id,
-          name: notification.data?.name || '',
-          description: notification.data?.description || '',
-          price: notification.data?.price || 0,
-          category: notification.data?.category || '',
-          image_url: notification.data?.image_url || undefined,
-          stock: notification.data?.stock || 0,
-          status: notification.data?.status || 'active',
-          seller_id: notification.data?.seller_id || notification.user_id || '',
-          created_at: notification.created_at || new Date().toISOString(),
-          updated_at: notification.created_at || new Date().toISOString()
-        }));
+        .filter(notification => {
+          const notificationData = notification.data as any;
+          return notificationData?.product_type === 'listing';
+        })
+        .map(notification => {
+          const notificationData = notification.data as any;
+          return {
+            id: notification.id,
+            name: notificationData?.name || '',
+            description: notificationData?.description || '',
+            price: notificationData?.price || 0,
+            category: notificationData?.category || '',
+            image_url: notificationData?.image_url || undefined,
+            stock: notificationData?.stock || 0,
+            status: notificationData?.status || 'active',
+            seller_id: notificationData?.seller_id || notification.user_id || '',
+            created_at: notification.created_at || new Date().toISOString(),
+            updated_at: notification.created_at || new Date().toISOString()
+          };
+        });
 
       // Apply filters
       if (filters.category) {
@@ -167,18 +174,19 @@ class ProductAPI {
         throw error;
       }
 
-      if (!data.data?.product_type) return null;
+      const notificationData = data.data as any;
+      if (!notificationData?.product_type) return null;
       
       const product: Product = {
         id: data.id,
-        name: data.data?.name || '',
-        description: data.data?.description || '',
-        price: data.data?.price || 0,
-        category: data.data?.category || '',
-        image_url: data.data?.image_url || undefined,
-        stock: data.data?.stock || 0,
-        status: data.data?.status || 'active',
-        seller_id: data.data?.seller_id || data.user_id || '',
+        name: notificationData?.name || '',
+        description: notificationData?.description || '',
+        price: notificationData?.price || 0,
+        category: notificationData?.category || '',
+        image_url: notificationData?.image_url || undefined,
+        stock: notificationData?.stock || 0,
+        status: notificationData?.status || 'active',
+        seller_id: notificationData?.seller_id || data.user_id || '',
         created_at: data.created_at || new Date().toISOString(),
         updated_at: data.created_at || new Date().toISOString()
       };
@@ -195,7 +203,7 @@ class ProductAPI {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      let updateData = { ...updates };
+      let updateData: any = { ...updates };
 
       // Handle image upload if provided (simplified)
       if (imageFile) {
@@ -214,16 +222,17 @@ class ProductAPI {
 
       if (error) throw error;
 
+      const notificationData = data.data as any;
       const product: Product = {
         id: data.id,
-        name: data.data?.name || '',
-        description: data.data?.description || '',
-        price: data.data?.price || 0,
-        category: data.data?.category || '',
-        image_url: data.data?.image_url || undefined,
-        stock: data.data?.stock || 0,
-        status: data.data?.status || 'active',
-        seller_id: data.data?.seller_id || data.user_id || '',
+        name: notificationData?.name || '',
+        description: notificationData?.description || '',
+        price: notificationData?.price || 0,
+        category: notificationData?.category || '',
+        image_url: notificationData?.image_url || undefined,
+        stock: notificationData?.stock || 0,
+        status: notificationData?.status || 'active',
+        seller_id: notificationData?.seller_id || data.user_id || '',
         created_at: data.created_at || new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
@@ -270,16 +279,17 @@ class ProductAPI {
 
       if (error) throw error;
 
+      const notificationData = data.data as any;
       const product: Product = {
         id: data.id,
-        name: data.data?.name || '',
-        description: data.data?.description || '',
-        price: data.data?.price || 0,
-        category: data.data?.category || '',
-        image_url: data.data?.image_url || undefined,
+        name: notificationData?.name || '',
+        description: notificationData?.description || '',
+        price: notificationData?.price || 0,
+        category: notificationData?.category || '',
+        image_url: notificationData?.image_url || undefined,
         stock: newStock,
-        status: data.data?.status || 'active',
-        seller_id: data.data?.seller_id || data.user_id || '',
+        status: notificationData?.status || 'active',
+        seller_id: notificationData?.seller_id || data.user_id || '',
         created_at: data.created_at || new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
