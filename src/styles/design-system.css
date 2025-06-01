@@ -1,0 +1,126 @@
+
+:root {
+  /* Primary Brand Colors */
+  --servie-primary: #7c3aed;
+  --servie-primary-hover: #6d28d9;
+  --servie-primary-light: #8b5cf6;
+  --servie-primary-dark: #5b21b6;
+  
+  /* Secondary Colors */
+  --servie-secondary: #06b6d4;
+  --servie-secondary-hover: #0891b2;
+  
+  /* Neutral Colors - Light Mode */
+  --color-background: #fafafa;
+  --color-background-alt: #ffffff;
+  --color-text-primary: #333333;
+  --color-text-secondary: #666666;
+  --color-text-muted: #888888;
+  --color-border: #e5e7eb;
+  --color-border-light: #f3f4f6;
+  
+  /* Status Colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+  
+  /* Component Specific */
+  --footer-banner-bg: var(--servie-primary);
+  --header-bg: var(--color-background-alt);
+  --message-bg: var(--color-background);
+  --response-bg: var(--color-background-alt);
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Dark mode overrides */
+.dark {
+  --color-background: #111827;
+  --color-background-alt: #1f2937;
+  --color-text-primary: #f9fafb;
+  --color-text-secondary: #d1d5db;
+  --color-text-muted: #9ca3af;
+  --color-border: #374151;
+  --color-border-light: #4b5563;
+  --header-bg: var(--color-background-alt);
+  --message-bg: var(--color-background);
+  --response-bg: var(--color-background-alt);
+}
+
+/* Apply consistent styling */
+.servie-button-primary {
+  background-color: var(--servie-primary);
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+.servie-button-primary:hover {
+  background-color: var(--servie-primary-hover);
+}
+
+.servie-text-primary {
+  color: var(--servie-primary);
+}
+
+.servie-bg-primary {
+  background-color: var(--servie-primary);
+}
+
+.consistent-message-section {
+  background-color: var(--message-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.consistent-response-section {
+  background-color: var(--response-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.footer-banner {
+  background-color: var(--footer-banner-bg);
+  color: white;
+}
+
+/* Improved button layouts */
+.button-group-horizontal {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.button-group-horizontal .button {
+  flex: 0 0 auto;
+  min-width: fit-content;
+}
+
+/* Spacing improvements */
+.section-spacing {
+  margin-bottom: 2rem;
+}
+
+.component-spacing {
+  margin-bottom: 1rem;
+}
+
+/* Consistent card styling */
+.consistent-card {
+  background-color: var(--color-background-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.consistent-card:hover {
+  box-shadow: var(--shadow-md);
+  transition: box-shadow 0.2s ease;
+}

@@ -3,7 +3,6 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 type UserData = {
@@ -33,36 +32,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const [userRole, setUserRole] = useState<string | null>(null);
   const { toast: uiToast } = useToast();
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, currentSession) => {
+      async (event, currentSession) => {
         console.log('Auth state changed:', event, !!currentSession?.user);
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
         if (currentSession?.user) {
-          // Use setTimeout to avoid recursive update issues
-          setTimeout(() => {
-            fetchUserRole(currentSession.user.id);
-          }, 0);
+          // Fetch user role immediately
+          await fetchUserRole(currentSession.user);
         } else {
           setUserRole(null);
         }
+        setIsLoading(false);
       }
     );
 
-    // Then check for existing session
+    // Check for existing session
     const initializeAuth = async () => {
       try {
         const { data: { session: currentSession } } = await supabase.auth.getSession();
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
+        console.log('Initial session check:', !!currentSession?.user);
         
         if (currentSession?.user) {
-          await fetchUserRole(currentSession.user.id);
+          setSession(currentSession);
+          setUser(currentSession.user);
+          await fetchUserRole(currentSession.user);
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
@@ -78,72 +76,71 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  const fetchUserRole = async (userId: string) => {
+  const fetchUserRole = async (currentUser: User) => {
     try {
-      console.log('Fetching user role for:', userId);
-      const { data, error } = await supabase
+      console.log('Fetching user role for:', currentUser.id, currentUser.email);
+      
+      // First check if profile exists
+      const { data: profile, error } = await supabase
         .from('profiles')
-        .select('role')
-        .eq('id', userId)
+        .select('role, first_name, last_name')
+        .eq('id', currentUser.id)
         .maybeSingle();
 
       if (error) {
-        console.error('Error fetching user role:', error);
+        console.error('Error fetching user profile:', error);
         return;
       }
 
-      console.log('User role data:', data);
-      setUserRole(data?.role || null);
+      if (profile) {
+        console.log('Found existing profile:', profile);
+        setUserRole(profile.role);
+      } else {
+        // No profile exists, determine role from email and create one
+        console.log('No profile found, creating one...');
+        const role = determineRoleFromEmail(currentUser.email || '');
+        
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            id: currentUser.id,
+            email: currentUser.email,
+            first_name: currentUser.user_metadata?.first_name || 'User',
+            last_name: currentUser.user_metadata?.last_name || '',
+            role: role,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+
+        if (insertError) {
+          console.error('Error creating profile:', insertError);
+        } else {
+          console.log('Created new profile with role:', role);
+          setUserRole(role);
+        }
+      }
     } catch (error) {
       console.error('Error in fetchUserRole:', error);
     }
   };
 
-  const createOrUpdateProfile = async (userId: string, userData: Partial<UserData>) => {
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .upsert({
-          id: userId,
-          first_name: userData.first_name,
-          last_name: userData.last_name,
-          role: userData.role,
-          updated_at: new Date().toISOString()
-        });
-
-      if (error) {
-        console.error('Error updating profile:', error);
-        throw error;
-      }
-      
-      // Update local state immediately
-      setUserRole(userData.role || null);
-    } catch (error) {
-      console.error('Error in createOrUpdateProfile:', error);
-      throw error;
-    }
+  const determineRoleFromEmail = (email: string): 'client' | 'provider' | 'seller' => {
+    if (email.includes('provider')) return 'provider';
+    if (email.includes('seller')) return 'seller';
+    return 'client'; // Default role
   };
 
   const signIn = async (email: string, password: string) => {
     try {
       setIsLoading(true);
       
-      // For development, allow any email with a specific role format
-      if (process.env.NODE_ENV === 'development' && 
-          (email.includes('provider') || email.includes('seller') || email.includes('client'))) {
+      // For development, allow mock authentication
+      if (process.env.NODE_ENV === 'development') {
+        const role = determineRoleFromEmail(email);
         
-        // Mock sign in for development
-        const role = email.includes('provider') 
-          ? 'provider' 
-          : email.includes('seller') 
-            ? 'seller' 
-            : 'client';
-        
-        setUserRole(role);
-        
-        // Create a mock user for development
+        // Create mock user
         const mockUser = {
-          id: 'dev-user-123',
+          id: 'dev-user-' + Date.now(),
           email: email,
           user_metadata: {
             first_name: 'Test',
@@ -153,9 +150,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
         
         setUser(mockUser as unknown as User);
+        setUserRole(role);
         setIsLoading(false);
         
-        toast.success("Development login successful!");
+        toast.success("Successfully signed in!");
         return;
       }
       
@@ -166,23 +164,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) {
-        uiToast({
-          title: "Login failed",
-          description: error.message,
-          variant: "destructive",
-        });
+        console.error('Sign in error:', error);
         throw new Error(error.message);
       }
       
-      // User will be updated automatically via the onAuthStateChange listener
-      return;
+      if (data.user) {
+        // Role will be fetched automatically by the auth state listener
+        toast.success("Successfully signed in!");
+      }
     } catch (error) {
       console.error('Error signing in:', error);
-      if (error instanceof Error) {
-        throw error;
-      } else {
-        throw new Error("An error occurred while signing in");
-      }
+      toast.error(error instanceof Error ? error.message : "Failed to sign in");
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -194,12 +187,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // For development environment, mock signup
       if (process.env.NODE_ENV === 'development') {
-        // Create mock user
         const role = userData.role || 'client';
         setUserRole(role);
         
         const mockUser = {
-          id: 'dev-user-' + Math.random().toString(36).substring(2, 9),
+          id: 'dev-user-' + Date.now(),
           email: userData.email,
           user_metadata: {
             first_name: userData.first_name,
@@ -209,9 +201,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
         
         setUser(mockUser as unknown as User);
-        setIsLoading(false);
-        
-        toast.success("Development signup successful!");
+        toast.success("Account created successfully!");
         return;
       }
       
@@ -229,29 +219,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) {
-        uiToast({
-          title: "Registration failed",
-          description: error.message,
-          variant: "destructive",
-        });
+        console.error('Sign up error:', error);
         throw new Error(error.message);
       }
 
-      // Create profile record
       if (data.user) {
-        await createOrUpdateProfile(data.user.id, userData);
-        toast.success("Registration successful!");
-        return;
-      } else {
-        toast.info("Please check your email for verification.");
+        // Create profile record immediately
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: data.user.id,
+            email: userData.email,
+            first_name: userData.first_name,
+            last_name: userData.last_name,
+            role: userData.role,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+
+        if (profileError) {
+          console.error('Error creating profile:', profileError);
+        }
+
+        setUserRole(userData.role);
+        toast.success("Account created successfully!");
       }
     } catch (error) {
       console.error('Error signing up:', error);
-      if (error instanceof Error) {
-        throw error;
-      } else {
-        throw new Error("An unexpected error occurred during signup");
-      }
+      toast.error(error instanceof Error ? error.message : "Failed to create account");
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -265,7 +261,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (process.env.NODE_ENV === 'development' && !session) {
         setUser(null);
         setUserRole(null);
-        setIsLoading(false);
         toast.success("Signed out successfully");
         return;
       }
@@ -273,11 +268,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { error } = await supabase.auth.signOut();
       
       if (error) {
-        uiToast({
-          title: "Sign out failed",
-          description: error.message,
-          variant: "destructive",
-        });
         throw error;
       }
       
@@ -285,15 +275,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(null);
       setUserRole(null);
       toast.success("Signed out successfully");
-      
-      return;
     } catch (error) {
       console.error('Error signing out:', error);
-      if (error instanceof Error) {
-        throw error;
-      } else {
-        throw new Error("An error occurred while signing out");
-      }
+      toast.error("Failed to sign out");
+      throw error;
     } finally {
       setIsLoading(false);
     }
