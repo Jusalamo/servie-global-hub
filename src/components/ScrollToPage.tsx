@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -15,27 +16,17 @@ const ScrollToPage = () => {
     sessionStorage.setItem('lastPath', currentPath);
   }, [pathname, search, hash]);
 
-  // On initial load, check if we should redirect to a saved path
+  // On initial load, ensure we stay on the current page
   useEffect(() => {
-    // Only run on initial component mount
     const handleInitialLoad = () => {
-      const lastPath = sessionStorage.getItem('lastPath');
-      const currentPath = pathname + search + hash;
-
-      // If we're on the root path and there's a saved path that's different, redirect to it
-      if (pathname === '/' && lastPath && lastPath !== '/' && lastPath !== currentPath) {
-        navigate(lastPath, { replace: true });
-        return;
-      }
-
-      // If there's a hash, scroll to the element
+      // Always ensure we have a valid route - don't redirect on reload
       if (hash) {
         const element = document.getElementById(hash.substring(1));
         if (element) {
           element.scrollIntoView({ behavior: 'smooth' });
         }
       } else {
-        // Otherwise scroll to the top
+        // Scroll to top without any redirects
         window.scrollTo({
           top: 0,
           left: 0,
