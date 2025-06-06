@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export interface Product {
@@ -207,7 +206,8 @@ class ProductAPI {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      let updateData = { ...updates };
+      // Create update data object with proper typing
+      let updateData: any = { ...updates };
 
       // Handle image upload if provided (simplified)
       if (imageFile) {
