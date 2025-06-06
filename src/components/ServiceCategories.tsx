@@ -14,10 +14,10 @@ import {
   Sparkles, Package, Store, CreditCard, Wallet, Receipt, Calculator,
   Banknote, TrendingUp, BarChart, PieChart, FileText, Folder, Archive,
   Upload, Link, Share, Send, MessageCircle, Bell, Clock, Calendar,
-  Map, Navigation, Locate, Search, Filter, Sort, Grid, List, Eye,
+  Map, Navigation, Locate, Search, Filter, ArrowUpDown, Grid, List, Eye,
   Edit, Save, Trash, Plus, Minus, X, Check, ChevronDown, ChevronUp,
-  ArrowLeft, ArrowRight, ArrowUp, ArrowDown, RotateCcw, Refresh,
-  Power, Settings2, Tool, Cog, Sliders, Wrench2
+  ArrowLeft, ArrowRight, ArrowUp, ArrowDown, RotateCcw, RefreshCw,
+  Power, Settings2, Cog, Sliders
 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 
@@ -384,7 +384,7 @@ const categories = [
     color: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
   },
   {
-    icon: Tractor,
+    icon: Wrench,
     name: "Agriculture Services",
     description: "Farming equipment, crop advice, agricultural tech",
     color: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300",
