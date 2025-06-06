@@ -62,6 +62,11 @@ export interface UpdateServiceData extends Partial<CreateServiceData> {
 
 export interface UpdateProductData extends Partial<CreateProductData> {}
 
+// Helper function to safely extract data from Json type
+function safeGetData(data: any): any {
+  return data && typeof data === 'object' ? data : {};
+}
+
 class CRUDAPIService {
   // Services CRUD Operations
   async createService(serviceData: CreateServiceData): Promise<Service> {
@@ -126,24 +131,30 @@ class CRUDAPIService {
       if (error) throw error;
 
       return (data || [])
-        .filter(notification => notification.data?.title)
-        .map(notification => ({
-          id: notification.id,
-          title: notification.data.title,
-          description: notification.data.description,
-          category: notification.data.category,
-          price: notification.data.price,
-          currency: notification.data.currency,
-          provider_id: notification.data.provider_id,
-          provider_name: notification.data.provider_name,
-          rating: notification.data.rating || 0,
-          reviews_count: notification.data.reviews_count || 0,
-          image_url: notification.data.image_url,
-          location: notification.data.location,
-          available: notification.data.available !== false,
-          created_at: notification.created_at || new Date().toISOString(),
-          updated_at: notification.data.updated_at || notification.created_at || new Date().toISOString()
-        }))
+        .filter(notification => {
+          const notificationData = safeGetData(notification.data);
+          return notificationData?.title;
+        })
+        .map(notification => {
+          const notificationData = safeGetData(notification.data);
+          return {
+            id: notification.id,
+            title: notificationData.title || '',
+            description: notificationData.description || '',
+            category: notificationData.category || '',
+            price: notificationData.price || 0,
+            currency: notificationData.currency || 'USD',
+            provider_id: notificationData.provider_id || '',
+            provider_name: notificationData.provider_name || '',
+            rating: notificationData.rating || 0,
+            reviews_count: notificationData.reviews_count || 0,
+            image_url: notificationData.image_url,
+            location: notificationData.location || '',
+            available: notificationData.available !== false,
+            created_at: notification.created_at || new Date().toISOString(),
+            updated_at: notificationData.updated_at || notification.created_at || new Date().toISOString()
+          };
+        })
         .filter(service => {
           if (filters?.category && service.category !== filters.category) return false;
           if (filters?.location && !service.location.toLowerCase().includes(filters.location.toLowerCase())) return false;
@@ -169,24 +180,25 @@ class CRUDAPIService {
         throw error;
       }
 
-      if (!data.data?.title) return null;
+      const notificationData = safeGetData(data.data);
+      if (!notificationData?.title) return null;
 
       return {
         id: data.id,
-        title: data.data.title,
-        description: data.data.description,
-        category: data.data.category,
-        price: data.data.price,
-        currency: data.data.currency,
-        provider_id: data.data.provider_id,
-        provider_name: data.data.provider_name,
-        rating: data.data.rating || 0,
-        reviews_count: data.data.reviews_count || 0,
-        image_url: data.data.image_url,
-        location: data.data.location,
-        available: data.data.available !== false,
+        title: notificationData.title || '',
+        description: notificationData.description || '',
+        category: notificationData.category || '',
+        price: notificationData.price || 0,
+        currency: notificationData.currency || 'USD',
+        provider_id: notificationData.provider_id || '',
+        provider_name: notificationData.provider_name || '',
+        rating: notificationData.rating || 0,
+        reviews_count: notificationData.reviews_count || 0,
+        image_url: notificationData.image_url,
+        location: notificationData.location || '',
+        available: notificationData.available !== false,
         created_at: data.created_at || new Date().toISOString(),
-        updated_at: data.data.updated_at || data.created_at || new Date().toISOString()
+        updated_at: notificationData.updated_at || data.created_at || new Date().toISOString()
       };
     } catch (error) {
       console.error('Error fetching service:', error);
@@ -308,23 +320,29 @@ class CRUDAPIService {
       if (error) throw error;
 
       return (data || [])
-        .filter(notification => notification.data?.name)
-        .map(notification => ({
-          id: notification.id,
-          name: notification.data.name,
-          description: notification.data.description,
-          category: notification.data.category,
-          price: notification.data.price,
-          currency: notification.data.currency,
-          seller_id: notification.data.seller_id,
-          seller_name: notification.data.seller_name,
-          rating: notification.data.rating || 0,
-          reviews_count: notification.data.reviews_count || 0,
-          image_url: notification.data.image_url,
-          stock_quantity: notification.data.stock_quantity,
-          created_at: notification.created_at || new Date().toISOString(),
-          updated_at: notification.data.updated_at || notification.created_at || new Date().toISOString()
-        }))
+        .filter(notification => {
+          const notificationData = safeGetData(notification.data);
+          return notificationData?.name;
+        })
+        .map(notification => {
+          const notificationData = safeGetData(notification.data);
+          return {
+            id: notification.id,
+            name: notificationData.name || '',
+            description: notificationData.description || '',
+            category: notificationData.category || '',
+            price: notificationData.price || 0,
+            currency: notificationData.currency || 'USD',
+            seller_id: notificationData.seller_id || notification.user_id || '',
+            seller_name: notificationData.seller_name || '',
+            rating: notificationData.rating || 0,
+            reviews_count: notificationData.reviews_count || 0,
+            image_url: notificationData.image_url,
+            stock_quantity: notificationData.stock_quantity || 0,
+            created_at: notification.created_at || new Date().toISOString(),
+            updated_at: notificationData.updated_at || notification.created_at || new Date().toISOString()
+          };
+        })
         .filter(product => {
           if (filters?.category && product.category !== filters.category) return false;
           return true;
@@ -349,23 +367,24 @@ class CRUDAPIService {
         throw error;
       }
 
-      if (!data.data?.name) return null;
+      const notificationData = safeGetData(data.data);
+      if (!notificationData?.name) return null;
 
       return {
         id: data.id,
-        name: data.data.name,
-        description: data.data.description,
-        category: data.data.category,
-        price: data.data.price,
-        currency: data.data.currency,
-        seller_id: data.data.seller_id,
-        seller_name: data.data.seller_name,
-        rating: data.data.rating || 0,
-        reviews_count: data.data.reviews_count || 0,
-        image_url: data.data.image_url,
-        stock_quantity: data.data.stock_quantity,
+        name: notificationData.name || '',
+        description: notificationData.description || '',
+        category: notificationData.category || '',
+        price: notificationData.price || 0,
+        currency: notificationData.currency || 'USD',
+        seller_id: notificationData.seller_id || data.user_id || '',
+        seller_name: notificationData.seller_name || '',
+        rating: notificationData.rating || 0,
+        reviews_count: notificationData.reviews_count || 0,
+        image_url: notificationData.image_url,
+        stock_quantity: notificationData.stock_quantity || 0,
         created_at: data.created_at || new Date().toISOString(),
-        updated_at: data.data.updated_at || data.created_at || new Date().toISOString()
+        updated_at: notificationData.updated_at || data.created_at || new Date().toISOString()
       };
     } catch (error) {
       console.error('Error fetching product:', error);

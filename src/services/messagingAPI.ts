@@ -31,6 +31,11 @@ export interface Conversation {
   unread_count: number;
 }
 
+// Helper function to safely extract data from Json type
+function safeGetData(data: any): any {
+  return data && typeof data === 'object' ? data : {};
+}
+
 class MessagingAPI {
   private getConversationId(userId1: string, userId2: string): string {
     // Create consistent conversation ID regardless of participant order
@@ -110,19 +115,22 @@ class MessagingAPI {
       if (error) throw error;
 
       // Transform notifications to messages
-      const messages: Message[] = (data || []).map(notification => ({
-        id: notification.id,
-        sender_id: notification.data?.sender_id || '',
-        receiver_id: notification.data?.receiver_id || notification.user_id || '',
-        content: notification.message,
-        is_read: notification.is_read || false,
-        created_at: notification.created_at || new Date().toISOString(),
-        sender_profile: notification.profiles ? {
-          first_name: notification.profiles.first_name || '',
-          last_name: notification.profiles.last_name || '',
-          avatar_url: notification.profiles.avatar_url || undefined
-        } : undefined
-      }));
+      const messages: Message[] = (data || []).map(notification => {
+        const notificationData = safeGetData(notification.data);
+        return {
+          id: notification.id,
+          sender_id: notificationData?.sender_id || '',
+          receiver_id: notificationData?.receiver_id || notification.user_id || '',
+          content: notification.message,
+          is_read: notification.is_read || false,
+          created_at: notification.created_at || new Date().toISOString(),
+          sender_profile: notification.profiles ? {
+            first_name: notification.profiles.first_name || '',
+            last_name: notification.profiles.last_name || '',
+            avatar_url: notification.profiles.avatar_url || undefined
+          } : undefined
+        };
+      });
 
       return messages;
     } catch (error) {
@@ -152,8 +160,9 @@ class MessagingAPI {
       const conversationMap = new Map<string, Conversation>();
       
       (data || []).forEach(notification => {
-        const senderId = notification.data?.sender_id;
-        const receiverId = notification.data?.receiver_id || notification.user_id;
+        const notificationData = safeGetData(notification.data);
+        const senderId = notificationData?.sender_id;
+        const receiverId = notificationData?.receiver_id || notification.user_id;
         
         if (!senderId || !receiverId) return;
         
