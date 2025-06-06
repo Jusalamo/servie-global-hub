@@ -1,3 +1,4 @@
+
 import React, { useState, createContext, useContext, ReactNode, useEffect } from "react";
 import { Check, ChevronDown, Globe, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,7 +36,7 @@ export const currencies: Currency[] = [
   { code: "USD", name: "US Dollar", symbol: "$" },
   { code: "EUR", name: "Euro", symbol: "€" },
   { code: "GBP", name: "British Pound", symbol: "£" },
-  { code: "JPY", name: Japanese Yen", symbol: "¥" },
+  { code: "JPY", name: "Japanese Yen", symbol: "¥" },
   { code: "CAD", name: "Canadian Dollar", symbol: "$" },
   { code: "AUD", name: "Australian Dollar", symbol: "$" },
   { code: "INR", name: "Indian Rupee", symbol: "₹" },
