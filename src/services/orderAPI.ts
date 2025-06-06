@@ -105,26 +105,20 @@ class OrderAPI {
 
       if (error) throw error;
 
-      // Transform notifications to orders with proper type assertions
+      // Transform notifications to orders
       const orders: Order[] = (data || [])
-        .filter(notification => {
-          const notificationData = notification.data as any;
-          return notificationData?.order_type === 'purchase';
-        })
-        .map(notification => {
-          const notificationData = notification.data as any;
-          return {
-            id: notification.id,
-            user_id: notification.user_id || '',
-            total_amount: notificationData?.total_amount || 0,
-            status: notificationData?.status || 'pending',
-            shipping_address: notificationData?.shipping_address || '',
-            payment_status: notificationData?.payment_status || 'pending',
-            created_at: notification.created_at || new Date().toISOString(),
-            updated_at: notification.created_at || new Date().toISOString(),
-            order_items: notificationData?.items || []
-          };
-        });
+        .filter(notification => notification.data?.order_type === 'purchase')
+        .map(notification => ({
+          id: notification.id,
+          user_id: notification.user_id || '',
+          total_amount: notification.data?.total_amount || 0,
+          status: notification.data?.status || 'pending',
+          shipping_address: notification.data?.shipping_address || '',
+          payment_status: notification.data?.payment_status || 'pending',
+          created_at: notification.created_at || new Date().toISOString(),
+          updated_at: notification.created_at || new Date().toISOString(),
+          order_items: notification.data?.items || []
+        }));
 
       return orders;
     } catch (error) {
@@ -147,18 +141,17 @@ class OrderAPI {
 
       if (error) throw error;
 
-      // Transform back to order format with proper type assertions
-      const notificationData = data.data as any;
+      // Transform back to order format
       const order: Order = {
         id: data.id,
         user_id: data.user_id || '',
-        total_amount: notificationData?.total_amount || 0,
+        total_amount: data.data?.total_amount || 0,
         status: status,
-        shipping_address: notificationData?.shipping_address || '',
-        payment_status: notificationData?.payment_status || 'pending',
+        shipping_address: data.data?.shipping_address || '',
+        payment_status: data.data?.payment_status || 'pending',
         created_at: data.created_at || new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        order_items: notificationData?.items || []
+        order_items: data.data?.items || []
       };
 
       return order;
@@ -181,18 +174,17 @@ class OrderAPI {
 
       if (error) throw error;
 
-      // Transform back to order format with proper type assertions
-      const notificationData = data.data as any;
+      // Transform back to order format
       const order: Order = {
         id: data.id,
         user_id: data.user_id || '',
-        total_amount: notificationData?.total_amount || 0,
-        status: notificationData?.status || 'pending',
-        shipping_address: notificationData?.shipping_address || '',
+        total_amount: data.data?.total_amount || 0,
+        status: data.data?.status || 'pending',
+        shipping_address: data.data?.shipping_address || '',
         payment_status: paymentStatus,
         created_at: data.created_at || new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        order_items: notificationData?.items || []
+        order_items: data.data?.items || []
       };
 
       return order;
@@ -215,20 +207,19 @@ class OrderAPI {
         throw error;
       }
 
-      const notificationData = data.data as any;
-      if (!notificationData?.order_type) return null;
+      if (!data.data?.order_type) return null;
 
-      // Transform to order format with proper type assertions
+      // Transform to order format
       const order: Order = {
         id: data.id,
         user_id: data.user_id || '',
-        total_amount: notificationData?.total_amount || 0,
-        status: notificationData?.status || 'pending',
-        shipping_address: notificationData?.shipping_address || '',
-        payment_status: notificationData?.payment_status || 'pending',
+        total_amount: data.data?.total_amount || 0,
+        status: data.data?.status || 'pending',
+        shipping_address: data.data?.shipping_address || '',
+        payment_status: data.data?.payment_status || 'pending',
         created_at: data.created_at || new Date().toISOString(),
         updated_at: data.created_at || new Date().toISOString(),
-        order_items: notificationData?.items || []
+        order_items: data.data?.items || []
       };
       
       return order;

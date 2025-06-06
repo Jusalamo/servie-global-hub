@@ -92,7 +92,7 @@ const Header = () => {
                     <ChevronDown className="h-4 w-4 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="p-0" align="end">
+                <PopoverContent className="w-72 p-0 max-h-[400px] overflow-hidden" align="end">
                   <LangCurrencySelector showCurrencies={true} />
                 </PopoverContent>
               </Popover>
@@ -148,7 +148,7 @@ const Header = () => {
         {isMobileMenuOpen && (
           <div className="md:hidden py-2 pb-3 space-y-1 animate-fade-in">
             <div className="px-3 py-2 flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Language & Currency</span>
+              <span className="text-sm font-medium">Language</span>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="outline" size="sm" className="flex items-center gap-1">
@@ -156,8 +156,8 @@ const Header = () => {
                     {currentLanguage.name}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="p-0" align="end">
-                  <LangCurrencySelector showCurrencies={true} />
+                <PopoverContent className="w-72 p-0" align="end">
+                  <LangCurrencySelector showCurrencies={false} />
                 </PopoverContent>
               </Popover>
             </div>

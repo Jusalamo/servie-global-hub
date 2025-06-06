@@ -4,7 +4,6 @@ import { Check, ChevronDown, Globe, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export type Language = {
   code: string;
@@ -230,103 +229,70 @@ export function LangCurrencySelector({
     toast.success(`Currency changed to ${currency.name}`);
   };
 
-  // Group currencies by region
-  const commonCurrencies = currencies.filter(c => c.region !== 'Africa');
-  const africanCurrencies = currencies.filter(c => c.region === 'Africa');
-
-  if (!showLanguages && !showCurrencies) {
-    return null;
-  }
-
   return (
-    <div className="w-80 p-0">
-      <Tabs defaultValue={showLanguages ? "language" : "currency"} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          {showLanguages && <TabsTrigger value="language">Language</TabsTrigger>}
-          {showCurrencies && <TabsTrigger value="currency">Currency</TabsTrigger>}
-        </TabsList>
-        
-        {showLanguages && (
-          <TabsContent value="language" className="p-4">
-            <div className="space-y-2">
-              <p className="text-sm font-medium mb-3">Select Language</p>
-              <div className="grid grid-cols-2 gap-2">
-                {languages.map((language) => (
-                  <Button
-                    key={language.code}
-                    variant="ghost"
-                    size="sm"
-                    className={`justify-start h-auto p-2 ${
-                      currentLanguage.code === language.code ? 'bg-primary/10 text-primary' : ''
-                    }`}
-                    onClick={() => handleLanguageChange(language)}
-                  >
-                    <span className="mr-2">{language.flag}</span>
-                    <span className="text-xs">{language.name}</span>
-                    {currentLanguage.code === language.code && (
-                      <Check className="h-3 w-3 ml-auto" />
-                    )}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </TabsContent>
-        )}
-        
-        {showCurrencies && (
-          <TabsContent value="currency" className="p-4">
-            <div className="space-y-3">
-              <p className="text-sm font-medium">Select Currency</p>
-              
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-muted-foreground">Common Currencies</p>
-                <div className="space-y-1">
-                  {commonCurrencies.map((currency) => (
-                    <Button
-                      key={currency.code}
-                      variant="ghost"
-                      size="sm"
-                      className={`w-full justify-start h-auto p-2 ${
-                        currentCurrency.code === currency.code ? 'bg-primary/10 text-primary' : ''
-                      }`}
-                      onClick={() => handleCurrencyChange(currency)}
-                    >
-                      <span className="mr-2">{currency.symbol}</span>
-                      <span className="text-xs">{currency.code} - {currency.name}</span>
-                      {currentCurrency.code === currency.code && (
-                        <Check className="h-3 w-3 ml-auto" />
-                      )}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-muted-foreground">African Currencies</p>
-                <div className="space-y-1">
-                  {africanCurrencies.map((currency) => (
-                    <Button
-                      key={currency.code}
-                      variant="ghost"
-                      size="sm"
-                      className={`w-full justify-start h-auto p-2 ${
-                        currentCurrency.code === currency.code ? 'bg-primary/10 text-primary' : ''
-                      }`}
-                      onClick={() => handleCurrencyChange(currency)}
-                    >
-                      <span className="mr-2">{currency.symbol}</span>
-                      <span className="text-xs">{currency.code} - {currency.name}</span>
-                      {currentCurrency.code === currency.code && (
-                        <Check className="h-3 w-3 ml-auto" />
-                      )}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-        )}
-      </Tabs>
+    <div className="p-4 max-h-[400px] overflow-y-auto">
+      {showLanguages && (
+        <div className="mb-4">
+          <p className="text-sm font-medium mb-3">Select Language</p>
+          <div className="grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto pr-2">
+            {languages.map((language) => (
+              <Button
+                key={language.code}
+                variant="ghost"
+                size="sm"
+                className="justify-start"
+                onClick={() => handleLanguageChange(language)}
+              >
+                <span className="mr-2">{language.flag}</span>
+                {language.name}
+                {currentLanguage.code === language.code && (
+                  <Check className="h-4 w-4 ml-auto" />
+                )}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {showCurrencies && (
+        <div className={showLanguages ? "mt-6" : ""}>
+          <p className="text-sm font-medium mb-3">Select Currency</p>
+          <div className="max-h-[200px] overflow-y-auto pr-2">
+            <p className="text-xs font-medium text-muted-foreground mt-2">Common Currencies</p>
+            {currencies.filter(c => c.region !== 'Africa').map((currency) => (
+              <Button
+                key={currency.code}
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start mb-1"
+                onClick={() => handleCurrencyChange(currency)}
+              >
+                <span className="mr-2">{currency.symbol}</span>
+                {currency.code} - {currency.name}
+                {currentCurrency.code === currency.code && (
+                  <Check className="h-4 w-4 ml-auto" />
+                )}
+              </Button>
+            ))}
+            <p className="text-xs font-medium text-muted-foreground mt-2">African Currencies</p>
+            {currencies.filter(c => c.region === 'Africa').map((currency) => (
+              <Button
+                key={currency.code}
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start mb-1"
+                onClick={() => handleCurrencyChange(currency)}
+              >
+                <span className="mr-2">{currency.symbol}</span>
+                {currency.code} - {currency.name}
+                {currentCurrency.code === currency.code && (
+                  <Check className="h-4 w-4 ml-auto" />
+                )}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
