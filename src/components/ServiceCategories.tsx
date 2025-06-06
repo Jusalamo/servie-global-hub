@@ -9,7 +9,7 @@ import {
   Coffee, Factory, Smartphone, Wifi, Shield, Plane, MapPin, Gift,
   Users, Phone, Video, Headphones, Monitor, Database, Cloud,
   Cpu, HardDrive, Router, Keyboard, Mouse, Speaker, Mic, Radio,
-  Settings, Tool, Flashlight, Compass, Mountain, Tent, Fish, Anchor
+  Settings, Wrench as ToolIcon, Flashlight, Compass, Mountain, Tent, Fish, Anchor
 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 
