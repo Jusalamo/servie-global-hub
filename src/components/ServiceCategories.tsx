@@ -9,12 +9,20 @@ import {
   Coffee, Factory, Smartphone, Wifi, Shield, Plane, MapPin, Gift,
   Users, Phone, Video, Headphones, Monitor, Database, Cloud,
   Cpu, HardDrive, Router, Keyboard, Mouse, Speaker, Mic, Radio,
-  Settings, Wrench as ToolIcon, Flashlight, Compass, Mountain, Tent, Fish, Anchor
+  Settings, Wrench as ToolIcon, Flashlight, Compass, Mountain, Tent, Fish, Anchor,
+  Scissors as BeautyIcon, Crown, Gem, Flower, Leaf, Sun, Moon, Star,
+  Sparkles, Package, Store, CreditCard, Wallet, Receipt, Calculator,
+  Banknote, TrendingUp, BarChart, PieChart, FileText, Folder, Archive,
+  Upload, Link, Share, Send, MessageCircle, Bell, Clock, Calendar,
+  Map, Navigation, Locate, Search, Filter, Sort, Grid, List, Eye,
+  Edit, Save, Trash, Plus, Minus, X, Check, ChevronDown, ChevronUp,
+  ArrowLeft, ArrowRight, ArrowUp, ArrowDown, RotateCcw, Refresh,
+  Power, Settings2, Tool, Cog, Sliders, Wrench2
 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 
 const categories = [
-  // Core Home & Personal Services
+  // Home & Personal Services (Enhanced)
   {
     icon: Home,
     name: "Home Services",
@@ -24,7 +32,7 @@ const categories = [
   {
     icon: Scissors,
     name: "Personal Care & Beauty",
-    description: "Hairstyling, spa, makeup, grooming",
+    description: "Hairstyling, spa, makeup, grooming, nails",
     color: "bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300",
   },
   {
@@ -46,7 +54,7 @@ const categories = [
     color: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
   },
 
-  // Professional & Business Services
+  // Professional & Business Services (Enhanced)
   {
     icon: Briefcase,
     name: "Business Consulting",
@@ -62,7 +70,7 @@ const categories = [
   {
     icon: BadgeDollarSign,
     name: "Financial Services",
-    description: "Accounting, tax, financial planning",
+    description: "Accounting, tax, financial planning, insurance",
     color: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300",
   },
   {
@@ -78,7 +86,7 @@ const categories = [
     color: "bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300",
   },
 
-  // Technology & Digital Services
+  // Technology & Digital Services (Enhanced)
   {
     icon: Laptop,
     name: "Web Development",
@@ -128,7 +136,7 @@ const categories = [
     color: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300",
   },
 
-  // Creative & Entertainment
+  // Creative & Entertainment (Enhanced)
   {
     icon: Music,
     name: "Music & Audio",
@@ -138,7 +146,7 @@ const categories = [
   {
     icon: Video,
     name: "Video Production",
-    description: "Film making, editing, animation",
+    description: "Film making, editing, animation, streaming",
     color: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300",
   },
   {
@@ -160,10 +168,10 @@ const categories = [
     color: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300",
   },
 
-  // Construction & Trades
+  // Construction & Trades (Enhanced)
   {
     icon: Building,
-    name: "Construction",
+    name: "Construction & Renovation",
     description: "Building, renovation, project management",
     color: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
   },
@@ -187,12 +195,12 @@ const categories = [
   },
   {
     icon: TreePine,
-    name: "Landscaping",
+    name: "Landscaping & Gardening",
     description: "Garden design, lawn care, tree services",
     color: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300",
   },
 
-  // Transportation & Logistics
+  // Transportation & Logistics (Enhanced)
   {
     icon: Truck,
     name: "Delivery & Moving",
@@ -207,22 +215,22 @@ const categories = [
   },
   {
     icon: Bus,
-    name: "Transportation",
+    name: "Transportation Services",
     description: "Ride services, shuttle, chauffeur",
     color: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
   },
   {
     icon: Plane,
-    name: "Travel Services",
+    name: "Travel & Tourism",
     description: "Travel planning, booking, tour guides",
     color: "bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-300",
   },
 
-  // Health & Fitness
+  // Health & Fitness (Enhanced)
   {
     icon: Dumbbell,
     name: "Fitness & Training",
-    description: "Personal training, fitness coaching",
+    description: "Personal training, fitness coaching, nutrition",
     color: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300",
   },
   {
@@ -232,7 +240,7 @@ const categories = [
     color: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300",
   },
 
-  // Food & Hospitality
+  // Food & Hospitality (Enhanced)
   {
     icon: Utensils,
     name: "Catering & Cooking",
@@ -252,7 +260,7 @@ const categories = [
     color: "bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300",
   },
 
-  // Fashion & Lifestyle
+  // Fashion & Lifestyle (Enhanced)
   {
     icon: Shirt,
     name: "Fashion & Tailoring",
@@ -265,8 +273,14 @@ const categories = [
     description: "Wardrobe styling, personal shopping",
     color: "bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300",
   },
+  {
+    icon: Crown,
+    name: "Luxury Services",
+    description: "High-end personal services, concierge",
+    color: "bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300",
+  },
 
-  // Education & Training
+  // Education & Training (Enhanced)
   {
     icon: GraduationCap,
     name: "Tutoring & Education",
@@ -280,7 +294,7 @@ const categories = [
     color: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300",
   },
 
-  // Security & Safety
+  // Security & Safety (Enhanced)
   {
     icon: ShieldPlus,
     name: "Security Services",
@@ -288,21 +302,21 @@ const categories = [
     color: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300",
   },
 
-  // Printing & Manufacturing
+  // Printing & Manufacturing (Enhanced)
   {
     icon: Printer,
-    name: "Printing Services",
-    description: "Custom printing, promotional materials",
+    name: "Printing & Publishing",
+    description: "Custom printing, promotional materials, books",
     color: "bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300",
   },
   {
     icon: Factory,
-    name: "Manufacturing",
+    name: "Manufacturing & Production",
     description: "Custom manufacturing, prototyping",
     color: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
   },
 
-  // Digital Products & Services
+  // Digital Products & Services (Enhanced)
   {
     icon: Download,
     name: "Digital Products",
@@ -316,7 +330,7 @@ const categories = [
     color: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
   },
 
-  // Outdoor & Adventure
+  // Outdoor & Adventure (Enhanced)
   {
     icon: Mountain,
     name: "Outdoor Adventures",
@@ -329,8 +343,14 @@ const categories = [
     description: "Fishing guides, boat services, marine repair",
     color: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
   },
+  {
+    icon: Tent,
+    name: "Camping & Recreation",
+    description: "Camping guides, equipment rental, outdoor gear",
+    color: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300",
+  },
 
-  // Specialized Services
+  // Specialized Services (Enhanced)
   {
     icon: HelpCircle,
     name: "Consulting & Coaching",
@@ -348,6 +368,38 @@ const categories = [
     name: "Local Services",
     description: "Community services, local expertise",
     color: "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300",
+  },
+
+  // New African-focused categories
+  {
+    icon: Phone,
+    name: "Mobile Money Services",
+    description: "Mobile payments, money transfers, financial tech",
+    color: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300",
+  },
+  {
+    icon: Banknote,
+    name: "Microfinance",
+    description: "Small loans, savings groups, financial inclusion",
+    color: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+  },
+  {
+    icon: Tractor,
+    name: "Agriculture Services",
+    description: "Farming equipment, crop advice, agricultural tech",
+    color: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300",
+  },
+  {
+    icon: Sun,
+    name: "Solar Energy",
+    description: "Solar panel installation, renewable energy",
+    color: "bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300",
+  },
+  {
+    icon: Wifi,
+    name: "Internet & Connectivity",
+    description: "Internet setup, network solutions, ISP services",
+    color: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
   }
 ]
 
@@ -360,11 +412,11 @@ export default function ServiceCategories() {
   };
 
   return (
-    <section id="services" className="py-16 md:py-24 bg-secondary/50 dark:bg-secondary/20">
+    <section id="services" className="py-16 md:py-24 bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-background dark:to-blue-950">
       <div className="container px-4 md:px-6">
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl bg-gradient-to-r from-servie via-purple-600 to-blue-600 bg-clip-text text-transparent">
               Explore Our Service Categories
             </h2>
             <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
@@ -376,10 +428,10 @@ export default function ServiceCategories() {
           {categories.map((category) => (
             <div 
               key={category.name} 
-              className="flex flex-col items-center p-6 bg-background rounded-xl border hover:shadow-md transition-all hover:scale-[1.02] cursor-pointer"
+              className="flex flex-col items-center p-6 bg-white/80 dark:bg-background/80 backdrop-blur-sm rounded-xl border hover:shadow-lg transition-all hover:scale-[1.02] cursor-pointer hover:bg-white dark:hover:bg-background"
               onClick={() => handleCategoryClick(category.name)}
             >
-              <div className={`p-3 rounded-full mb-4 ${category.color}`}>
+              <div className={`p-3 rounded-full mb-4 ${category.color} shadow-sm`}>
                 <category.icon className="h-6 w-6" />
               </div>
               <h3 className="font-bold text-lg mb-1 text-center">{category.name}</h3>
