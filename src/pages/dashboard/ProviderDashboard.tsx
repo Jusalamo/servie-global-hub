@@ -3,10 +3,11 @@ import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import ProviderSidebar from "@/components/dashboard/ProviderSidebar";
 import { ProviderOverviewTab } from "@/components/dashboard/provider/OverviewTab";
-import AddServiceForm from "@/components/dashboard/provider/AddServiceForm";
+import ServiceManagement from "@/components/dashboard/provider/ServiceManagement";
 import BookingsTab from "@/components/dashboard/provider/BookingsTab";
 import ClientsTab from "@/components/dashboard/provider/ClientsTab";
 import ReviewsTab from "@/components/dashboard/provider/ReviewsTab";
+import AvailabilityManager from "@/components/dashboard/provider/AvailabilityManager";
 import MessagingSystem from "@/components/dashboard/MessagingSystem";
 import PaymentMethods from "@/components/dashboard/PaymentMethods";
 import ProfileSettings from "@/components/dashboard/ProfileSettings";
@@ -39,6 +40,7 @@ export default function ProviderDashboard() {
       case "overview": return "Overview";
       case "services": return "Services";
       case "bookings": return "Bookings";
+      case "availability": return "Availability";
       case "clients": return "Clients";
       case "reviews": return "Reviews";
       case "payments": return "Payments";
@@ -56,9 +58,11 @@ export default function ProviderDashboard() {
       case "overview":
         return <ProviderOverviewTab />;
       case "services":
-        return <AddServiceForm />;
+        return <ServiceManagement />;
       case "bookings":
         return <BookingsTab />;
+      case "availability":
+        return <AvailabilityManager />;
       case "clients":
         return <ClientsTab />;
       case "reviews":

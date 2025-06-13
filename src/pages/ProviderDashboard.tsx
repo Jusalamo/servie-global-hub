@@ -1,12 +1,14 @@
+
 import { useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import ProviderSidebar from "@/components/dashboard/ProviderSidebar";
 import { ProviderOverviewTab } from "@/components/dashboard/provider/OverviewTab";
-import AddServiceForm from "@/components/dashboard/provider/AddServiceForm";
+import ServiceManagement from "@/components/dashboard/provider/ServiceManagement";
 import BookingsTab from "@/components/dashboard/provider/BookingsTab";
 import BookingsCalendarTab from "@/components/dashboard/provider/BookingsCalendarTab";
 import ClientsTab from "@/components/dashboard/provider/ClientsTab";
 import ReviewsTab from "@/components/dashboard/provider/ReviewsTab";
+import AvailabilityManager from "@/components/dashboard/provider/AvailabilityManager";
 import MessagingSystem from "@/components/dashboard/MessagingSystem";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -56,11 +58,13 @@ export default function ProviderDashboard() {
       case "overview":
         return <ProviderOverviewTab />;
       case "services":
-        return <AddServiceForm />;
+        return <ServiceManagement />;
       case "bookings":
         return <BookingsTab />;
       case "schedule":
         return <BookingsCalendarTab bookings={mockBookings} />;
+      case "availability":
+        return <AvailabilityManager />;
       case "clients":
         return <ClientsTab />;
       case "reviews":
