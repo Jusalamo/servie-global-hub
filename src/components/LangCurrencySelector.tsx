@@ -1,298 +1,140 @@
 
-import React, { useState, createContext, useContext, ReactNode, useEffect } from "react";
-import { Check, ChevronDown, Globe, DollarSign } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { useTranslation } from "react-i18next";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Globe, DollarSign } from "lucide-react";
+import { createContext, useContext } from "react";
 
-export type Language = {
-  code: string;
-  name: string;
-  flag: string;
-};
-
-export type Currency = {
-  code: string;
-  name: string;
-  symbol: string;
-  region?: string;
-};
-
-export const languages: Language[] = [
-  { code: "en", name: "English", flag: "🇺🇸" },
-  { code: "es", name: "Español", flag: "🇪🇸" },
-  { code: "fr", name: "Français", flag: "🇫🇷" },
-  { code: "de", name: "Deutsch", flag: "🇩🇪" },
-  { code: "zh", name: "中文", flag: "🇨🇳" },
-  { code: "jp", name: "日本語", flag: "🇯🇵" },
-  { code: "ar", name: "العربية", flag: "🇸🇦" },
-  { code: "sw", name: "Kiswahili", flag: "🇰🇪" },
-  { code: "yo", name: "Yorùbá", flag: "🇳🇬" },
-  { code: "ha", name: "Hausa", flag: "🇳🇬" },
-];
-
-export const currencies: Currency[] = [
-  { code: "USD", name: "US Dollar", symbol: "$" },
-  { code: "EUR", name: "Euro", symbol: "€" },
-  { code: "GBP", name: "British Pound", symbol: "£" },
-  { code: "JPY", name: "Japanese Yen", symbol: "¥" },
-  { code: "CAD", name: "Canadian Dollar", symbol: "$" },
-  { code: "AUD", name: "Australian Dollar", symbol: "$" },
-  { code: "INR", name: "Indian Rupee", symbol: "₹" },
-  // African currencies
-  { code: "NGN", name: "Nigerian Naira", symbol: "₦", region: "Africa" },
-  { code: "ZAR", name: "South African Rand", symbol: "R", region: "Africa" },
-  { code: "KES", name: "Kenyan Shilling", symbol: "KSh", region: "Africa" },
-  { code: "GHS", name: "Ghanaian Cedi", symbol: "₵", region: "Africa" },
-  { code: "EGP", name: "Egyptian Pound", symbol: "E£", region: "Africa" },
-  { code: "MAD", name: "Moroccan Dirham", symbol: "MAD", region: "Africa" },
-  { code: "UGX", name: "Ugandan Shilling", symbol: "USh", region: "Africa" },
-  { code: "TZS", name: "Tanzanian Shilling", symbol: "TSh", region: "Africa" },
-  { code: "XOF", name: "West African CFA franc", symbol: "CFA", region: "Africa" },
-  { code: "XAF", name: "Central African CFA franc", symbol: "FCFA", region: "Africa" },
-];
-
-// Create context for app-wide language and currency
 interface LocalizationContextType {
-  currentLanguage: Language;
-  currentCurrency: Currency;
-  setCurrentLanguage: (language: Language) => void;
-  setCurrentCurrency: (currency: Currency) => void;
+  language: string;
+  currency: string;
+  setLanguage: (lang: string) => void;
+  setCurrency: (curr: string) => void;
   formatPrice: (amount: number) => string;
   translate: (key: string) => string;
-  languages: Language[];
-  currencies: Currency[];
 }
 
 const LocalizationContext = createContext<LocalizationContextType | undefined>(undefined);
 
-// Exchange rates (approximate, would be fetched from API in production)
-const exchangeRates: Record<string, number> = {
-  USD: 1,
-  EUR: 0.92,
-  GBP: 0.79,
-  JPY: 151.12,
-  CAD: 1.37,
-  AUD: 1.52,
-  INR: 83.31,
-  NGN: 1503.41,
-  ZAR: 18.57,
-  KES: 131.03,
-  GHS: 15.46,
-  EGP: 47.83,
-  MAD: 9.93,
-  UGX: 3831.23,
-  TZS: 2635.17,
-  XOF: 605.14,
-  XAF: 605.14,
-};
+export const LocalizationProvider = ({ children }: { children: React.ReactNode }) => {
+  const [language, setLanguage] = useState("en");
+  const [currency, setCurrency] = useState("USD");
 
-export function LocalizationProvider({ children }: { children: ReactNode }) {
-  const { i18n, t } = useTranslation();
-  
-  // Use local storage to persist language and currency preferences
-  const [currentLanguage, setCurrentLanguage] = useState<Language>(() => {
-    const savedLanguage = localStorage.getItem('preferredLanguage');
-    if (savedLanguage) {
-      try {
-        return JSON.parse(savedLanguage);
-      } catch (e) {
-        return languages[0];
-      }
-    }
-    return languages[0];
-  });
-  
-  const [currentCurrency, setCurrentCurrency] = useState<Currency>(() => {
-    const savedCurrency = localStorage.getItem('preferredCurrency');
-    if (savedCurrency) {
-      try {
-        return JSON.parse(savedCurrency);
-      } catch (e) {
-        return currencies[0];
-      }
-    }
-    return currencies[0];
-  });
-
-  // Save preferences to localStorage and update i18n language
-  useEffect(() => {
-    localStorage.setItem('preferredLanguage', JSON.stringify(currentLanguage));
-    document.documentElement.setAttribute('lang', currentLanguage.code);
-    
-    // Update i18n language
-    i18n.changeLanguage(currentLanguage.code).catch(error => {
-      console.error("Error changing language:", error);
-    });
-  }, [currentLanguage, i18n]);
-  
-  useEffect(() => {
-    localStorage.setItem('preferredCurrency', JSON.stringify(currentCurrency));
-    
-    // Force a refresh of any components that might need it
-    window.dispatchEvent(new CustomEvent('currencyChanged', { detail: currentCurrency.code }));
-  }, [currentCurrency]);
-
-  const handleSetCurrentLanguage = (language: Language) => {
-    setCurrentLanguage(language);
-    
-    // Force a refresh of any components that might need it
-    window.dispatchEvent(new CustomEvent('languageChanged', { detail: language.code }));
+  const formatPrice = (amount: number) => {
+    const formatters = {
+      USD: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }),
+      EUR: new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }),
+      GBP: new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }),
+    };
+    return formatters[currency as keyof typeof formatters]?.format(amount) || `$${amount}`;
   };
 
-  const handleSetCurrentCurrency = (currency: Currency) => {
-    setCurrentCurrency(currency);
-    
-    // Force a refresh of price displays
-    window.dispatchEvent(new CustomEvent('currencyChanged', { detail: currency.code }));
-    
-    // Trigger a UI refresh by dispatching a global event
-    document.dispatchEvent(new Event('currency-changed'));
-  };
-
-  const formatPrice = (amount: number): string => {
-    if (typeof amount !== 'number') {
-      console.error('Invalid amount provided to formatPrice:', amount);
-      return ''; // Or a default value like '$0.00'
-    }
-
-    const rate = exchangeRates[currentCurrency.code] || 1;
-    const convertedAmount = amount * rate;
-    
-    try {
-      return new Intl.NumberFormat(currentLanguage.code, { 
-        style: 'currency', 
-        currency: currentCurrency.code,
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      }).format(convertedAmount);
-    } catch (error) {
-      console.error(`Error formatting price: ${error}`)
-      // Fallback formatting
-      return `${currentCurrency.symbol}${convertedAmount.toFixed(2)}`;
+  const translations = {
+    en: {
+      add_to_cart: "Add to Cart",
+      buy_now: "Buy Now",
+      adding: "Adding",
+      added_to_cart: "Added"
+    },
+    es: {
+      add_to_cart: "Añadir al Carrito",
+      buy_now: "Comprar Ahora",
+      adding: "Añadiendo",
+      added_to_cart: "Añadido"
+    },
+    fr: {
+      add_to_cart: "Ajouter au Panier",
+      buy_now: "Acheter Maintenant",
+      adding: "Ajout",
+      added_to_cart: "Ajouté"
     }
   };
-  
-  const translate = (key: string): string => {
-    return t(key) || key; // Use i18n translation
+
+  const translate = (key: string) => {
+    return translations[language as keyof typeof translations]?.[key as keyof typeof translations.en] || key;
   };
-  
+
   return (
     <LocalizationContext.Provider value={{
-      currentLanguage,
-      currentCurrency,
-      setCurrentLanguage: handleSetCurrentLanguage,
-      setCurrentCurrency: handleSetCurrentCurrency,
+      language,
+      currency,
+      setLanguage,
+      setCurrency,
       formatPrice,
-      translate,
-      languages,
-      currencies
+      translate
     }}>
       {children}
     </LocalizationContext.Provider>
   );
-}
+};
 
-export function useLocalization() {
+export const useLocalization = () => {
   const context = useContext(LocalizationContext);
-  if (context === undefined) {
-    throw new Error('useLocalization must be used within a LocalizationProvider');
+  if (!context) {
+    throw new Error("useLocalization must be used within LocalizationProvider");
   }
   return context;
-}
+};
 
-interface LangCurrencySelectorProps {
-  showLanguages?: boolean;
-  showCurrencies?: boolean;
-}
-
-export function LangCurrencySelector({ 
-  showLanguages = true,
-  showCurrencies = true
-}: LangCurrencySelectorProps) {
-  const { 
-    currentLanguage, 
-    currentCurrency, 
-    setCurrentLanguage, 
-    setCurrentCurrency,
-    languages,
-    currencies
-  } = useLocalization();
-
-  const handleLanguageChange = (language: Language) => {
-    setCurrentLanguage(language);
-    toast.success(`Language changed to ${language.name}`);
-  };
-
-  const handleCurrencyChange = (currency: Currency) => {
-    setCurrentCurrency(currency);
-    toast.success(`Currency changed to ${currency.name}`);
-  };
+const LangCurrencySelector = () => {
+  const { language, currency, setLanguage, setCurrency } = useLocalization();
 
   return (
-    <div className="p-4 max-h-[400px] overflow-y-auto">
-      {showLanguages && (
-        <div className="mb-4">
-          <p className="text-sm font-medium mb-3">Select Language</p>
-          <div className="grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto pr-2">
-            {languages.map((language) => (
-              <Button
-                key={language.code}
-                variant="ghost"
-                size="sm"
-                className="justify-start"
-                onClick={() => handleLanguageChange(language)}
-              >
-                <span className="mr-2">{language.flag}</span>
-                {language.name}
-                {currentLanguage.code === language.code && (
-                  <Check className="h-4 w-4 ml-auto" />
-                )}
-              </Button>
-            ))}
+    <div className="flex items-center gap-2">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground">
+            <Globe className="h-4 w-4" />
+            <span className="hidden sm:inline">{language.toUpperCase()}</span>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-48 p-2" align="end">
+          <div className="space-y-2">
+            <div className="text-sm font-medium mb-2">Language</div>
+            <Select value={language} onValueChange={setLanguage}>
+              <SelectTrigger className="h-8">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="en">English</SelectItem>
+                <SelectItem value="es">Español</SelectItem>
+                <SelectItem value="fr">Français</SelectItem>
+                <SelectItem value="de">Deutsch</SelectItem>
+                <SelectItem value="it">Italiano</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        </div>
-      )}
-      
-      {showCurrencies && (
-        <div className={showLanguages ? "mt-6" : ""}>
-          <p className="text-sm font-medium mb-3">Select Currency</p>
-          <div className="max-h-[200px] overflow-y-auto pr-2">
-            <p className="text-xs font-medium text-muted-foreground mt-2">Common Currencies</p>
-            {currencies.filter(c => c.region !== 'Africa').map((currency) => (
-              <Button
-                key={currency.code}
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start mb-1"
-                onClick={() => handleCurrencyChange(currency)}
-              >
-                <span className="mr-2">{currency.symbol}</span>
-                {currency.code} - {currency.name}
-                {currentCurrency.code === currency.code && (
-                  <Check className="h-4 w-4 ml-auto" />
-                )}
-              </Button>
-            ))}
-            <p className="text-xs font-medium text-muted-foreground mt-2">African Currencies</p>
-            {currencies.filter(c => c.region === 'Africa').map((currency) => (
-              <Button
-                key={currency.code}
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start mb-1"
-                onClick={() => handleCurrencyChange(currency)}
-              >
-                <span className="mr-2">{currency.symbol}</span>
-                {currency.code} - {currency.name}
-                {currentCurrency.code === currency.code && (
-                  <Check className="h-4 w-4 ml-auto" />
-                )}
-              </Button>
-            ))}
+        </PopoverContent>
+      </Popover>
+
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground">
+            <DollarSign className="h-4 w-4" />
+            <span className="hidden sm:inline">{currency}</span>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-48 p-2" align="end">
+          <div className="space-y-2">
+            <div className="text-sm font-medium mb-2">Currency</div>
+            <Select value={currency} onValueChange={setCurrency}>
+              <SelectTrigger className="h-8">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="USD">USD - US Dollar</SelectItem>
+                <SelectItem value="EUR">EUR - Euro</SelectItem>
+                <SelectItem value="GBP">GBP - British Pound</SelectItem>
+                <SelectItem value="CAD">CAD - Canadian Dollar</SelectItem>
+                <SelectItem value="AUD">AUD - Australian Dollar</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        </div>
-      )}
+        </PopoverContent>
+      </Popover>
     </div>
   );
-}
+};
+
+export default LangCurrencySelector;
