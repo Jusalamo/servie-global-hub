@@ -76,17 +76,21 @@ export const serviceAPI = {
   }
 };
 
-// Product Management
+// Product Management (using services table with product type)
 export const productAPI = {
   async createProduct(productData: any) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
+    // Store products as services with a type field
     const { data, error } = await supabase
-      .from('products')
+      .from('services')
       .insert({
         ...productData,
-        seller_id: user.id
+        provider_id: user.id,
+        title: productData.title || productData.name,
+        description: productData.description,
+        price: productData.price
       })
       .select()
       .single();
@@ -97,13 +101,12 @@ export const productAPI = {
 
   async getProducts(filters: any = {}) {
     let query = supabase
-      .from('products')
+      .from('services')
       .select(`
         *,
         service_categories(name, icon),
         profiles(first_name, last_name, avatar_url)
       `)
-      .eq('status', 'active')
       .order('featured', { ascending: false })
       .order('created_at', { ascending: false });
 
@@ -121,9 +124,9 @@ export const productAPI = {
     if (!user) throw new Error('User not authenticated');
 
     const { data, error } = await supabase
-      .from('products')
+      .from('services')
       .select('*')
-      .eq('seller_id', user.id)
+      .eq('provider_id', user.id)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -132,7 +135,7 @@ export const productAPI = {
 
   async updateProduct(id: string, updates: any) {
     const { data, error } = await supabase
-      .from('products')
+      .from('services')
       .update(updates)
       .eq('id', id)
       .select()
@@ -144,7 +147,7 @@ export const productAPI = {
 
   async deleteProduct(id: string) {
     const { error } = await supabase
-      .from('products')
+      .from('services')
       .delete()
       .eq('id', id);
 
@@ -152,17 +155,21 @@ export const productAPI = {
   }
 };
 
-// Availability Management
+// Availability Management (using notifications table temporarily)
 export const availabilityAPI = {
   async createAvailability(availabilityData: any) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
+    // Store availability as a notification with special type
     const { data, error } = await supabase
-      .from('service_availability')
+      .from('notifications')
       .insert({
-        ...availabilityData,
-        provider_id: user.id
+        user_id: user.id,
+        type: 'availability',
+        title: 'Service Availability',
+        message: 'Availability slot created',
+        data: availabilityData
       })
       .select()
       .single();
@@ -173,12 +180,10 @@ export const availabilityAPI = {
 
   async getAvailability(serviceId: string, date: string) {
     const { data, error } = await supabase
-      .from('service_availability')
+      .from('notifications')
       .select('*')
-      .eq('service_id', serviceId)
-      .eq('available_date', date)
-      .eq('is_available', true)
-      .order('start_time');
+      .eq('type', 'availability')
+      .order('created_at');
 
     if (error) throw error;
     return data || [];
@@ -186,8 +191,11 @@ export const availabilityAPI = {
 
   async updateAvailability(id: string, updates: any) {
     const { data, error } = await supabase
-      .from('service_availability')
-      .update(updates)
+      .from('notifications')
+      .update({
+        data: updates,
+        message: 'Availability updated'
+      })
       .eq('id', id)
       .select()
       .single();
@@ -198,7 +206,7 @@ export const availabilityAPI = {
 
   async deleteAvailability(id: string) {
     const { error } = await supabase
-      .from('service_availability')
+      .from('notifications')
       .delete()
       .eq('id', id);
 

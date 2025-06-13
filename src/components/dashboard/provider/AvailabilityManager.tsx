@@ -1,151 +1,251 @@
-
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
-import { serviceAPI } from "@/services/supabaseAPI";
-import { format } from "date-fns";
+import { Plus, Clock, Trash2 } from "lucide-react";
+import { availabilityAPI, serviceAPI } from "@/services/supabaseAPI";
+import { useToast } from "@/hooks/use-toast";
 
-const AvailabilityManager = () => {
-  const [services, setServices] = useState([]);
-  const [selectedService, setSelectedService] = useState("");
+interface TimeSlot {
+  id: string;
+  start_time: string;
+  end_time: string;
+  is_available: boolean;
+}
+
+export default function AvailabilityManager() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
+  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
+  const [newStartTime, setNewStartTime] = useState("");
+  const [newEndTime, setNewEndTime] = useState("");
+  const [services, setServices] = useState<any[]>([]);
+  const [selectedService, setSelectedService] = useState("");
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     loadServices();
   }, []);
 
+  useEffect(() => {
+    if (selectedDate && selectedService) {
+      loadAvailability();
+    }
+  }, [selectedDate, selectedService]);
+
   const loadServices = async () => {
     try {
       const data = await serviceAPI.getMyServices();
       setServices(data);
+      if (data.length > 0) {
+        setSelectedService(data[0].id);
+      }
     } catch (error) {
-      toast.error("Failed to load services");
-      console.error(error);
+      console.error('Error loading services:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load services",
+        variant: "destructive",
+      });
     }
   };
 
-  const handleSetAvailability = async () => {
-    if (!selectedService || !selectedDate || !startTime || !endTime) {
-      toast.error("Please fill all fields");
+  const loadAvailability = async () => {
+    if (!selectedDate || !selectedService) return;
+
+    try {
+      const dateString = selectedDate.toISOString().split('T')[0];
+      const data = await availabilityAPI.getAvailability(selectedService, dateString);
+      
+      // Transform notifications data to time slots
+      const slots = data
+        .filter(item => item.data?.service_id === selectedService && item.data?.date === dateString)
+        .map(item => ({
+          id: item.id,
+          start_time: item.data?.start_time || "09:00",
+          end_time: item.data?.end_time || "10:00",
+          is_available: true
+        }));
+      
+      setTimeSlots(slots);
+    } catch (error) {
+      console.error('Error loading availability:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load availability",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const addTimeSlot = async () => {
+    if (!newStartTime || !newEndTime || !selectedDate || !selectedService) {
+      toast({
+        title: "Error",
+        description: "Please fill in all fields",
+        variant: "destructive",
+      });
       return;
     }
 
     setLoading(true);
     try {
-      // For now, just show success message since availability table doesn't exist yet
-      toast.success("Availability set successfully!");
-      
-      // Reset form
-      setStartTime("");
-      setEndTime("");
+      const dateString = selectedDate.toISOString().split('T')[0];
+      await availabilityAPI.createAvailability({
+        service_id: selectedService,
+        date: dateString,
+        start_time: newStartTime,
+        end_time: newEndTime,
+        is_available: true
+      });
+
+      toast({
+        title: "Success",
+        description: "Time slot added successfully",
+      });
+
+      setNewStartTime("");
+      setNewEndTime("");
+      loadAvailability();
     } catch (error) {
-      toast.error("Failed to set availability");
-      console.error(error);
+      console.error('Error adding time slot:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add time slot",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const deleteTimeSlot = async (slotId: string) => {
+    try {
+      await availabilityAPI.deleteAvailability(slotId);
+      toast({
+        title: "Success",
+        description: "Time slot deleted successfully",
+      });
+      loadAvailability();
+    } catch (error) {
+      console.error('Error deleting time slot:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete time slot",
+        variant: "destructive",
+      });
     }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Manage Availability</h2>
+        <h2 className="text-2xl font-bold">Availability Management</h2>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Set Availability</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="service">Select Service</Label>
-              <Select value={selectedService} onValueChange={setSelectedService}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a service" />
-                </SelectTrigger>
-                <SelectContent>
-                  {services.map((service: any) => (
-                    <SelectItem key={service.id} value={service.id}>
-                      {service.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="startTime">Start Time</Label>
-                <Input
-                  id="startTime"
-                  type="time"
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="endTime">End Time</Label>
-                <Input
-                  id="endTime"
-                  type="time"
-                  value={endTime}
-                  onChange={(e) => setEndTime(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <Button 
-              onClick={handleSetAvailability} 
-              disabled={loading}
-              className="w-full bg-servie hover:bg-servie-600"
-            >
-              {loading ? "Setting..." : "Set Availability"}
-            </Button>
-          </CardContent>
-        </Card>
-
+        {/* Calendar */}
         <Card>
           <CardHeader>
             <CardTitle>Select Date</CardTitle>
+            <CardDescription>Choose a date to manage availability</CardDescription>
           </CardHeader>
           <CardContent>
             <Calendar
               mode="single"
               selected={selectedDate}
               onSelect={setSelectedDate}
-              disabled={(date) => date < new Date()}
               className="rounded-md border"
             />
-            {selectedDate && (
-              <p className="mt-4 text-sm text-muted-foreground">
-                Selected: {format(selectedDate, "PPP")}
-              </p>
+          </CardContent>
+        </Card>
+
+        {/* Time Slots */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Time Slots</CardTitle>
+            <CardDescription>
+              {selectedDate ? `Availability for ${selectedDate.toDateString()}` : "Select a date to view slots"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Service Selection */}
+            {services.length > 0 && (
+              <div>
+                <Label htmlFor="service-select">Service</Label>
+                <select
+                  id="service-select"
+                  value={selectedService}
+                  onChange={(e) => setSelectedService(e.target.value)}
+                  className="w-full p-2 border rounded-md"
+                >
+                  {services.map((service) => (
+                    <option key={service.id} value={service.id}>
+                      {service.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
             )}
+
+            {/* Add New Time Slot */}
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="start-time">Start Time</Label>
+                  <Input
+                    id="start-time"
+                    type="time"
+                    value={newStartTime}
+                    onChange={(e) => setNewStartTime(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="end-time">End Time</Label>
+                  <Input
+                    id="end-time"
+                    type="time"
+                    value={newEndTime}
+                    onChange={(e) => setNewEndTime(e.target.value)}
+                  />
+                </div>
+              </div>
+              <Button onClick={addTimeSlot} disabled={loading} className="w-full">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Time Slot
+              </Button>
+            </div>
+
+            {/* Existing Time Slots */}
+            <div className="space-y-2">
+              <Label>Available Time Slots</Label>
+              {timeSlots.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No time slots available for this date</p>
+              ) : (
+                <div className="space-y-2">
+                  {timeSlots.map((slot) => (
+                    <div key={slot.id} className="flex items-center justify-between p-3 border rounded-md">
+                      <div className="flex items-center space-x-2">
+                        <Clock className="h-4 w-4" />
+                        <span>{slot.start_time} - {slot.end_time}</span>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => deleteTimeSlot(slot.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Current Availability</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            Availability management will be fully functional once the database is set up with proper tables.
-          </p>
-        </CardContent>
-      </Card>
     </div>
   );
-};
-
-export default AvailabilityManager;
+}

@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import SellerSidebar from "@/components/dashboard/SellerSidebar";
-import { SellerOverviewTab } from "@/components/dashboard/seller/OverviewTab";
+import SellerOverviewTab from "@/components/dashboard/seller/OverviewTab";
 import ProductManagement from "@/components/dashboard/seller/ProductManagement";
 import OrdersTab from "@/components/dashboard/seller/OrdersTab";
 import MessagingSystem from "@/components/dashboard/MessagingSystem";
