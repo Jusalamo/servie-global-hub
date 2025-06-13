@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Globe, ChevronDown, User } from 'lucide-react';
@@ -20,7 +19,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { LangCurrencySelector } from './LangCurrencySelector';
+import LangCurrencySelector from './LangCurrencySelector';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { LangCurrencySelector } from "@/components/LangCurrencySelector";
+import LangCurrencySelector from "@/components/LangCurrencySelector";
 import { Facebook, Twitter, Instagram, Linkedin, Youtube, Mail } from "lucide-react";
 
 export default function EnhancedFooter() {
