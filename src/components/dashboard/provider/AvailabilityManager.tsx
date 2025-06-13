@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +14,14 @@ interface TimeSlot {
   start_time: string;
   end_time: string;
   is_available: boolean;
+}
+
+interface AvailabilityData {
+  service_id?: string;
+  date?: string;
+  start_time?: string;
+  end_time?: string;
+  is_available?: boolean;
 }
 
 export default function AvailabilityManager() {
@@ -59,15 +68,22 @@ export default function AvailabilityManager() {
       const dateString = selectedDate.toISOString().split('T')[0];
       const data = await availabilityAPI.getAvailability(selectedService, dateString);
       
-      // Transform notifications data to time slots
+      // Transform notifications data to time slots with proper type checking
       const slots = data
-        .filter(item => item.data?.service_id === selectedService && item.data?.date === dateString)
-        .map(item => ({
-          id: item.id,
-          start_time: item.data?.start_time || "09:00",
-          end_time: item.data?.end_time || "10:00",
-          is_available: true
-        }));
+        .filter(item => {
+          if (!item.data || typeof item.data !== 'object') return false;
+          const availData = item.data as AvailabilityData;
+          return availData.service_id === selectedService && availData.date === dateString;
+        })
+        .map(item => {
+          const availData = item.data as AvailabilityData;
+          return {
+            id: item.id,
+            start_time: availData.start_time || "09:00",
+            end_time: availData.end_time || "10:00",
+            is_available: true
+          };
+        });
       
       setTimeSlots(slots);
     } catch (error) {
