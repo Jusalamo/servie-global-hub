@@ -76,21 +76,17 @@ export const serviceAPI = {
   }
 };
 
-// Product Management (using services table with product type)
+// Product Management (using the new products table)
 export const productAPI = {
   async createProduct(productData: any) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
-    // Store products as services with a type field
     const { data, error } = await supabase
-      .from('services')
+      .from('products')
       .insert({
         ...productData,
-        provider_id: user.id,
-        title: productData.title || productData.name,
-        description: productData.description,
-        price: productData.price
+        seller_id: user.id
       })
       .select()
       .single();
@@ -101,12 +97,13 @@ export const productAPI = {
 
   async getProducts(filters: any = {}) {
     let query = supabase
-      .from('services')
+      .from('products')
       .select(`
         *,
         service_categories(name, icon),
         profiles(first_name, last_name, avatar_url)
       `)
+      .eq('status', 'active')
       .order('featured', { ascending: false })
       .order('created_at', { ascending: false });
 
@@ -124,9 +121,9 @@ export const productAPI = {
     if (!user) throw new Error('User not authenticated');
 
     const { data, error } = await supabase
-      .from('services')
+      .from('products')
       .select('*')
-      .eq('provider_id', user.id)
+      .eq('seller_id', user.id)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -135,7 +132,7 @@ export const productAPI = {
 
   async updateProduct(id: string, updates: any) {
     const { data, error } = await supabase
-      .from('services')
+      .from('products')
       .update(updates)
       .eq('id', id)
       .select()
@@ -147,11 +144,195 @@ export const productAPI = {
 
   async deleteProduct(id: string) {
     const { error } = await supabase
-      .from('services')
+      .from('products')
       .delete()
       .eq('id', id);
 
     if (error) throw error;
+  }
+};
+
+// Cart and Order Management
+export const cartAPI = {
+  async addToCart(productId: string, quantity: number = 1) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    // Get or create pending order
+    let { data: order } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('status', 'pending')
+      .single();
+
+    if (!order) {
+      const { data: newOrder, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user.id,
+          status: 'pending',
+          total: 0
+        })
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+      order = newOrder;
+    }
+
+    // Get product price
+    const { data: product, error: productError } = await supabase
+      .from('products')
+      .select('price')
+      .eq('id', productId)
+      .single();
+
+    if (productError) throw productError;
+
+    // Check if item already exists in cart
+    const { data: existingItem } = await supabase
+      .from('order_items')
+      .select('*')
+      .eq('order_id', order.id)
+      .eq('product_id', productId)
+      .single();
+
+    if (existingItem) {
+      // Update quantity
+      const { data, error } = await supabase
+        .from('order_items')
+        .update({ quantity: existingItem.quantity + quantity })
+        .eq('id', existingItem.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      await this.updateOrderTotal(order.id);
+      return data;
+    } else {
+      // Add new item
+      const { data, error } = await supabase
+        .from('order_items')
+        .insert({
+          order_id: order.id,
+          product_id: productId,
+          quantity,
+          price: product.price
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      await this.updateOrderTotal(order.id);
+      return data;
+    }
+  },
+
+  async getCart() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data: order } = await supabase
+      .from('orders')
+      .select(`
+        *,
+        order_items(
+          *,
+          products(*)
+        )
+      `)
+      .eq('user_id', user.id)
+      .eq('status', 'pending')
+      .single();
+
+    return order?.order_items || [];
+  },
+
+  async updateCartItem(itemId: string, quantity: number) {
+    if (quantity <= 0) {
+      return this.removeFromCart(itemId);
+    }
+
+    const { data, error } = await supabase
+      .from('order_items')
+      .update({ quantity })
+      .eq('id', itemId)
+      .select('order_id')
+      .single();
+
+    if (error) throw error;
+    await this.updateOrderTotal(data.order_id);
+    return data;
+  },
+
+  async removeFromCart(itemId: string) {
+    const { data: item } = await supabase
+      .from('order_items')
+      .select('order_id')
+      .eq('id', itemId)
+      .single();
+
+    const { error } = await supabase
+      .from('order_items')
+      .delete()
+      .eq('id', itemId);
+
+    if (error) throw error;
+    if (item) {
+      await this.updateOrderTotal(item.order_id);
+    }
+  },
+
+  async updateOrderTotal(orderId: string) {
+    const { data: items } = await supabase
+      .from('order_items')
+      .select('quantity, price')
+      .eq('order_id', orderId);
+
+    const total = items?.reduce((sum, item) => sum + (item.quantity * item.price), 0) || 0;
+
+    await supabase
+      .from('orders')
+      .update({ total })
+      .eq('id', orderId);
+  },
+
+  async clearCart() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data: order } = await supabase
+      .from('orders')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('status', 'pending')
+      .single();
+
+    if (order) {
+      await supabase
+        .from('order_items')
+        .delete()
+        .eq('order_id', order.id);
+
+      await supabase
+        .from('orders')
+        .delete()
+        .eq('id', order.id);
+    }
+  }
+};
+
+// Categories API
+export const categoriesAPI = {
+  async getCategories() {
+    const { data, error } = await supabase
+      .from('service_categories')
+      .select('*')
+      .order('name');
+
+    if (error) throw error;
+    return data || [];
   }
 };
 
@@ -161,7 +342,6 @@ export const availabilityAPI = {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
-    // Store availability as a notification with special type
     const { data, error } = await supabase
       .from('notifications')
       .insert({
