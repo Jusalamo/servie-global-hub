@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { TrashIcon, MinusIcon, PlusIcon, ShoppingCart, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useCart } from "@/context/CartContext";
 
 const Cart = () => {
@@ -86,10 +86,10 @@ const Cart = () => {
                   {cartItems.map((item) => (
                     <div key={item.id} className="py-4">
                       <div className="flex items-start gap-4">
-                        <Link to={`/product/${item.id}`} className="shrink-0">
+                        <Link to={`/product/${item.product_id}`} className="shrink-0">
                           <img
-                            src={item.image}
-                            alt={item.name}
+                            src={item.products.image_url || '/placeholder.svg'}
+                            alt={item.products.name}
                             className="h-20 w-20 rounded-md object-cover"
                           />
                         </Link>
@@ -98,13 +98,13 @@ const Cart = () => {
                           <div className="flex justify-between">
                             <div>
                               <Link 
-                                to={`/product/${item.id}`}
+                                to={`/product/${item.product_id}`}
                                 className="font-medium hover:underline"
                               >
-                                {item.name}
+                                {item.products.name}
                               </Link>
                               <div className="mt-1 text-sm text-muted-foreground">
-                                Sold by: {item.providerName}
+                                Sold by: Seller
                               </div>
                             </div>
                             <div className="font-medium">

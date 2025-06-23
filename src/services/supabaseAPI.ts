@@ -76,22 +76,37 @@ export const serviceAPI = {
   }
 };
 
-// Product Management (using the new products table)
+// Product Management using raw SQL
 export const productAPI = {
   async createProduct(productData: any) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await supabase
-      .from('products')
-      .insert({
-        ...productData,
-        seller_id: user.id
-      })
-      .select()
-      .single();
+    const { data, error } = await supabase.rpc('create_product', {
+      p_name: productData.name,
+      p_description: productData.description,
+      p_price: productData.price,
+      p_category_id: productData.category_id,
+      p_image_url: productData.image_url,
+      p_stock_quantity: productData.stock_quantity,
+      p_status: productData.status,
+      p_seller_id: user.id
+    });
 
-    if (error) throw error;
+    if (error) {
+      // Fallback to direct insert if function doesn't exist
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from('products')
+        .insert({
+          ...productData,
+          seller_id: user.id
+        })
+        .select()
+        .single();
+      
+      if (fallbackError) throw fallbackError;
+      return fallbackData;
+    }
     return data;
   },
 
@@ -112,7 +127,10 @@ export const productAPI = {
     }
 
     const { data, error } = await query;
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching products:', error);
+      return [];
+    }
     return data || [];
   },
 
@@ -126,7 +144,10 @@ export const productAPI = {
       .eq('seller_id', user.id)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching my products:', error);
+      return [];
+    }
     return data || [];
   },
 

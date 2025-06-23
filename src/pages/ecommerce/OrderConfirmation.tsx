@@ -62,8 +62,8 @@ const OrderConfirmation = () => {
       localStorage.setItem("orders", JSON.stringify(orders));
       
       // Send notifications (simulated)
-      console.log("Order notifications would be sent to providers:", 
-        cartItems.map(item => item.providerId)
+      console.log("Order notifications would be sent to sellers:", 
+        cartItems.map(item => item.products.seller_id)
       );
     }, 1500);
   }, [navigate, cartItems, clearCart, cartTotal]);
@@ -121,18 +121,18 @@ const OrderConfirmation = () => {
                             <div key={item.id} className="flex gap-4">
                               <div className="h-16 w-16 rounded-md overflow-hidden flex-shrink-0">
                                 <img 
-                                  src={item.image} 
-                                  alt={item.name} 
+                                  src={item.products.image_url || '/placeholder.svg'} 
+                                  alt={item.products.name} 
                                   className="h-full w-full object-cover"
                                 />
                               </div>
                               <div className="flex-1">
-                                <div className="font-medium">{item.name}</div>
+                                <div className="font-medium">{item.products.name}</div>
                                 <div className="text-sm text-muted-foreground">
                                   Quantity: {item.quantity}
                                 </div>
                                 <div className="text-sm text-muted-foreground">
-                                  Sold by: {item.providerName}
+                                  Sold by: Seller
                                 </div>
                               </div>
                               <div className="font-medium">
