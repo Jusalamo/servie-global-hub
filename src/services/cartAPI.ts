@@ -33,7 +33,7 @@ export const cartAPI = {
             seller_id
           )
         `)
-        .eq('order_id', order.id);
+        .eq('order_id', (order as any).id);
 
       if (error) {
         console.error('Error fetching cart items:', error);
@@ -89,7 +89,7 @@ export const cartAPI = {
       const { data: existingItem, error: existingError } = await supabase
         .from('order_items' as any)
         .select('*')
-        .eq('order_id', order.id)
+        .eq('order_id', (order as any).id)
         .eq('product_id', productId)
         .maybeSingle();
 
@@ -111,7 +111,7 @@ export const cartAPI = {
         const { error: insertError } = await supabase
           .from('order_items' as any)
           .insert({
-            order_id: order.id,
+            order_id: (order as any).id,
             product_id: productId,
             quantity,
             price: (product as any).price
@@ -121,7 +121,7 @@ export const cartAPI = {
       }
 
       // Update order total
-      await this.updateOrderTotal(order.id);
+      await this.updateOrderTotal((order as any).id);
       return true;
     } catch (error) {
       console.error('Error adding to cart:', error);
