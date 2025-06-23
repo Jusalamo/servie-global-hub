@@ -50,7 +50,17 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     try {
       const items = await cartAPI.getCartItems(user.id);
-      setCartItems(items);
+      // Type guard to ensure we have valid cart items
+      const validItems = Array.isArray(items) ? items.filter(item => 
+        item && 
+        typeof item === 'object' && 
+        'id' in item && 
+        'product_id' in item && 
+        'quantity' in item && 
+        'price' in item &&
+        'products' in item
+      ) as CartItem[] : [];
+      setCartItems(validItems);
     } catch (error) {
       console.error('Error loading cart:', error);
       setCartItems([]);

@@ -98,11 +98,12 @@ export const cartAPI = {
       }
 
       if (existingItem) {
-        // Update quantity
+        // Update quantity if item exists
+        const newQuantity = (existingItem as any).quantity + quantity;
         const { error: updateError } = await supabase
           .from('order_items' as any)
-          .update({ quantity: existingItem.quantity + quantity })
-          .eq('id', existingItem.id);
+          .update({ quantity: newQuantity })
+          .eq('id', (existingItem as any).id);
 
         if (updateError) throw updateError;
       } else {
@@ -113,7 +114,7 @@ export const cartAPI = {
             order_id: order.id,
             product_id: productId,
             quantity,
-            price: product.price
+            price: (product as any).price
           });
 
         if (insertError) throw insertError;
@@ -146,7 +147,7 @@ export const cartAPI = {
       if (deleteError) throw deleteError;
 
       if (item) {
-        await this.updateOrderTotal(item.order_id);
+        await this.updateOrderTotal((item as any).order_id);
       }
       
       return true;
@@ -168,7 +169,7 @@ export const cartAPI = {
       if (updateError) throw updateError;
 
       if (item) {
-        await this.updateOrderTotal(item.order_id);
+        await this.updateOrderTotal((item as any).order_id);
       }
       
       return true;
@@ -217,14 +218,14 @@ export const cartAPI = {
         const { error: deleteItemsError } = await supabase
           .from('order_items' as any)
           .delete()
-          .eq('order_id', order.id);
+          .eq('order_id', (order as any).id);
 
         if (deleteItemsError) throw deleteItemsError;
 
         const { error: deleteOrderError } = await supabase
           .from('orders' as any)
           .delete()
-          .eq('id', order.id);
+          .eq('id', (order as any).id);
 
         if (deleteOrderError) throw deleteOrderError;
       }
