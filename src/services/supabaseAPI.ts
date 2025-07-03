@@ -381,3 +381,68 @@ export const bookingAPI = {
     return data;
   }
 };
+
+// Financial Management
+export const financialAPI = {
+  async getEarningsSummary() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data, error } = await supabase
+      .from('earnings_summary')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+
+    if (error && error.code !== 'PGRST116') throw error;
+    return data;
+  },
+
+  async getTransactions(limit = 50) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data, error } = await supabase
+      .from('financial_transactions')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('transaction_date', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return data || [];
+  },
+
+  async createTransaction(transaction: any) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data, error } = await supabase
+      .from('financial_transactions')
+      .insert({
+        ...transaction,
+        user_id: user.id,
+      } as any)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async getTransactionsByDateRange(startDate: string, endDate: string) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data, error } = await supabase
+      .from('financial_transactions')
+      .select('*')
+      .eq('user_id', user.id)
+      .gte('transaction_date', startDate)
+      .lte('transaction_date', endDate)
+      .order('transaction_date', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  }
+};

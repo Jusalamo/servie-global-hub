@@ -66,6 +66,45 @@ export type Database = {
           },
         ]
       }
+      earnings_summary: {
+        Row: {
+          created_at: string
+          id: string
+          last_updated: string
+          monthly_earnings: number
+          monthly_expenses: number
+          total_earnings: number
+          total_expenses: number
+          user_id: string
+          weekly_earnings: number
+          weekly_expenses: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_updated?: string
+          monthly_earnings?: number
+          monthly_expenses?: number
+          total_earnings?: number
+          total_expenses?: number
+          user_id: string
+          weekly_earnings?: number
+          weekly_expenses?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_updated?: string
+          monthly_earnings?: number
+          monthly_expenses?: number
+          total_earnings?: number
+          total_expenses?: number
+          user_id?: string
+          weekly_earnings?: number
+          weekly_expenses?: number
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           client_id: string | null
@@ -101,6 +140,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      financial_transactions: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          reference_id: string | null
+          reference_type: string | null
+          status: string
+          transaction_date: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          reference_type?: string | null
+          status?: string
+          transaction_date?: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          reference_type?: string | null
+          status?: string
+          transaction_date?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       notifications: {
         Row: {
