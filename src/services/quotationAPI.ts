@@ -133,7 +133,7 @@ export const quotationAPI = {
           terms_conditions: quotationData.terms_conditions,
           discount_percentage: quotationData.discount_percentage || 0,
           tax_percentage: quotationData.tax_percentage || 0,
-        })
+        } as any)
         .select()
         .single();
 
@@ -152,7 +152,7 @@ export const quotationAPI = {
 
       const { error: itemsError } = await supabase
         .from('quotation_items')
-        .insert(items);
+        .insert(items as any);
 
       if (itemsError) throw itemsError;
 
