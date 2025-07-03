@@ -73,7 +73,7 @@ export const quotationAPI = {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      return (data || []) as Quotation[];
     } catch (error) {
       console.error('Error fetching quotations:', error);
       throw error;
@@ -89,7 +89,7 @@ export const quotationAPI = {
         .single();
 
       if (error) throw error;
-      return data;
+      return data as Quotation;
     } catch (error) {
       console.error('Error fetching quotation:', error);
       throw error;
@@ -105,7 +105,7 @@ export const quotationAPI = {
         .order('sort_order');
 
       if (error) throw error;
-      return data || [];
+      return (data || []) as QuotationItem[];
     } catch (error) {
       console.error('Error fetching quotation items:', error);
       throw error;
@@ -117,7 +117,7 @@ export const quotationAPI = {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      // Create the quotation
+      // Create the quotation - let the database generate the quote_number
       const { data: quotation, error: quotationError } = await supabase
         .from('quotations')
         .insert({
@@ -156,7 +156,7 @@ export const quotationAPI = {
 
       if (itemsError) throw itemsError;
 
-      return quotation;
+      return quotation as Quotation;
     } catch (error) {
       console.error('Error creating quotation:', error);
       throw error;
