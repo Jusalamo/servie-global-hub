@@ -316,6 +316,131 @@ export type Database = {
         }
         Relationships: []
       }
+      quotation_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          item_name: string
+          quantity: number
+          quotation_id: string
+          sort_order: number
+          total_price: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          item_name: string
+          quantity?: number
+          quotation_id: string
+          sort_order?: number
+          total_price: number
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          item_name?: string
+          quantity?: number
+          quotation_id?: string
+          sort_order?: number
+          total_price?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotation_items_quotation_id_fkey"
+            columns: ["quotation_id"]
+            isOneToOne: false
+            referencedRelation: "quotations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quotations: {
+        Row: {
+          accepted_at: string | null
+          client_email: string | null
+          client_name: string
+          client_phone: string | null
+          created_at: string
+          declined_at: string | null
+          description: string | null
+          discount_amount: number
+          discount_percentage: number
+          due_date: string | null
+          id: string
+          notes: string | null
+          provider_id: string
+          quote_number: string
+          sent_at: string | null
+          status: string
+          subtotal: number
+          tax_amount: number
+          tax_percentage: number
+          terms_conditions: string | null
+          title: string
+          total: number
+          updated_at: string
+          valid_until: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          client_email?: string | null
+          client_name: string
+          client_phone?: string | null
+          created_at?: string
+          declined_at?: string | null
+          description?: string | null
+          discount_amount?: number
+          discount_percentage?: number
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          provider_id: string
+          quote_number: string
+          sent_at?: string | null
+          status?: string
+          subtotal?: number
+          tax_amount?: number
+          tax_percentage?: number
+          terms_conditions?: string | null
+          title: string
+          total?: number
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          client_email?: string | null
+          client_name?: string
+          client_phone?: string | null
+          created_at?: string
+          declined_at?: string | null
+          description?: string | null
+          discount_amount?: number
+          discount_percentage?: number
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          provider_id?: string
+          quote_number?: string
+          sent_at?: string | null
+          status?: string
+          subtotal?: number
+          tax_amount?: number
+          tax_percentage?: number
+          terms_conditions?: string | null
+          title?: string
+          total?: number
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
       reviews: {
         Row: {
           booking_id: string | null
@@ -508,7 +633,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_quote_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

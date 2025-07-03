@@ -8,6 +8,7 @@ import BookingsTab from "@/components/dashboard/provider/BookingsTab";
 import ClientsTab from "@/components/dashboard/provider/ClientsTab";
 import ReviewsTab from "@/components/dashboard/provider/ReviewsTab";
 import AvailabilityManager from "@/components/dashboard/provider/AvailabilityManager";
+import QuotationsTab from "@/components/dashboard/provider/QuotationsTab";
 import MessagingSystem from "@/components/dashboard/MessagingSystem";
 import PaymentMethods from "@/components/dashboard/PaymentMethods";
 import ProfileSettings from "@/components/dashboard/ProfileSettings";
@@ -41,6 +42,7 @@ export default function ProviderDashboard() {
       case "services": return "Services";
       case "bookings": return "Bookings";
       case "availability": return "Availability";
+      case "quotations": return "Quotations";
       case "clients": return "Clients";
       case "reviews": return "Reviews";
       case "payments": return "Payments";
@@ -63,6 +65,8 @@ export default function ProviderDashboard() {
         return <BookingsTab />;
       case "availability":
         return <AvailabilityManager />;
+      case "quotations":
+        return <QuotationsTab />;
       case "clients":
         return <ClientsTab />;
       case "reviews":

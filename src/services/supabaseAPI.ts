@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 // Service Management
@@ -151,6 +150,93 @@ export const productAPI = {
   async deleteProduct(id: string) {
     const { error } = await supabase
       .from('products' as any)
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  }
+};
+
+// Quotation Management
+export const quotationAPI = {
+  async createQuotation(quotationData: any) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data, error } = await supabase
+      .from('quotations')
+      .insert({
+        ...quotationData,
+        provider_id: user.id
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async getMyQuotations() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data, error } = await supabase
+      .from('quotations')
+      .select('*')
+      .eq('provider_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  },
+
+  async getQuotationById(id: string) {
+    const { data, error } = await supabase
+      .from('quotations')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async getQuotationItems(quotationId: string) {
+    const { data, error } = await supabase
+      .from('quotation_items')
+      .select('*')
+      .eq('quotation_id', quotationId)
+      .order('sort_order');
+
+    if (error) throw error;
+    return data || [];
+  },
+
+  async updateQuotationStatus(id: string, status: string) {
+    const updateData: any = { status };
+    
+    if (status === 'sent') {
+      updateData.sent_at = new Date().toISOString();
+    } else if (status === 'accepted') {
+      updateData.accepted_at = new Date().toISOString();
+    } else if (status === 'declined') {
+      updateData.declined_at = new Date().toISOString();
+    }
+
+    const { data, error } = await supabase
+      .from('quotations')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteQuotation(id: string) {
+    const { error } = await supabase
+      .from('quotations')
       .delete()
       .eq('id', id);
 
