@@ -11,13 +11,11 @@ import { useCart } from "@/context/CartContext";
 
 const OrderConfirmation = () => {
   const navigate = useNavigate();
-  const { items, clearCart, getTotalPrice } = useCart();
+  const { cartItems, clearCart, cartTotal } = useCart();
   const [orderNumber, setOrderNumber] = useState("");
   const [orderDate, setOrderDate] = useState("");
   const [orderItems, setOrderItems] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
-  const cartTotal = getTotalPrice();
   
   // Check if user came from checkout
   useEffect(() => {
@@ -33,7 +31,7 @@ const OrderConfirmation = () => {
     sessionStorage.removeItem("fromCheckout");
     
     // Save order items before clearing cart
-    setOrderItems(items);
+    setOrderItems(cartItems);
     
     // Generate random order number
     const randomOrderNumber = "ORD-" + Math.floor(100000 + Math.random() * 900000);
@@ -57,7 +55,7 @@ const OrderConfirmation = () => {
       orders.push({
         id: randomOrderNumber,
         date: new Date().toISOString(),
-        items: items,
+        items: cartItems,
         total: cartTotal,
         status: "confirmed"
       });
@@ -65,10 +63,10 @@ const OrderConfirmation = () => {
       
       // Send notifications (simulated)
       console.log("Order notifications would be sent to sellers:", 
-        items.map(item => `seller-${item.id}`)
+        cartItems.map(item => item.products.seller_id)
       );
     }, 1500);
-  }, [navigate, items, clearCart, cartTotal]);
+  }, [navigate, cartItems, clearCart, cartTotal]);
 
   const subtotal = orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const shipping = subtotal > 100 ? 0 : 10;
@@ -123,13 +121,13 @@ const OrderConfirmation = () => {
                             <div key={item.id} className="flex gap-4">
                               <div className="h-16 w-16 rounded-md overflow-hidden flex-shrink-0">
                                 <img 
-                                  src={item.imageUrl || '/placeholder.svg'} 
-                                  alt={item.name} 
+                                  src={item.products.image_url || '/placeholder.svg'} 
+                                  alt={item.products.name} 
                                   className="h-full w-full object-cover"
                                 />
                               </div>
                               <div className="flex-1">
-                                <div className="font-medium">{item.name}</div>
+                                <div className="font-medium">{item.products.name}</div>
                                 <div className="text-sm text-muted-foreground">
                                   Quantity: {item.quantity}
                                 </div>
