@@ -382,3 +382,126 @@ export const products: Product[] = [
     stockCount: 10
   }
 ];
+
+// Mock users data
+export interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: "client" | "provider" | "seller" | "admin";
+  avatar?: string;
+  phone?: string;
+  location?: string;
+  joinDate: string;
+  favorites?: string[]; // service IDs for clients
+}
+
+export const users: User[] = [
+  {
+    id: "user-1",
+    firstName: "Sarah",
+    lastName: "Johnson",
+    email: "sarah.johnson@example.com",
+    role: "client",
+    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b123?w=150&h=150&fit=crop&crop=face",
+    phone: "+1 (555) 123-4567",
+    location: "New York, NY",
+    joinDate: "2024-01-15",
+    favorites: ["1", "3", "5"]
+  },
+  {
+    id: "user-2",
+    firstName: "Michael",
+    lastName: "Chen",
+    email: "michael.chen@example.com",
+    role: "provider",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+    phone: "+1 (555) 234-5678",
+    location: "Los Angeles, CA",
+    joinDate: "2023-11-20"
+  },
+  {
+    id: "user-3",
+    firstName: "Emma",
+    lastName: "Davis",
+    email: "emma.davis@example.com",
+    role: "seller",
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+    phone: "+1 (555) 345-6789",
+    location: "Miami, FL",
+    joinDate: "2024-02-10"
+  },
+  {
+    id: "user-4",
+    firstName: "David",
+    lastName: "Wilson",
+    email: "david.wilson@example.com",
+    role: "admin",
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+    phone: "+1 (555) 456-7890",
+    location: "San Francisco, CA",
+    joinDate: "2023-08-05"
+  }
+];
+
+// Mock bookings data
+export interface Booking {
+  id: string;
+  serviceId: string;
+  clientId: string;
+  providerId: string;
+  packageId: string;
+  date: string;
+  time: string;
+  status: "pending" | "confirmed" | "completed" | "cancelled";
+  totalPrice: number;
+  notes?: string;
+  createdAt: string;
+  paymentStatus: "unpaid" | "paid" | "refunded";
+}
+
+export const bookings: Booking[] = [
+  {
+    id: "booking-1",
+    serviceId: "1",
+    clientId: "user-1",
+    providerId: "provider-1",
+    packageId: "pkg-1-standard",
+    date: "2024-07-15",
+    time: "10:00",
+    status: "confirmed",
+    totalPrice: 120,
+    notes: "Please use eco-friendly products",
+    createdAt: "2024-07-05T09:00:00Z",
+    paymentStatus: "paid"
+  },
+  {
+    id: "booking-2",
+    serviceId: "3",
+    clientId: "user-1",
+    providerId: "provider-3",
+    packageId: "pkg-3-premium",
+    date: "2024-08-20",
+    time: "14:00",
+    status: "pending",
+    totalPrice: 1200,
+    notes: "Wedding photography for outdoor ceremony",
+    createdAt: "2024-07-02T14:30:00Z",
+    paymentStatus: "unpaid"
+  },
+  {
+    id: "booking-3",
+    serviceId: "5",
+    clientId: "user-1",
+    providerId: "provider-5",
+    packageId: "pkg-5-standard",
+    date: "2024-07-10",
+    time: "08:00",
+    status: "completed",
+    totalPrice: 180,
+    notes: "Focus on cardio and strength training",
+    createdAt: "2024-06-25T16:20:00Z",
+    paymentStatus: "paid"
+  }
+];
