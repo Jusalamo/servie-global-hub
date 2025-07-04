@@ -61,6 +61,8 @@ export function RoleBasedSignIn() {
     password: ''
   });
 
+  const from = location.state?.from?.pathname || "/dashboard";
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({
@@ -103,7 +105,7 @@ export function RoleBasedSignIn() {
       
       toast.success(`Successfully signed in as ${selectedRole}!`);
       
-      // Navigate based on role with proper redirect
+      // Navigate based on role
       switch (selectedRole) {
         case "provider":
           navigate("/dashboard/provider?tab=overview", { replace: true });

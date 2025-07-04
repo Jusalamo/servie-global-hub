@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import SellerSidebar from "@/components/dashboard/SellerSidebar";
@@ -9,7 +8,6 @@ import MessagingSystem from "@/components/dashboard/MessagingSystem";
 import PaymentMethods from "@/components/dashboard/PaymentMethods";
 import ProfileSettings from "@/components/dashboard/ProfileSettings";
 import NotificationsSettings from "@/components/dashboard/NotificationsSettings";
-import FinancesTab from "@/components/dashboard/FinancesTab";
 import { useLocation } from "react-router-dom";
 import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
 
@@ -38,7 +36,6 @@ export default function SellerDashboard() {
       case "overview": return "Overview";
       case "products": return "Products";
       case "orders": return "Orders";
-      case "finances": return "Finances";
       case "payments": return "Payments";
       case "messages": return "Messages";
       case "settings": return "Account Settings";
@@ -57,8 +54,6 @@ export default function SellerDashboard() {
         return <ProductManagement />;
       case "orders":
         return <OrdersTab />;
-      case "finances":
-        return <FinancesTab userRole="seller" />;
       case "payments":
         return <PaymentMethods />;
       case "messages":
