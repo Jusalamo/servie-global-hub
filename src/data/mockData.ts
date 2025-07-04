@@ -1,3 +1,4 @@
+
 // Mock data for services with packages structure
 export interface ServicePackage {
   id: string;
@@ -35,7 +36,7 @@ export const services: Service[] = [
     price: 75,
     category: "Home Services",
     categoryId: "1",
-    location: "New York, NY",
+    location: "Lagos, Nigeria",
     images: [
       "https://images.unsplash.com/photo-1558618047-b00de36e47d7?w=600&h=400&fit=crop",
       "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=600&h=400&fit=crop"
@@ -80,7 +81,7 @@ export const services: Service[] = [
     price: 60,
     category: "Home Services",
     categoryId: "1",
-    location: "Los Angeles, CA",
+    location: "Cape Town, South Africa",
     images: [
       "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=600&h=400&fit=crop",
       "https://images.unsplash.com/photo-1592496431128-4b30e8c53f01?w=600&h=400&fit=crop"
@@ -125,10 +126,10 @@ export const services: Service[] = [
     price: 500,
     category: "Photography",
     categoryId: "3",
-    location: "Miami, FL",
+    location: "Windhoek, Namibia",
     images: [
       "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1495147466023-ac5ca7140Main?w=600&h=400&fit=crop"
+      "https://images.unsplash.com/photo-1495147466023-ac5ca7140344?w=600&h=400&fit=crop"
     ],
     imageUrl: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=400&fit=crop",
     rating: 4.9,
@@ -170,7 +171,7 @@ export const services: Service[] = [
     price: 2000,
     category: "Technology",
     categoryId: "4",
-    location: "San Francisco, CA",
+    location: "Abuja, Nigeria",
     images: [
       "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop",
       "https://images.unsplash.com/photo-1567426182914-ca995999ca09?w=600&h=400&fit=crop"
@@ -215,7 +216,7 @@ export const services: Service[] = [
     price: 40,
     category: "Fitness & Health",
     categoryId: "5",
-    location: "Chicago, IL",
+    location: "Johannesburg, South Africa",
     images: [
       "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop",
       "https://images.unsplash.com/photo-1583454110551-4585c69b3c2d?w=600&h=400&fit=crop"
@@ -254,7 +255,7 @@ export const services: Service[] = [
   }
 ];
 
-// Mock products data
+// Mock products data with African themes
 export interface Product {
   id: string;
   sellerId: string;
@@ -276,8 +277,8 @@ export const products: Product[] = [
   {
     id: "prod-1",
     sellerId: "seller-1",
-    name: "Premium Hair Extensions",
-    description: "100% human hair extensions, various lengths and colors available",
+    name: "Premium Afro Hair Extensions",
+    description: "100% natural African hair extensions, various textures and lengths available",
     price: 89.99,
     category: "Beauty & Personal Care",
     categoryId: "1",
@@ -312,8 +313,8 @@ export const products: Product[] = [
   {
     id: "prod-3",
     sellerId: "seller-3",
-    name: "Stylish Women's Dress",
-    description: "Elegant dress for all occasions, various sizes and colors",
+    name: "Traditional African Print Dress",
+    description: "Elegant Ankara dress for all occasions, various sizes and vibrant patterns",
     price: 59.99,
     category: "Fashion & Clothing",
     categoryId: "3",
@@ -330,8 +331,8 @@ export const products: Product[] = [
   {
     id: "prod-4",
     sellerId: "seller-4",
-    name: "Modern Home Decor Set",
-    description: "Set of decorative items to enhance your home",
+    name: "African Art Home Decor Set",
+    description: "Set of handcrafted African art pieces to enhance your home",
     price: 79.99,
     category: "Home & Garden",
     categoryId: "4",
@@ -366,8 +367,8 @@ export const products: Product[] = [
   {
     id: "prod-6",
     sellerId: "seller-6",
-    name: "Classic Novel Collection",
-    description: "Set of classic novels for literature enthusiasts",
+    name: "African Literature Collection",
+    description: "Set of classic African novels and contemporary works",
     price: 49.99,
     category: "Books & Education",
     categoryId: "6",
@@ -383,7 +384,7 @@ export const products: Product[] = [
   }
 ];
 
-// Mock users data
+// Mock users data with African names and images
 export interface User {
   id: string;
   firstName: string;
@@ -400,47 +401,113 @@ export interface User {
 export const users: User[] = [
   {
     id: "user-1",
-    firstName: "Sarah",
+    firstName: "Amara",
     lastName: "Johnson",
-    email: "sarah.johnson@example.com",
+    email: "amara.johnson@example.com",
     role: "client",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b123?w=150&h=150&fit=crop&crop=face",
-    phone: "+1 (555) 123-4567",
-    location: "New York, NY",
+    avatar: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=150&h=150&fit=crop&crop=face",
+    phone: "+234 (555) 123-4567",
+    location: "Lagos, Nigeria",
     joinDate: "2024-01-15",
     favorites: ["1", "3", "5"]
   },
   {
-    id: "user-2",
-    firstName: "Michael",
-    lastName: "Chen",
-    email: "michael.chen@example.com",
+    id: "provider-1",
+    firstName: "Kwame",
+    lastName: "Asante",
+    email: "kwame.asante@example.com",
     role: "provider",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    phone: "+1 (555) 234-5678",
-    location: "Los Angeles, CA",
+    phone: "+234 (555) 234-5678",
+    location: "Lagos, Nigeria",
     joinDate: "2023-11-20"
   },
   {
-    id: "user-3",
-    firstName: "Emma",
-    lastName: "Davis",
-    email: "emma.davis@example.com",
-    role: "seller",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-    phone: "+1 (555) 345-6789",
-    location: "Miami, FL",
+    id: "provider-2",
+    firstName: "Sipho",
+    lastName: "Mthembu",
+    email: "sipho.mthembu@example.com",
+    role: "provider",
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+    phone: "+27 (555) 345-6789",
+    location: "Cape Town, South Africa",
     joinDate: "2024-02-10"
   },
   {
+    id: "provider-3",
+    firstName: "Nalani",
+    lastName: "Kamati",
+    email: "nalani.kamati@example.com",
+    role: "provider",
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+    phone: "+264 (555) 456-7890",
+    location: "Windhoek, Namibia",
+    joinDate: "2023-08-05"
+  },
+  {
+    id: "provider-4",
+    firstName: "Chidi",
+    lastName: "Okafor",
+    email: "chidi.okafor@example.com",
+    role: "provider",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
+    phone: "+234 (555) 567-8901",
+    location: "Abuja, Nigeria",
+    joinDate: "2023-12-01"
+  },
+  {
+    id: "provider-5",
+    firstName: "Thabo",
+    lastName: "Molefe",
+    email: "thabo.molefe@example.com",
+    role: "provider",
+    avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&h=150&fit=crop&crop=face",
+    phone: "+27 (555) 678-9012",
+    location: "Johannesburg, South Africa",
+    joinDate: "2023-09-15"
+  },
+  {
+    id: "seller-1",
+    firstName: "Fatima",
+    lastName: "Adebayo",
+    email: "fatima.adebayo@example.com",
+    role: "seller",
+    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b123?w=150&h=150&fit=crop&crop=face",
+    phone: "+234 (555) 789-0123",
+    location: "Lagos, Nigeria",
+    joinDate: "2024-01-20"
+  },
+  {
+    id: "seller-2",
+    firstName: "Mandla",
+    lastName: "Ndlovu",
+    email: "mandla.ndlovu@example.com",
+    role: "seller",
+    avatar: "https://images.unsplash.com/photo-1463453091185-61582044d556?w=150&h=150&fit=crop&crop=face",
+    phone: "+27 (555) 890-1234",
+    location: "Cape Town, South Africa",
+    joinDate: "2023-10-10"
+  },
+  {
+    id: "seller-3",
+    firstName: "Kesi",
+    lastName: "Shipanga",
+    email: "kesi.shipanga@example.com",
+    role: "seller",
+    avatar: "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=150&h=150&fit=crop&crop=face",
+    phone: "+264 (555) 901-2345",
+    location: "Windhoek, Namibia",
+    joinDate: "2024-03-05"
+  },
+  {
     id: "user-4",
-    firstName: "David",
-    lastName: "Wilson",
-    email: "david.wilson@example.com",
+    firstName: "Adunni",
+    lastName: "Oni",
+    email: "adunni.oni@example.com",
     role: "admin",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-    phone: "+1 (555) 456-7890",
-    location: "San Francisco, CA",
+    avatar: "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=150&h=150&fit=crop&crop=face",
+    phone: "+234 (555) 012-3456",
+    location: "Abuja, Nigeria",
     joinDate: "2023-08-05"
   }
 ];
