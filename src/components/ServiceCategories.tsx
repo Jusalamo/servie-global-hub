@@ -21,7 +21,6 @@ export default function ServiceCategories() {
   const renderCategories = (categories: typeof serviceCategories) => (
     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
       {categories.map((category) => {
-        const IconComponent = category.icon;
         return (
           <div 
             key={category.id} 
@@ -29,7 +28,7 @@ export default function ServiceCategories() {
             onClick={() => handleCategoryClick(category.id)}
           >
             <div className={`p-3 rounded-full mb-4 transition-colors group-hover:scale-110 ${category.color}`}>
-              <IconComponent className="h-6 w-6" />
+              <span className="text-2xl">{category.icon}</span>
             </div>
             <h3 className="font-bold text-lg mb-1 text-center text-gray-900 dark:text-white">{category.name}</h3>
             <p className="text-sm text-center text-gray-600 dark:text-gray-300 line-clamp-2">{category.description}</p>

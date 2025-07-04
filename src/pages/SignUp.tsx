@@ -9,7 +9,7 @@ import { useAuth } from "@/context/AuthContext"
 import UserRoleSelector from "@/components/auth/UserRoleSelector"
 import SignUpForm from "@/components/SignUpForm"
 
-type UserRole = "client" | "provider" | "seller"
+type UserRole = "client" | "provider" | "seller" | "admin"
 
 export default function SignUp() {
   const location = useLocation();
@@ -27,7 +27,7 @@ export default function SignUp() {
   // Set default role based on URL parameter
   useEffect(() => {
     const role = searchParams.get('role');
-    if (role === 'provider' || role === 'seller') {
+    if (role === 'provider' || role === 'seller' || role === 'admin') {
       setUserRole(role as UserRole);
       // Skip to step 2 if role was provided in URL
       setCurrentStep(2);
@@ -98,7 +98,7 @@ export default function SignUp() {
               <h3 className="text-xl font-medium text-center mb-4">Select your account type</h3>
               <UserRoleSelector 
                 selectedRole={userRole} 
-                onChange={role => setUserRole(role)}
+                onChange={(role: UserRole) => setUserRole(role)}
               />
               
               <div className="flex justify-end mt-6">

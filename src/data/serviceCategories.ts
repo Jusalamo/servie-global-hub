@@ -1,13 +1,18 @@
+
 export interface ServiceCategory {
   id: string;
   name: string;
   icon: string;
-  image?: string; // Add image property
+  image?: string;
+  description: string;
+  color: string;
+  region?: string;
+  featured?: boolean;
   subcategories?: {
     id: string;
     name: string;
     icon: string;
-    image?: string; // Add image property to subcategories too
+    image?: string;
   }[];
 }
 
@@ -16,6 +21,9 @@ export const serviceCategories: ServiceCategory[] = [
     id: "1",
     name: "Home Services",
     icon: "🏠",
+    description: "Professional home maintenance and repair services",
+    color: "bg-blue-500 text-white",
+    featured: true,
     image: "https://images.unsplash.com/photo-1558618047-b00de36e47d7?w=400&h=300&fit=crop",
     subcategories: [
       { 
@@ -54,6 +62,9 @@ export const serviceCategories: ServiceCategory[] = [
     id: "2",
     name: "Beauty & Wellness",
     icon: "💄",
+    description: "Professional beauty and wellness services",
+    color: "bg-pink-500 text-white",
+    featured: true,
     image: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&h=300&fit=crop",
     subcategories: [
       { 
@@ -86,6 +97,9 @@ export const serviceCategories: ServiceCategory[] = [
     id: "3",
     name: "Photography",
     icon: "📸",
+    description: "Professional photography services for all occasions",
+    color: "bg-purple-500 text-white",
+    featured: true,
     image: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400&h=300&fit=crop",
     subcategories: [
       { 
@@ -118,6 +132,9 @@ export const serviceCategories: ServiceCategory[] = [
     id: "4",
     name: "Technology",
     icon: "💻",
+    description: "Tech support and development services",
+    color: "bg-indigo-500 text-white",
+    featured: false,
     image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop",
     subcategories: [
       { 
@@ -150,6 +167,9 @@ export const serviceCategories: ServiceCategory[] = [
     id: "5",
     name: "Fitness & Health",
     icon: "💪",
+    description: "Health and fitness services",
+    color: "bg-green-500 text-white",
+    featured: true,
     image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
     subcategories: [
       { 
@@ -182,6 +202,9 @@ export const serviceCategories: ServiceCategory[] = [
     id: "6",
     name: "Education & Tutoring",
     icon: "📚",
+    description: "Educational and tutoring services",
+    color: "bg-orange-500 text-white",
+    featured: false,
     image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&h=300&fit=crop",
     subcategories: [
       { 
@@ -209,5 +232,46 @@ export const serviceCategories: ServiceCategory[] = [
         image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop"
       }
     ]
+  },
+  {
+    id: "7",
+    name: "African Traditional Services",
+    icon: "🌍",
+    description: "Traditional African services and crafts",
+    color: "bg-yellow-600 text-white",
+    region: "Africa",
+    featured: true,
+    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
+    subcategories: [
+      { 
+        id: "7-1", 
+        name: "Traditional Healing", 
+        icon: "🌿",
+        image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop"
+      },
+      { 
+        id: "7-2", 
+        name: "African Catering", 
+        icon: "🍲",
+        image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop"
+      }
+    ]
   }
 ];
+
+// Export utility functions
+export const getFeaturedCategories = (): ServiceCategory[] => {
+  return serviceCategories.filter(category => category.featured);
+};
+
+export const getAfricanCategories = (): ServiceCategory[] => {
+  return serviceCategories.filter(category => category.region === 'Africa');
+};
+
+export const getGlobalCategories = (): ServiceCategory[] => {
+  return serviceCategories.filter(category => !category.region || category.region !== 'Africa');
+};
+
+export const getCategoryById = (id: string): ServiceCategory | undefined => {
+  return serviceCategories.find(category => category.id === id);
+};

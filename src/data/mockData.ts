@@ -1,12 +1,11 @@
-export interface User {
+// Mock data for services with packages structure
+export interface ServicePackage {
   id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: "client" | "provider" | "seller" | "admin";
-  location?: string;
-  favorites?: string[];
-  avatar?: string;
+  name: string;
+  price: number;
+  delivery: string;
+  description: string;
+  features: string[];
 }
 
 export interface Service {
@@ -19,442 +18,367 @@ export interface Service {
   categoryId: string;
   location: string;
   images: string[];
+  imageUrl: string; // Main image for compatibility
   rating: number;
   reviewCount: number;
   featured: boolean;
   responseTime: string;
+  packages: ServicePackage[];
 }
 
+export const services: Service[] = [
+  {
+    id: "1",
+    providerId: "provider-1",
+    title: "Professional Home Cleaning",
+    description: "Complete home cleaning service with eco-friendly products",
+    price: 75,
+    category: "Home Services",
+    categoryId: "1",
+    location: "New York, NY",
+    images: [
+      "https://images.unsplash.com/photo-1558618047-b00de36e47d7?w=600&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=600&h=400&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1558618047-b00de36e47d7?w=600&h=400&fit=crop",
+    rating: 4.8,
+    reviewCount: 127,
+    featured: true,
+    responseTime: "Within 2 hours",
+    packages: [
+      {
+        id: "pkg-1-basic",
+        name: "Basic Clean",
+        price: 75,
+        delivery: "3-4 hours",
+        description: "Standard cleaning for small homes",
+        features: ["Dusting", "Vacuuming", "Kitchen cleaning", "Bathroom cleaning"]
+      },
+      {
+        id: "pkg-1-standard",
+        name: "Standard Clean",
+        price: 120,
+        delivery: "4-5 hours",
+        description: "Comprehensive cleaning for medium homes",
+        features: ["Everything in Basic", "Window cleaning", "Appliance cleaning", "Detailed dusting"]
+      },
+      {
+        id: "pkg-1-premium",
+        name: "Premium Clean",
+        price: 180,
+        delivery: "5-6 hours",
+        description: "Deep cleaning for large homes",
+        features: ["Everything in Standard", "Deep carpet cleaning", "Cabinet interiors", "Baseboards"]
+      }
+    ]
+  },
+  {
+    id: "2",
+    providerId: "provider-2",
+    title: "Expert Plumbing Services",
+    description: "Reliable plumbing repairs and installations",
+    price: 60,
+    category: "Home Services",
+    categoryId: "1",
+    location: "Los Angeles, CA",
+    images: [
+      "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=600&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1592496431128-4b30e8c53f01?w=600&h=400&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=600&h=400&fit=crop",
+    rating: 4.5,
+    reviewCount: 95,
+    featured: false,
+    responseTime: "Within 1 hour",
+    packages: [
+      {
+        id: "pkg-2-basic",
+        name: "Basic Plumbing",
+        price: 60,
+        delivery: "1-2 hours",
+        description: "Simple repairs and leak fixes",
+        features: ["Leak detection", "Faucet repair", "Toilet repair"]
+      },
+      {
+        id: "pkg-2-standard",
+        name: "Standard Plumbing",
+        price: 110,
+        delivery: "2-3 hours",
+        description: "Comprehensive plumbing solutions",
+        features: ["Everything in Basic", "Pipe replacement", "Drain cleaning"]
+      },
+      {
+        id: "pkg-2-premium",
+        name: "Premium Plumbing",
+        price: 160,
+        delivery: "3-4 hours",
+        description: "Extensive plumbing services",
+        features: ["Everything in Standard", "Water heater repair", "Sewer line inspection"]
+      }
+    ]
+  },
+  {
+    id: "3",
+    providerId: "provider-3",
+    title: "Stunning Wedding Photography",
+    description: "Capture your special day with beautiful, timeless photos",
+    price: 500,
+    category: "Photography",
+    categoryId: "3",
+    location: "Miami, FL",
+    images: [
+      "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1495147466023-ac5ca7140Main?w=600&h=400&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=400&fit=crop",
+    rating: 4.9,
+    reviewCount: 212,
+    featured: true,
+    responseTime: "Within 30 minutes",
+    packages: [
+      {
+        id: "pkg-3-basic",
+        name: "Basic Wedding",
+        price: 500,
+        delivery: "4 hours",
+        description: "Ceremony and posed photos",
+        features: ["Ceremony coverage", "Posed portraits", "Basic editing"]
+      },
+      {
+        id: "pkg-3-standard",
+        name: "Standard Wedding",
+        price: 800,
+        delivery: "6 hours",
+        description: "Ceremony, reception, and candid photos",
+        features: ["Everything in Basic", "Reception coverage", "Candid shots", "Advanced editing"]
+      },
+      {
+        id: "pkg-3-premium",
+        name: "Premium Wedding",
+        price: 1200,
+        delivery: "8 hours",
+        description: "Full-day coverage with extra services",
+        features: ["Everything in Standard", "Full-day coverage", "Engagement shoot", "Photo album"]
+      }
+    ]
+  },
+  {
+    id: "4",
+    providerId: "provider-4",
+    title: "Mobile App Development",
+    description: "Custom mobile app development for iOS and Android",
+    price: 2000,
+    category: "Technology",
+    categoryId: "4",
+    location: "San Francisco, CA",
+    images: [
+      "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1567426182914-ca995999ca09?w=600&h=400&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop",
+    rating: 4.7,
+    reviewCount: 155,
+    featured: false,
+    responseTime: "Within 6 hours",
+    packages: [
+      {
+        id: "pkg-4-basic",
+        name: "Basic App",
+        price: 2000,
+        delivery: "4 weeks",
+        description: "Simple app with basic features",
+        features: ["UI design", "Basic functionality", "Testing"]
+      },
+      {
+        id: "pkg-4-standard",
+        name: "Standard App",
+        price: 3500,
+        delivery: "6 weeks",
+        description: "App with advanced features",
+        features: ["Everything in Basic", "User authentication", "Database integration"]
+      },
+      {
+        id: "pkg-4-premium",
+        name: "Premium App",
+        price: 5000,
+        delivery: "8 weeks",
+        description: "Full-featured app with custom design",
+        features: ["Everything in Standard", "Custom UI/UX", "API integration", "Ongoing support"]
+      }
+    ]
+  },
+  {
+    id: "5",
+    providerId: "provider-5",
+    title: "Personal Training Sessions",
+    description: "One-on-one fitness training to achieve your goals",
+    price: 40,
+    category: "Fitness & Health",
+    categoryId: "5",
+    location: "Chicago, IL",
+    images: [
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1583454110551-4585c69b3c2d?w=600&h=400&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop",
+    rating: 4.6,
+    reviewCount: 88,
+    featured: true,
+    responseTime: "Within 12 hours",
+    packages: [
+      {
+        id: "pkg-5-basic",
+        name: "Single Session",
+        price: 40,
+        delivery: "1 hour",
+        description: "One personal training session",
+        features: ["Workout plan", "Exercise guidance", "Nutrition tips"]
+      },
+      {
+        id: "pkg-5-standard",
+        name: "5 Sessions",
+        price: 180,
+        delivery: "5 hours",
+        description: "Five personal training sessions",
+        features: ["Everything in Basic", "Progress tracking", "Customized plan"]
+      },
+      {
+        id: "pkg-5-premium",
+        name: "10 Sessions",
+        price: 350,
+        delivery: "10 hours",
+        description: "Ten personal training sessions",
+        features: ["Everything in Standard", "Detailed assessment", "Ongoing support", "Diet plan"]
+      }
+    ]
+  }
+];
+
+// Mock products data
 export interface Product {
   id: string;
   sellerId: string;
   name: string;
   description: string;
   price: number;
-  compareAtPrice?: number;
   category: string;
   categoryId: string;
   images: string[];
-  inventory: number;
+  imageUrl: string;
   rating: number;
   reviewCount: number;
   featured: boolean;
   inStock: boolean;
+  stockCount: number;
 }
 
-export interface Booking {
-  id: string;
-  clientId: string;
-  serviceId: string;
-  bookingDate: string;
-  status: "pending" | "confirmed" | "completed" | "cancelled";
-  notes?: string;
-}
-
-export interface Review {
-  id: string;
-  userId: string;
-  targetId: string;
-  targetType: "service" | "product" | "provider";
-  rating: number;
-  comment: string;
-  createdAt: string;
-}
-
-// Initial mock data
-export const users = [
+export const products: Product[] = [
   {
-    id: "client-1",
-    firstName: "Alice",
-    lastName: "Smith",
-    email: "alice.smith@example.com",
-    role: "client",
-    location: "Los Angeles, CA",
-    favorites: ["1", "3", "5"],
-    avatar: "https://api.dicebear.com/7.x/ лица/svg?seed=Alice"
-  },
-  {
-    id: "provider-1",
-    firstName: "Bob",
-    lastName: "Johnson",
-    email: "bob.johnson@example.com",
-    role: "provider",
-    location: "Los Angeles, CA",
-    avatar: "https://api.dicebear.com/7.x/ лица/svg?seed=Bob"
-  },
-  {
-    id: "provider-2",
-    firstName: "Charlie",
-    lastName: "Brown",
-    email: "charlie.brown@example.com",
-    role: "provider",
-    location: "New York, NY",
-    avatar: "https://api.dicebear.com/7.x/ лица/svg?seed=Charlie"
-  },
-  {
-    id: "provider-3",
-    firstName: "Diana",
-    lastName: "Miller",
-    email: "diana.miller@example.com",
-    role: "provider",
-    location: "San Francisco, CA",
-    avatar: "https://api.dicebear.com/7.x/ лица/svg?seed=Diana"
-  },
-  {
-    id: "provider-4",
-    firstName: "Ethan",
-    lastName: "Davis",
-    email: "ethan.davis@example.com",
-    role: "provider",
-    location: "Miami, FL",
-    avatar: "https://api.dicebear.com/7.x/ лица/svg?seed=Ethan"
-  },
-  {
-    id: "provider-5",
-    firstName: "Fiona",
-    lastName: "Wilson",
-    email: "fiona.wilson@example.com",
-    role: "provider",
-    location: "Chicago, IL",
-    avatar: "https://api.dicebear.com/7.x/ лица/svg?seed=Fiona"
-  },
-  {
-    id: "provider-6",
-    firstName: "George",
-    lastName: "Moore",
-    email: "george.moore@example.com",
-    role: "provider",
-    location: "Austin, TX",
-    avatar: "https://api.dicebear.com/7.x/ лица/svg?seed=George"
-  },
-  {
-    id: "seller-1",
-    firstName: "Hannah",
-    lastName: "Taylor",
-    email: "hannah.taylor@example.com",
-    role: "seller",
-    location: "Los Angeles, CA",
-    avatar: "https://api.dicebear.com/7.x/ лица/svg?seed=Hannah"
-  },
-  {
-    id: "seller-2",
-    firstName: "Ian",
-    lastName: "Clark",
-    email: "ian.clark@example.com",
-    role: "seller",
-    location: "New York, NY",
-    avatar: "https://api.dicebear.com/7.x/ лица/svg?seed=Ian"
-  },
-  {
-    id: "seller-3",
-    firstName: "Julia",
-    lastName: "White",
-    email: "julia.white@example.com",
-    role: "seller",
-    location: "San Francisco, CA",
-    avatar: "https://api.dicebear.com/7.x/ лица/svg?seed=Julia"
-  },
-  {
-    id: "seller-4",
-    firstName: "Kevin",
-    lastName: "Hall",
-    email: "kevin.hall@example.com",
-    role: "seller",
-    location: "Miami, FL",
-    avatar: "https://api.dicebear.com/7.x/ лица/svg?seed=Kevin"
-  },
-  {
-    id: "seller-5",
-    firstName: "Linda",
-    lastName: "Young",
-    email: "linda.young@example.com",
-    role: "seller",
-    location: "Chicago, IL",
-    avatar: "https://api.dicebear.com/7.x/ лица/svg?seed=Linda"
-  },
-  {
-    id: "seller-6",
-    firstName: "Michael",
-    lastName: "King",
-    email: "michael.king@example.com",
-    role: "seller",
-    location: "Austin, TX",
-    avatar: "https://api.dicebear.com/7.x/ лица/svg?seed=Michael"
-  }
-];
-
-// Enhanced services with images
-export const services = [
-  {
-    id: "1",
-    providerId: "provider-1",
-    title: "Professional House Cleaning",
-    description: "Complete home cleaning service including all rooms, kitchen, and bathrooms. Eco-friendly products used.",
-    price: 120,
-    category: "Cleaning",
-    categoryId: "1-3",
-    location: "Los Angeles, CA",
-    images: [
-      "https://images.unsplash.com/photo-1558618047-b00de36e47d7?w=500&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1527515862127-a4fc05baf7a5?w=500&h=400&fit=crop"
-    ],
-    rating: 4.8,
-    reviewCount: 156,
-    featured: true,
-    responseTime: "Within 2 hours"
-  },
-  {
-    id: "2",
-    providerId: "provider-2", 
-    title: "Emergency Plumbing Repair",
-    description: "24/7 emergency plumbing services. Pipe repairs, leak fixes, and drain cleaning.",
-    price: 95,
-    category: "Plumbing",
-    categoryId: "1-1",
-    location: "New York, NY",
-    images: [
-      "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=500&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1558618047-b00de36e47d7?w=500&h=400&fit=crop"
-    ],
-    rating: 4.6,
-    reviewCount: 89,
-    featured: false,
-    responseTime: "Within 1 hour"
-  },
-  {
-    id: "3",
-    providerId: "provider-3",
-    title: "Wedding Photography Package",
-    description: "Complete wedding photography with engagement shoot, ceremony, and reception coverage.",
-    price: 2500,
-    category: "Photography",
-    categoryId: "3-1", 
-    location: "San Francisco, CA",
-    images: [
-      "https://images.unsplash.com/photo-1519741497674-611481863552?w=500&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=500&h=400&fit=crop"
-    ],
-    rating: 4.9,
-    reviewCount: 234,
-    featured: true,
-    responseTime: "Within 4 hours"
-  },
-  {
-    id: "4",
-    providerId: "provider-4",
-    title: "Personal Training Sessions",
-    description: "One-on-one fitness training tailored to your goals. Nutrition planning included.",
-    price: 80,
-    category: "Fitness",
-    categoryId: "5-1",
-    location: "Miami, FL", 
-    images: [
-      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1434608519344-49d77a699e1d?w=500&h=400&fit=crop"
-    ],
-    rating: 4.7,
-    reviewCount: 145,
-    featured: false,
-    responseTime: "Within 3 hours"
-  },
-  {
-    id: "5",
-    providerId: "provider-5",
-    title: "Hair Styling & Coloring",
-    description: "Professional hair styling, cutting, and coloring services. Latest trends and techniques.",
-    price: 150,
-    category: "Beauty",
-    categoryId: "2-1",
-    location: "Chicago, IL",
-    images: [
-      "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=500&h=400&fit=crop"
-    ],
-    rating: 4.8,
-    reviewCount: 198,
-    featured: true,
-    responseTime: "Within 2 hours"
-  },
-  {
-    id: "6",
-    providerId: "provider-6",
-    title: "Website Development",
-    description: "Custom website development using modern technologies. Mobile-responsive design included.",
-    price: 1200,
-    category: "Web Development", 
-    categoryId: "4-2",
-    location: "Austin, TX",
-    images: [
-      "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=500&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=500&h=400&fit=crop"
-    ],
-    rating: 4.9,
-    reviewCount: 87,
-    featured: false,
-    responseTime: "Within 6 hours"
-  }
-];
-
-// Enhanced products with images
-export const products = [
-  {
-    id: "1",
+    id: "prod-1",
     sellerId: "seller-1",
-    name: "Premium Hair Extensions - Remy Human Hair",
-    description: "100% Remy human hair extensions. Available in 16-24 inches. Multiple colors available.",
-    price: 299.99,
-    compareAtPrice: 399.99,
-    category: "Hair Extensions",
-    categoryId: "1-1",
+    name: "Premium Hair Extensions",
+    description: "100% human hair extensions, various lengths and colors available",
+    price: 89.99,
+    category: "Beauty & Personal Care",
+    categoryId: "1",
     images: [
-      "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=500&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500&h=400&fit=crop"
+      "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=400&h=300&fit=crop"
     ],
-    inventory: 25,
+    imageUrl: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=400&h=300&fit=crop",
     rating: 4.7,
     reviewCount: 89,
     featured: true,
-    inStock: true
+    inStock: true,
+    stockCount: 25
   },
   {
-    id: "2", 
+    id: "prod-2",
     sellerId: "seller-2",
-    name: "Professional Makeup Brush Set",
-    description: "15-piece professional makeup brush set with premium synthetic bristles and leather case.",
-    price: 89.99,
-    compareAtPrice: 129.99,
-    category: "Makeup",
-    categoryId: "1-2",
+    name: "Wireless Bluetooth Headphones",
+    description: "High-quality sound, noise-canceling, comfortable fit",
+    price: 129.99,
+    category: "Electronics",
+    categoryId: "2",
     images: [
-      "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=500&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500&h=400&fit=crop"
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop"
     ],
-    inventory: 45,
-    rating: 4.8,
-    reviewCount: 156,
-    featured: false,
-    inStock: true
-  },
-  {
-    id: "3",
-    sellerId: "seller-3", 
-    name: "iPhone 15 Pro - Latest Model",
-    description: "Latest iPhone 15 Pro with 128GB storage. Titanium finish with advanced camera system.",
-    price: 999.99,
-    compareAtPrice: 1099.99,
-    category: "Smartphones",
-    categoryId: "2-1",
-    images: [
-      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=500&h=400&fit=crop"
-    ],
-    inventory: 12,
-    rating: 4.9,
-    reviewCount: 234,
-    featured: true,
-    inStock: true
-  },
-  {
-    id: "4",
-    sellerId: "seller-4",
-    name: "Gaming Laptop - High Performance",
-    description: "High-performance gaming laptop with RTX 4070, 32GB RAM, and 1TB SSD. Perfect for gaming and work.",
-    price: 1899.99,
-    compareAtPrice: 2199.99,
-    category: "Laptops", 
-    categoryId: "2-2",
-    images: [
-      "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&h=400&fit=crop"
-    ],
-    inventory: 8,
+    imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop",
     rating: 4.6,
-    reviewCount: 67,
-    featured: false,
-    inStock: true
-  },
-  {
-    id: "5",
-    sellerId: "seller-5",
-    name: "Designer Women's Dress Collection",
-    description: "Elegant designer dress perfect for special occasions. Available in multiple sizes and colors.",
-    price: 199.99,
-    compareAtPrice: 279.99,
-    category: "Women's Clothing",
-    categoryId: "3-1",
-    images: [
-      "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=500&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=500&h=400&fit=crop"
-    ],
-    inventory: 35,
-    rating: 4.5,
-    reviewCount: 123,
+    reviewCount: 112,
     featured: true,
-    inStock: true
+    inStock: true,
+    stockCount: 40
   },
   {
-    id: "6",
-    sellerId: "seller-6",
-    name: "Home Fitness Equipment Set",
-    description: "Complete home fitness set including dumbbells, resistance bands, and yoga mat.",
-    price: 149.99,
-    compareAtPrice: 199.99,
-    category: "Fitness Equipment",
-    categoryId: "5-1", 
+    id: "prod-3",
+    sellerId: "seller-3",
+    name: "Stylish Women's Dress",
+    description: "Elegant dress for all occasions, various sizes and colors",
+    price: 59.99,
+    category: "Fashion & Clothing",
+    categoryId: "3",
     images: [
-      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1434608519344-49d77a699e1d?w=500&h=400&fit=crop"
+      "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400&h=300&fit=crop"
     ],
-    inventory: 22,
-    rating: 4.4,
-    reviewCount: 78,
+    imageUrl: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400&h=300&fit=crop",
+    rating: 4.5,
+    reviewCount: 76,
     featured: false,
-    inStock: true
-  }
-];
-
-export const bookings = [
-  {
-    id: "booking-1",
-    clientId: "client-1",
-    serviceId: "1",
-    bookingDate: "2024-08-15T10:00:00",
-    status: "confirmed",
-    notes: "Please bring your own cleaning supplies."
+    inStock: true,
+    stockCount: 30
   },
   {
-    id: "booking-2",
-    clientId: "client-1",
-    serviceId: "2",
-    bookingDate: "2024-08-22T14:00:00",
-    status: "pending"
+    id: "prod-4",
+    sellerId: "seller-4",
+    name: "Modern Home Decor Set",
+    description: "Set of decorative items to enhance your home",
+    price: 79.99,
+    category: "Home & Garden",
+    categoryId: "4",
+    images: [
+      "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop",
+    rating: 4.4,
+    reviewCount: 63,
+    featured: false,
+    inStock: true,
+    stockCount: 20
   },
   {
-    id: "booking-3",
-    clientId: "client-1",
-    serviceId: "3",
-    bookingDate: "2024-09-05T16:00:00",
-    status: "completed"
-  }
-];
-
-export const reviews = [
-  {
-    id: "review-1",
-    userId: "client-1",
-    targetId: "1",
-    targetType: "service",
-    rating: 5,
-    comment: "Great cleaning service! Very thorough and professional.",
-    createdAt: "2024-08-18T12:00:00"
+    id: "prod-5",
+    sellerId: "seller-5",
+    name: "Professional Yoga Mat",
+    description: "High-quality yoga mat for all fitness levels",
+    price: 39.99,
+    category: "Sports & Fitness",
+    categoryId: "5",
+    images: [
+      "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop",
+    rating: 4.3,
+    reviewCount: 51,
+    featured: false,
+    inStock: true,
+    stockCount: 15
   },
   {
-    id: "review-2",
-    userId: "client-1",
-    targetId: "3",
-    targetType: "service",
-    rating: 4,
-    comment: "The photos turned out beautifully! Thank you!",
-    createdAt: "2024-09-08T18:00:00"
+    id: "prod-6",
+    sellerId: "seller-6",
+    name: "Classic Novel Collection",
+    description: "Set of classic novels for literature enthusiasts",
+    price: 49.99,
+    category: "Books & Education",
+    categoryId: "6",
+    images: [
+      "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop",
+    rating: 4.2,
+    reviewCount: 42,
+    featured: false,
+    inStock: true,
+    stockCount: 10
   }
 ];

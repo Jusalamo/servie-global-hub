@@ -23,14 +23,13 @@ export default function ServiceCategoriesCarousel() {
         <div className="relative overflow-hidden">
           <div className="flex animate-carousel">
             {[...categories, ...categories].map((category, index) => {
-              const IconComponent = category.icon;
               return (
                 <div key={`${category.id}-${index}`} className="w-[320px] flex-shrink-0 px-4">
                   <Link to={`/categories?category=${category.id}`}>
                     <Card className="h-full hover:shadow-xl transition-all duration-300 service-card group">
                       <CardContent className="p-6 flex flex-col items-center text-center">
                         <div className={`rounded-full p-4 mb-4 transition-transform group-hover:scale-110 ${category.color}`}>
-                          <IconComponent className="h-8 w-8" />
+                          <span className="text-2xl">{category.icon}</span>
                         </div>
                         <h3 className="text-xl font-medium mb-2">{category.name}</h3>
                         <p className="text-muted-foreground text-sm mb-4">
