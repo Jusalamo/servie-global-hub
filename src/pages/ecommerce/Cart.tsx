@@ -13,16 +13,17 @@ import { useCart } from "@/context/CartContext";
 
 const Cart = () => {
   const navigate = useNavigate();
-  const { cartItems, removeFromCart, updateQuantity, cartTotal } = useCart();
+  const { items, removeFromCart, updateQuantity, getTotalPrice } = useCart();
   const [promoCode, setPromoCode] = useState("");
   const [isApplyingPromo, setIsApplyingPromo] = useState(false);
   const [discount, setDiscount] = useState(0);
   
+  const cartTotal = getTotalPrice();
   const shipping = cartTotal > 100 ? 0 : 10;
   const total = cartTotal + shipping - discount;
   
   const handleQuantityChange = (id: string, change: number) => {
-    const currentQuantity = cartItems.find(item => item.id === id)?.quantity || 0;
+    const currentQuantity = items.find(item => item.id === id)?.quantity || 0;
     updateQuantity(id, Math.max(1, currentQuantity + change));
   };
   
@@ -58,7 +59,7 @@ const Cart = () => {
             Your Shopping Cart
           </h1>
           
-          {cartItems.length === 0 ? (
+          {items.length === 0 ? (
             <Card className="text-center py-12">
               <CardContent className="space-y-6">
                 <div className="flex justify-center">
@@ -83,13 +84,13 @@ const Cart = () => {
                     <span>Total</span>
                   </div>
                   
-                  {cartItems.map((item) => (
+                  {items.map((item) => (
                     <div key={item.id} className="py-4">
                       <div className="flex items-start gap-4">
-                        <Link to={`/product/${item.product_id}`} className="shrink-0">
+                        <Link to={`/product/${item.id}`} className="shrink-0">
                           <img
-                            src={item.products.image_url || '/placeholder.svg'}
-                            alt={item.products.name}
+                            src={item.imageUrl || '/placeholder.svg'}
+                            alt={item.name}
                             className="h-20 w-20 rounded-md object-cover"
                           />
                         </Link>
@@ -98,10 +99,10 @@ const Cart = () => {
                           <div className="flex justify-between">
                             <div>
                               <Link 
-                                to={`/product/${item.product_id}`}
+                                to={`/product/${item.id}`}
                                 className="font-medium hover:underline"
                               >
-                                {item.products.name}
+                                {item.name}
                               </Link>
                               <div className="mt-1 text-sm text-muted-foreground">
                                 Sold by: Seller
@@ -147,7 +148,7 @@ const Cart = () => {
                           </div>
                         </div>
                       </div>
-                      {cartItems.indexOf(item) < cartItems.length - 1 && (
+                      {items.indexOf(item) < items.length - 1 && (
                         <Separator className="my-4" />
                       )}
                     </div>

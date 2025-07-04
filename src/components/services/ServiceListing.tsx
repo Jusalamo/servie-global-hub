@@ -1,134 +1,139 @@
 
-import { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import ServiceCard from "@/components/ServiceCard";
-import { Search } from "lucide-react";
+import React, { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Search, Star } from 'lucide-react';
+import { services } from '@/data/mockData';
 
-export default function ServiceListing({ initialCategory = 'all', initialSearch = '' }) {
-  const [category, setCategory] = useState(initialCategory);
-  const [searchQuery, setSearchQuery] = useState(initialSearch);
-  const [services, setServices] = useState([]);
-  const navigate = useNavigate();
-  const location = useLocation();
+const ServiceListing = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [sortBy, setSortBy] = useState('featured');
 
-  useEffect(() => {
-    // Update category and search query based on URL parameters
-    const params = new URLSearchParams(location.search);
-    const categoryParam = params.get('category') || 'all';
-    const searchParam = params.get('search') || '';
+  const categories = Array.from(new Set(services.map(service => service.category)));
 
-    setCategory(categoryParam);
-    setSearchQuery(searchParam);
-  }, [location.search]);
-
-  useEffect(() => {
-    // Fetch services based on category and search query
-    // Replace this with your actual data fetching logic
-    const fetchServices = async () => {
-      // Simulate fetching data from an API
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      let filteredServices = [
-        { id: 1, name: "Home Cleaning", category: "home-services", description: "Professional home cleaning services", price: 50, image: '/placeholder.svg' },
-        { id: 2, name: "Web Design", category: "tech", description: "Custom web design services", price: 500, image: '/placeholder.svg' },
-        { id: 3, name: "Plumbing", category: "home-services", description: "Reliable plumbing services", price: 75, image: '/placeholder.svg' },
-        { id: 4, name: "Personal Training", category: "health", description: "One-on-one personal training", price: 40, image: '/placeholder.svg' },
-        { id: 5, name: "Tax Preparation", category: "professional", description: "Expert tax preparation services", price: 150, image: '/placeholder.svg' },
-        { id: 6, name: "Tutoring", category: "education", description: "Personalized tutoring services", price: 30, image: '/placeholder.svg' },
-      ];
-
-      if (category !== 'all') {
-        filteredServices = filteredServices.filter(service => service.category === category);
+  const filteredServices = services
+    .filter(service =>
+      service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      service.description.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .filter(service => selectedCategory === 'all' || service.category === selectedCategory)
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'price-low':
+          return a.price - b.price;
+        case 'price-high':
+          return b.price - a.price;
+        case 'rating':
+          return b.rating - a.rating;
+        default:
+          return b.featured ? 1 : -1;
       }
-
-      if (searchQuery) {
-        filteredServices = filteredServices.filter(service =>
-          service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          service.description.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      }
-
-      setServices(filteredServices);
-    };
-
-    fetchServices();
-  }, [category, searchQuery]);
-
-  const handleCategoryChange = (value: string) => {
-    const params = new URLSearchParams(location.search);
-    params.set('category', value);
-    navigate(`/categories?${params.toString()}`);
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const params = new URLSearchParams(location.search);
-    params.set('search', searchQuery);
-    navigate(`/categories?${params.toString()}`);
-  };
+    });
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-4">Find Services</h1>
-
-      <div className="flex items-center justify-between mb-4">
-        <form onSubmit={handleSearchSubmit} className="flex items-center">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              type="search"
-              placeholder="Search for services..."
-              className="pl-10 pr-4 py-2"
-              value={searchQuery}
-              onChange={handleSearchChange}
-            />
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-4">Browse Services</h1>
+        
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Search services..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
           </div>
-          <Button type="submit" className="ml-2">Search</Button>
-        </form>
-
-        <Select value={category} onValueChange={handleCategoryChange}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Categories" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem value="home-services">Home Services</SelectItem>
-            <SelectItem value="tech">Tech & Digital</SelectItem>
-            <SelectItem value="professional">Professional</SelectItem>
-            <SelectItem value="health">Health & Wellness</SelectItem>
-            <SelectItem value="personal-care">Personal Care</SelectItem>
-            <SelectItem value="events">Events</SelectItem>
-            <SelectItem value="education">Education</SelectItem>
-            <SelectItem value="creative">Creative</SelectItem>
-          </SelectContent>
-        </Select>
+          
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              {categories.map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="featured">Featured</SelectItem>
+              <SelectItem value="rating">Highest Rated</SelectItem>
+              <SelectItem value="price-low">Price: Low to High</SelectItem>
+              <SelectItem value="price-high">Price: High to Low</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {services.map(service => (
-          <ServiceCard 
-            key={service.id}
-            id={String(service.id)}
-            title={service.name}
-            category={service.category}
-            imageUrl={service.image}
-            providerName="Service Provider"
-            providerAvatar="/placeholder.svg"
-            rating={4.5}
-            reviewCount={10}
-            price={service.price}
-            currency="$"
-            featured={false}
-          />
-        ))}
-      </div>
+      {filteredServices.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-lg text-muted-foreground">No services found matching your criteria.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredServices.map((service) => (
+            <Card key={service.id} className="group hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-0">
+                <div className="aspect-video bg-gray-100 rounded-t-lg overflow-hidden">
+                  <img
+                    src={service.imageUrl}
+                    alt={service.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                  />
+                </div>
+                
+                <div className="p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-semibold text-lg line-clamp-2">{service.title}</h3>
+                    {service.featured && <Badge className="bg-yellow-500">Featured</Badge>}
+                  </div>
+                  
+                  <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
+                    {service.description}
+                  </p>
+                  
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center">
+                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
+                      <span className="text-sm font-medium">{service.rating}</span>
+                      <span className="text-sm text-muted-foreground ml-1">({service.reviewCount})</span>
+                    </div>
+                    <Badge variant="outline">{service.category}</Badge>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-2xl font-bold">${service.price}</span>
+                      <p className="text-sm text-muted-foreground">{service.location}</p>
+                    </div>
+                    
+                    <Button className="bg-servie hover:bg-servie-600">
+                      Book Now
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
-}
+};
+
+export default ServiceListing;

@@ -1,47 +1,159 @@
 
 import { Button } from "@/components/ui/button";
-import { Calendar, FileText, MessageSquare, Settings, Star, Users, DollarSign, Clock, Home, HelpCircle, Bell, Receipt } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { 
+  LayoutDashboard, 
+  Package, 
+  Calendar, 
+  DollarSign,
+  Star, 
+  CreditCard, 
+  MessageSquare, 
+  Settings, 
+  Bell, 
+  HelpCircle,
+  User,
+  Briefcase
+} from "lucide-react";
 
 interface ProviderSidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
 }
 
-export default function ProviderSidebar({ activeTab, onTabChange }: ProviderSidebarProps) {
+const ProviderSidebar = ({ activeTab, onTabChange }: ProviderSidebarProps) => {
   const sidebarItems = [
-    { id: "overview", label: "Overview", icon: Home },
-    { id: "services", label: "Services", icon: FileText },
-    { id: "bookings", label: "Bookings", icon: Calendar },
-    { id: "availability", label: "Availability", icon: Clock },
-    { id: "quotations", label: "Quotations", icon: Receipt },
-    { id: "clients", label: "Clients", icon: Users },
-    { id: "reviews", label: "Reviews", icon: Star },
-    { id: "payments", label: "Payments", icon: DollarSign },
-    { id: "messages", label: "Messages", icon: MessageSquare },
-    { id: "settings", label: "Settings", icon: Settings },
-    { id: "notifications", label: "Notifications", icon: Bell },
-    { id: "help", label: "Help & Support", icon: HelpCircle },
+    {
+      key: "overview",
+      label: "Overview",
+      icon: LayoutDashboard,
+      badge: null
+    },
+    {
+      key: "services",
+      label: "My Services",
+      icon: Package,
+      badge: "5"
+    },
+    {
+      key: "bookings",
+      label: "Bookings",
+      icon: Calendar,
+      badge: "12"
+    },
+    {
+      key: "finances",
+      label: "Finances",
+      icon: DollarSign,
+      badge: "3"
+    },
+    {
+      key: "reviews",
+      label: "Reviews",
+      icon: Star,
+      badge: "24"
+    },
+    {
+      key: "payments",
+      label: "Payments",
+      icon: CreditCard,
+      badge: null
+    },
+    {
+      key: "messages",
+      label: "Messages",
+      icon: MessageSquare,
+      badge: "2"
+    },
+    {
+      key: "settings",
+      label: "Settings",
+      icon: Settings,
+      badge: null
+    },
+    {
+      key: "notifications",
+      label: "Notifications",
+      icon: Bell,
+      badge: "5"
+    },
+    {
+      key: "help",
+      label: "Help & Support",
+      icon: HelpCircle,
+      badge: null
+    }
   ];
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 h-full p-4">
-      <div className="space-y-2">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Provider Dashboard</h2>
+    <aside className="space-y-6">
+      {/* Provider Profile Card */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center">
+              <Briefcase className="h-6 w-6" />
+            </div>
+            <div>
+              <h3 className="font-semibold">Service Provider</h3>
+              <p className="text-sm text-muted-foreground">Professional Dashboard</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Navigation */}
+      <nav className="space-y-2">
         {sidebarItems.map((item) => {
-          const Icon = item.icon;
+          const IconComponent = item.icon;
           return (
             <Button
-              key={item.id}
-              variant={activeTab === item.id ? "default" : "ghost"}
-              className="w-full justify-start"
-              onClick={() => onTabChange(item.id)}
+              key={item.key}
+              variant={activeTab === item.key ? "default" : "ghost"}
+              className={`w-full justify-between h-12 ${
+                activeTab === item.key 
+                  ? "bg-servie hover:bg-servie-600 text-white" 
+                  : "hover:bg-gray-100"
+              }`}
+              onClick={() => onTabChange(item.key)}
             >
-              <Icon className="mr-2 h-4 w-4" />
-              {item.label}
+              <div className="flex items-center space-x-3">
+                <IconComponent className="h-5 w-5" />
+                <span>{item.label}</span>
+              </div>
+              {item.badge && (
+                <Badge variant="secondary" className="ml-auto">
+                  {item.badge}
+                </Badge>
+              )}
             </Button>
           );
         })}
-      </div>
-    </div>
+      </nav>
+
+      {/* Quick Stats */}
+      <Card>
+        <CardContent className="p-4 space-y-3">
+          <h4 className="font-semibold text-sm">Quick Stats</h4>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">This Month</span>
+              <span className="font-medium">$2,340</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Pending</span>
+              <span className="font-medium">3 bookings</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Rating</span>
+              <span className="font-medium">4.8 ⭐</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </aside>
   );
-}
+};
+
+export default ProviderSidebar;

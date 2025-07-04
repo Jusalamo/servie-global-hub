@@ -1,157 +1,151 @@
 
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { 
-  Package, 
-  ShoppingBag, 
-  BarChart2, 
-  Tag, 
-  Users, 
-  CreditCard, 
-  Settings, 
-  HelpCircle, 
-  MessageSquare, 
-  TrendingUp, 
-  Store 
-} from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
-import { useAuth } from "@/context/AuthContext";
-
-interface SidebarLinkProps {
-  icon: React.ReactNode;
-  label: string;
-  isActive: boolean;
-  onClick: () => void;
-}
+import { Badge } from "@/components/ui/badge";
+import { 
+  LayoutDashboard, 
+  Package, 
+  ShoppingCart, 
+  DollarSign,
+  CreditCard, 
+  MessageSquare, 
+  Settings, 
+  Bell, 
+  HelpCircle,
+  ShoppingBag
+} from "lucide-react";
 
 interface SellerSidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
 }
 
-const SidebarLink = ({ icon, label, isActive, onClick }: SidebarLinkProps) => {
-  return (
-    <Button
-      variant="ghost"
-      className={`w-full justify-start ${isActive ? "bg-muted" : ""}`}
-      onClick={onClick}
-    >
-      {icon}
-      <span className="ml-2">{label}</span>
-    </Button>
-  );
-};
+const SellerSidebar = ({ activeTab, onTabChange }: SellerSidebarProps) => {
+  const sidebarItems = [
+    {
+      key: "overview",
+      label: "Overview",
+      icon: LayoutDashboard,
+      badge: null
+    },
+    {
+      key: "products",
+      label: "My Products",
+      icon: Package,
+      badge: "12"
+    },
+    {
+      key: "orders",
+      label: "Orders",
+      icon: ShoppingCart,
+      badge: "8"
+    },
+    {
+      key: "finances",
+      label: "Finances",
+      icon: DollarSign,
+      badge: "5"
+    },
+    {
+      key: "payments",
+      label: "Payments",
+      icon: CreditCard,
+      badge: null
+    },
+    {
+      key: "messages",
+      label: "Messages",
+      icon: MessageSquare,
+      badge: "3"
+    },
+    {
+      key: "settings",
+      label: "Settings",
+      icon: Settings,
+      badge: null
+    },
+    {
+      key: "notifications",
+      label: "Notifications",
+      icon: Bell,
+      badge: "4"
+    },
+    {
+      key: "help",
+      label: "Help & Support",
+      icon: HelpCircle,
+      badge: null
+    }
+  ];
 
-export default function SellerSidebar({ activeTab, onTabChange }: SellerSidebarProps) {
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  
-  const handleTabClick = (tabName: string) => {
-    onTabChange(tabName);
-  };
-
   return (
-    <div className="w-64 border-r h-full py-6 px-3 hidden md:block">
-      {/* User Profile Card */}
-      <Card className="mb-6">
-        <CardContent className="p-4 flex flex-col items-center space-y-2">
-          <Avatar className="h-16 w-16">
-            <AvatarImage src={user?.user_metadata?.avatar_url || "/placeholder.svg"} alt="Profile" />
-            <AvatarFallback>{user?.user_metadata?.first_name?.charAt(0) || 'S'}</AvatarFallback>
-          </Avatar>
-          <div className="text-center">
-            <h3 className="font-semibold">
-              {user?.user_metadata?.first_name} {user?.user_metadata?.last_name || 'Seller'}
-            </h3>
-            <p className="text-sm text-muted-foreground">Seller Account</p>
+    <aside className="space-y-6">
+      {/* Seller Profile Card */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-purple-500 text-white rounded-full flex items-center justify-center">
+              <ShoppingBag className="h-6 w-6" />
+            </div>
+            <div>
+              <h3 className="font-semibold">Seller Dashboard</h3>
+              <p className="text-sm text-muted-foreground">E-commerce Hub</p>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      <div className="mb-6">
-        <h2 className="font-semibold text-lg px-4">Seller Dashboard</h2>
-        <p className="text-muted-foreground text-sm mt-1 px-4">Manage your seller account</p>
-      </div>
+      {/* Navigation */}
+      <nav className="space-y-2">
+        {sidebarItems.map((item) => {
+          const IconComponent = item.icon;
+          return (
+            <Button
+              key={item.key}
+              variant={activeTab === item.key ? "default" : "ghost"}
+              className={`w-full justify-between h-12 ${
+                activeTab === item.key 
+                  ? "bg-servie hover:bg-servie-600 text-white" 
+                  : "hover:bg-gray-100"
+              }`}
+              onClick={() => onTabChange(item.key)}
+            >
+              <div className="flex items-center space-x-3">
+                <IconComponent className="h-5 w-5" />
+                <span>{item.label}</span>
+              </div>
+              {item.badge && (
+                <Badge variant="secondary" className="ml-auto">
+                  {item.badge}
+                </Badge>
+              )}
+            </Button>
+          );
+        })}
+      </nav>
 
-      <div className="space-y-1">
-        <SidebarLink
-          icon={<BarChart2 className="h-5 w-5" />}
-          label="Overview"
-          isActive={activeTab === "overview"}
-          onClick={() => handleTabClick("overview")}
-        />
-        
-        <SidebarLink
-          icon={<ShoppingBag className="h-5 w-5" />}
-          label="Orders"
-          isActive={activeTab === "orders"}
-          onClick={() => handleTabClick("orders")}
-        />
-        
-        <SidebarLink
-          icon={<Package className="h-5 w-5" />}
-          label="Products"
-          isActive={activeTab === "products"}
-          onClick={() => handleTabClick("products")}
-        />
-        
-        <SidebarLink
-          icon={<Tag className="h-5 w-5" />}
-          label="Inventory"
-          isActive={activeTab === "inventory"}
-          onClick={() => handleTabClick("inventory")}
-        />
-        
-        <SidebarLink
-          icon={<TrendingUp className="h-5 w-5" />}
-          label="Analytics"
-          isActive={activeTab === "analytics"}
-          onClick={() => handleTabClick("analytics")}
-        />
-        
-        <SidebarLink
-          icon={<Store className="h-5 w-5" />}
-          label="Store Settings"
-          isActive={activeTab === "store"}
-          onClick={() => handleTabClick("store")}
-        />
-        
-        <SidebarLink
-          icon={<Users className="h-5 w-5" />}
-          label="Customers"
-          isActive={activeTab === "customers"}
-          onClick={() => handleTabClick("customers")}
-        />
-        
-        <SidebarLink
-          icon={<MessageSquare className="h-5 w-5" />}
-          label="Messages"
-          isActive={activeTab === "messages"}
-          onClick={() => handleTabClick("messages")}
-        />
-        
-        <SidebarLink
-          icon={<CreditCard className="h-5 w-5" />}
-          label="Payments"
-          isActive={activeTab === "payments"}
-          onClick={() => handleTabClick("payments")}
-        />
-        
-        <SidebarLink
-          icon={<Settings className="h-5 w-5" />}
-          label="Settings"
-          isActive={activeTab === "settings"}
-          onClick={() => handleTabClick("settings")}
-        />
-        
-        <SidebarLink
-          icon={<HelpCircle className="h-5 w-5" />}
-          label="Help"
-          isActive={activeTab === "help"}
-          onClick={() => handleTabClick("help")}
-        />
-      </div>
-    </div>
+      {/* Quick Stats */}
+      <Card>
+        <CardContent className="p-4 space-y-3">
+          <h4 className="font-semibold text-sm">Quick Stats</h4>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">This Month</span>
+              <span className="font-medium">$1,890</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Orders</span>
+              <span className="font-medium">25 pending</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Products</span>
+              <span className="font-medium">45 active</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </aside>
   );
-}
+};
+
+export default SellerSidebar;

@@ -62,7 +62,6 @@ const SignUpForm = ({ selectedRole = "client" }) => {
       confirmPassword: "",
       terms: false,
       role: typedSelectedRole,
-      // Additional fields initialized
       business_name: "",
       business_description: "",
       phone_number: "",
@@ -72,7 +71,21 @@ const SignUpForm = ({ selectedRole = "client" }) => {
   const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
     try {
-      // For development only - bypass actual authentication
+      // Use the actual signUp function from auth context
+      const { error } = await signUp(data.email, data.password, {
+        first_name: data.first_name,
+        last_name: data.last_name,
+        role: data.role,
+        business_name: data.business_name,
+        business_description: data.business_description,
+        phone_number: data.phone_number,
+      });
+
+      if (error) {
+        toast.error(error.message || "Failed to create account");
+        return;
+      }
+
       toast.success("Account created successfully!");
       
       // Direct user to the appropriate dashboard based on role
@@ -94,7 +107,7 @@ const SignUpForm = ({ selectedRole = "client" }) => {
       }
       console.error(error);
     } finally {
-      setTimeout(() => setIsLoading(false), 300);
+      setIsLoading(false);
     }
   };
 
