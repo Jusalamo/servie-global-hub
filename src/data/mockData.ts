@@ -1,4 +1,3 @@
-
 // Mock data for services with packages structure
 export interface ServicePackage {
   id: string;
@@ -135,7 +134,7 @@ export const services: Service[] = [
     rating: 4.9,
     reviewCount: 212,
     featured: true,
-    responseType: "Within 30 minutes",
+    responseTime: "Within 30 minutes",
     packages: [
       {
         id: "pkg-3-basic",

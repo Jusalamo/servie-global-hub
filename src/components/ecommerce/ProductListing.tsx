@@ -44,7 +44,7 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
         case 'price-high':
           return b.price - a.price;
         case 'newest':
-          return new Date(b.joinDate || '2024-01-01').getTime() - new Date(a.joinDate || '2024-01-01').getTime();
+          return b.featured ? 1 : -1; // Sort by featured instead of joinDate
         default:
           return b.featured ? 1 : -1;
       }
