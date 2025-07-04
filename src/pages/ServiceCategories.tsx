@@ -15,10 +15,7 @@ export default function ServiceCategoriesPage() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        <ServiceListing 
-          initialCategory={initialCategory} 
-          initialSearch={initialSearch} 
-        />
+        <ServiceListing />
       </main>
       <Footer />
     </div>
