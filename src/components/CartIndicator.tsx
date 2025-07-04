@@ -7,7 +7,8 @@ import { Link } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 
 export function CartIndicator() {
-  const { cartCount } = useCart();
+  const { getTotalItems } = useCart();
+  const cartCount = getTotalItems();
   const [isAnimating, setIsAnimating] = useState(false);
   const [prevCartCount, setPrevCartCount] = useState(cartCount);
   
