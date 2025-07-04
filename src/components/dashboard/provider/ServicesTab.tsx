@@ -3,11 +3,11 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Eye, MoreHorizontal, MapPin, Star } from "lucide-react";
-import { mockServices } from "@/data/mockData";
+import { Plus, Edit, Eye, MoreHorizontal, MapPin, Star, Package } from "lucide-react";
+import { services } from "@/data/mockData";
 
 const ServicesTab = () => {
-  const [services] = useState(mockServices.slice(0, 5)); // Show first 5 services as user's services
+  const [userServices] = useState(services.slice(0, 5)); // Show first 5 services as user's services
 
   return (
     <div className="space-y-6">
@@ -20,7 +20,7 @@ const ServicesTab = () => {
       </div>
 
       <div className="grid gap-6">
-        {services.map((service) => (
+        {userServices.map((service) => (
           <Card key={service.id} className="hover:shadow-md transition-shadow">
             <CardHeader>
               <div className="flex justify-between items-start">
@@ -71,7 +71,7 @@ const ServicesTab = () => {
         ))}
       </div>
 
-      {services.length === 0 && (
+      {userServices.length === 0 && (
         <Card>
           <CardContent className="p-12 text-center">
             <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
