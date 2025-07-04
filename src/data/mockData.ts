@@ -1,3 +1,4 @@
+
 // Mock data for services with packages structure
 export interface ServicePackage {
   id: string;
@@ -254,7 +255,7 @@ export const services: Service[] = [
   }
 ];
 
-// Mock products data with African themes and more items
+// Mock products data with African themes
 export interface Product {
   id: string;
   sellerId: string;
@@ -270,217 +271,120 @@ export interface Product {
   featured: boolean;
   inStock: boolean;
   stockCount: number;
-  stock_quantity: number;
 }
 
 export const products: Product[] = [
   {
     id: "prod-1",
     sellerId: "seller-1",
-    name: "Traditional African Kente Cloth",
-    description: "Authentic handwoven Kente cloth from Ghana, perfect for special occasions",
-    price: 129.99,
-    category: "Fashion & Clothing",
+    name: "Premium Afro Hair Extensions",
+    description: "100% natural African hair extensions, various textures and lengths available",
+    price: 89.99,
+    category: "Beauty & Personal Care",
     categoryId: "1",
-    images: ["https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop"],
-    imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
-    rating: 4.8,
-    reviewCount: 145,
+    images: [
+      "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=400&h=300&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=400&h=300&fit=crop",
+    rating: 4.7,
+    reviewCount: 89,
     featured: true,
     inStock: true,
-    stockCount: 25,
-    stock_quantity: 25
+    stockCount: 25
   },
   {
     id: "prod-2",
     sellerId: "seller-2",
-    name: "Handcrafted African Djembe Drum",
-    description: "Authentic West African djembe drum made from traditional materials",
-    price: 189.99,
-    category: "Musical Instruments",
+    name: "Wireless Bluetooth Headphones",
+    description: "High-quality sound, noise-canceling, comfortable fit",
+    price: 129.99,
+    category: "Electronics",
     categoryId: "2",
-    images: ["https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop"],
-    imageUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop",
-    rating: 4.9,
-    reviewCount: 98,
+    images: [
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop",
+    rating: 4.6,
+    reviewCount: 112,
     featured: true,
     inStock: true,
-    stockCount: 15,
-    stock_quantity: 15
+    stockCount: 40
   },
   {
     id: "prod-3",
     sellerId: "seller-3",
-    name: "African Wooden Mask Collection",
-    description: "Set of 3 traditional wooden masks representing different African tribes",
-    price: 159.99,
-    category: "Art & Crafts",
+    name: "Traditional African Print Dress",
+    description: "Elegant Ankara dress for all occasions, various sizes and vibrant patterns",
+    price: 59.99,
+    category: "Fashion & Clothing",
     categoryId: "3",
-    images: ["https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop"],
-    imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
-    rating: 4.7,
+    images: [
+      "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400&h=300&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400&h=300&fit=crop",
+    rating: 4.5,
     reviewCount: 76,
     featured: false,
     inStock: true,
-    stockCount: 12,
-    stock_quantity: 12
+    stockCount: 30
   },
   {
     id: "prod-4",
     sellerId: "seller-4",
-    name: "Baobab Tree Oil Skincare Set",
-    description: "Natural skincare products made from African baobab tree oil",
+    name: "African Art Home Decor Set",
+    description: "Set of handcrafted African art pieces to enhance your home",
     price: 79.99,
-    category: "Beauty & Personal Care",
+    category: "Home & Garden",
     categoryId: "4",
-    images: ["https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=300&fit=crop"],
-    imageUrl: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=300&fit=crop",
-    rating: 4.6,
-    reviewCount: 134,
-    featured: true,
+    images: [
+      "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop",
+    rating: 4.4,
+    reviewCount: 63,
+    featured: false,
     inStock: true,
-    stockCount: 40,
-    stock_quantity: 40
+    stockCount: 20
   },
   {
     id: "prod-5",
     sellerId: "seller-5",
-    name: "African Print Dashiki Shirt",
-    description: "Colorful traditional dashiki shirt with authentic African prints",
-    price: 49.99,
-    category: "Fashion & Clothing",
-    categoryId: "1",
-    images: ["https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400&h=300&fit=crop"],
-    imageUrl: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400&h=300&fit=crop",
-    rating: 4.5,
-    reviewCount: 89,
+    name: "Professional Yoga Mat",
+    description: "High-quality yoga mat for all fitness levels",
+    price: 39.99,
+    category: "Sports & Fitness",
+    categoryId: "5",
+    images: [
+      "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop",
+    rating: 4.3,
+    reviewCount: 51,
     featured: false,
     inStock: true,
-    stockCount: 35,
-    stock_quantity: 35
+    stockCount: 15
   },
   {
     id: "prod-6",
     sellerId: "seller-6",
-    name: "Shea Butter Body Lotion",
-    description: "Pure shea butter body lotion sourced directly from Ghana",
-    price: 24.99,
-    category: "Beauty & Personal Care",
-    categoryId: "4",
-    images: ["https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400&h=300&fit=crop"],
-    imageUrl: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400&h=300&fit=crop",
-    rating: 4.8,
-    reviewCount: 203,
-    featured: true,
-    inStock: true,
-    stockCount: 60,
-    stock_quantity: 60
-  },
-  {
-    id: "prod-7",
-    sellerId: "seller-7",
-    name: "Ethiopian Coffee Beans",
-    description: "Premium single-origin Ethiopian coffee beans, freshly roasted",
-    price: 34.99,
-    category: "Food & Beverages",
-    categoryId: "5",
-    images: ["https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=300&fit=crop"],
-    imageUrl: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=300&fit=crop",
-    rating: 4.9,
-    reviewCount: 167,
-    featured: true,
-    inStock: true,
-    stockCount: 50,
-    stock_quantity: 50
-  },
-  {
-    id: "prod-8",
-    sellerId: "seller-8",
-    name: "Ankara Print Handbag",
-    description: "Stylish handbag made with authentic African Ankara fabric",
-    price: 69.99,
-    category: "Accessories",
-    categoryId: "6",
-    images: ["https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=300&fit=crop"],
-    imageUrl: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=300&fit=crop",
-    rating: 4.7,
-    reviewCount: 92,
-    featured: false,
-    inStock: true,
-    stockCount: 28,
-    stock_quantity: 28
-  },
-  {
-    id: "prod-9",
-    sellerId: "seller-9",
-    name: "African Black Soap",
-    description: "Traditional black soap made with plantain skins and palm kernel oil",
-    price: 16.99,
-    category: "Beauty & Personal Care",
-    categoryId: "4",
-    images: ["https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=400&h=300&fit=crop"],
-    imageUrl: "https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=400&h=300&fit=crop",
-    rating: 4.6,
-    reviewCount: 156,
-    featured: false,
-    inStock: true,
-    stockCount: 75,
-    stock_quantity: 75
-  },
-  {
-    id: "prod-10",
-    sellerId: "seller-10",
-    name: "Moroccan Argan Oil",
-    description: "Pure Moroccan argan oil for hair and skin care",
-    price: 39.99,
-    category: "Beauty & Personal Care",
-    categoryId: "4",
-    images: ["https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400&h=300&fit=crop"],
-    imageUrl: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400&h=300&fit=crop",
-    rating: 4.8,
-    reviewCount: 124,
-    featured: true,
-    inStock: true,
-    stockCount: 45,
-    stock_quantity: 45
-  },
-  {
-    id: "prod-11",
-    sellerId: "seller-11",
-    name: "Beeswax African Candles",
-    description: "Set of 4 handmade beeswax candles with African-inspired scents",
-    price: 29.99,
-    category: "Home & Garden",
-    categoryId: "7",
-    images: ["https://images.unsplash.com/photo-1602874801007-63c0075ba1f6?w=400&h=300&fit=crop"],
-    imageUrl: "https://images.unsplash.com/photo-1602874801007-63c0075ba1f6?w=400&h=300&fit=crop",
-    rating: 4.5,
-    reviewCount: 68,
-    featured: false,
-    inStock: true,
-    stockCount: 32,
-    stock_quantity: 32
-  },
-  {
-    id: "prod-12",
-    sellerId: "seller-12",
     name: "African Literature Collection",
-    description: "Set of 5 classic African novels by renowned authors",
-    price: 89.99,
+    description: "Set of classic African novels and contemporary works",
+    price: 49.99,
     category: "Books & Education",
-    categoryId: "8",
-    images: ["https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop"],
+    categoryId: "6",
+    images: [
+      "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop"
+    ],
     imageUrl: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop",
-    rating: 4.9,
-    reviewCount: 95,
-    featured: true,
+    rating: 4.2,
+    reviewCount: 42,
+    featured: false,
     inStock: true,
-    stockCount: 20,
-    stock_quantity: 20
+    stockCount: 10
   }
 ];
 
-// Mock users data with African names and profile pictures
+// Mock users data with African names and images
 export interface User {
   id: string;
   firstName: string;
@@ -491,7 +395,7 @@ export interface User {
   phone?: string;
   location?: string;
   joinDate: string;
-  favorites?: string[];
+  favorites?: string[]; // service IDs for clients
 }
 
 export const users: User[] = [

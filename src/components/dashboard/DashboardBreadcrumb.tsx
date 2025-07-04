@@ -1,12 +1,11 @@
 
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronRight, Home } from 'lucide-react';
+import { ChevronRight, Home } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
-interface BreadcrumbItem {
+type BreadcrumbItem = {
   label: string;
-  href?: string;
-}
+  path?: string;
+};
 
 interface DashboardBreadcrumbProps {
   items: BreadcrumbItem[];
@@ -14,51 +13,70 @@ interface DashboardBreadcrumbProps {
 }
 
 const DashboardBreadcrumb = ({ items, userRole }: DashboardBreadcrumbProps) => {
-  const getDashboardPath = () => {
-    switch (userRole) {
-      case 'admin':
-        return '/dashboard/admin';
-      case 'provider':
-        return '/dashboard/provider';
-      case 'seller':
-        return '/dashboard/seller';
-      default:
-        return '/dashboard/client';
+  const navigate = useNavigate();
+  const roleLabel = userRole.charAt(0).toUpperCase() + userRole.slice(1);
+  const dashboardPath = `/dashboard/${userRole}`;
+  
+  // Filter out any duplicate items that might cause UI issues
+  const uniqueItems = items.filter((item, index, self) => 
+    index === self.findIndex(t => t.label === item.label)
+  );
+
+  const handleNavigation = (path: string) => {
+    try {
+      navigate(path);
+    } catch (error) {
+      console.error('Navigation error:', error);
+      window.location.href = path;
     }
   };
-
+  
   return (
-    <nav className="bg-gray-50 py-3 px-4 border-b">
-      <div className="container mx-auto">
-        <div className="flex items-center space-x-2 text-sm">
-          <Link 
-            to="/" 
-            className="text-muted-foreground hover:text-servie flex items-center"
-          >
-            <Home className="h-4 w-4 mr-1" />
-            Home
-          </Link>
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          <Link 
-            to={getDashboardPath()} 
-            className="text-muted-foreground hover:text-servie"
-          >
-            Dashboard
-          </Link>
-          {items.map((item, index) => (
-            <React.Fragment key={index}>
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              {item.href ? (
-                <Link to={item.href} className="text-muted-foreground hover:text-servie">
-                  {item.label}
-                </Link>
-              ) : (
-                <span className="text-servie font-medium">{item.label}</span>
-              )}
-            </React.Fragment>
-          ))}
+    <nav className="flex items-center space-x-1 text-sm text-muted-foreground mb-6 overflow-x-auto pb-1 border-b border-border">
+      <Link 
+        to="/"
+        className="flex items-center hover:text-servie transition-colors"
+        onClick={(e) => {
+          e.preventDefault();
+          handleNavigation('/');
+        }}
+      >
+        <Home className="h-4 w-4 mr-1" />
+        <span>Home</span>
+      </Link>
+      
+      <ChevronRight className="h-4 w-4 mx-1 text-muted-foreground/60" />
+      
+      <Link 
+        to={dashboardPath}
+        className="hover:text-servie transition-colors"
+        onClick={(e) => {
+          e.preventDefault();
+          handleNavigation(dashboardPath);
+        }}
+      >
+        {roleLabel} Dashboard
+      </Link>
+      
+      {uniqueItems.length > 0 && uniqueItems.map((item, index) => (
+        <div key={index} className="flex items-center">
+          <ChevronRight className="h-4 w-4 mx-1 text-muted-foreground/60" />
+          {item.path ? (
+            <Link 
+              to={item.path} 
+              className="hover:text-servie transition-colors"
+              onClick={(e) => {
+                e.preventDefault();
+                handleNavigation(item.path);
+              }}
+            >
+              {item.label}
+            </Link>
+          ) : (
+            <span className="font-medium text-foreground">{item.label}</span>
+          )}
         </div>
-      </div>
+      ))}
     </nav>
   );
 };
