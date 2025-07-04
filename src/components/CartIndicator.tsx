@@ -7,8 +7,10 @@ import { Link } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 
 export function CartIndicator() {
-  const { cartCount } = useCart();
+  const { cartItems } = useCart();
   const [isAnimating, setIsAnimating] = useState(false);
+  
+  const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
   const [prevCartCount, setPrevCartCount] = useState(cartCount);
   
   // Enhanced animation effect when the cart updates with improved responsiveness
