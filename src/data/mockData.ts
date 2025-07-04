@@ -438,7 +438,7 @@ export const products: Product[] = [
     images: ["https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400&h=300&fit=crop"],
     imageUrl: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400&h=300&fit=crop",
     rating: 4.8,
-    reviewCount: 124,
+    reviewView: 124,
     featured: true,
     inStock: true,
     stockCount: 45,
