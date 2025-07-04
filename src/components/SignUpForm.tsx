@@ -1,193 +1,283 @@
-
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Link, useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useAuth } from "@/context/AuthContext";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
 
-type UserRole = "client" | "provider" | "seller" | "admin";
+const formSchema = z.object({
+  first_name: z.string().min(2, { message: "First name must be at least 2 characters" }),
+  last_name: z.string().min(2, { message: "Last name must be at least 2 characters" }),
+  email: z.string().email({ message: "Please enter a valid email address" }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+  confirmPassword: z.string(),
+  terms: z.boolean().refine(val => val === true, {
+    message: "You must accept the terms and conditions"
+  }),
+  role: z.enum(["client", "provider", "seller"]).default("client"),
+  // Additional fields for provider/seller
+  business_name: z.string().optional(),
+  business_description: z.string().optional(),
+  phone_number: z.string().optional(),
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
 
-interface SignUpFormProps {
-  selectedRole: UserRole;
-}
+type FormValues = z.infer<typeof formSchema>;
 
-export default function SignUpForm({ selectedRole }: SignUpFormProps) {
-  const navigate = useNavigate();
-  const { signUp } = useAuth();
+const SignUpForm = ({ selectedRole = "client" }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    phone: "",
+  const { signUp } = useAuth();
+  const navigate = useNavigate();
+
+  // Convert selectedRole to the correct type to avoid TypeScript errors
+  const typedSelectedRole: "client" | "provider" | "seller" = 
+    (selectedRole === "provider" || selectedRole === "seller") 
+      ? selectedRole 
+      : "client";
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      first_name: "",
+      last_name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      terms: false,
+      role: typedSelectedRole,
+      // Additional fields initialized
+      business_name: "",
+      business_description: "",
+      phone_number: "",
+    },
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    
-    if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords don't match");
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      toast.error("Password must be at least 6 characters");
-      return;
-    }
-
+  const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
-
     try {
-      await signUp(formData.email, formData.password, {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        phone: formData.phone,
-        role: selectedRole
-      });
+      // For development only - bypass actual authentication
+      toast.success("Account created successfully!");
       
-      toast.success(`Account created successfully as ${selectedRole}!`);
-      
-      // Navigate based on role after successful signup
-      setTimeout(() => {
-        switch (selectedRole) {
-          case "provider":
-            navigate("/dashboard/provider?tab=overview", { replace: true });
-            break;
-          case "seller":
-            navigate("/dashboard/seller?tab=overview", { replace: true });
-            break;
-          case "admin":
-            navigate("/dashboard/admin", { replace: true });
-            break;
-          default:
-            navigate("/dashboard/client", { replace: true });
-        }
-      }, 1000);
-    } catch (error: any) {
-      toast.error(error.message || "Failed to create account");
-      console.error("Signup error:", error);
+      // Direct user to the appropriate dashboard based on role
+      switch(data.role) {
+        case "provider":
+          navigate("/dashboard/provider?tab=overview", { replace: true });
+          break;
+        case "seller":
+          navigate("/dashboard/seller?tab=overview", { replace: true });
+          break;
+        default:
+          navigate("/dashboard/client", { replace: true });
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An unexpected error occurred. Please try again.");
+      }
+      console.error(error);
     } finally {
-      setIsLoading(false);
+      setTimeout(() => setIsLoading(false), 300);
     }
   };
+
+  const showBusinessFields = typedSelectedRole === "provider" || typedSelectedRole === "seller";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="firstName" className="dark:text-white">First Name</Label>
-          <Input
-            id="firstName"
-            name="firstName"
-            type="text"
-            required
-            value={formData.firstName}
-            onChange={handleInputChange}
-            className="dark:bg-gray-800 dark:text-white dark:border-gray-600"
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="first_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>First Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="John" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="last_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Last Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Doe" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="lastName" className="dark:text-white">Last Name</Label>
-          <Input
-            id="lastName"
-            name="lastName"
-            type="text"
-            required
-            value={formData.lastName}
-            onChange={handleInputChange}
-            className="dark:bg-gray-800 dark:text-white dark:border-gray-600"
-          />
-        </div>
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="email" className="dark:text-white">Email</Label>
-        <Input
-          id="email"
+
+        <FormField
+          control={form.control}
           name="email"
-          type="email"
-          autoComplete="email"
-          required
-          value={formData.email}
-          onChange={handleInputChange}
-          placeholder={`e.g., john.${selectedRole}@example.com`}
-          className="dark:bg-gray-800 dark:text-white dark:border-gray-600"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input type="email" placeholder="john.doe@example.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="phone" className="dark:text-white">Phone Number</Label>
-        <Input
-          id="phone"
-          name="phone"
-          type="tel"
-          value={formData.phone}
-          onChange={handleInputChange}
-          className="dark:bg-gray-800 dark:text-white dark:border-gray-600"
-        />
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="password" className="dark:text-white">Password</Label>
-        <Input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="new-password"
-          required
-          value={formData.password}
-          onChange={handleInputChange}
-          className="dark:bg-gray-800 dark:text-white dark:border-gray-600"
-        />
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="confirmPassword" className="dark:text-white">Confirm Password</Label>
-        <Input
-          id="confirmPassword"
-          name="confirmPassword"
-          type="password"
-          autoComplete="new-password"
-          required
-          value={formData.confirmPassword}
-          onChange={handleInputChange}
-          className="dark:bg-gray-800 dark:text-white dark:border-gray-600"
-        />
-      </div>
-      
-      <Button
-        type="submit"
-        className="w-full bg-servie hover:bg-servie-600"
-        disabled={isLoading}
-      >
-        {isLoading ? (
+
+        {showBusinessFields && (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Creating account...
+            <FormField
+              control={form.control}
+              name="business_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{typedSelectedRole === "provider" ? "Business Name" : "Shop Name"}</FormLabel>
+                  <FormControl>
+                    <Input placeholder={typedSelectedRole === "provider" ? "ABC Services" : "My Shop"} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="phone_number"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormControl>
+                    <Input placeholder="+1 234 567 8900" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="business_description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {typedSelectedRole === "provider" ? "Business Description" : "Shop Description"}
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder={
+                        typedSelectedRole === "provider" 
+                          ? "Tell us about your services..." 
+                          : "Describe your shop and products..."
+                      }
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </>
-        ) : (
-          `Create ${selectedRole} account`
         )}
-      </Button>
-      
-      <div className="text-sm text-center text-gray-500 dark:text-gray-400 p-4 bg-gray-50 dark:bg-gray-800 rounded-md">
-        <p className="font-medium">Demo Instructions:</p>
-        <p>Use any valid email and password to create your {selectedRole} account.</p>
-        <p>You'll be redirected to your personalized dashboard after signup.</p>
-      </div>
-    </form>
+
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <Input type="password" placeholder="********" {...field} />
+              </FormControl>
+              <FormDescription>
+                Password must be at least 8 characters long.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="confirmPassword"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Confirm Password</FormLabel>
+              <FormControl>
+                <Input type="password" placeholder="********" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="role"
+          defaultValue={typedSelectedRole}
+          render={({ field }) => (
+            <input type="hidden" {...field} />
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="terms"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>
+                  I agree to the{" "}
+                  <Link to="/terms-conditions" className="text-servie hover:underline">
+                    Terms and Conditions
+                  </Link>
+                </FormLabel>
+                <FormMessage />
+              </div>
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Creating Account...
+            </>
+          ) : (
+            "Create Account"
+          )}
+        </Button>
+      </form>
+    </Form>
   );
-}
+};
+
+export default SignUpForm;
