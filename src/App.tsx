@@ -1,14 +1,13 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import Services from './pages/Services';
-import Categories from './pages/Categories';
-import CategoryDetails from './pages/CategoryDetails';
-import ServiceDetails from './pages/ServiceDetails';
-import Shop from './pages/Shop';
-import ProductDetails from './pages/ProductDetails';
+import Index from './pages/Index';
+import AboutUs from './pages/AboutUs';
+import ContactSupport from './pages/ContactSupport';
+import ServiceCategories from './pages/ServiceCategories';
+import ServiceDetail from './pages/ServiceDetail';
+import EcommerceShop from './pages/ecommerce/EcommerceShop';
+import ProductDetail from './pages/ecommerce/ProductDetail';
 import SignUp from './pages/SignUp';
 import SignIn from './pages/SignIn';
 import UserDashboard from './pages/dashboard/UserDashboard';
@@ -22,15 +21,15 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/services" element={<Services />} />
-        <Route path="/categories" element={<Categories />} />
-        <Route path="/category/:categoryId" element={<CategoryDetails />} />
-        <Route path="/service/:serviceId" element={<ServiceDetails />} />
-        <Route path="/shop" element={<Shop />} />
-        <Route path="/product/:productId" element={<ProductDetails />} />
+        <Route path="/" element={<Index />} />
+        <Route path="/about" element={<AboutUs />} />
+        <Route path="/contact" element={<ContactSupport />} />
+        <Route path="/services" element={<ServiceCategories />} />
+        <Route path="/categories" element={<ServiceCategories />} />
+        <Route path="/category/:categoryId" element={<ServiceCategories />} />
+        <Route path="/service/:serviceId" element={<ServiceDetail />} />
+        <Route path="/shop" element={<EcommerceShop />} />
+        <Route path="/product/:productId" element={<ProductDetail />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/sign-in" element={<SignIn />} />
         
