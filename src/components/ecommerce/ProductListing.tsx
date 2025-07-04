@@ -44,7 +44,7 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
         case 'price-high':
           return b.price - a.price;
         case 'newest':
-          return b.featured ? 1 : -1; // Sort by featured instead of joinDate
+          return b.featured ? 1 : -1;
         default:
           return b.featured ? 1 : -1;
       }
