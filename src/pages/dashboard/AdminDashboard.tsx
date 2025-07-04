@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Header from "@/components/Header";
@@ -65,6 +66,9 @@ const AdminDashboard = () => {
       <DashboardBreadcrumb 
         items={getBreadcrumbItems()}
         userRole="admin"
+        additionalCrumbs={[
+          { label: "Admin Dashboard", href: "/dashboard/admin" }
+        ]}
       />
       <main className="flex-1 container mx-auto py-8 px-4">
         <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8">
