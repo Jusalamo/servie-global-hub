@@ -135,7 +135,7 @@ export const services: Service[] = [
     rating: 4.9,
     reviewCount: 212,
     featured: true,
-    responseType: "Within 30 minutes",
+    responseTime: "Within 30 minutes",
     packages: [
       {
         id: "pkg-3-basic",
@@ -255,7 +255,7 @@ export const services: Service[] = [
   }
 ];
 
-// Mock products data with African themes and proper images
+// Mock products data with African themes
 export interface Product {
   id: string;
   sellerId: string;
@@ -271,7 +271,6 @@ export interface Product {
   featured: boolean;
   inStock: boolean;
   stockCount: number;
-  stock_quantity: number;
 }
 
 export const products: Product[] = [
@@ -291,8 +290,7 @@ export const products: Product[] = [
     reviewCount: 89,
     featured: true,
     inStock: true,
-    stockCount: 25,
-    stock_quantity: 25
+    stockCount: 25
   },
   {
     id: "prod-2",
@@ -310,8 +308,7 @@ export const products: Product[] = [
     reviewCount: 112,
     featured: true,
     inStock: true,
-    stockCount: 40,
-    stock_quantity: 40
+    stockCount: 40
   },
   {
     id: "prod-3",
@@ -329,8 +326,7 @@ export const products: Product[] = [
     reviewCount: 76,
     featured: false,
     inStock: true,
-    stockCount: 30,
-    stock_quantity: 30
+    stockCount: 30
   },
   {
     id: "prod-4",
@@ -348,8 +344,7 @@ export const products: Product[] = [
     reviewCount: 63,
     featured: false,
     inStock: true,
-    stockCount: 20,
-    stock_quantity: 20
+    stockCount: 20
   },
   {
     id: "prod-5",
@@ -367,8 +362,7 @@ export const products: Product[] = [
     reviewCount: 51,
     featured: false,
     inStock: true,
-    stockCount: 15,
-    stock_quantity: 15
+    stockCount: 15
   },
   {
     id: "prod-6",
@@ -386,46 +380,7 @@ export const products: Product[] = [
     reviewCount: 42,
     featured: false,
     inStock: true,
-    stockCount: 10,
-    stock_quantity: 10
-  },
-  {
-    id: "prod-7",
-    sellerId: "seller-7",
-    name: "Handwoven Kente Cloth",
-    description: "Authentic Ghanaian Kente cloth, perfect for special occasions",
-    price: 149.99,
-    category: "Fashion & Clothing",
-    categoryId: "3",
-    images: [
-      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop"
-    ],
-    imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
-    rating: 4.8,
-    reviewCount: 95,
-    featured: true,
-    inStock: true,
-    stockCount: 12,
-    stock_quantity: 12
-  },
-  {
-    id: "prod-8",
-    sellerId: "seller-8",
-    name: "African Shea Butter Skincare Set",
-    description: "Pure, organic shea butter products from Ghana for healthy skin",
-    price: 45.99,
-    category: "Beauty & Personal Care",
-    categoryId: "1",
-    images: [
-      "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=300&fit=crop"
-    ],
-    imageUrl: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=300&fit=crop",
-    rating: 4.6,
-    reviewCount: 67,
-    featured: false,
-    inStock: true,
-    stockCount: 35,
-    stock_quantity: 35
+    stockCount: 10
   }
 ];
 
@@ -447,8 +402,8 @@ export const users: User[] = [
   {
     id: "user-1",
     firstName: "Amara",
-    lastName: "Okafor",
-    email: "amara.okafor@example.com",
+    lastName: "Johnson",
+    email: "amara.johnson@example.com",
     role: "client",
     avatar: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=150&h=150&fit=crop&crop=face",
     phone: "+234 (555) 123-4567",
@@ -492,8 +447,8 @@ export const users: User[] = [
   {
     id: "provider-4",
     firstName: "Chidi",
-    lastName: "Nwosu",
-    email: "chidi.nwosu@example.com",
+    lastName: "Okafor",
+    email: "chidi.okafor@example.com",
     role: "provider",
     avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
     phone: "+234 (555) 567-8901",
@@ -615,95 +570,5 @@ export const bookings: Booking[] = [
     notes: "Focus on cardio and strength training",
     createdAt: "2024-06-25T16:20:00Z",
     paymentStatus: "paid"
-  }
-];
-
-// Mock reviews with African names
-export interface Review {
-  id: string;
-  serviceId: string;
-  clientId: string;
-  clientName: string;
-  clientAvatar: string;
-  rating: number;
-  comment: string;
-  createdAt: string;
-}
-
-export const reviews: Review[] = [
-  {
-    id: "review-1",
-    serviceId: "1",
-    clientId: "user-1",
-    clientName: "Amara Okafor",
-    clientAvatar: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=150&h=150&fit=crop&crop=face",
-    rating: 5,
-    comment: "Excellent service! Kwame's team did an amazing job cleaning my home. Very professional and thorough.",
-    createdAt: "2024-06-15T10:00:00Z"
-  },
-  {
-    id: "review-2",
-    serviceId: "3",
-    clientId: "user-2",
-    clientName: "Tendai Mukamuri",
-    clientAvatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face",
-    rating: 5,
-    comment: "Nalani captured our wedding beautifully! The photos are stunning and she was so professional throughout the day.",
-    createdAt: "2024-05-20T14:30:00Z"
-  },
-  {
-    id: "review-3",
-    serviceId: "5",
-    clientId: "user-3",
-    clientName: "Kofi Asante",
-    clientAvatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-    rating: 4,
-    comment: "Great personal training sessions with Thabo. He really knows how to motivate and push you to achieve your goals.",
-    createdAt: "2024-06-01T08:00:00Z"
-  }
-];
-
-// Mock messages data with African names
-export interface Message {
-  id: string;
-  senderId: string;
-  senderName: string;
-  senderAvatar: string;
-  receiverId: string;
-  content: string;
-  timestamp: string;
-  read: boolean;
-}
-
-export const messages: Message[] = [
-  {
-    id: "msg-1",
-    senderId: "user-1",
-    senderName: "Amara Okafor",
-    senderAvatar: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=150&h=150&fit=crop&crop=face",
-    receiverId: "provider-1",
-    content: "Hi Kwame, I'm interested in your home cleaning service. Could you provide a quote for a 3-bedroom apartment?",
-    timestamp: "2024-07-04T10:30:00Z",
-    read: false
-  },
-  {
-    id: "msg-2",
-    senderId: "provider-1",
-    senderName: "Kwame Asante",
-    senderAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    receiverId: "user-1",
-    content: "Hello Amara! Thank you for your interest. For a 3-bedroom apartment, our standard cleaning package would be $120. This includes all rooms, kitchen, and bathrooms. Would you like to schedule a consultation?",
-    timestamp: "2024-07-04T11:15:00Z",
-    read: true
-  },
-  {
-    id: "msg-3",
-    senderId: "user-2",
-    senderName: "Tendai Mukamuri",
-    senderAvatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face",
-    receiverId: "provider-3",
-    content: "Nalani, we absolutely loved our wedding photos! Thank you for capturing our special day so beautifully.",
-    timestamp: "2024-07-03T16:45:00Z",
-    read: true
   }
 ];

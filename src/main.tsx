@@ -7,20 +7,9 @@ import './i18n'; // Import i18n configuration
 import { LocalizationProvider } from './components/LangCurrencySelector';
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <ThemeProvider defaultTheme="light" storageKey="servie-ui-theme">
-      <BrowserRouter>
-        <QueryClient>
-          <MockAuthProvider>
-            <NotificationProvider>
-              <CartProvider>
-                <App />
-                <Toaster />
-              </CartProvider>
-            </NotificationProvider>
-          </MockAuthProvider>
-        </QueryClient>
-      </BrowserRouter>
-    </ThemeProvider>
-  </StrictMode>
+  <BrowserRouter>
+    <LocalizationProvider>
+      <App />
+    </LocalizationProvider>
+  </BrowserRouter>
 );

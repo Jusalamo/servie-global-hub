@@ -60,62 +60,71 @@
   }
   body {
     @apply bg-background text-foreground font-sans;
-    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
-    min-height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
   }
   
   .dark body {
-    background: linear-gradient(135deg, hsl(224 71.4% 4.1%) 0%, hsl(215 27.9% 16.9%) 100%);
+    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--background)) 50%, hsl(var(--muted)) 100%);
   }
   
-  /* Enhanced card styling for both light and dark modes */
+  /* Enhanced light mode with beautiful gradients and shadows */
   .enhanced-card {
-    @apply transition-all duration-500 hover:shadow-xl border;
-    background: hsl(var(--card));
-    border-color: hsl(var(--border));
+    @apply transition-all duration-500 hover:shadow-xl border-none;
+    background: linear-gradient(145deg, #ffffff 0%, #f9fafb 50%, #f3f4f6 100%);
+    border: 1px solid rgba(226, 232, 240, 0.6);
     box-shadow: 
       0 4px 6px -1px rgba(0, 0, 0, 0.05),
-      0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      0 2px 4px -1px rgba(0, 0, 0, 0.03),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
   }
 
   .enhanced-card:hover {
     transform: translateY(-8px) scale(1.02);
     box-shadow: 
       0 25px 50px -12px rgba(0, 0, 0, 0.15),
-      0 12px 24px -8px rgba(0, 0, 0, 0.08);
+      0 12px 24px -8px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
   }
 
   .dark .enhanced-card {
-    background: hsl(var(--card));
+    background: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(var(--card)/0.9) 50%, hsl(var(--card)/0.8) 100%);
     border-color: hsl(var(--border));
     box-shadow: 
       0 4px 6px -1px rgba(0, 0, 0, 0.3),
-      0 2px 4px -1px rgba(0, 0, 0, 0.2);
+      0 2px 4px -1px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
   }
 
   .dark .enhanced-card:hover {
     box-shadow: 
       0 25px 50px -12px rgba(0, 0, 0, 0.5),
-      0 12px 24px -8px rgba(0, 0, 0, 0.3);
+      0 12px 24px -8px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
   }
 
-  /* Hero section styling */
+  /* Hero section with enhanced gradients */
   #hero-section {
     isolation: isolate;
     background: linear-gradient(135deg, 
-      hsl(var(--background)) 0%, 
-      hsl(var(--muted)) 100%
+      rgba(248, 250, 252, 0.9) 0%, 
+      rgba(241, 245, 249, 0.8) 25%,
+      rgba(234, 240, 248, 0.7) 50%,
+      rgba(226, 232, 240, 0.6) 75%,
+      rgba(203, 213, 225, 0.5) 100%
     );
   }
 
   .dark #hero-section {
     background: linear-gradient(135deg, 
-      hsl(224 71.4% 4.1%) 0%, 
-      hsl(215 27.9% 16.9%) 100%
+      rgba(15, 23, 42, 0.9) 0%, 
+      rgba(30, 41, 59, 0.8) 25%,
+      rgba(51, 65, 85, 0.7) 50%,
+      rgba(71, 85, 105, 0.6) 75%,
+      rgba(100, 116, 139, 0.5) 100%
     );
   }
 
-  /* Enhanced buttons */
+  /* Enhanced buttons with beautiful gradients */
   .btn-gradient {
     background: linear-gradient(135deg, hsl(var(--servie)) 0%, hsl(var(--servie-600)) 100%);
     box-shadow: 
@@ -131,10 +140,14 @@
       0 4px 6px -2px rgba(234, 56, 76, 0.3);
   }
 
-  /* Service/Product cards */
+  /* Service category cards with enhanced styling */
   .service-card {
     @apply enhanced-card;
-    background: hsl(var(--card));
+    background: linear-gradient(145deg, 
+      rgba(255, 255, 255, 0.95) 0%, 
+      rgba(248, 250, 252, 0.9) 50%, 
+      rgba(241, 245, 249, 0.85) 100%
+    );
     border-radius: 16px;
     overflow: hidden;
     position: relative;
@@ -156,101 +169,124 @@
     opacity: 1;
   }
 
-  /* Form elements focus states */
-  input:focus, 
-  select:focus, 
-  textarea:focus {
-    border-color: hsl(var(--servie));
-    box-shadow: 
-      0 0 0 2px hsla(var(--servie), 0.2),
-      0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+  .dark .service-card {
+    background: linear-gradient(145deg, 
+      rgba(30, 41, 59, 0.95) 0%, 
+      rgba(51, 65, 85, 0.9) 50%, 
+      rgba(71, 85, 105, 0.85) 100%
+    );
   }
+}
 
-  /* Dropdown styling for dark mode */
-  .dark [data-radix-popper-content-wrapper] {
-    background: hsl(var(--popover));
-    border: 1px solid hsl(var(--border));
-  }
+body {
+  min-height: 100vh;
+}
 
-  /* Select dropdown styling */
-  [data-radix-select-content] {
-    background: hsl(var(--popover)) !important;
-    border: 1px solid hsl(var(--border)) !important;
-    color: hsl(var(--popover-foreground)) !important;
+/* Enhanced animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-  .dark [data-radix-select-content] {
-    background: hsl(215 27.9% 16.9%) !important;
-    border: 1px solid hsl(215 27.9% 26.9%) !important;
-    color: hsl(210 20% 98%) !important;
-  }
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out;
+}
 
-  /* Scrollbar styling */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+@keyframes slideInRight {
+  from {
+    transform: translateX(30px);
+    opacity: 0;
   }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
 
-  ::-webkit-scrollbar-track {
-    background: hsl(var(--muted));
-    border-radius: 8px;
-  }
+.animate-slide-in-right {
+  animation: slideInRight 0.6s ease-out;
+}
 
-  ::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, hsl(var(--servie)) 0%, hsl(var(--primary)) 100%);
-    border-radius: 8px;
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-30px);
+    opacity: 0;
   }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
 
-  ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, hsl(var(--servie-600)) 0%, hsl(var(--primary)) 100%);
-  }
+.animate-slide-in-left {
+  animation: slideInLeft 0.6s ease-out;
+}
 
-  /* Enhanced mobile responsive */
-  @media (max-width: 640px) {
-    h1 {
-      font-size: clamp(1.5rem, 5vw, 2.25rem) !important;
-    }
-    
-    h2 {
-      font-size: clamp(1.25rem, 4vw, 1.875rem) !important;
-    }
-    
-    .container {
-      padding-left: 1rem !important;
-      padding-right: 1rem !important;
-    }
-    
-    button, .button {
-      font-size: 0.875rem !important;
-      padding-left: 1rem !important;
-      padding-right: 1rem !important;
-    }
-    
-    input, select, textarea {
-      font-size: 16px !important;
-    }
-    
-    .py-16 {
-      padding-top: 3rem !important;
-      padding-bottom: 3rem !important;
-    }
+@keyframes slideInUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
   }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
 
-  /* Animation classes */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+.animate-slide-in-up {
+  animation: slideInUp 0.6s ease-out;
+}
 
-  .animate-fade-in {
-    animation: fadeIn 0.8s ease-out;
+/* Enhanced gradient animation */
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
   }
+  25% {
+    background-position: 50% 100%;
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+  }
+  50% {
+    background-position: 100% 50%;
+    border-radius: 50% 50% 20% 80% / 25% 80% 20% 75%;
+  }
+  75% {
+    background-position: 50% 0%;
+    border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%;
+  }
+  100% {
+    background-position: 0% 50%;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+}
+
+.animate-gradient {
+  animation: gradientAnimation 25s ease infinite;
+  background-size: 400% 400%;
+}
+
+/* Enhanced dark mode background */
+.dark .home-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  opacity: 0.12;
+  background: 
+    radial-gradient(circle at 25% 25%, rgba(234, 56, 76, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(139, 92, 246, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.4) 0%, transparent 50%);
+  filter: blur(100px);
+  animation: gradientAnimation 30s ease infinite;
 }
 
 /* Consistent button styling */
@@ -266,17 +302,69 @@
   box-shadow: 0 8px 12px -2px rgba(234, 56, 76, 0.35);
 }
 
-/* Dark mode background effects */
-.dark .home-background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  opacity: 0.05;
-  background: 
-    radial-gradient(circle at 25% 25%, rgba(234, 56, 76, 0.4) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, rgba(139, 92, 246, 0.4) 0%, transparent 50%);
-  filter: blur(100px);
+/* Enhanced form elements */
+input:focus, 
+select:focus, 
+textarea:focus {
+  border-color: hsl(var(--servie));
+  box-shadow: 
+    0 0 0 2px hsla(var(--servie), 0.2),
+    0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Enhanced mobile responsive */
+@media (max-width: 640px) {
+  h1 {
+    font-size: clamp(1.5rem, 5vw, 2.25rem) !important;
+  }
+  
+  h2 {
+    font-size: clamp(1.25rem, 4vw, 1.875rem) !important;
+  }
+  
+  .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  button, .button {
+    font-size: 0.875rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+  
+  .py-16 {
+    padding-top: 3rem !important;
+    padding-bottom: 3rem !important;
+  }
+}
+
+/* Tab styling improvements */
+.tabs-trigger-active {
+  background: linear-gradient(135deg, hsl(var(--servie)) 0%, hsl(var(--servie-600)) 100%);
+  color: white;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, hsl(var(--servie)) 0%, hsl(var(--primary)) 100%);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, hsl(var(--servie-600)) 0%, hsl(var(--primary)) 100%);
 }
