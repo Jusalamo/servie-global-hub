@@ -16,6 +16,8 @@ import ReviewForm from "@/components/ecommerce/ReviewForm";
 import ReviewList from "@/components/ecommerce/ReviewList";
 import { type Product } from "@/components/ecommerce/ProductCard";
 import { useLocalization } from "@/components/LangCurrencySelector";
+import { products as mockProducts } from "@/data/mockData";
+import { useCart } from "@/context/CartContext";
 
 export default function ProductDetail() {
   const { productId } = useParams<{ productId: string }>();
@@ -28,44 +30,69 @@ export default function ProductDetail() {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const { isAuthenticated } = useAuth();
   const { formatPrice, translate } = useLocalization();
+  const { addToCart } = useCart();
   const navigate = useNavigate();
 
-  // Simulate fetching product data
+  // Fetch product data from mock data
   useEffect(() => {
     const fetchProduct = async () => {
-      // In a real app, this would be an API call
       setLoading(true);
       try {
         // Simulating API call with timeout
         await new Promise(resolve => setTimeout(resolve, 600));
         
-        // Use mock product data but ensure it has the required fields
-        const defaultProduct: Product = {
-          id: productId || "1",
-          name: "Premium Wireless Headphones",
-          description: "Enjoy premium sound quality with these wireless headphones. Features active noise cancellation, 30-hour battery life, and comfortable ear cushions for all-day listening.",
-          price: 249.99,
-          compareAtPrice: 299.99,
-          currency: "$",
-          images: [
-            "/products/headphones-1.jpg", 
-            "/products/headphones-2.jpg",
-            "/products/headphones-3.jpg",
-            "/products/headphones-4.jpg"
-          ].map(() => "/placeholder.svg"), // Using placeholder since real images might not exist
-          category: "Electronics",
-          providerId: "seller123",
-          providerName: "AudioTech",
-          providerAvatar: "/placeholder.svg",
-          rating: 4.8,
-          reviewCount: 124,
-          featured: true,
-          inStock: true,
-          createdAt: "2023-01-15T08:30:00.000Z"
-        };
+        // Find product in mock data
+        const foundProduct = mockProducts.find(p => p.id === productId);
         
-        setProduct(defaultProduct);
-        setActiveImage(defaultProduct.images[0]);
+        if (foundProduct) {
+          // Convert mock product to Product type
+          const convertedProduct: Product = {
+            id: foundProduct.id,
+            name: foundProduct.name,
+            description: foundProduct.description,
+            price: foundProduct.price,
+            compareAtPrice: foundProduct.price * 1.2, // Add compare price for demo
+            currency: "$",
+            images: foundProduct.images || [foundProduct.imageUrl],
+            category: foundProduct.category,
+            providerId: foundProduct.sellerId,
+            providerName: `Seller ${foundProduct.sellerId}`,
+            providerAvatar: "/placeholder.svg",
+            rating: foundProduct.rating,
+            reviewCount: foundProduct.reviewCount,
+            featured: foundProduct.featured,
+            inStock: foundProduct.inStock,
+            createdAt: "2023-01-15T08:30:00.000Z"
+          };
+          
+          setProduct(convertedProduct);
+          setActiveImage(convertedProduct.images[0]);
+        } else {
+          // Fallback product if not found
+          const defaultProduct: Product = {
+            id: productId || "1",
+            name: "Premium Wireless Headphones",
+            description: "Enjoy premium sound quality with these wireless headphones. Features active noise cancellation, 30-hour battery life, and comfortable ear cushions for all-day listening.",
+            price: 249.99,
+            compareAtPrice: 299.99,
+            currency: "$",
+            images: [
+              "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop"
+            ],
+            category: "Electronics",
+            providerId: "seller123",
+            providerName: "AudioTech",
+            providerAvatar: "/placeholder.svg",
+            rating: 4.8,
+            reviewCount: 124,
+            featured: true,
+            inStock: true,
+            createdAt: "2023-01-15T08:30:00.000Z"
+          };
+          
+          setProduct(defaultProduct);
+          setActiveImage(defaultProduct.images[0]);
+        }
       } catch (error) {
         console.error("Error fetching product:", error);
         toast.error("Failed to load product details");
@@ -90,43 +117,19 @@ export default function ProductDetail() {
     });
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!product) return;
     
     setIsAddingToCart(true);
     
-    // Simulate adding to cart
-    setTimeout(() => {
-      const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
-      
-      // Check if product is already in cart
-      const existingItemIndex = cartItems.findIndex((item: any) => item.id === product.id);
-      
-      if (existingItemIndex >= 0) {
-        // Increment quantity
-        cartItems[existingItemIndex].quantity += quantity;
-        toast.success(`Added ${quantity} ${quantity === 1 ? 'unit' : 'units'} of ${product.name} to cart`);
-      } else {
-        // Add new item
-        cartItems.push({
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          image: product.images[0] || '/placeholder.svg',
-          quantity: quantity,
-          providerId: product.providerId,
-          providerName: product.providerName
-        });
-        toast.success(`Added ${product.name} to cart`);
-      }
-      
-      localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    try {
+      await addToCart(product.id, quantity);
       setIsInCart(true);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    } finally {
       setIsAddingToCart(false);
-      
-      // Update cart count in UI - dispatch custom event
-      window.dispatchEvent(new CustomEvent('cart-updated'));
-    }, 600);
+    }
   };
 
   const handleBuyNow = () => {

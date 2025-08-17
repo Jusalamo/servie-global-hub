@@ -9,6 +9,9 @@ import { Search, ShoppingCart, Star } from "lucide-react";
 import { productAPI, categoriesAPI } from "@/services/supabaseAPI";
 import { useCart } from "@/context/CartContext";
 import { toast } from "sonner";
+import { products as mockProducts } from "@/data/mockData";
+import { productCategories } from "@/data/productCategories";
+import { useNavigate } from "react-router-dom";
 
 interface ProductListingProps {
   initialCategory?: string;
@@ -23,6 +26,7 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [sortBy, setSortBy] = useState('featured');
   const { addToCart } = useCart();
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadCategories();
@@ -32,9 +36,16 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
   const loadCategories = async () => {
     try {
       const data = await categoriesAPI.getCategories();
-      setCategories(data);
+      if (data && data.length > 0) {
+        setCategories(data);
+      } else {
+        // Fallback to mock categories
+        setCategories(productCategories);
+      }
     } catch (error) {
       console.error('Error loading categories:', error);
+      // Fallback to mock categories
+      setCategories(productCategories);
     }
   };
 
@@ -47,10 +58,26 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
       }
       
       const data = await productAPI.getProducts(filters);
-      setProducts(data);
+      if (data && data.length > 0) {
+        setProducts(data);
+      } else {
+        // Fallback to mock products
+        console.log('No products from API, using mock data');
+        let filteredMockProducts = mockProducts;
+        if (selectedCategory !== 'all') {
+          filteredMockProducts = mockProducts.filter(product => product.categoryId === selectedCategory);
+        }
+        setProducts(filteredMockProducts);
+      }
     } catch (error) {
       console.error('Error loading products:', error);
-      toast.error('Failed to load products');
+      // Fallback to mock products
+      let filteredMockProducts = mockProducts;
+      if (selectedCategory !== 'all') {
+        filteredMockProducts = mockProducts.filter(product => product.categoryId === selectedCategory);
+      }
+      setProducts(filteredMockProducts);
+      toast.success('Showing sample products');
     } finally {
       setLoading(false);
     }
@@ -151,12 +178,16 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredProducts.map((product) => (
-            <Card key={product.id} className="group hover:shadow-lg transition-shadow cursor-pointer">
+            <Card 
+              key={product.id} 
+              className="group hover:shadow-lg transition-shadow cursor-pointer"
+              onClick={() => navigate(`/product/${product.id}`)}
+            >
               <CardContent className="p-0">
                 <div className="aspect-square bg-gray-100 rounded-t-lg overflow-hidden">
-                  {product.image_url ? (
+                  {(product.image_url || product.imageUrl || product.images?.[0]) ? (
                     <img
-                      src={product.image_url}
+                      src={product.image_url || product.imageUrl || product.images?.[0]}
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                     />
@@ -177,11 +208,21 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
                     {product.description}
                   </p>
                   
+                  {product.rating && (
+                    <div className="flex items-center mb-2">
+                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <span className="ml-1 text-sm">{product.rating}</span>
+                      <span className="ml-1 text-sm text-muted-foreground">({product.reviewCount})</span>
+                    </div>
+                  )}
+                  
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-2xl font-bold">${product.price}</span>
-                      {product.stock_quantity > 0 ? (
-                        <p className="text-sm text-green-600">In Stock ({product.stock_quantity})</p>
+                      {(product.stock_quantity || product.stockCount) > 0 ? (
+                        <p className="text-sm text-green-600">In Stock ({product.stock_quantity || product.stockCount})</p>
+                      ) : product.inStock !== false ? (
+                        <p className="text-sm text-green-600">In Stock</p>
                       ) : (
                         <p className="text-sm text-red-600">Out of Stock</p>
                       )}
@@ -190,7 +231,7 @@ export default function ProductListing({ initialCategory = 'all', initialSearch 
                     <Button
                       size="sm"
                       onClick={(e) => handleAddToCart(product.id, e)}
-                      disabled={product.stock_quantity === 0}
+                      disabled={(product.stock_quantity || product.stockCount) === 0 || product.inStock === false}
                       className="bg-servie hover:bg-servie-600"
                     >
                       <ShoppingCart className="h-4 w-4 mr-1" />

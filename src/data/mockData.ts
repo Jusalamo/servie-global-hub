@@ -252,6 +252,118 @@ export const services: Service[] = [
         features: ["Everything in Standard", "Detailed assessment", "Ongoing support", "Diet plan"]
       }
     ]
+  },
+  // Additional services
+  {
+    id: "6",
+    providerId: "provider-6",
+    title: "African Hair Braiding & Styling",
+    description: "Traditional and contemporary African hair styles",
+    price: 80,
+    category: "Beauty & Wellness",
+    categoryId: "2",
+    location: "Accra, Ghana",
+    images: [
+      "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=600&h=400&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&h=400&fit=crop",
+    rating: 4.7,
+    reviewCount: 156,
+    featured: true,
+    responseTime: "Within 4 hours",
+    packages: [
+      {
+        id: "pkg-6-basic",
+        name: "Basic Styling",
+        price: 80,
+        delivery: "2-3 hours",
+        description: "Simple braids and natural styling",
+        features: ["Basic braids", "Hair wash", "Conditioning"]
+      },
+      {
+        id: "pkg-6-standard",
+        name: "Premium Styling",
+        price: 150,
+        delivery: "4-5 hours",
+        description: "Complex braids and styling",
+        features: ["Everything in Basic", "Complex patterns", "Hair treatment", "Styling consultation"]
+      }
+    ]
+  },
+  {
+    id: "7",
+    providerId: "provider-7",
+    title: "Traditional African Catering",
+    description: "Authentic African cuisine for your events",
+    price: 25,
+    category: "African Traditional Services",
+    categoryId: "7",
+    location: "Nairobi, Kenya",
+    images: [
+      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&h=400&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=400&fit=crop",
+    rating: 4.9,
+    reviewCount: 203,
+    featured: true,
+    responseTime: "Within 24 hours",
+    packages: [
+      {
+        id: "pkg-7-basic",
+        name: "Basic Catering",
+        price: 25,
+        delivery: "Per person",
+        description: "Traditional meal service",
+        features: ["Main dish", "Side dish", "Traditional drink"]
+      },
+      {
+        id: "pkg-7-premium",
+        name: "Full Feast",
+        price: 45,
+        delivery: "Per person",
+        description: "Complete traditional feast",
+        features: ["Multiple main dishes", "Various sides", "Desserts", "Traditional beverages", "Table service"]
+      }
+    ]
+  },
+  {
+    id: "8",
+    providerId: "provider-8",
+    title: "Electrical Installation & Repair",
+    description: "Safe and reliable electrical services",
+    price: 70,
+    category: "Home Services",
+    categoryId: "1",
+    location: "Durban, South Africa",
+    images: [
+      "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&h=400&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&h=400&fit=crop",
+    rating: 4.6,
+    reviewCount: 134,
+    featured: false,
+    responseTime: "Within 2 hours",
+    packages: [
+      {
+        id: "pkg-8-basic",
+        name: "Basic Electrical",
+        price: 70,
+        delivery: "1-2 hours",
+        description: "Simple electrical repairs",
+        features: ["Switch installation", "Outlet repair", "Basic wiring"]
+      },
+      {
+        id: "pkg-8-premium",
+        name: "Full Installation",
+        price: 200,
+        delivery: "4-6 hours",
+        description: "Complete electrical installation",
+        features: ["Circuit installation", "Panel upgrades", "Safety inspection", "Warranty included"]
+      }
+    ]
   }
 ];
 
@@ -283,7 +395,8 @@ export const products: Product[] = [
     category: "Beauty & Personal Care",
     categoryId: "1",
     images: [
-      "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=400&h=300&fit=crop"
+      "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400&h=300&fit=crop"
     ],
     imageUrl: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=400&h=300&fit=crop",
     rating: 4.7,
@@ -301,7 +414,8 @@ export const products: Product[] = [
     category: "Electronics",
     categoryId: "2",
     images: [
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop"
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&h=300&fit=crop"
     ],
     imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop",
     rating: 4.6,
@@ -319,7 +433,8 @@ export const products: Product[] = [
     category: "Fashion & Clothing",
     categoryId: "3",
     images: [
-      "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400&h=300&fit=crop"
+      "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=400&h=300&fit=crop"
     ],
     imageUrl: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400&h=300&fit=crop",
     rating: 4.5,
@@ -337,7 +452,8 @@ export const products: Product[] = [
     category: "Home & Garden",
     categoryId: "4",
     images: [
-      "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop"
+      "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop"
     ],
     imageUrl: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop",
     rating: 4.4,
@@ -355,7 +471,8 @@ export const products: Product[] = [
     category: "Sports & Fitness",
     categoryId: "5",
     images: [
-      "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop"
+      "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop"
     ],
     imageUrl: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop",
     rating: 4.3,
@@ -373,7 +490,8 @@ export const products: Product[] = [
     category: "Books & Education",
     categoryId: "6",
     images: [
-      "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop"
+      "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop"
     ],
     imageUrl: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop",
     rating: 4.2,
@@ -381,6 +499,179 @@ export const products: Product[] = [
     featured: false,
     inStock: true,
     stockCount: 10
+  },
+  // Additional products for better marketplace feel
+  {
+    id: "prod-7",
+    sellerId: "seller-7",
+    name: "Shea Butter Skincare Set",
+    description: "Organic African shea butter skincare products for natural beauty",
+    price: 34.99,
+    category: "Beauty & Personal Care",
+    categoryId: "1",
+    images: [
+      "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=300&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=300&fit=crop",
+    rating: 4.8,
+    reviewCount: 156,
+    featured: true,
+    inStock: true,
+    stockCount: 50
+  },
+  {
+    id: "prod-8",
+    sellerId: "seller-8",
+    name: "Smartphone Samsung Galaxy",
+    description: "Latest Samsung smartphone with advanced camera and long battery life",
+    price: 699.99,
+    category: "Electronics",
+    categoryId: "2",
+    images: [
+      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=400&h=300&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop",
+    rating: 4.5,
+    reviewCount: 89,
+    featured: true,
+    inStock: true,
+    stockCount: 15
+  },
+  {
+    id: "prod-9",
+    sellerId: "seller-9",
+    name: "Ankara Men's Shirt",
+    description: "Stylish African print shirt for men, perfect for any occasion",
+    price: 45.99,
+    category: "Fashion & Clothing",
+    categoryId: "3",
+    images: [
+      "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=400&h=300&fit=crop",
+    rating: 4.6,
+    reviewCount: 67,
+    featured: false,
+    inStock: true,
+    stockCount: 22
+  },
+  {
+    id: "prod-10",
+    sellerId: "seller-10",
+    name: "Wooden African Sculpture",
+    description: "Handcrafted wooden sculpture representing African heritage",
+    price: 89.99,
+    category: "Home & Garden",
+    categoryId: "4",
+    images: [
+      "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop",
+    rating: 4.9,
+    reviewCount: 34,
+    featured: true,
+    inStock: true,
+    stockCount: 8
+  },
+  {
+    id: "prod-11",
+    sellerId: "seller-11",
+    name: "Resistance Band Set",
+    description: "Complete resistance band workout set for home fitness",
+    price: 24.99,
+    category: "Sports & Fitness",
+    categoryId: "5",
+    images: [
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1506629905607-683389167ddb?w=400&h=300&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
+    rating: 4.4,
+    reviewCount: 95,
+    featured: false,
+    inStock: true,
+    stockCount: 35
+  },
+  {
+    id: "prod-12",
+    sellerId: "seller-12",
+    name: "African History Textbook",
+    description: "Comprehensive guide to African history and culture",
+    price: 29.99,
+    category: "Books & Education",
+    categoryId: "6",
+    images: [
+      "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop",
+    rating: 4.7,
+    reviewCount: 78,
+    featured: false,
+    inStock: true,
+    stockCount: 18
+  },
+  // More products to make it feel like a real marketplace
+  {
+    id: "prod-13",
+    sellerId: "seller-13",
+    name: "MacBook Pro M3",
+    description: "Apple MacBook Pro with M3 chip, perfect for professionals",
+    price: 1999.99,
+    category: "Electronics",
+    categoryId: "2",
+    images: [
+      "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=300&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop",
+    rating: 4.9,
+    reviewCount: 245,
+    featured: true,
+    inStock: true,
+    stockCount: 5
+  },
+  {
+    id: "prod-14",
+    sellerId: "seller-14",
+    name: "Kente Cloth Bag",
+    description: "Authentic Ghanaian Kente cloth handbag",
+    price: 65.99,
+    category: "Fashion & Clothing",
+    categoryId: "3",
+    images: [
+      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400&h=300&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=300&fit=crop",
+    rating: 4.6,
+    reviewCount: 123,
+    featured: true,
+    inStock: true,
+    stockCount: 12
+  },
+  {
+    id: "prod-15",
+    sellerId: "seller-15",
+    name: "Dumbbells Set (20kg)",
+    description: "Adjustable dumbbells for strength training",
+    price: 149.99,
+    category: "Sports & Fitness",
+    categoryId: "5",
+    images: [
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1583454110551-4585c69b3c2d?w=400&h=300&fit=crop"
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
+    rating: 4.7,
+    reviewCount: 167,
+    featured: false,
+    inStock: true,
+    stockCount: 20
   }
 ];
 

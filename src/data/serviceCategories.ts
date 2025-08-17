@@ -254,6 +254,94 @@ export const serviceCategories: ServiceCategory[] = [
         name: "African Catering", 
         icon: "🍲",
         image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop"
+      },
+      { 
+        id: "7-3", 
+        name: "Traditional Clothing", 
+        icon: "👘",
+        image: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400&h=300&fit=crop"
+      },
+      { 
+        id: "7-4", 
+        name: "Cultural Ceremonies", 
+        icon: "🥁",
+        image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop"
+      }
+    ]
+  },
+  // Additional categories
+  {
+    id: "8",
+    name: "Business Services",
+    icon: "💼",
+    description: "Professional business and consulting services",
+    color: "bg-slate-600 text-white",
+    featured: false,
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop",
+    subcategories: [
+      { 
+        id: "8-1", 
+        name: "Accounting", 
+        icon: "📊",
+        image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=300&fit=crop"
+      },
+      { 
+        id: "8-2", 
+        name: "Legal Services", 
+        icon: "⚖️",
+        image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&h=300&fit=crop"
+      },
+      { 
+        id: "8-3", 
+        name: "Marketing", 
+        icon: "📢",
+        image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop"
+      }
+    ]
+  },
+  {
+    id: "9",
+    name: "Automotive Services",
+    icon: "🚗",
+    description: "Car maintenance and automotive services",
+    color: "bg-gray-600 text-white",
+    featured: false,
+    image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400&h=300&fit=crop",
+    subcategories: [
+      { 
+        id: "9-1", 
+        name: "Car Repair", 
+        icon: "🔧",
+        image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400&h=300&fit=crop"
+      },
+      { 
+        id: "9-2", 
+        name: "Car Wash", 
+        icon: "🧽",
+        image: "https://images.unsplash.com/photo-1558618047-b00de36e47d7?w=400&h=300&fit=crop"
+      }
+    ]
+  },
+  {
+    id: "10",
+    name: "Events & Entertainment",
+    icon: "🎉",
+    description: "Event planning and entertainment services",
+    color: "bg-rose-500 text-white",
+    featured: true,
+    image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=400&h=300&fit=crop",
+    subcategories: [
+      { 
+        id: "10-1", 
+        name: "DJ Services", 
+        icon: "🎵",
+        image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop"
+      },
+      { 
+        id: "10-2", 
+        name: "Event Planning", 
+        icon: "📋",
+        image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=400&h=300&fit=crop"
       }
     ]
   }
