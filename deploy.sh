@@ -9,6 +9,10 @@ if ! command -v npm &> /dev/null; then
     exit 1
 fi
 
+# Clean install for production
+echo "🧹 Cleaning previous builds..."
+rm -rf node_modules package-lock.json dist
+
 echo "📦 Installing dependencies..."
 npm install
 
