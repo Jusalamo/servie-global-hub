@@ -1,249 +1,533 @@
 
 import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Search, ShoppingCart, Star } from "lucide-react";
-import { productAPI, categoriesAPI } from "@/services/supabaseAPI";
-import { useCart } from "@/context/CartContext";
-import { toast } from "sonner";
-import { products as mockProducts } from "@/data/mockData";
-import { productCategories } from "@/data/productCategories";
-import { useNavigate } from "react-router-dom";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Check, ChevronsUpDown, Star, Sliders } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { Badge } from "@/components/ui/badge";
+import { ProductCard, type Product } from "./ProductCard";
+import { useLocalization } from "@/components/LangCurrencySelector";
+import { Checkbox } from "@/components/ui/checkbox";
+
+// Mock categories
+const categories = [
+  { name: "Electronics", count: 42 },
+  { name: "Clothing", count: 38 },
+  { name: "Home & Kitchen", count: 24 },
+  { name: "Beauty", count: 18 },
+  { name: "Sports", count: 15 },
+  { name: "Books", count: 12 },
+  { name: "Toys", count: 9 },
+  { name: "Automotive", count: 7 },
+];
+
+// Mock products data (replace with API call in production)
+const mockProducts: Product[] = Array.from({ length: 20 }, (_, i) => ({
+  id: `product-${i + 1}`,
+  name: `Product ${i + 1}`,
+  description: `This is a description for Product ${i + 1}. It includes all the important details about the features and benefits of this amazing product.`,
+  price: Math.floor(Math.random() * 90000 + 999) / 100,
+  compareAtPrice: Math.random() > 0.6 ? Math.floor(Math.random() * 100000 + 1999) / 100 : undefined,
+  rating: Math.floor(Math.random() * 40 + 10) / 10,
+  reviewCount: Math.floor(Math.random() * 500),
+  category: categories[Math.floor(Math.random() * categories.length)].name,
+  images: [
+    "/placeholder.svg",
+    "/placeholder.svg",
+    "/placeholder.svg"
+  ],
+  providerName: `Seller ${Math.floor(Math.random() * 10) + 1}`,
+  providerAvatar: "/placeholder.svg",
+  providerId: `seller-${Math.floor(Math.random() * 10) + 1}`,
+  inStock: Math.random() > 0.1,
+  featured: Math.random() > 0.8,
+  createdAt: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
+  currency: "$"
+}));
+
+const sortOptions = [
+  { label: "Newest", value: "newest" },
+  { label: "Price: Low to High", value: "price-asc" },
+  { label: "Price: High to Low", value: "price-desc" },
+  { label: "Rating: High to Low", value: "rating-desc" },
+  { label: "Popularity", value: "popularity" }
+];
 
 interface ProductListingProps {
   initialCategory?: string;
   initialSearch?: string;
 }
 
-export default function ProductListing({ initialCategory = 'all', initialSearch = '' }: ProductListingProps) {
-  const [products, setProducts] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+export default function ProductListing({
+  initialCategory = "all",
+  initialSearch = ""
+}: ProductListingProps) {
+  const [products, setProducts] = useState<Product[]>(mockProducts);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>(mockProducts);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    initialCategory !== "all" ? [initialCategory] : []
+  );
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
   const [searchTerm, setSearchTerm] = useState(initialSearch);
-  const [sortBy, setSortBy] = useState('featured');
-  const { addToCart } = useCart();
-  const navigate = useNavigate();
+  const [showFiltersOnMobile, setShowFiltersOnMobile] = useState(false);
+  const [sortBy, setSortBy] = useState("newest");
+  const [ratingFilter, setRatingFilter] = useState<number | undefined>(undefined);
 
+  const { translate, formatPrice } = useLocalization();
+  
+  // Simulate loading state
   useEffect(() => {
-    loadCategories();
-    loadProducts();
-  }, [selectedCategory]);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 600);
+    return () => clearTimeout(timer);
+  }, []);
 
-  const loadCategories = async () => {
-    try {
-      const data = await categoriesAPI.getCategories();
-      if (data && data.length > 0) {
-        setCategories(data);
-      } else {
-        // Fallback to mock categories
-        setCategories(productCategories);
-      }
-    } catch (error) {
-      console.error('Error loading categories:', error);
-      // Fallback to mock categories
-      setCategories(productCategories);
+  // Apply filters and sorting whenever filter criteria change
+  useEffect(() => {
+    let results = [...mockProducts];
+    
+    // Apply category filter
+    if (selectedCategories.length > 0) {
+      results = results.filter(product => 
+        selectedCategories.includes(product.category)
+      );
     }
-  };
-
-  const loadProducts = async () => {
-    setLoading(true);
-    try {
-      const filters: any = {};
-      if (selectedCategory !== 'all') {
-        filters.category_id = selectedCategory;
-      }
-      
-      const data = await productAPI.getProducts(filters);
-      if (data && data.length > 0) {
-        setProducts(data);
-      } else {
-        // Fallback to mock products
-        console.log('No products from API, using mock data');
-        let filteredMockProducts = mockProducts;
-        if (selectedCategory !== 'all') {
-          filteredMockProducts = mockProducts.filter(product => product.categoryId === selectedCategory);
-        }
-        setProducts(filteredMockProducts);
-      }
-    } catch (error) {
-      console.error('Error loading products:', error);
-      // Fallback to mock products
-      let filteredMockProducts = mockProducts;
-      if (selectedCategory !== 'all') {
-        filteredMockProducts = mockProducts.filter(product => product.categoryId === selectedCategory);
-      }
-      setProducts(filteredMockProducts);
-      toast.success('Showing sample products');
-    } finally {
-      setLoading(false);
+    
+    // Apply price range filter
+    results = results.filter(
+      product => product.price >= priceRange[0] && product.price <= priceRange[1]
+    );
+    
+    // Apply rating filter
+    if (ratingFilter !== undefined) {
+      results = results.filter(product => product.rating >= ratingFilter);
     }
+    
+    // Apply search term
+    if (searchTerm) {
+      const search = searchTerm.toLowerCase();
+      results = results.filter(product =>
+        product.name.toLowerCase().includes(search) ||
+        product.description.toLowerCase().includes(search) ||
+        product.category.toLowerCase().includes(search)
+      );
+    }
+    
+    // Apply sorting
+    switch (sortBy) {
+      case "newest":
+        results.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        break;
+      case "price-asc":
+        results.sort((a, b) => a.price - b.price);
+        break;
+      case "price-desc":
+        results.sort((a, b) => b.price - a.price);
+        break;
+      case "rating-desc":
+        results.sort((a, b) => b.rating - a.rating);
+        break;
+      case "popularity":
+        results.sort((a, b) => b.reviewCount - a.reviewCount);
+        break;
+      default:
+        break;
+    }
+    
+    setFilteredProducts(results);
+  }, [selectedCategories, priceRange, ratingFilter, searchTerm, sortBy]);
+
+  const handleCategoryToggle = (category: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
   };
 
-  const filteredProducts = products
-    .filter(product =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'price-low':
-          return a.price - b.price;
-        case 'price-high':
-          return b.price - a.price;
-        case 'newest':
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        default:
-          return b.featured ? 1 : -1;
-      }
-    });
-
-  const handleAddToCart = async (productId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    await addToCart(productId, 1);
+  const handlePriceRangeChange = (values: number[]) => {
+    setPriceRange([values[0], values[1]]);
   };
 
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {[...Array(8)].map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <div className="bg-gray-200 aspect-square rounded-lg mb-4"></div>
-              <div className="bg-gray-200 h-4 rounded mb-2"></div>
-              <div className="bg-gray-200 h-4 rounded w-2/3"></div>
-            </div>
-          ))}
+  const handleRatingChange = (rating: number) => {
+    setRatingFilter(prev => prev === rating ? undefined : rating);
+  };
+
+  const resetFilters = () => {
+    setSelectedCategories([]);
+    setPriceRange([0, 1000]);
+    setRatingFilter(undefined);
+    setSearchTerm("");
+  };
+
+  // Calculate price range from available products
+  const maxPrice = Math.max(...mockProducts.map(p => p.price));
+  
+  return (
+    <div className="container px-4 py-8 mx-auto">
+      <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
+        <h1 className="text-2xl md:text-3xl font-bold">{translate('shop')}</h1>
+        
+        {/* Search input */}
+        <div className="w-full md:w-auto">
+          <div className="relative">
+            <Input
+              type="search"
+              placeholder={`${translate('search')}...`}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full md:w-[300px]"
+            />
+          </div>
         </div>
       </div>
-    );
-  }
-
-  return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-4">Shop Products</h1>
-        
-        {/* Filters */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+      
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Filters sidebar for desktop */}
+        <div className="w-full lg:w-64 hidden lg:block space-y-6">
+          <div className="border rounded-lg p-4">
+            <h2 className="font-semibold mb-4">{translate('filters')}</h2>
+            
+            {/* Categories filter */}
+            <div className="space-y-4 mb-6">
+              <h3 className="text-sm font-medium">{translate('categories')}</h3>
+              <div className="space-y-2">
+                {categories.map((category) => (
+                  <div key={category.name} className="flex items-center space-x-2">
+                    <Checkbox 
+                      id={`category-${category.name}`}
+                      checked={selectedCategories.includes(category.name)}
+                      onCheckedChange={() => handleCategoryToggle(category.name)}
+                    />
+                    <Label 
+                      htmlFor={`category-${category.name}`}
+                      className="flex justify-between w-full cursor-pointer text-sm"
+                    >
+                      <span>{category.name}</span>
+                      <span className="text-muted-foreground">({category.count})</span>
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <Separator className="my-4" />
+            
+            {/* Price range filter */}
+            <div className="space-y-4 mb-6">
+              <h3 className="text-sm font-medium">{translate('price_range')}</h3>
+              <Slider
+                defaultValue={[0, maxPrice]}
+                max={maxPrice}
+                step={1}
+                value={[priceRange[0], priceRange[1]]}
+                onValueChange={handlePriceRangeChange}
+                className="mb-6"
               />
+              <div className="flex items-center justify-between">
+                <div className="border rounded p-2 w-[80px]">
+                  {formatPrice(priceRange[0])}
+                </div>
+                <span className="text-center">-</span>
+                <div className="border rounded p-2 w-[80px]">
+                  {formatPrice(priceRange[1])}
+                </div>
+              </div>
+            </div>
+            
+            <Separator className="my-4" />
+            
+            {/* Rating filter */}
+            <div className="space-y-4 mb-6">
+              <h3 className="text-sm font-medium">{translate('rating')}</h3>
+              <div className="space-y-2">
+                {[4, 3, 2, 1].map((rating) => (
+                  <div
+                    key={rating}
+                    className={`flex items-center space-x-2 p-1 rounded cursor-pointer ${
+                      ratingFilter === rating ? "bg-muted" : ""
+                    }`}
+                    onClick={() => handleRatingChange(rating)}
+                  >
+                    <div className="flex items-center">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`h-4 w-4 ${
+                            i < rating
+                              ? "text-yellow-400 fill-yellow-400"
+                              : "text-gray-300"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-sm">& Up</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <Button onClick={resetFilters} variant="outline" size="sm" className="w-full">
+              {translate('reset_filters')}
+            </Button>
+          </div>
+        </div>
+        
+        {/* Mobile filters button and dropdown */}
+        <div className="lg:hidden mb-4">
+          <div className="flex justify-between items-center mb-4">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowFiltersOnMobile(!showFiltersOnMobile)} 
+              className="flex items-center gap-2"
+            >
+              <Sliders className="h-4 w-4" />
+              {translate('filters')}
+            </Button>
+            
+            {/* Sort dropdown for mobile */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="flex items-center gap-2">
+                  {translate('sort')}
+                  <ChevronsUpDown className="h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-[200px] p-0">
+                <Command>
+                  <CommandList>
+                    <CommandGroup>
+                      {sortOptions.map((option) => (
+                        <CommandItem
+                          key={option.value}
+                          onSelect={() => setSortBy(option.value)}
+                          className="flex items-center gap-2 cursor-pointer"
+                        >
+                          {sortBy === option.value && (
+                            <Check className="h-4 w-4" />
+                          )}
+                          <span className={sortBy === option.value ? "font-medium" : ""}>
+                            {translate(option.value.replace('-', '_'))}
+                          </span>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
+          
+          {showFiltersOnMobile && (
+            <div className="border rounded-lg p-4 mb-4 bg-background">
+              <Accordion type="multiple" className="w-full">
+                <AccordionItem value="categories">
+                  <AccordionTrigger>{translate('categories')}</AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-2">
+                      {categories.map((category) => (
+                        <div key={category.name} className="flex items-center space-x-2">
+                          <Checkbox 
+                            id={`mobile-category-${category.name}`}
+                            checked={selectedCategories.includes(category.name)}
+                            onCheckedChange={() => handleCategoryToggle(category.name)}
+                          />
+                          <Label 
+                            htmlFor={`mobile-category-${category.name}`}
+                            className="flex justify-between w-full cursor-pointer text-sm"
+                          >
+                            <span>{category.name}</span>
+                            <span className="text-muted-foreground">({category.count})</span>
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+                
+                <AccordionItem value="price">
+                  <AccordionTrigger>{translate('price_range')}</AccordionTrigger>
+                  <AccordionContent>
+                    <Slider
+                      defaultValue={[0, maxPrice]}
+                      max={maxPrice}
+                      step={1}
+                      value={[priceRange[0], priceRange[1]]}
+                      onValueChange={handlePriceRangeChange}
+                      className="mb-6"
+                    />
+                    <div className="flex items-center justify-between">
+                      <div className="border rounded p-2 w-[80px]">
+                        {formatPrice(priceRange[0])}
+                      </div>
+                      <span className="text-center">-</span>
+                      <div className="border rounded p-2 w-[80px]">
+                        {formatPrice(priceRange[1])}
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+                
+                <AccordionItem value="rating">
+                  <AccordionTrigger>{translate('rating')}</AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-2">
+                      {[4, 3, 2, 1].map((rating) => (
+                        <div
+                          key={rating}
+                          className={`flex items-center space-x-2 p-1 rounded cursor-pointer ${
+                            ratingFilter === rating ? "bg-muted" : ""
+                          }`}
+                          onClick={() => handleRatingChange(rating)}
+                        >
+                          <div className="flex items-center">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-4 w-4 ${
+                                  i < rating
+                                    ? "text-yellow-400 fill-yellow-400"
+                                    : "text-gray-300"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-sm">& Up</span>
+                        </div>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+              
+              <Button onClick={resetFilters} variant="outline" size="sm" className="w-full mt-4">
+                {translate('reset_filters')}
+              </Button>
+            </div>
+          )}
+        </div>
+        
+        {/* Products grid */}
+        <div className="flex-1">
+          <div className="flex justify-between items-center mb-6">
+            {/* Active filters */}
+            <div className="flex flex-wrap gap-2">
+              {selectedCategories.map((category) => (
+                <Badge key={category} variant="secondary" className="flex items-center gap-1">
+                  {category}
+                  <button
+                    onClick={() => handleCategoryToggle(category)}
+                    className="ml-1 rounded-full h-4 w-4 flex items-center justify-center hover:bg-muted-foreground/20"
+                  >
+                    ✕
+                  </button>
+                </Badge>
+              ))}
+              {ratingFilter && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  {ratingFilter}+ {translate('rating')}
+                  <button
+                    onClick={() => setRatingFilter(undefined)}
+                    className="ml-1 rounded-full h-4 w-4 flex items-center justify-center hover:bg-muted-foreground/20"
+                  >
+                    ✕
+                  </button>
+                </Badge>
+              )}
+            </div>
+            
+            {/* Sort dropdown for desktop */}
+            <div className="hidden lg:block">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="flex items-center gap-2">
+                    {translate('sort')}
+                    <ChevronsUpDown className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-[200px] p-0">
+                  <Command>
+                    <CommandList>
+                      <CommandGroup>
+                        {sortOptions.map((option) => (
+                          <CommandItem
+                            key={option.value}
+                            onSelect={() => setSortBy(option.value)}
+                            className="flex items-center gap-2 cursor-pointer"
+                          >
+                            {sortBy === option.value && (
+                              <Check className="h-4 w-4" />
+                            )}
+                            <span className={sortBy === option.value ? "font-medium" : ""}>
+                              {translate(option.value.replace('-', '_'))}
+                            </span>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
           
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              {categories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  {category.name}
-                </SelectItem>
+          {/* Products grid */}
+          {isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 9 }).map((_, i) => (
+                <div key={i} className="border rounded-lg p-4 h-96 animate-pulse">
+                  <div className="w-full h-48 bg-muted rounded-md mb-4"></div>
+                  <div className="h-4 bg-muted rounded mb-2"></div>
+                  <div className="h-4 bg-muted rounded w-2/3 mb-4"></div>
+                  <div className="flex justify-between items-center mb-4">
+                    <div className="h-6 bg-muted rounded w-1/3"></div>
+                    <div className="h-6 bg-muted rounded w-1/4"></div>
+                  </div>
+                  <div className="h-10 bg-muted rounded"></div>
+                </div>
               ))}
-            </SelectContent>
-          </Select>
-          
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="featured">Featured</SelectItem>
-              <SelectItem value="newest">Newest</SelectItem>
-              <SelectItem value="price-low">Price: Low to High</SelectItem>
-              <SelectItem value="price-high">Price: High to Low</SelectItem>
-            </SelectContent>
-          </Select>
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="text-center py-12">
+              <h3 className="text-lg font-medium mb-2">No products found</h3>
+              <p className="text-muted-foreground mb-6">Try adjusting your filters or search criteria.</p>
+              <Button onClick={resetFilters} variant="outline">
+                {translate('reset_filters')}
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Products Grid */}
-      {filteredProducts.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-lg text-muted-foreground">No products found matching your criteria.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
-            <Card 
-              key={product.id} 
-              className="group hover:shadow-lg transition-shadow cursor-pointer"
-              onClick={() => navigate(`/product/${product.id}`)}
-            >
-              <CardContent className="p-0">
-                <div className="aspect-square bg-gray-100 rounded-t-lg overflow-hidden">
-                  {(product.image_url || product.imageUrl || product.images?.[0]) ? (
-                    <img
-                      src={product.image_url || product.imageUrl || product.images?.[0]}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      No Image
-                    </div>
-                  )}
-                </div>
-                
-                <div className="p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-semibold text-lg line-clamp-2">{product.name}</h3>
-                    {product.featured && <Badge className="bg-yellow-500">Featured</Badge>}
-                  </div>
-                  
-                  <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
-                    {product.description}
-                  </p>
-                  
-                  {product.rating && (
-                    <div className="flex items-center mb-2">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="ml-1 text-sm">{product.rating}</span>
-                      <span className="ml-1 text-sm text-muted-foreground">({product.reviewCount})</span>
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-2xl font-bold">${product.price}</span>
-                      {(product.stock_quantity || product.stockCount) > 0 ? (
-                        <p className="text-sm text-green-600">In Stock ({product.stock_quantity || product.stockCount})</p>
-                      ) : product.inStock !== false ? (
-                        <p className="text-sm text-green-600">In Stock</p>
-                      ) : (
-                        <p className="text-sm text-red-600">Out of Stock</p>
-                      )}
-                    </div>
-                    
-                    <Button
-                      size="sm"
-                      onClick={(e) => handleAddToCart(product.id, e)}
-                      disabled={(product.stock_quantity || product.stockCount) === 0 || product.inStock === false}
-                      className="bg-servie hover:bg-servie-600"
-                    >
-                      <ShoppingCart className="h-4 w-4 mr-1" />
-                      Add
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

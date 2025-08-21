@@ -18,8 +18,6 @@ const UserDashboard = () => {
         navigate("/dashboard/provider?tab=overview", { replace: true });
       } else if (userRole === "seller") {
         navigate("/dashboard/seller?tab=overview", { replace: true });
-      } else if (userRole === "admin") {
-        navigate("/dashboard/admin", { replace: true });
       } else {
         navigate("/dashboard/client", { replace: true });
       }

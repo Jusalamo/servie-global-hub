@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { useAuth } from "@/context/AuthContext"
-import RoleBasedSignIn from "@/components/auth/RoleBasedSignIn"
+import SignInForm from "@/components/SignInForm"
 
 export default function SignIn() {
   const { isAuthenticated } = useAuth();
@@ -21,8 +21,17 @@ export default function SignIn() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="w-full max-w-2xl space-y-8">
-          <RoleBasedSignIn />
+        <div className="w-full max-w-md space-y-8">
+          <div className="text-center">
+            <h2 className="mt-6 text-3xl font-bold tracking-tight">
+              Welcome back
+            </h2>
+            <p className="mt-2 text-muted-foreground">
+              Sign in to access your account
+            </p>
+          </div>
+          
+          <SignInForm />
           
           <div className="mt-6">
             <div className="relative">
@@ -61,7 +70,7 @@ export default function SignIn() {
           
           <p className="mt-8 text-center text-sm text-muted-foreground">
             Don't have an account yet?{" "}
-            <Link to="/sign-up" className="font-medium text-servie hover:underline">
+            <Link to="/signup" className="font-medium text-servie hover:underline">
               Sign up
             </Link>
           </p>

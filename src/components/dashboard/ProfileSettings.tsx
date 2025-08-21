@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -117,59 +117,9 @@ const ProfileSettings = ({ userRole = 'client' }: ProfileSettingsProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('general');
   const [newProfileImage, setNewProfileImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-
-  // Load user profile from database on component mount
-  useEffect(() => {
-    const loadUserProfile = async () => {
-      if (!user) return;
-      
-      setLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-
-        if (error && error.code !== 'PGRST116') { // Not found error
-          throw error;
-        }
-
-        if (data) {
-          setProfile({
-            firstName: data.first_name || defaultUserProfile.firstName,
-            lastName: data.last_name || defaultUserProfile.lastName,
-            email: user.email || defaultUserProfile.email,
-            phone: data.phone || defaultUserProfile.phone,
-            address: {
-              street: data.address || defaultUserProfile.address.street,
-              city: data.city || defaultUserProfile.address.city,
-              state: data.state || defaultUserProfile.address.state,
-              zip: data.postal_code || defaultUserProfile.address.zip,
-              country: data.country || defaultUserProfile.address.country,
-            },
-            bio: data.bio || defaultUserProfile.bio,
-            profileImage: data.avatar_url || defaultUserProfile.profileImage,
-            socialLinks: defaultUserProfile.socialLinks, // Keep default for now
-            professionalInfo: defaultUserProfile.professionalInfo,
-            notificationPreferences: defaultUserProfile.notificationPreferences,
-            privacySettings: defaultUserProfile.privacySettings,
-          });
-        }
-      } catch (error) {
-        console.error('Error loading profile:', error);
-        toast.error('Failed to load profile data');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadUserProfile();
-  }, [user]);
 
   // Mock function to handle image upload
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -200,79 +150,41 @@ const ProfileSettings = ({ userRole = 'client' }: ProfileSettingsProps) => {
     setSavingProfile(true);
 
     try {
-      if (!user) {
-        toast.error("You must be logged in to update your profile");
-        return;
-      }
+      // Simulate an API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Prepare the profile data for database update
-      const profileData: any = {
-        first_name: profile.firstName,
-        last_name: profile.lastName,
-        phone: profile.phone,
-        bio: profile.bio,
-        address: profile.address.street,
-        city: profile.address.city,
-        state: profile.address.state,
-        postal_code: profile.address.zip,
-        country: profile.address.country,
-        whatsapp: profile.phone // Use phone as WhatsApp for now
-      };
-
-      // If there's a new profile image, upload it to Supabase storage
+      // If there's a new profile image, upload it
       if (newProfileImage) {
         try {
-          const userId = user.id;
+          const userId = user?.id || 'anonymous';
           const fileExt = newProfileImage.name.split('.').pop();
           const filePath = `avatars/${userId}-${Date.now()}.${fileExt}`;
 
-          // Upload to Supabase storage
-          const { error: uploadError } = await supabase.storage
-            .from('avatars')
-            .upload(filePath, newProfileImage);
+          // This would normally upload to Supabase storage
+          // const { error } = await supabase.storage
+          //  .from('avatars')
+          //  .upload(filePath, newProfileImage);
 
-          if (uploadError) throw uploadError;
+          // if (error) throw error;
           
           // Get the public URL
-          const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+          // const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
           
-          // Update profile data with new image URL
-          profileData.avatar_url = data.publicUrl;
+          // Update profile with new image URL
+          if (imagePreview) {
+            setProfile(prev => ({
+              ...prev,
+              profileImage: imagePreview
+            }));
+          }
           
           setNewProfileImage(null);
           setImagePreview(null);
         } catch (error) {
           console.error("Error uploading image:", error);
-          toast.error("Failed to upload image. Your other profile changes will still be saved.");
+          toast.error("Failed to upload image. Your other profile changes were saved.");
         }
       }
-
-      // Update the profile in the database
-      const { error } = await supabase
-        .from('profiles')
-        .update(profileData)
-        .eq('id', user.id);
-
-      if (error) {
-        throw error;
-      }
-
-      // Update local state with new data
-      setProfile(prev => ({
-        ...prev,
-        firstName: profileData.first_name,
-        lastName: profileData.last_name,
-        phone: profileData.phone,
-        bio: profileData.bio,
-        address: {
-          street: profileData.address,
-          city: profileData.city,
-          state: profileData.state,
-          zip: profileData.postal_code,
-          country: profileData.country
-        },
-        ...(profileData.avatar_url && { profileImage: profileData.avatar_url })
-      }));
 
       toast.success("Profile updated successfully!");
       setIsEditing(false);

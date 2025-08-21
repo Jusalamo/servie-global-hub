@@ -1,865 +1,677 @@
 
-// Mock data for services with packages structure
-export interface ServicePackage {
-  id: string;
-  name: string;
-  price: number;
-  delivery: string;
-  description: string;
-  features: string[];
-}
-
-export interface Service {
-  id: string;
-  providerId: string;
-  title: string;
-  description: string;
-  price: number;
-  category: string;
-  categoryId: string;
-  location: string;
-  images: string[];
-  imageUrl: string; // Main image for compatibility
-  rating: number;
-  reviewCount: number;
-  featured: boolean;
-  responseTime: string;
-  packages: ServicePackage[];
-}
-
-export const services: Service[] = [
+// Mock data for services
+export const services = [
   {
     id: "1",
-    providerId: "provider-1",
-    title: "Professional Home Cleaning",
-    description: "Complete home cleaning service with eco-friendly products",
-    price: 75,
-    category: "Home Services",
-    categoryId: "1",
-    location: "Lagos, Nigeria",
-    images: [
-      "https://images.unsplash.com/photo-1558618047-b00de36e47d7?w=600&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=600&h=400&fit=crop"
+    title: "Professional Website Development",
+    description: "I will create a professional, responsive website for your business or personal brand using the latest technologies. Includes 5 pages, SEO optimization, and basic analytics setup.",
+    category: "Web Development",
+    subcategory: "Website Creation",
+    imageUrl: "https://images.unsplash.com/photo-1581092921461-6dd2d30e08d7?q=80&w=1170&auto=format&fit=crop",
+    gallery: [
+      "https://images.unsplash.com/photo-1581092921461-6dd2d30e08d7?q=80&w=1170&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1563986768711-b3bde3dc821e?q=80&w=1170&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?q=80&w=1170&auto=format&fit=crop",
     ],
-    imageUrl: "https://images.unsplash.com/photo-1558618047-b00de36e47d7?w=600&h=400&fit=crop",
-    rating: 4.8,
-    reviewCount: 127,
+    providerName: "Alex Johnson",
+    providerId: "101",
+    providerAvatar: "https://randomuser.me/api/portraits/men/32.jpg",
+    providerJoined: "2022-03-15",
+    providerLocation: "Nairobi, Kenya",
+    providerDescription: "Full-stack web developer with 8+ years of experience specializing in React and Node.js applications.",
+    rating: 4.9,
+    reviewCount: 124,
+    price: 350,
+    currency: "$",
+    delivery: "7 days",
     featured: true,
-    responseTime: "Within 2 hours",
+    tags: ["web development", "responsive design", "SEO"],
     packages: [
       {
-        id: "pkg-1-basic",
-        name: "Basic Clean",
-        price: 75,
-        delivery: "3-4 hours",
-        description: "Standard cleaning for small homes",
-        features: ["Dusting", "Vacuuming", "Kitchen cleaning", "Bathroom cleaning"]
+        id: "1a",
+        name: "Basic",
+        description: "3-page responsive website with basic SEO",
+        price: 250,
+        delivery: "5 days",
+        revisions: 2,
+        features: ["3 pages", "Mobile responsive", "Basic SEO", "Contact form"]
       },
       {
-        id: "pkg-1-standard",
-        name: "Standard Clean",
-        price: 120,
-        delivery: "4-5 hours",
-        description: "Comprehensive cleaning for medium homes",
-        features: ["Everything in Basic", "Window cleaning", "Appliance cleaning", "Detailed dusting"]
+        id: "1b",
+        name: "Standard",
+        description: "5-page responsive website with advanced features",
+        price: 350,
+        delivery: "7 days",
+        revisions: 3,
+        features: ["5 pages", "Mobile responsive", "SEO optimization", "Contact form", "Google Analytics", "Social media integration"]
       },
       {
-        id: "pkg-1-premium",
-        name: "Premium Clean",
-        price: 180,
-        delivery: "5-6 hours",
-        description: "Deep cleaning for large homes",
-        features: ["Everything in Standard", "Deep carpet cleaning", "Cabinet interiors", "Baseboards"]
+        id: "1c",
+        name: "Premium",
+        description: "10-page website with full customization and premium features",
+        price: 650,
+        delivery: "14 days",
+        revisions: 5,
+        features: ["10 pages", "Mobile responsive", "Advanced SEO", "Contact form", "Google Analytics", "Social media integration", "E-commerce functionality", "Custom animations", "Logo design"]
+      }
+    ],
+    reviews: [
+      {
+        id: "101",
+        userId: "u201",
+        userName: "Sarah M.",
+        userAvatar: "https://randomuser.me/api/portraits/women/63.jpg",
+        rating: 5,
+        date: "2023-11-15",
+        comment: "Alex delivered exactly what I needed for my business website. The design is clean, modern and the site works perfectly across all devices. Highly recommended!"
+      },
+      {
+        id: "102",
+        userId: "u202",
+        userName: "Michael T.",
+        userAvatar: "https://randomuser.me/api/portraits/men/47.jpg",
+        rating: 4.5,
+        date: "2023-10-22",
+        comment: "Great service and communication throughout the project. The website looks professional and loads quickly. Would work with Alex again."
+      },
+      {
+        id: "103",
+        userId: "u203",
+        userName: "Patricia K.",
+        userAvatar: "https://randomuser.me/api/portraits/women/28.jpg",
+        rating: 5,
+        date: "2023-09-30",
+        comment: "Impressive attention to detail and excellent problem-solving skills. I had some specific requirements and Alex implemented all of them perfectly."
       }
     ]
   },
   {
     id: "2",
-    providerId: "provider-2",
-    title: "Expert Plumbing Services",
-    description: "Reliable plumbing repairs and installations",
-    price: 60,
-    category: "Home Services",
-    categoryId: "1",
-    location: "Cape Town, South Africa",
-    images: [
-      "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=600&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1592496431128-4b30e8c53f01?w=600&h=400&fit=crop"
+    title: "Mobile App Development for iOS and Android",
+    description: "I will develop a custom mobile application for your business that works seamlessly on both iOS and Android platforms using React Native.",
+    category: "Mobile Development",
+    subcategory: "Apps",
+    imageUrl: "https://images.unsplash.com/photo-1551650975-87deedd944c3?q=80&w=1074&auto=format&fit=crop",
+    gallery: [
+      "https://images.unsplash.com/photo-1551650975-87deedd944c3?q=80&w=1074&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1526045612212-70caf35c14df?q=80&w=1170&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=1170&auto=format&fit=crop",
     ],
-    imageUrl: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=600&h=400&fit=crop",
-    rating: 4.5,
-    reviewCount: 95,
+    providerName: "Priya Sharma",
+    providerId: "102",
+    providerAvatar: "https://randomuser.me/api/portraits/women/44.jpg",
+    providerJoined: "2021-07-22",
+    providerLocation: "Lagos, Nigeria",
+    providerDescription: "Mobile app developer specializing in cross-platform applications with 5 years of industry experience.",
+    rating: 4.8,
+    reviewCount: 89,
+    price: 550,
+    currency: "$",
+    delivery: "21 days",
     featured: false,
-    responseTime: "Within 1 hour",
+    tags: ["mobile app", "iOS", "Android", "React Native"],
     packages: [
       {
-        id: "pkg-2-basic",
-        name: "Basic Plumbing",
-        price: 60,
-        delivery: "1-2 hours",
-        description: "Simple repairs and leak fixes",
-        features: ["Leak detection", "Faucet repair", "Toilet repair"]
+        id: "2a",
+        name: "Basic",
+        description: "Simple app with up to 3 screens",
+        price: 400,
+        delivery: "14 days",
+        revisions: 2,
+        features: ["3 screens", "Basic functionality", "Cross-platform"]
       },
       {
-        id: "pkg-2-standard",
-        name: "Standard Plumbing",
-        price: 110,
-        delivery: "2-3 hours",
-        description: "Comprehensive plumbing solutions",
-        features: ["Everything in Basic", "Pipe replacement", "Drain cleaning"]
+        id: "2b",
+        name: "Standard",
+        description: "Medium complexity app with up to 6 screens",
+        price: 550,
+        delivery: "21 days",
+        revisions: 3,
+        features: ["6 screens", "User authentication", "Data storage", "API integration", "Cross-platform"]
       },
       {
-        id: "pkg-2-premium",
-        name: "Premium Plumbing",
-        price: 160,
-        delivery: "3-4 hours",
-        description: "Extensive plumbing services",
-        features: ["Everything in Standard", "Water heater repair", "Sewer line inspection"]
+        id: "2c",
+        name: "Premium",
+        description: "Complex app with unlimited screens and advanced features",
+        price: 1200,
+        delivery: "35 days",
+        revisions: 5,
+        features: ["Unlimited screens", "User authentication", "Cloud storage", "Advanced API integration", "Push notifications", "Analytics", "In-app purchases", "Offline functionality"]
+      }
+    ],
+    reviews: [
+      {
+        id: "201",
+        userId: "u301",
+        userName: "John D.",
+        userAvatar: "https://randomuser.me/api/portraits/men/22.jpg",
+        rating: 5,
+        date: "2023-10-05",
+        comment: "Priya developed a fantastic app for my startup. The code is clean, the app runs smoothly, and she was very responsive to my requirements."
+      },
+      {
+        id: "202",
+        userId: "u302",
+        userName: "Emily W.",
+        userAvatar: "https://randomuser.me/api/portraits/women/12.jpg",
+        rating: 4,
+        date: "2023-09-18",
+        comment: "Good work overall. There were a few minor issues with the UI on certain Android devices, but Priya fixed them quickly."
       }
     ]
   },
   {
     id: "3",
-    providerId: "provider-3",
-    title: "Stunning Wedding Photography",
-    description: "Capture your special day with beautiful, timeless photos",
-    price: 500,
-    category: "Photography",
-    categoryId: "3",
-    location: "Windhoek, Namibia",
-    images: [
-      "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1495147466023-ac5ca7140344?w=600&h=400&fit=crop"
+    title: "Professional Logo Design",
+    description: "I will create a modern, versatile logo design for your business with unlimited revisions until you're completely satisfied.",
+    category: "Design",
+    subcategory: "Logo Design",
+    imageUrl: "https://images.unsplash.com/photo-1560157368-946d9c8f7cb6?q=80&w=1035&auto=format&fit=crop",
+    gallery: [
+      "https://images.unsplash.com/photo-1560157368-946d9c8f7cb6?q=80&w=1035&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=1171&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1633532178462-96858b56f5a4?q=80&w=1169&auto=format&fit=crop",
     ],
-    imageUrl: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=400&fit=crop",
-    rating: 4.9,
-    reviewCount: 212,
+    providerName: "David Okafor",
+    providerId: "103",
+    providerAvatar: "https://randomuser.me/api/portraits/men/79.jpg",
+    providerJoined: "2022-01-10",
+    providerLocation: "Accra, Ghana",
+    providerDescription: "Graphic designer with over 10 years of experience specializing in brand identity and logo design.",
+    rating: 5.0,
+    reviewCount: 142,
+    price: 120,
+    currency: "$",
+    delivery: "3 days",
     featured: true,
-    responseTime: "Within 30 minutes",
+    tags: ["logo design", "branding", "graphic design"],
     packages: [
       {
-        id: "pkg-3-basic",
-        name: "Basic Wedding",
-        price: 500,
-        delivery: "4 hours",
-        description: "Ceremony and posed photos",
-        features: ["Ceremony coverage", "Posed portraits", "Basic editing"]
+        id: "3a",
+        name: "Basic",
+        description: "1 concept with 2 revisions",
+        price: 75,
+        delivery: "3 days",
+        revisions: 2,
+        features: ["1 concept", "Vector file", "High resolution files", "Logo transparency"]
       },
       {
-        id: "pkg-3-standard",
-        name: "Standard Wedding",
-        price: 800,
-        delivery: "6 hours",
-        description: "Ceremony, reception, and candid photos",
-        features: ["Everything in Basic", "Reception coverage", "Candid shots", "Advanced editing"]
+        id: "3b",
+        name: "Standard",
+        description: "3 concepts with unlimited revisions",
+        price: 120,
+        delivery: "3 days",
+        revisions: "Unlimited",
+        features: ["3 concepts", "Vector files", "High resolution files", "Logo transparency", "Source files", "Social media kit"]
       },
       {
-        id: "pkg-3-premium",
-        name: "Premium Wedding",
-        price: 1200,
-        delivery: "8 hours",
-        description: "Full-day coverage with extra services",
-        features: ["Everything in Standard", "Full-day coverage", "Engagement shoot", "Photo album"]
+        id: "3c",
+        name: "Premium",
+        description: "5 concepts with full brand package",
+        price: 250,
+        delivery: "5 days",
+        revisions: "Unlimited",
+        features: ["5 concepts", "Vector files", "High resolution files", "Logo transparency", "Source files", "Social media kit", "Business card design", "Letterhead design", "Brand guidelines"]
+      }
+    ],
+    reviews: [
+      {
+        id: "301",
+        userId: "u401",
+        userName: "Rebecca N.",
+        userAvatar: "https://randomuser.me/api/portraits/women/33.jpg",
+        rating: 5,
+        date: "2023-11-20",
+        comment: "David created the perfect logo for my new business. He really understood my vision and delivered beyond my expectations!"
+      },
+      {
+        id: "302",
+        userId: "u402",
+        userName: "Thomas L.",
+        userAvatar: "https://randomuser.me/api/portraits/men/55.jpg",
+        rating: 5,
+        date: "2023-10-14",
+        comment: "Extremely professional and talented designer. The logo is unique and perfectly represents my brand identity."
+      },
+      {
+        id: "303",
+        userId: "u403",
+        userName: "Amina K.",
+        userAvatar: "https://randomuser.me/api/portraits/women/40.jpg",
+        rating: 5,
+        date: "2023-09-05",
+        comment: "Outstanding service! David was patient with my requests for changes and provided excellent suggestions. The final logo is perfect."
       }
     ]
   },
   {
     id: "4",
-    providerId: "provider-4",
-    title: "Mobile App Development",
-    description: "Custom mobile app development for iOS and Android",
-    price: 2000,
-    category: "Technology",
-    categoryId: "4",
-    location: "Abuja, Nigeria",
-    images: [
-      "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1567426182914-ca995999ca09?w=600&h=400&fit=crop"
+    title: "Home Cleaning Service",
+    description: "Professional home cleaning service for apartments and houses. Thorough cleaning of all rooms including kitchen, bathrooms, and living areas.",
+    category: "Home Services",
+    subcategory: "Cleaning",
+    imageUrl: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1170&auto=format&fit=crop",
+    gallery: [
+      "https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1170&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?q=80&w=1167&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1563453392212-326f5e854473?q=80&w=1170&auto=format&fit=crop",
     ],
-    imageUrl: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop",
+    providerName: "Clean Masters Ltd",
+    providerId: "104",
+    providerAvatar: "https://randomuser.me/api/portraits/women/26.jpg",
+    providerJoined: "2021-05-18",
+    providerLocation: "Cape Town, South Africa",
+    providerDescription: "Professional cleaning service with trained and vetted staff. We use eco-friendly products and provide exceptional cleaning results.",
     rating: 4.7,
-    reviewCount: 155,
+    reviewCount: 218,
+    price: 80,
+    currency: "$",
+    delivery: "Same day",
     featured: false,
-    responseTime: "Within 6 hours",
+    tags: ["cleaning", "home service", "housekeeping"],
     packages: [
       {
-        id: "pkg-4-basic",
-        name: "Basic App",
-        price: 2000,
-        delivery: "4 weeks",
-        description: "Simple app with basic features",
-        features: ["UI design", "Basic functionality", "Testing"]
+        id: "4a",
+        name: "Basic",
+        description: "Standard cleaning for small apartment (up to 1 bedroom)",
+        price: 60,
+        delivery: "2 hours",
+        revisions: 0,
+        features: ["Dusting", "Vacuuming", "Mopping", "Bathroom cleaning", "Kitchen cleaning"]
       },
       {
-        id: "pkg-4-standard",
-        name: "Standard App",
-        price: 3500,
-        delivery: "6 weeks",
-        description: "App with advanced features",
-        features: ["Everything in Basic", "User authentication", "Database integration"]
+        id: "4b",
+        name: "Standard",
+        description: "Deep cleaning for medium sized homes (2-3 bedrooms)",
+        price: 80,
+        delivery: "3 hours",
+        revisions: 0,
+        features: ["All basic features", "Inside window cleaning", "Fridge cleaning", "Oven cleaning", "Baseboards"]
       },
       {
-        id: "pkg-4-premium",
-        name: "Premium App",
-        price: 5000,
-        delivery: "8 weeks",
-        description: "Full-featured app with custom design",
-        features: ["Everything in Standard", "Custom UI/UX", "API integration", "Ongoing support"]
+        id: "4c",
+        name: "Premium",
+        description: "Comprehensive cleaning for large homes (4+ bedrooms)",
+        price: 150,
+        delivery: "5 hours",
+        revisions: 0,
+        features: ["All standard features", "Inside cabinet cleaning", "Ceiling fans", "Light fixtures", "Wall washing", "Furniture deep cleaning"]
+      }
+    ],
+    reviews: [
+      {
+        id: "401",
+        userId: "u501",
+        userName: "James M.",
+        userAvatar: "https://randomuser.me/api/portraits/men/67.jpg",
+        rating: 5,
+        date: "2023-11-25",
+        comment: "Excellent service! My apartment hasn't been this clean since I moved in. The team was professional and thorough."
+      },
+      {
+        id: "402",
+        userId: "u502",
+        userName: "Zainab A.",
+        userAvatar: "https://randomuser.me/api/portraits/women/52.jpg",
+        rating: 4,
+        date: "2023-11-10",
+        comment: "Very good service overall. They missed cleaning under the couch but came back the next day to fix it."
+      },
+      {
+        id: "403",
+        userId: "u503",
+        userName: "Robert T.",
+        userAvatar: "https://randomuser.me/api/portraits/men/33.jpg",
+        rating: 5,
+        date: "2023-10-22",
+        comment: "Punctual, professional and did an amazing job. Worth every penny!"
       }
     ]
   },
   {
     id: "5",
-    providerId: "provider-5",
-    title: "Personal Training Sessions",
-    description: "One-on-one fitness training to achieve your goals",
-    price: 40,
-    category: "Fitness & Health",
-    categoryId: "5",
-    location: "Johannesburg, South Africa",
-    images: [
-      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1583454110551-4585c69b3c2d?w=600&h=400&fit=crop"
+    title: "Professional Photography Session",
+    description: "Capture your special moments with a professional photography session. Perfect for portraits, family photos, events, and more.",
+    category: "Photography",
+    subcategory: "Photo Session",
+    imageUrl: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=1170&auto=format&fit=crop",
+    gallery: [
+      "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=1170&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1605117882932-f9e32b3a6e99?q=80&w=1169&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1551772412-49a8e4ebea0b?q=80&w=1169&auto=format&fit=crop",
     ],
-    imageUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop",
-    rating: 4.6,
-    reviewCount: 88,
+    providerName: "Grace Mutambo",
+    providerId: "105",
+    providerAvatar: "https://randomuser.me/api/portraits/women/65.jpg",
+    providerJoined: "2022-08-03",
+    providerLocation: "Johannesburg, South Africa",
+    providerDescription: "Professional photographer with 7 years of experience specializing in portrait, event, and commercial photography.",
+    rating: 4.9,
+    reviewCount: 76,
+    price: 200,
+    currency: "$",
+    delivery: "7 days",
     featured: true,
-    responseTime: "Within 12 hours",
+    tags: ["photography", "portrait", "professional photos"],
     packages: [
       {
-        id: "pkg-5-basic",
-        name: "Single Session",
-        price: 40,
-        delivery: "1 hour",
-        description: "One personal training session",
-        features: ["Workout plan", "Exercise guidance", "Nutrition tips"]
+        id: "5a",
+        name: "Basic",
+        description: "1-hour photo session with 10 edited photos",
+        price: 150,
+        delivery: "5 days",
+        revisions: 1,
+        features: ["1-hour session", "10 edited digital photos", "1 location", "1 outfit change"]
       },
       {
-        id: "pkg-5-standard",
-        name: "5 Sessions",
-        price: 180,
-        delivery: "5 hours",
-        description: "Five personal training sessions",
-        features: ["Everything in Basic", "Progress tracking", "Customized plan"]
+        id: "5b",
+        name: "Standard",
+        description: "2-hour photo session with 25 edited photos",
+        price: 200,
+        delivery: "7 days",
+        revisions: 2,
+        features: ["2-hour session", "25 edited digital photos", "2 locations", "2 outfit changes", "Online gallery"]
       },
       {
-        id: "pkg-5-premium",
-        name: "10 Sessions",
-        price: 350,
-        delivery: "10 hours",
-        description: "Ten personal training sessions",
-        features: ["Everything in Standard", "Detailed assessment", "Ongoing support", "Diet plan"]
+        id: "5c",
+        name: "Premium",
+        description: "Half-day session with 50 edited photos and prints",
+        price: 450,
+        delivery: "10 days",
+        revisions: 3,
+        features: ["4-hour session", "50 edited digital photos", "Multiple locations", "Unlimited outfit changes", "Online gallery", "5 printed photos (8x10)", "Photo album"]
+      }
+    ],
+    reviews: [
+      {
+        id: "501",
+        userId: "u601",
+        userName: "Olivia N.",
+        userAvatar: "https://randomuser.me/api/portraits/women/89.jpg",
+        rating: 5,
+        date: "2023-11-18",
+        comment: "Grace made our family photo session so enjoyable! The photos came out beautifully, and she was great with our kids."
+      },
+      {
+        id: "502",
+        userId: "u602",
+        userName: "Daniel K.",
+        userAvatar: "https://randomuser.me/api/portraits/men/37.jpg",
+        rating: 5,
+        date: "2023-10-30",
+        comment: "Professional, creative, and delivered amazing results. I used these photos for my professional profile and received many compliments."
+      },
+      {
+        id: "503",
+        userId: "u603",
+        userName: "Michelle T.",
+        userAvatar: "https://randomuser.me/api/portraits/women/3.jpg",
+        rating: 4.5,
+        date: "2023-10-12",
+        comment: "Grace has an amazing eye for composition and lighting. Very happy with our engagement photos!"
       }
     ]
   },
-  // Additional services
   {
     id: "6",
-    providerId: "provider-6",
-    title: "African Hair Braiding & Styling",
-    description: "Traditional and contemporary African hair styles",
-    price: 80,
-    category: "Beauty & Wellness",
-    categoryId: "2",
-    location: "Accra, Ghana",
-    images: [
-      "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=600&h=400&fit=crop"
+    title: "Personal Fitness Training",
+    description: "Customized fitness training program designed to help you reach your health and fitness goals with personalized workouts and nutrition guidance.",
+    category: "Fitness",
+    subcategory: "Personal Training",
+    imageUrl: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=1170&auto=format&fit=crop",
+    gallery: [
+      "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=1170&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1170&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1548690312-e3b507d8c110?q=80&w=1074&auto=format&fit=crop",
     ],
-    imageUrl: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&h=400&fit=crop",
-    rating: 4.7,
-    reviewCount: 156,
-    featured: true,
-    responseTime: "Within 4 hours",
-    packages: [
-      {
-        id: "pkg-6-basic",
-        name: "Basic Styling",
-        price: 80,
-        delivery: "2-3 hours",
-        description: "Simple braids and natural styling",
-        features: ["Basic braids", "Hair wash", "Conditioning"]
-      },
-      {
-        id: "pkg-6-standard",
-        name: "Premium Styling",
-        price: 150,
-        delivery: "4-5 hours",
-        description: "Complex braids and styling",
-        features: ["Everything in Basic", "Complex patterns", "Hair treatment", "Styling consultation"]
-      }
-    ]
-  },
-  {
-    id: "7",
-    providerId: "provider-7",
-    title: "Traditional African Catering",
-    description: "Authentic African cuisine for your events",
-    price: 25,
-    category: "African Traditional Services",
-    categoryId: "7",
-    location: "Nairobi, Kenya",
-    images: [
-      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&h=400&fit=crop"
-    ],
-    imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=400&fit=crop",
-    rating: 4.9,
-    reviewCount: 203,
-    featured: true,
-    responseTime: "Within 24 hours",
-    packages: [
-      {
-        id: "pkg-7-basic",
-        name: "Basic Catering",
-        price: 25,
-        delivery: "Per person",
-        description: "Traditional meal service",
-        features: ["Main dish", "Side dish", "Traditional drink"]
-      },
-      {
-        id: "pkg-7-premium",
-        name: "Full Feast",
-        price: 45,
-        delivery: "Per person",
-        description: "Complete traditional feast",
-        features: ["Multiple main dishes", "Various sides", "Desserts", "Traditional beverages", "Table service"]
-      }
-    ]
-  },
-  {
-    id: "8",
-    providerId: "provider-8",
-    title: "Electrical Installation & Repair",
-    description: "Safe and reliable electrical services",
-    price: 70,
-    category: "Home Services",
-    categoryId: "1",
-    location: "Durban, South Africa",
-    images: [
-      "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&h=400&fit=crop"
-    ],
-    imageUrl: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&h=400&fit=crop",
-    rating: 4.6,
-    reviewCount: 134,
-    featured: false,
-    responseTime: "Within 2 hours",
-    packages: [
-      {
-        id: "pkg-8-basic",
-        name: "Basic Electrical",
-        price: 70,
-        delivery: "1-2 hours",
-        description: "Simple electrical repairs",
-        features: ["Switch installation", "Outlet repair", "Basic wiring"]
-      },
-      {
-        id: "pkg-8-premium",
-        name: "Full Installation",
-        price: 200,
-        delivery: "4-6 hours",
-        description: "Complete electrical installation",
-        features: ["Circuit installation", "Panel upgrades", "Safety inspection", "Warranty included"]
-      }
-    ]
-  }
-];
-
-// Mock products data with African themes
-export interface Product {
-  id: string;
-  sellerId: string;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  categoryId: string;
-  images: string[];
-  imageUrl: string;
-  rating: number;
-  reviewCount: number;
-  featured: boolean;
-  inStock: boolean;
-  stockCount: number;
-}
-
-export const products: Product[] = [
-  {
-    id: "prod-1",
-    sellerId: "seller-1",
-    name: "Premium Afro Hair Extensions",
-    description: "100% natural African hair extensions, various textures and lengths available",
-    price: 89.99,
-    category: "Beauty & Personal Care",
-    categoryId: "1",
-    images: [
-      "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=400&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400&h=300&fit=crop"
-    ],
-    imageUrl: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=400&h=300&fit=crop",
-    rating: 4.7,
-    reviewCount: 89,
-    featured: true,
-    inStock: true,
-    stockCount: 25
-  },
-  {
-    id: "prod-2",
-    sellerId: "seller-2",
-    name: "Wireless Bluetooth Headphones",
-    description: "High-quality sound, noise-canceling, comfortable fit",
-    price: 129.99,
-    category: "Electronics",
-    categoryId: "2",
-    images: [
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&h=300&fit=crop"
-    ],
-    imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop",
-    rating: 4.6,
-    reviewCount: 112,
-    featured: true,
-    inStock: true,
-    stockCount: 40
-  },
-  {
-    id: "prod-3",
-    sellerId: "seller-3",
-    name: "Traditional African Print Dress",
-    description: "Elegant Ankara dress for all occasions, various sizes and vibrant patterns",
-    price: 59.99,
-    category: "Fashion & Clothing",
-    categoryId: "3",
-    images: [
-      "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=400&h=300&fit=crop"
-    ],
-    imageUrl: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400&h=300&fit=crop",
-    rating: 4.5,
-    reviewCount: 76,
-    featured: false,
-    inStock: true,
-    stockCount: 30
-  },
-  {
-    id: "prod-4",
-    sellerId: "seller-4",
-    name: "African Art Home Decor Set",
-    description: "Set of handcrafted African art pieces to enhance your home",
-    price: 79.99,
-    category: "Home & Garden",
-    categoryId: "4",
-    images: [
-      "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop"
-    ],
-    imageUrl: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop",
-    rating: 4.4,
-    reviewCount: 63,
-    featured: false,
-    inStock: true,
-    stockCount: 20
-  },
-  {
-    id: "prod-5",
-    sellerId: "seller-5",
-    name: "Professional Yoga Mat",
-    description: "High-quality yoga mat for all fitness levels",
-    price: 39.99,
-    category: "Sports & Fitness",
-    categoryId: "5",
-    images: [
-      "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop"
-    ],
-    imageUrl: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop",
-    rating: 4.3,
-    reviewCount: 51,
-    featured: false,
-    inStock: true,
-    stockCount: 15
-  },
-  {
-    id: "prod-6",
-    sellerId: "seller-6",
-    name: "African Literature Collection",
-    description: "Set of classic African novels and contemporary works",
-    price: 49.99,
-    category: "Books & Education",
-    categoryId: "6",
-    images: [
-      "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop"
-    ],
-    imageUrl: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop",
-    rating: 4.2,
-    reviewCount: 42,
-    featured: false,
-    inStock: true,
-    stockCount: 10
-  },
-  // Additional products for better marketplace feel
-  {
-    id: "prod-7",
-    sellerId: "seller-7",
-    name: "Shea Butter Skincare Set",
-    description: "Organic African shea butter skincare products for natural beauty",
-    price: 34.99,
-    category: "Beauty & Personal Care",
-    categoryId: "1",
-    images: [
-      "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=300&fit=crop"
-    ],
-    imageUrl: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=300&fit=crop",
+    providerName: "Samuel Nkosi",
+    providerId: "106",
+    providerAvatar: "https://randomuser.me/api/portraits/men/41.jpg",
+    providerJoined: "2021-11-15",
+    providerLocation: "Nairobi, Kenya",
+    providerDescription: "Certified personal trainer with specialization in weight loss, muscle building, and functional fitness. Over 500 clients helped achieve their fitness goals.",
     rating: 4.8,
-    reviewCount: 156,
-    featured: true,
-    inStock: true,
-    stockCount: 50
-  },
-  {
-    id: "prod-8",
-    sellerId: "seller-8",
-    name: "Smartphone Samsung Galaxy",
-    description: "Latest Samsung smartphone with advanced camera and long battery life",
-    price: 699.99,
-    category: "Electronics",
-    categoryId: "2",
-    images: [
-      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=400&h=300&fit=crop"
-    ],
-    imageUrl: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop",
-    rating: 4.5,
-    reviewCount: 89,
-    featured: true,
-    inStock: true,
-    stockCount: 15
-  },
-  {
-    id: "prod-9",
-    sellerId: "seller-9",
-    name: "Ankara Men's Shirt",
-    description: "Stylish African print shirt for men, perfect for any occasion",
-    price: 45.99,
-    category: "Fashion & Clothing",
-    categoryId: "3",
-    images: [
-      "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=400&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop"
-    ],
-    imageUrl: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=400&h=300&fit=crop",
-    rating: 4.6,
-    reviewCount: 67,
-    featured: false,
-    inStock: true,
-    stockCount: 22
-  },
-  {
-    id: "prod-10",
-    sellerId: "seller-10",
-    name: "Wooden African Sculpture",
-    description: "Handcrafted wooden sculpture representing African heritage",
-    price: 89.99,
-    category: "Home & Garden",
-    categoryId: "4",
-    images: [
-      "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop"
-    ],
-    imageUrl: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop",
-    rating: 4.9,
-    reviewCount: 34,
-    featured: true,
-    inStock: true,
-    stockCount: 8
-  },
-  {
-    id: "prod-11",
-    sellerId: "seller-11",
-    name: "Resistance Band Set",
-    description: "Complete resistance band workout set for home fitness",
-    price: 24.99,
-    category: "Sports & Fitness",
-    categoryId: "5",
-    images: [
-      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1506629905607-683389167ddb?w=400&h=300&fit=crop"
-    ],
-    imageUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
-    rating: 4.4,
     reviewCount: 95,
+    price: 60,
+    currency: "$",
+    delivery: "Per session",
     featured: false,
-    inStock: true,
-    stockCount: 35
-  },
-  {
-    id: "prod-12",
-    sellerId: "seller-12",
-    name: "African History Textbook",
-    description: "Comprehensive guide to African history and culture",
-    price: 29.99,
-    category: "Books & Education",
-    categoryId: "6",
-    images: [
-      "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop"
+    tags: ["fitness", "personal training", "health", "workout"],
+    packages: [
+      {
+        id: "6a",
+        name: "Basic",
+        description: "Single training session (1 hour)",
+        price: 60,
+        delivery: "1 hour",
+        revisions: 0,
+        features: ["1-hour training session", "Personalized workout", "Form correction", "Progress tracking"]
+      },
+      {
+        id: "6b",
+        name: "Standard",
+        description: "Weekly package (3 sessions)",
+        price: 150,
+        delivery: "Weekly",
+        revisions: 0,
+        features: ["3 one-hour sessions", "Personalized workout plan", "Basic nutrition advice", "Form correction", "Progress tracking"]
+      },
+      {
+        id: "6c",
+        name: "Premium",
+        description: "Monthly package (12 sessions + nutrition plan)",
+        price: 500,
+        delivery: "Monthly",
+        revisions: 0,
+        features: ["12 one-hour sessions", "Comprehensive workout program", "Detailed nutrition plan", "Meal prep guidance", "24/7 support via messaging", "Weekly progress assessments", "Body composition analysis"]
+      }
     ],
-    imageUrl: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop",
-    rating: 4.7,
-    reviewCount: 78,
-    featured: false,
-    inStock: true,
-    stockCount: 18
-  },
-  // More products to make it feel like a real marketplace
-  {
-    id: "prod-13",
-    sellerId: "seller-13",
-    name: "MacBook Pro M3",
-    description: "Apple MacBook Pro with M3 chip, perfect for professionals",
-    price: 1999.99,
-    category: "Electronics",
-    categoryId: "2",
-    images: [
-      "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=300&fit=crop"
-    ],
-    imageUrl: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop",
-    rating: 4.9,
-    reviewCount: 245,
-    featured: true,
-    inStock: true,
-    stockCount: 5
-  },
-  {
-    id: "prod-14",
-    sellerId: "seller-14",
-    name: "Kente Cloth Bag",
-    description: "Authentic Ghanaian Kente cloth handbag",
-    price: 65.99,
-    category: "Fashion & Clothing",
-    categoryId: "3",
-    images: [
-      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400&h=300&fit=crop"
-    ],
-    imageUrl: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=300&fit=crop",
-    rating: 4.6,
-    reviewCount: 123,
-    featured: true,
-    inStock: true,
-    stockCount: 12
-  },
-  {
-    id: "prod-15",
-    sellerId: "seller-15",
-    name: "Dumbbells Set (20kg)",
-    description: "Adjustable dumbbells for strength training",
-    price: 149.99,
-    category: "Sports & Fitness",
-    categoryId: "5",
-    images: [
-      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1583454110551-4585c69b3c2d?w=400&h=300&fit=crop"
-    ],
-    imageUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
-    rating: 4.7,
-    reviewCount: 167,
-    featured: false,
-    inStock: true,
-    stockCount: 20
+    reviews: [
+      {
+        id: "601",
+        userId: "u701",
+        userName: "Lisa M.",
+        userAvatar: "https://randomuser.me/api/portraits/women/72.jpg",
+        rating: 5,
+        date: "2023-11-22",
+        comment: "Samuel is an amazing trainer! I've lost 15kg in 4 months with his program and guidance. He's motivating, knowledgeable and adaptable to your specific needs."
+      },
+      {
+        id: "602",
+        userId: "u702",
+        userName: "Kevin O.",
+        userAvatar: "https://randomuser.me/api/portraits/men/17.jpg",
+        rating: 5,
+        date: "2023-11-05",
+        comment: "Working with Samuel has completely changed my approach to fitness. Not only am I stronger, but I've also learned so much about proper form and nutrition."
+      },
+      {
+        id: "603",
+        userId: "u703",
+        userName: "Fatima J.",
+        userAvatar: "https://randomuser.me/api/portraits/women/22.jpg",
+        rating: 4,
+        date: "2023-10-19",
+        comment: "Good trainer who knows how to push you beyond your comfort zone. Sometimes sessions feel rushed but overall good experience."
+      }
+    ]
   }
 ];
 
-// Mock users data with African names and images
-export interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: "client" | "provider" | "seller" | "admin";
-  avatar?: string;
-  phone?: string;
-  location?: string;
-  joinDate: string;
-  favorites?: string[]; // service IDs for clients
-}
-
-export const users: User[] = [
+// Mock data for categories
+export const categories = [
   {
-    id: "user-1",
-    firstName: "Amara",
-    lastName: "Johnson",
-    email: "amara.johnson@example.com",
+    id: "cat1",
+    name: "Web Development",
+    icon: "Code",
+    description: "Website creation, development, and maintenance",
+    subCategories: ["Website Creation", "E-commerce", "WordPress", "Frontend Development", "Backend Development"]
+  },
+  {
+    id: "cat2",
+    name: "Mobile Development",
+    icon: "Smartphone",
+    description: "Mobile app development for iOS and Android",
+    subCategories: ["iOS Apps", "Android Apps", "React Native", "Flutter", "Mobile UI/UX"]
+  },
+  {
+    id: "cat3",
+    name: "Design",
+    icon: "Palette",
+    description: "Graphic design, UI/UX design, and branding",
+    subCategories: ["Logo Design", "UI/UX Design", "Branding", "Illustration", "Print Design"]
+  },
+  {
+    id: "cat4",
+    name: "Writing",
+    icon: "FileText",
+    description: "Content creation, copywriting, and editing",
+    subCategories: ["Content Writing", "Copywriting", "Technical Writing", "Editing", "Translation"]
+  },
+  {
+    id: "cat5",
+    name: "Digital Marketing",
+    icon: "TrendingUp",
+    description: "SEO, social media marketing, and advertising",
+    subCategories: ["SEO", "Social Media Marketing", "Email Marketing", "PPC", "Content Marketing"]
+  },
+  {
+    id: "cat6",
+    name: "Video & Animation",
+    icon: "Video",
+    description: "Video production, animation, and motion graphics",
+    subCategories: ["Video Editing", "Animation", "Motion Graphics", "Intro Videos", "Explainer Videos"]
+  },
+  {
+    id: "cat7",
+    name: "Music & Audio",
+    icon: "Music",
+    description: "Music production, voice over, and sound design",
+    subCategories: ["Voice Over", "Music Production", "Audio Editing", "Sound Effects", "Podcasts"]
+  },
+  {
+    id: "cat8",
+    name: "Business",
+    icon: "Briefcase",
+    description: "Business planning, financial consulting, and legal services",
+    subCategories: ["Business Plans", "Financial Consulting", "Legal Consulting", "Market Research", "Business Tips"]
+  },
+  {
+    id: "cat9",
+    name: "Home Services",
+    icon: "Home",
+    description: "Cleaning, repairs, and home maintenance",
+    subCategories: ["Cleaning", "Repairs", "Gardening", "Interior Design", "Home Improvement"]
+  },
+  {
+    id: "cat10",
+    name: "Fitness",
+    icon: "Activity",
+    description: "Personal training, nutrition advice, and wellness",
+    subCategories: ["Personal Training", "Nutrition", "Yoga", "Fitness Plans", "Meditation"]
+  },
+  {
+    id: "cat11",
+    name: "Photography",
+    icon: "Camera",
+    description: "Professional photography and editing",
+    subCategories: ["Portrait Photography", "Event Photography", "Product Photography", "Photo Editing", "Photography Tips"]
+  },
+  {
+    id: "cat12",
+    name: "Tutoring",
+    icon: "GraduationCap",
+    description: "Academic tutoring and skill development",
+    subCategories: ["Mathematics", "Science", "Languages", "Programming", "Test Preparation"]
+  }
+];
+
+// Mock data for users
+export const users = [
+  {
+    id: "u1",
     role: "client",
-    avatar: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=150&h=150&fit=crop&crop=face",
-    phone: "+234 (555) 123-4567",
-    location: "Lagos, Nigeria",
-    joinDate: "2024-01-15",
+    name: "John Smith",
+    email: "john.smith@example.com",
+    avatar: "https://randomuser.me/api/portraits/men/1.jpg",
+    location: "Nairobi, Kenya",
+    joined: "2023-01-15",
+    bookings: ["booking1", "booking3"],
     favorites: ["1", "3", "5"]
   },
   {
-    id: "provider-1",
-    firstName: "Kwame",
-    lastName: "Asante",
-    email: "kwame.asante@example.com",
+    id: "u2",
     role: "provider",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    phone: "+234 (555) 234-5678",
+    name: "Alex Johnson",
+    email: "alex.johnson@example.com",
+    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+    location: "Nairobi, Kenya",
+    joined: "2022-03-15",
+    services: ["1"],
+    description: "Full-stack web developer with 8+ years of experience specializing in React and Node.js applications.",
+    rating: 4.9,
+    reviewCount: 124
+  },
+  {
+    id: "u3",
+    role: "provider",
+    name: "Priya Sharma",
+    email: "priya.sharma@example.com",
+    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
     location: "Lagos, Nigeria",
-    joinDate: "2023-11-20"
-  },
-  {
-    id: "provider-2",
-    firstName: "Sipho",
-    lastName: "Mthembu",
-    email: "sipho.mthembu@example.com",
-    role: "provider",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-    phone: "+27 (555) 345-6789",
-    location: "Cape Town, South Africa",
-    joinDate: "2024-02-10"
-  },
-  {
-    id: "provider-3",
-    firstName: "Nalani",
-    lastName: "Kamati",
-    email: "nalani.kamati@example.com",
-    role: "provider",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-    phone: "+264 (555) 456-7890",
-    location: "Windhoek, Namibia",
-    joinDate: "2023-08-05"
-  },
-  {
-    id: "provider-4",
-    firstName: "Chidi",
-    lastName: "Okafor",
-    email: "chidi.okafor@example.com",
-    role: "provider",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-    phone: "+234 (555) 567-8901",
-    location: "Abuja, Nigeria",
-    joinDate: "2023-12-01"
-  },
-  {
-    id: "provider-5",
-    firstName: "Thabo",
-    lastName: "Molefe",
-    email: "thabo.molefe@example.com",
-    role: "provider",
-    avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&h=150&fit=crop&crop=face",
-    phone: "+27 (555) 678-9012",
-    location: "Johannesburg, South Africa",
-    joinDate: "2023-09-15"
-  },
-  {
-    id: "seller-1",
-    firstName: "Fatima",
-    lastName: "Adebayo",
-    email: "fatima.adebayo@example.com",
-    role: "seller",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b123?w=150&h=150&fit=crop&crop=face",
-    phone: "+234 (555) 789-0123",
-    location: "Lagos, Nigeria",
-    joinDate: "2024-01-20"
-  },
-  {
-    id: "seller-2",
-    firstName: "Mandla",
-    lastName: "Ndlovu",
-    email: "mandla.ndlovu@example.com",
-    role: "seller",
-    avatar: "https://images.unsplash.com/photo-1463453091185-61582044d556?w=150&h=150&fit=crop&crop=face",
-    phone: "+27 (555) 890-1234",
-    location: "Cape Town, South Africa",
-    joinDate: "2023-10-10"
-  },
-  {
-    id: "seller-3",
-    firstName: "Kesi",
-    lastName: "Shipanga",
-    email: "kesi.shipanga@example.com",
-    role: "seller",
-    avatar: "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=150&h=150&fit=crop&crop=face",
-    phone: "+264 (555) 901-2345",
-    location: "Windhoek, Namibia",
-    joinDate: "2024-03-05"
-  },
-  {
-    id: "user-4",
-    firstName: "Adunni",
-    lastName: "Oni",
-    email: "adunni.oni@example.com",
-    role: "admin",
-    avatar: "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=150&h=150&fit=crop&crop=face",
-    phone: "+234 (555) 012-3456",
-    location: "Abuja, Nigeria",
-    joinDate: "2023-08-05"
+    joined: "2021-07-22",
+    services: ["2"],
+    description: "Mobile app developer specializing in cross-platform applications with 5 years of industry experience.",
+    rating: 4.8,
+    reviewCount: 89
   }
 ];
 
-// Mock bookings data
-export interface Booking {
-  id: string;
-  serviceId: string;
-  clientId: string;
-  providerId: string;
-  packageId: string;
-  date: string;
-  time: string;
-  status: "pending" | "confirmed" | "completed" | "cancelled";
-  totalPrice: number;
-  notes?: string;
-  createdAt: string;
-  paymentStatus: "unpaid" | "paid" | "refunded";
-}
-
-export const bookings: Booking[] = [
+// Mock data for bookings
+export const bookings = [
   {
-    id: "booking-1",
+    id: "booking1",
     serviceId: "1",
-    clientId: "user-1",
-    providerId: "provider-1",
-    packageId: "pkg-1-standard",
-    date: "2024-07-15",
-    time: "10:00",
-    status: "confirmed",
-    totalPrice: 120,
-    notes: "Please use eco-friendly products",
-    createdAt: "2024-07-05T09:00:00Z",
-    paymentStatus: "paid"
-  },
-  {
-    id: "booking-2",
-    serviceId: "3",
-    clientId: "user-1",
-    providerId: "provider-3",
-    packageId: "pkg-3-premium",
-    date: "2024-08-20",
-    time: "14:00",
-    status: "pending",
-    totalPrice: 1200,
-    notes: "Wedding photography for outdoor ceremony",
-    createdAt: "2024-07-02T14:30:00Z",
-    paymentStatus: "unpaid"
-  },
-  {
-    id: "booking-3",
-    serviceId: "5",
-    clientId: "user-1",
-    providerId: "provider-5",
-    packageId: "pkg-5-standard",
-    date: "2024-07-10",
-    time: "08:00",
+    clientId: "u1",
+    providerId: "u2",
+    packageId: "1b",
     status: "completed",
-    totalPrice: 180,
-    notes: "Focus on cardio and strength training",
-    createdAt: "2024-06-25T16:20:00Z",
-    paymentStatus: "paid"
+    date: "2023-11-10",
+    time: "10:00 AM",
+    price: 350,
+    currency: "$",
+    paymentStatus: "paid",
+    clientReview: {
+      rating: 5,
+      comment: "Excellent service! Alex delivered exactly what I needed and was very professional throughout the process."
+    }
+  },
+  {
+    id: "booking2",
+    serviceId: "3",
+    clientId: "u4",
+    providerId: "u5",
+    packageId: "3b",
+    status: "scheduled",
+    date: "2023-12-05",
+    time: "2:30 PM",
+    price: 120,
+    currency: "$",
+    paymentStatus: "paid",
+    clientReview: null
+  },
+  {
+    id: "booking3",
+    serviceId: "5",
+    clientId: "u1",
+    providerId: "u6",
+    packageId: "5c",
+    status: "in-progress",
+    date: "2023-11-25",
+    time: "9:00 AM",
+    price: 450,
+    currency: "$",
+    paymentStatus: "paid",
+    clientReview: null
   }
 ];

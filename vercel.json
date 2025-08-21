@@ -1,28 +1,6 @@
+
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "framework": "vite",
-  "installCommand": "npm ci",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
-      ]
-    }
-  ],
-  "functions": {
-    "app/api/**": {
-      "runtime": "nodejs18.x"
-    }
-  },
-  "env": {
-    "VITE_SUPABASE_URL": "https://xieazmtvtlvexadbzoni.supabase.co",
-    "VITE_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpZWF6bXR2dGx2ZXhhZGJ6b25pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1MDg2NTYsImV4cCI6MjA2MDA4NDY1Nn0.ikz-UI5uNJ8rZFHLAvPkxRmXtUDm8TVm_HNbBqD97v0"
-  }
+  ]
 }

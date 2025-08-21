@@ -18,7 +18,7 @@ const RequireAuth = () => {
 
   if (!isAuthenticated) {
     // Redirect to signin page but save the location they were trying to access
-    return <Navigate to="/sign-in" state={{ from: location }} replace />;
+    return <Navigate to="/signin" state={{ from: location }} replace />;
   }
 
   // Redirect users to their appropriate dashboards if they're trying to access generic dashboard

@@ -1,365 +1,451 @@
 
+import { 
+  Home, Briefcase, Scissors, CalendarClock, Truck, GraduationCap, 
+  Heart, Palette, Wrench, Hammer, Laptop, Utensils, ShoppingBag, 
+  Car, Music, Camera, Globe, UserCog, Award, BookOpen,
+  Baby, Dumbbell, Building, Gamepad, ThermometerSnowflake, Shirt,
+  BadgeDollarSign, Bus, PawPrint, ShieldPlus, HelpCircle, Download,
+  Printer, ScrollText, Sun, Sprout, Smartphone, Zap, TreePine,
+  Factory, Plane, Users, Megaphone, Gift, Droplets, Stethoscope,
+  GraduationCap as Education, Calculator, Scale, Gavel, Shield,
+  Radio, Tv, Wind, Mountain, Fish, Wheat, Truck as Delivery,
+  PhoneCall, Mail, MapPin, Clock, Star, Target, Lightbulb,
+  Cpu, Database, Code, Wifi, Headphones, Mic, Video
+} from "lucide-react";
+
 export interface ServiceCategory {
   id: string;
   name: string;
-  icon: string;
-  image?: string;
   description: string;
+  icon: any;
   color: string;
-  region?: string;
+  region?: 'Africa' | 'Global';
   featured?: boolean;
-  subcategories?: {
-    id: string;
-    name: string;
-    icon: string;
-    image?: string;
-  }[];
 }
 
 export const serviceCategories: ServiceCategory[] = [
+  // Home & Property Services
   {
-    id: "1",
-    name: "Home Services",
-    icon: "🏠",
-    description: "Professional home maintenance and repair services",
-    color: "bg-blue-500 text-white",
-    featured: true,
-    image: "https://images.unsplash.com/photo-1558618047-b00de36e47d7?w=400&h=300&fit=crop",
-    subcategories: [
-      { 
-        id: "1-1", 
-        name: "Plumbing", 
-        icon: "🔧",
-        image: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "1-2", 
-        name: "Electrical", 
-        icon: "⚡",
-        image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "1-3", 
-        name: "Cleaning", 
-        icon: "🧽",
-        image: "https://images.unsplash.com/photo-1558618047-b00de36e47d7?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "1-4", 
-        name: "Gardening", 
-        icon: "🌱",
-        image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "1-5", 
-        name: "Painting", 
-        icon: "🎨",
-        image: "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=400&h=300&fit=crop"
-      }
-    ]
+    id: 'home-services',
+    name: 'Home Services',
+    description: 'Cleaning, repairs, gardening, and maintenance',
+    icon: Home,
+    color: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
+    region: 'Global',
+    featured: true
   },
   {
-    id: "2",
-    name: "Beauty & Wellness",
-    icon: "💄",
-    description: "Professional beauty and wellness services",
-    color: "bg-pink-500 text-white",
-    featured: true,
-    image: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&h=300&fit=crop",
-    subcategories: [
-      { 
-        id: "2-1", 
-        name: "Hair Styling", 
-        icon: "💇‍♀️",
-        image: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "2-2", 
-        name: "Makeup", 
-        icon: "💋",
-        image: "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "2-3", 
-        name: "Massage Therapy", 
-        icon: "💆‍♀️",
-        image: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "2-4", 
-        name: "Nail Care", 
-        icon: "💅",
-        image: "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400&h=300&fit=crop"
-      }
-    ]
+    id: 'construction-building',
+    name: 'Construction & Building',
+    description: 'Building, renovation, construction management',
+    icon: Building,
+    color: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
+    region: 'Global'
   },
   {
-    id: "3",
-    name: "Photography",
-    icon: "📸",
-    description: "Professional photography services for all occasions",
-    color: "bg-purple-500 text-white",
-    featured: true,
-    image: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400&h=300&fit=crop",
-    subcategories: [
-      { 
-        id: "3-1", 
-        name: "Wedding Photography", 
-        icon: "💒",
-        image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "3-2", 
-        name: "Portrait Photography", 
-        icon: "👤",
-        image: "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "3-3", 
-        name: "Event Photography", 
-        icon: "🎉",
-        image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "3-4", 
-        name: "Product Photography", 
-        icon: "📦",
-        image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop"
-      }
-    ]
+    id: 'plumbing-electrical',
+    name: 'Plumbing & Electrical',
+    description: 'Water systems, electrical installations, repairs',
+    icon: Wrench,
+    color: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300',
+    region: 'Global'
   },
   {
-    id: "4",
-    name: "Technology",
-    icon: "💻",
-    description: "Tech support and development services",
-    color: "bg-indigo-500 text-white",
-    featured: false,
-    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop",
-    subcategories: [
-      { 
-        id: "4-1", 
-        name: "Computer Repair", 
-        icon: "🖥️",
-        image: "https://images.unsplash.com/photo-1588508065123-287b28e013da?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "4-2", 
-        name: "Web Development", 
-        icon: "🌐",
-        image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "4-3", 
-        name: "Mobile App Development", 
-        icon: "📱",
-        image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "4-4", 
-        name: "IT Support", 
-        icon: "🛠️",
-        image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=300&fit=crop"
-      }
-    ]
+    id: 'hvac-services',
+    name: 'HVAC Services',
+    description: 'Heating, ventilation, air conditioning repair',
+    icon: ThermometerSnowflake,
+    color: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
+    region: 'Global'
+  },
+
+  // Technology & Digital Services
+  {
+    id: 'it-support',
+    name: 'IT Support & Tech',
+    description: 'Computer repair, IT services, tech support',
+    icon: Laptop,
+    color: 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300',
+    region: 'Global',
+    featured: true
   },
   {
-    id: "5",
-    name: "Fitness & Health",
-    icon: "💪",
-    description: "Health and fitness services",
-    color: "bg-green-500 text-white",
-    featured: true,
-    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
-    subcategories: [
-      { 
-        id: "5-1", 
-        name: "Personal Training", 
-        icon: "🏋️‍♂️",
-        image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "5-2", 
-        name: "Yoga Instruction", 
-        icon: "🧘‍♀️",
-        image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "5-3", 
-        name: "Nutrition Consulting", 
-        icon: "🥗",
-        image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "5-4", 
-        name: "Physiotherapy", 
-        icon: "🩺",
-        image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=300&fit=crop"
-      }
-    ]
+    id: 'web-development',
+    name: 'Web Development',
+    description: 'Website creation, app development, programming',
+    icon: Code,
+    color: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300',
+    region: 'Global'
   },
   {
-    id: "6",
-    name: "Education & Tutoring",
-    icon: "📚",
-    description: "Educational and tutoring services",
-    color: "bg-orange-500 text-white",
-    featured: false,
-    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&h=300&fit=crop",
-    subcategories: [
-      { 
-        id: "6-1", 
-        name: "Mathematics", 
-        icon: "🔢",
-        image: "https://images.unsplash.com/photo-1596495578065-6e0763fa1178?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "6-2", 
-        name: "Language Learning", 
-        icon: "🗣️",
-        image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "6-3", 
-        name: "Music Lessons", 
-        icon: "🎵",
-        image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "6-4", 
-        name: "Test Preparation", 
-        icon: "📝",
-        image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop"
-      }
-    ]
+    id: 'digital-marketing',
+    name: 'Digital Marketing',
+    description: 'SEO, social media, online advertising',
+    icon: Megaphone,
+    color: 'bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300',
+    region: 'Global'
   },
   {
-    id: "7",
-    name: "African Traditional Services",
-    icon: "🌍",
-    description: "Traditional African services and crafts",
-    color: "bg-yellow-600 text-white",
-    region: "Africa",
-    featured: true,
-    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
-    subcategories: [
-      { 
-        id: "7-1", 
-        name: "Traditional Healing", 
-        icon: "🌿",
-        image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "7-2", 
-        name: "African Catering", 
-        icon: "🍲",
-        image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "7-3", 
-        name: "Traditional Clothing", 
-        icon: "👘",
-        image: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "7-4", 
-        name: "Cultural Ceremonies", 
-        icon: "🥁",
-        image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop"
-      }
-    ]
+    id: 'mobile-app-development',
+    name: 'Mobile App Development',
+    description: 'iOS, Android app development and maintenance',
+    icon: Smartphone,
+    color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300',
+    region: 'Global'
   },
-  // Additional categories
+
+  // African-Focused Services
   {
-    id: "8",
-    name: "Business Services",
-    icon: "💼",
-    description: "Professional business and consulting services",
-    color: "bg-slate-600 text-white",
-    featured: false,
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop",
-    subcategories: [
-      { 
-        id: "8-1", 
-        name: "Accounting", 
-        icon: "📊",
-        image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "8-2", 
-        name: "Legal Services", 
-        icon: "⚖️",
-        image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "8-3", 
-        name: "Marketing", 
-        icon: "📢",
-        image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop"
-      }
-    ]
+    id: 'mobile-money',
+    name: 'Mobile Money Services',
+    description: 'Mobile banking, payments, financial transfers',
+    icon: PhoneCall,
+    color: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300',
+    region: 'Africa',
+    featured: true
   },
   {
-    id: "9",
-    name: "Automotive Services",
-    icon: "🚗",
-    description: "Car maintenance and automotive services",
-    color: "bg-gray-600 text-white",
-    featured: false,
-    image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400&h=300&fit=crop",
-    subcategories: [
-      { 
-        id: "9-1", 
-        name: "Car Repair", 
-        icon: "🔧",
-        image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "9-2", 
-        name: "Car Wash", 
-        icon: "🧽",
-        image: "https://images.unsplash.com/photo-1558618047-b00de36e47d7?w=400&h=300&fit=crop"
-      }
-    ]
+    id: 'solar-energy',
+    name: 'Solar Energy Solutions',
+    description: 'Solar panel installation, renewable energy systems',
+    icon: Sun,
+    color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300',
+    region: 'Africa',
+    featured: true
   },
   {
-    id: "10",
-    name: "Events & Entertainment",
-    icon: "🎉",
-    description: "Event planning and entertainment services",
-    color: "bg-rose-500 text-white",
-    featured: true,
-    image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=400&h=300&fit=crop",
-    subcategories: [
-      { 
-        id: "10-1", 
-        name: "DJ Services", 
-        icon: "🎵",
-        image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop"
-      },
-      { 
-        id: "10-2", 
-        name: "Event Planning", 
-        icon: "📋",
-        image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=400&h=300&fit=crop"
-      }
-    ]
+    id: 'agriculture-services',
+    name: 'Agriculture Services',
+    description: 'Farming, crop management, agricultural consulting',
+    icon: Sprout,
+    color: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300',
+    region: 'Africa',
+    featured: true
+  },
+  {
+    id: 'borehole-drilling',
+    name: 'Borehole & Water Services',
+    description: 'Water drilling, pump installation, water systems',
+    icon: Droplets,
+    color: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
+    region: 'Africa'
+  },
+  {
+    id: 'generator-services',
+    name: 'Generator Services',
+    description: 'Generator sales, installation, maintenance',
+    icon: Zap,
+    color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300',
+    region: 'Africa'
+  },
+
+  // Professional Services
+  {
+    id: 'legal-services',
+    name: 'Legal Services',
+    description: 'Legal advice, documentation, court representation',
+    icon: Gavel,
+    color: 'bg-slate-100 text-slate-700 dark:bg-slate-900 dark:text-slate-300',
+    region: 'Global'
+  },
+  {
+    id: 'accounting-finance',
+    name: 'Accounting & Finance',
+    description: 'Bookkeeping, tax preparation, financial planning',
+    icon: Calculator,
+    color: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300',
+    region: 'Global'
+  },
+  {
+    id: 'business-consulting',
+    name: 'Business Consulting',
+    description: 'Strategy, operations, management consulting',
+    icon: Briefcase,
+    color: 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300',
+    region: 'Global'
+  },
+  {
+    id: 'insurance-services',
+    name: 'Insurance Services',
+    description: 'Insurance advice, claims, policy management',
+    icon: Shield,
+    color: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
+    region: 'Global'
+  },
+
+  // Health & Wellness
+  {
+    id: 'healthcare',
+    name: 'Healthcare Services',
+    description: 'Medical care, nursing, health consultations',
+    icon: Stethoscope,
+    color: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300',
+    region: 'Global',
+    featured: true
+  },
+  {
+    id: 'fitness-training',
+    name: 'Fitness & Training',
+    description: 'Personal training, fitness coaching, gym services',
+    icon: Dumbbell,
+    color: 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300',
+    region: 'Global'
+  },
+  {
+    id: 'mental-health',
+    name: 'Mental Health & Therapy',
+    description: 'Counseling, therapy, mental health support',
+    icon: Heart,
+    color: 'bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300',
+    region: 'Global'
+  },
+  {
+    id: 'nutrition-wellness',
+    name: 'Nutrition & Wellness',
+    description: 'Diet planning, wellness coaching, nutrition advice',
+    icon: TreePine,
+    color: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300',
+    region: 'Global'
+  },
+
+  // Education & Training
+  {
+    id: 'tutoring-education',
+    name: 'Tutoring & Education',
+    description: 'Academic tutoring, skill training, courses',
+    icon: Education,
+    color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300',
+    region: 'Global',
+    featured: true
+  },
+  {
+    id: 'language-services',
+    name: 'Language Services',
+    description: 'Translation, interpretation, language teaching',
+    icon: Globe,
+    color: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
+    region: 'Global'
+  },
+  {
+    id: 'vocational-training',
+    name: 'Vocational Training',
+    description: 'Skills training, certification programs, workshops',
+    icon: Award,
+    color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300',
+    region: 'Global'
+  },
+
+  // Creative & Media
+  {
+    id: 'photography-video',
+    name: 'Photography & Video',
+    description: 'Photography, videography, editing services',
+    icon: Camera,
+    color: 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300',
+    region: 'Global'
+  },
+  {
+    id: 'graphic-design',
+    name: 'Graphic Design',
+    description: 'Logo design, branding, visual design',
+    icon: Palette,
+    color: 'bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300',
+    region: 'Global'
+  },
+  {
+    id: 'music-entertainment',
+    name: 'Music & Entertainment',
+    description: 'Music production, DJ services, entertainment',
+    icon: Music,
+    color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300',
+    region: 'Global'
+  },
+  {
+    id: 'content-writing',
+    name: 'Content Writing',
+    description: 'Copywriting, content creation, editing',
+    icon: BookOpen,
+    color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
+    region: 'Global'
+  },
+
+  // Transportation & Logistics
+  {
+    id: 'transportation',
+    name: 'Transportation Services',
+    description: 'Ride services, delivery, logistics',
+    icon: Truck,
+    color: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300',
+    region: 'Global'
+  },
+  {
+    id: 'delivery-courier',
+    name: 'Delivery & Courier',
+    description: 'Package delivery, courier services, logistics',
+    icon: Delivery,
+    color: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
+    region: 'Global'
+  },
+  {
+    id: 'moving-relocation',
+    name: 'Moving & Relocation',
+    description: 'House moving, office relocation, packing',
+    icon: Bus,
+    color: 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300',
+    region: 'Global'
+  },
+
+  // Personal Care & Lifestyle
+  {
+    id: 'personal-care',
+    name: 'Personal Care & Beauty',
+    description: 'Hair styling, beauty services, spa treatments',
+    icon: Scissors,
+    color: 'bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300',
+    region: 'Global'
+  },
+  {
+    id: 'childcare',
+    name: 'Child Care Services',
+    description: 'Babysitting, nannying, daycare services',
+    icon: Baby,
+    color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300',
+    region: 'Global'
+  },
+  {
+    id: 'pet-services',
+    name: 'Pet Services',
+    description: 'Pet care, grooming, veterinary services',
+    icon: PawPrint,
+    color: 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300',
+    region: 'Global'
+  },
+
+  // Events & Entertainment
+  {
+    id: 'event-planning',
+    name: 'Event Planning',
+    description: 'Wedding planning, corporate events, celebrations',
+    icon: CalendarClock,
+    color: 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300',
+    region: 'Global'
+  },
+  {
+    id: 'catering-food',
+    name: 'Catering & Food Services',
+    description: 'Catering, meal preparation, food delivery',
+    icon: Utensils,
+    color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300',
+    region: 'Global'
+  },
+
+  // Security & Safety
+  {
+    id: 'security-services',
+    name: 'Security Services',
+    description: 'Security guards, surveillance, safety consulting',
+    icon: ShieldPlus,
+    color: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300',
+    region: 'Global'
+  },
+
+  // Automotive
+  {
+    id: 'automotive',
+    name: 'Automotive Services',
+    description: 'Car repair, maintenance, automotive services',
+    icon: Car,
+    color: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
+    region: 'Global'
+  },
+
+  // Manufacturing & Industrial
+  {
+    id: 'manufacturing',
+    name: 'Manufacturing Services',
+    description: 'Production, assembly, industrial services',
+    icon: Factory,
+    color: 'bg-slate-100 text-slate-700 dark:bg-slate-900 dark:text-slate-300',
+    region: 'Global'
+  },
+
+  // Travel & Tourism
+  {
+    id: 'travel-tourism',
+    name: 'Travel & Tourism',
+    description: 'Travel planning, tour guides, tourism services',
+    icon: Plane,
+    color: 'bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300',
+    region: 'Global'
+  },
+
+  // Environmental Services
+  {
+    id: 'environmental',
+    name: 'Environmental Services',
+    description: 'Waste management, recycling, environmental consulting',
+    icon: TreePine,
+    color: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300',
+    region: 'Global'
+  },
+
+  // Communication & Media
+  {
+    id: 'telecommunications',
+    name: 'Telecommunications',
+    description: 'Network setup, communication systems, tech support',
+    icon: Radio,
+    color: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
+    region: 'Global'
+  },
+
+  // Real Estate
+  {
+    id: 'real-estate',
+    name: 'Real Estate Services',
+    description: 'Property sales, rentals, real estate consulting',
+    icon: Home,
+    color: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300',
+    region: 'Global'
+  },
+
+  // Specialized African Services
+  {
+    id: 'micro-finance',
+    name: 'Micro Finance',
+    description: 'Small loans, savings groups, financial inclusion',
+    icon: BadgeDollarSign,
+    color: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300',
+    region: 'Africa'
+  },
+  {
+    id: 'traditional-crafts',
+    name: 'Traditional Crafts',
+    description: 'Handicrafts, traditional art, cultural services',
+    icon: Hammer,
+    color: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
+    region: 'Africa'
+  },
+  {
+    id: 'farming-livestock',
+    name: 'Farming & Livestock',
+    description: 'Animal husbandry, crop farming, agricultural equipment',
+    icon: Wheat,
+    color: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300',
+    region: 'Africa'
+  },
+  {
+    id: 'fishing-aquaculture',
+    name: 'Fishing & Aquaculture',
+    description: 'Fish farming, fishing equipment, marine services',
+    icon: Fish,
+    color: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
+    region: 'Africa'
   }
 ];
 
-// Export utility functions
-export const getFeaturedCategories = (): ServiceCategory[] => {
-  return serviceCategories.filter(category => category.featured);
-};
-
-export const getAfricanCategories = (): ServiceCategory[] => {
-  return serviceCategories.filter(category => category.region === 'Africa');
-};
-
-export const getGlobalCategories = (): ServiceCategory[] => {
-  return serviceCategories.filter(category => !category.region || category.region !== 'Africa');
-};
-
-export const getCategoryById = (id: string): ServiceCategory | undefined => {
-  return serviceCategories.find(category => category.id === id);
-};
+// Helper functions
+export const getFeaturedCategories = () => serviceCategories.filter(cat => cat.featured);
+export const getAfricanCategories = () => serviceCategories.filter(cat => cat.region === 'Africa');
+export const getGlobalCategories = () => serviceCategories.filter(cat => cat.region === 'Global');
+export const getCategoryById = (id: string) => serviceCategories.find(cat => cat.id === id);

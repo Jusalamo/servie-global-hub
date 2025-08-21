@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 // Service Management
@@ -75,34 +76,37 @@ export const serviceAPI = {
   }
 };
 
-// Product Management using type assertions to work around missing types
+// Product Management (using services table with product type)
 export const productAPI = {
   async createProduct(productData: any) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
+    // Store products as services with a type field
     const { data, error } = await supabase
-      .from('products' as any)
+      .from('services')
       .insert({
         ...productData,
-        seller_id: user.id
+        provider_id: user.id,
+        title: productData.title || productData.name,
+        description: productData.description,
+        price: productData.price
       })
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   },
 
   async getProducts(filters: any = {}) {
     let query = supabase
-      .from('products' as any)
+      .from('services')
       .select(`
         *,
         service_categories(name, icon),
         profiles(first_name, last_name, avatar_url)
       `)
-      .eq('status', 'active')
       .order('featured', { ascending: false })
       .order('created_at', { ascending: false });
 
@@ -111,10 +115,7 @@ export const productAPI = {
     }
 
     const { data, error } = await query;
-    if (error) {
-      console.error('Error fetching products:', error);
-      return [];
-    }
+    if (error) throw error;
     return data || [];
   },
 
@@ -123,21 +124,18 @@ export const productAPI = {
     if (!user) throw new Error('User not authenticated');
 
     const { data, error } = await supabase
-      .from('products' as any)
+      .from('services')
       .select('*')
-      .eq('seller_id', user.id)
+      .eq('provider_id', user.id)
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Error fetching my products:', error);
-      return [];
-    }
+    if (error) throw error;
     return data || [];
   },
 
   async updateProduct(id: string, updates: any) {
     const { data, error } = await supabase
-      .from('products' as any)
+      .from('services')
       .update(updates)
       .eq('id', id)
       .select()
@@ -149,111 +147,11 @@ export const productAPI = {
 
   async deleteProduct(id: string) {
     const { error } = await supabase
-      .from('products' as any)
+      .from('services')
       .delete()
       .eq('id', id);
 
     if (error) throw error;
-  }
-};
-
-// Quotation Management
-export const quotationAPI = {
-  async createQuotation(quotationData: any) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('User not authenticated');
-
-    const { data, error } = await supabase
-      .from('quotations')
-      .insert({
-        ...quotationData,
-        provider_id: user.id
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async getMyQuotations() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('User not authenticated');
-
-    const { data, error } = await supabase
-      .from('quotations')
-      .select('*')
-      .eq('provider_id', user.id)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data || [];
-  },
-
-  async getQuotationById(id: string) {
-    const { data, error } = await supabase
-      .from('quotations')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async getQuotationItems(quotationId: string) {
-    const { data, error } = await supabase
-      .from('quotation_items')
-      .select('*')
-      .eq('quotation_id', quotationId)
-      .order('sort_order');
-
-    if (error) throw error;
-    return data || [];
-  },
-
-  async updateQuotationStatus(id: string, status: string) {
-    const updateData: any = { status };
-    
-    if (status === 'sent') {
-      updateData.sent_at = new Date().toISOString();
-    } else if (status === 'accepted') {
-      updateData.accepted_at = new Date().toISOString();
-    } else if (status === 'declined') {
-      updateData.declined_at = new Date().toISOString();
-    }
-
-    const { data, error } = await supabase
-      .from('quotations')
-      .update(updateData)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async deleteQuotation(id: string) {
-    const { error } = await supabase
-      .from('quotations')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
-  }
-};
-
-// Categories API
-export const categoriesAPI = {
-  async getCategories() {
-    const { data, error } = await supabase
-      .from('service_categories')
-      .select('*')
-      .order('name');
-
-    if (error) throw error;
-    return data || [];
   }
 };
 
@@ -263,6 +161,7 @@ export const availabilityAPI = {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
+    // Store availability as a notification with special type
     const { data, error } = await supabase
       .from('notifications')
       .insert({
@@ -379,70 +278,5 @@ export const bookingAPI = {
 
     if (error) throw error;
     return data;
-  }
-};
-
-// Financial Management
-export const financialAPI = {
-  async getEarningsSummary() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('User not authenticated');
-
-    const { data, error } = await supabase
-      .from('earnings_summary')
-      .select('*')
-      .eq('user_id', user.id)
-      .single();
-
-    if (error && error.code !== 'PGRST116') throw error;
-    return data;
-  },
-
-  async getTransactions(limit = 50) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('User not authenticated');
-
-    const { data, error } = await supabase
-      .from('financial_transactions')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('transaction_date', { ascending: false })
-      .limit(limit);
-
-    if (error) throw error;
-    return data || [];
-  },
-
-  async createTransaction(transaction: any) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('User not authenticated');
-
-    const { data, error } = await supabase
-      .from('financial_transactions')
-      .insert({
-        ...transaction,
-        user_id: user.id,
-      } as any)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async getTransactionsByDateRange(startDate: string, endDate: string) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('User not authenticated');
-
-    const { data, error } = await supabase
-      .from('financial_transactions')
-      .select('*')
-      .eq('user_id', user.id)
-      .gte('transaction_date', startDate)
-      .lte('transaction_date', endDate)
-      .order('transaction_date', { ascending: false });
-
-    if (error) throw error;
-    return data || [];
   }
 };
