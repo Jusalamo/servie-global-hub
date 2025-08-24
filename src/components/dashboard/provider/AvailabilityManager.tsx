@@ -61,13 +61,22 @@ export default function AvailabilityManager() {
       
       // Transform notifications data to time slots
       const slots = data
-        .filter(item => item.data?.service_id === selectedService && item.data?.date === dateString)
-        .map(item => ({
-          id: item.id,
-          start_time: item.data?.start_time || "09:00",
-          end_time: item.data?.end_time || "10:00",
-          is_available: true
-        }));
+        .filter(item => {
+          if (typeof item.data === 'object' && item.data !== null) {
+            const data = item.data as { service_id?: string; date?: string };
+            return data.service_id === selectedService && data.date === dateString;
+          }
+          return false;
+        })
+        .map(item => {
+          const data = item.data as { start_time?: string; end_time?: string };
+          return {
+            id: item.id,
+            start_time: data?.start_time || "09:00",
+            end_time: data?.end_time || "10:00",
+            is_available: true
+          };
+        });
       
       setTimeSlots(slots);
     } catch (error) {

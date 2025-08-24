@@ -19,6 +19,10 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				sans: ['Roboto', 'system-ui', '-apple-system', 'sans-serif'],
+				roboto: ['Roboto', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -54,14 +58,15 @@ export default {
 					foreground: 'hsl(var(--card-foreground))'
 				},
 				servie: {
-					DEFAULT: '#ea384c',
+					DEFAULT: 'hsl(var(--servie))',
+					foreground: 'hsl(var(--servie-foreground))',
 					50: '#fef2f3',
 					100: '#fde6e8',
 					200: '#fbd0d5',
 					300: '#f7aab3',
 					400: '#f27a8a',
-					500: '#ea384c',
-					600: '#d41e3f',
+					500: 'hsl(var(--servie))',
+					600: 'hsl(var(--servie-600))',
 					700: '#b01334',
 					800: '#921331',
 					900: '#7a1530',

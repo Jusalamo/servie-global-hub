@@ -10,6 +10,7 @@ import { LocalizationProvider } from "@/components/LangCurrencySelector";
 import ScrollToTop from "@/components/ScrollToTop";
 import ScrollToPage from "@/components/ScrollToPage";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { ServieLayout } from "@/components/layout/ServieLayout";
 
 import Index from "@/pages/Index";
 import SignIn from "@/pages/SignIn";
@@ -58,7 +59,7 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="light" storageKey="ui-theme">
+    <ThemeProvider defaultTheme="light" storageKey="servie-theme">
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <NotificationProvider>
@@ -67,46 +68,178 @@ function App() {
                 <ScrollToTop />
                 <ScrollToPage />
                 <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/categories" element={<ServiceCategories />} />
-                  <Route path="/service/:serviceId" element={<ServiceDetail />} />
-                  <Route path="/shop" element={<EcommerceShop />} />
-                  <Route path="/product/:productId" element={<ProductDetail />} />
-                  <Route path="/cart" element={<Cart />} />
-                  <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-                  <Route path="/order-confirmation" element={<ProtectedRoute><OrderConfirmation /></ProtectedRoute>} />
-                  <Route path="/sign-in" element={<SignIn />} />
-                  <Route path="/signin" element={<SignIn />} />
-                  <Route path="/sign-up" element={<SignUp />} />
-                  <Route path="/signup" element={<SignUp />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/become-provider" element={<BecomeProvider />} />
-                  <Route path="/become-seller" element={<BecomeSeller />} />
-                  <Route path="/booking/:serviceId" element={<ProtectedRoute><BookingPage /></ProtectedRoute>} />
-                  <Route path="/booking-confirmation" element={<ProtectedRoute><BookingConfirmation /></ProtectedRoute>} />
-                  <Route path="/provider/:providerId/contact" element={<ProviderContact />} />
-                  <Route path="/contact-support" element={<ContactSupport />} />
-                  <Route path="/terms-conditions" element={<TermsConditions />} />
+                  <Route path="/" element={
+                    <ServieLayout showBackground={true}>
+                      <Index />
+                    </ServieLayout>
+                  } />
+                  <Route path="/categories" element={
+                    <ServieLayout>
+                      <ServiceCategories />
+                    </ServieLayout>
+                  } />
+                  <Route path="/service/:serviceId" element={
+                    <ServieLayout>
+                      <ServiceDetail />
+                    </ServieLayout>
+                  } />
+                  <Route path="/shop" element={
+                    <ServieLayout>
+                      <EcommerceShop />
+                    </ServieLayout>
+                  } />
+                  <Route path="/product/:productId" element={
+                    <ServieLayout>
+                      <ProductDetail />
+                    </ServieLayout>
+                  } />
+                  <Route path="/cart" element={
+                    <ServieLayout>
+                      <Cart />
+                    </ServieLayout>
+                  } />
+                  <Route path="/checkout" element={
+                    <ServieLayout>
+                      <ProtectedRoute><Checkout /></ProtectedRoute>
+                    </ServieLayout>
+                  } />
+                  <Route path="/order-confirmation" element={
+                    <ServieLayout>
+                      <ProtectedRoute><OrderConfirmation /></ProtectedRoute>
+                    </ServieLayout>
+                  } />
+                  <Route path="/sign-in" element={
+                    <ServieLayout>
+                      <SignIn />
+                    </ServieLayout>
+                  } />
+                  <Route path="/signin" element={
+                    <ServieLayout>
+                      <SignIn />
+                    </ServieLayout>
+                  } />
+                  <Route path="/sign-up" element={
+                    <ServieLayout>
+                      <SignUp />
+                    </ServieLayout>
+                  } />
+                  <Route path="/signup" element={
+                    <ServieLayout>
+                      <SignUp />
+                    </ServieLayout>
+                  } />
+                  <Route path="/forgot-password" element={
+                    <ServieLayout>
+                      <ForgotPassword />
+                    </ServieLayout>
+                  } />
+                  <Route path="/become-provider" element={
+                    <ServieLayout>
+                      <BecomeProvider />
+                    </ServieLayout>
+                  } />
+                  <Route path="/become-seller" element={
+                    <ServieLayout>
+                      <BecomeSeller />
+                    </ServieLayout>
+                  } />
+                  <Route path="/booking/:serviceId" element={
+                    <ServieLayout>
+                      <ProtectedRoute><BookingPage /></ProtectedRoute>
+                    </ServieLayout>
+                  } />
+                  <Route path="/booking-confirmation" element={
+                    <ServieLayout>
+                      <ProtectedRoute><BookingConfirmation /></ProtectedRoute>
+                    </ServieLayout>
+                  } />
+                  <Route path="/provider/:providerId/contact" element={
+                    <ServieLayout>
+                      <ProviderContact />
+                    </ServieLayout>
+                  } />
+                  <Route path="/contact-support" element={
+                    <ServieLayout>
+                      <ContactSupport />
+                    </ServieLayout>
+                  } />
+                  <Route path="/terms-conditions" element={
+                    <ServieLayout>
+                      <TermsConditions />
+                    </ServieLayout>
+                  } />
                   <Route path="/dashboard/client" element={<ProtectedRoute role="client"><ClientDashboard /></ProtectedRoute>} />
                   <Route path="/dashboard/provider" element={<ProtectedRoute role="provider"><ProviderDashboard /></ProtectedRoute>} />
                   <Route path="/dashboard/seller" element={<ProtectedRoute role="seller"><SellerDashboard /></ProtectedRoute>} />
                   <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
                   
                   {/* Footer routes */}
-                  <Route path="/about" element={<AboutUs />} />
-                  <Route path="/our-story" element={<OurStory />} />
-                  <Route path="/team" element={<Team />} />
-                  <Route path="/careers" element={<Careers />} />
-                  <Route path="/press" element={<Press />} />
-                  <Route path="/help" element={<HelpCenter />} />
-                  <Route path="/faqs" element={<FAQs />} />
-                  <Route path="/returns" element={<Returns />} />
-                  <Route path="/shipping" element={<Shipping />} />
-                  <Route path="/privacy" element={<Privacy />} />
-                  <Route path="/terms" element={<TermsConditions />} />
-                  <Route path="/sitemap" element={<Sitemap />} />
+                  <Route path="/about" element={
+                    <ServieLayout>
+                      <AboutUs />
+                    </ServieLayout>
+                  } />
+                  <Route path="/our-story" element={
+                    <ServieLayout>
+                      <OurStory />
+                    </ServieLayout>
+                  } />
+                  <Route path="/team" element={
+                    <ServieLayout>
+                      <Team />
+                    </ServieLayout>
+                  } />
+                  <Route path="/careers" element={
+                    <ServieLayout>
+                      <Careers />
+                    </ServieLayout>
+                  } />
+                  <Route path="/press" element={
+                    <ServieLayout>
+                      <Press />
+                    </ServieLayout>
+                  } />
+                  <Route path="/help" element={
+                    <ServieLayout>
+                      <HelpCenter />
+                    </ServieLayout>
+                  } />
+                  <Route path="/faqs" element={
+                    <ServieLayout>
+                      <FAQs />
+                    </ServieLayout>
+                  } />
+                  <Route path="/returns" element={
+                    <ServieLayout>
+                      <Returns />
+                    </ServieLayout>
+                  } />
+                  <Route path="/shipping" element={
+                    <ServieLayout>
+                      <Shipping />
+                    </ServieLayout>
+                  } />
+                  <Route path="/privacy" element={
+                    <ServieLayout>
+                      <Privacy />
+                    </ServieLayout>
+                  } />
+                  <Route path="/terms" element={
+                    <ServieLayout>
+                      <TermsConditions />
+                    </ServieLayout>
+                  } />
+                  <Route path="/sitemap" element={
+                    <ServieLayout>
+                      <Sitemap />
+                    </ServieLayout>
+                  } />
                   
-                  <Route path="*" element={<NotFound />} />
+                  <Route path="*" element={
+                    <ServieLayout>
+                      <NotFound />
+                    </ServieLayout>
+                  } />
                 </Routes>
                 <Toaster richColors position="top-right" />
               </LocalizationProvider>

@@ -6,26 +6,25 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-servie text-servie-foreground hover:bg-servie-600",
-        destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-        purple: "bg-purple-500 text-white hover:bg-purple-600",
-        highlight: "bg-purple-500 text-white hover:bg-purple-600",
+        default: "bg-gradient-to-r from-servie to-servie-600 text-servie-foreground hover:shadow-lg hover:-translate-y-0.5 shadow-md",
+        servie: "bg-gradient-to-r from-servie to-servie-600 text-servie-foreground hover:shadow-lg hover:-translate-y-0.5 shadow-md",
+        primary: "bg-gradient-to-r from-primary to-servie text-primary-foreground hover:shadow-lg hover:-translate-y-0.5 shadow-md",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        outline: "border border-servie bg-transparent text-servie hover:bg-servie hover:text-servie-foreground hover:shadow-md hover:-translate-y-0.5",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground hover:-translate-y-0.5",
+        link: "text-servie underline-offset-4 hover:underline",
+        gradient: "bg-gradient-to-r from-servie via-primary to-servie-600 text-white hover:shadow-xl hover:-translate-y-1 shadow-lg",
       },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
+        lg: "h-11 rounded-md px-8 text-base",
+        xl: "h-12 rounded-lg px-10 text-lg",
         icon: "h-10 w-10",
       },
     },
