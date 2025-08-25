@@ -59,7 +59,14 @@ export default function Testimonials() {
         </div>
 
         <div className="relative overflow-hidden">
-          <div className="flex animate-testimonials">
+          <div 
+            className="flex animate-testimonials"
+            style={{
+              animationDuration: `${testimonials.length * 6}s`,
+              animationIterationCount: 'infinite',
+              animationTimingFunction: 'linear'
+            }}
+          >
             {[...testimonials, ...testimonials].map((testimonial, index) => (
               <div key={`${testimonial.id}-${index}`} className="w-[350px] flex-shrink-0 px-4">
                 <Card className="h-full">
@@ -92,21 +99,6 @@ export default function Testimonials() {
           </div>
         </div>
       </div>
-      
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes testimonials {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(calc(-350px * ${testimonials.length}));
-          }
-        }
-        
-        .animate-testimonials {
-          animation: testimonials 35s linear infinite; /* Slightly increased speed */
-        }
-      `}} />
     </section>
   );
 }

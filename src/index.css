@@ -184,7 +184,31 @@
       rgba(51, 65, 85, 0.9) 50%, 
       rgba(71, 85, 105, 0.85) 100%
     );
+/* Animation keyframes for carousels */
+@keyframes carousel {
+  0% {
+    transform: translateX(0);
   }
+  100% {
+    transform: translateX(calc(-320px * var(--carousel-items)));
+  }
+}
+
+@keyframes testimonials {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-350px * var(--testimonial-items)));
+  }
+}
+
+.animate-carousel {
+  animation: carousel var(--carousel-duration, 40s) linear infinite;
+}
+
+.animate-testimonials {
+  animation: testimonials var(--testimonials-duration, 30s) linear infinite;
 }
 
 body {

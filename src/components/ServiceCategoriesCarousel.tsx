@@ -21,7 +21,14 @@ export default function ServiceCategoriesCarousel() {
         
         {/* Enhanced Carousel */}
         <div className="relative overflow-hidden">
-          <div className="flex animate-carousel">
+          <div 
+            className="flex animate-carousel"
+            style={{
+              animationDuration: `${categories.length * 8}s`,
+              animationIterationCount: 'infinite',
+              animationTimingFunction: 'linear'
+            }}
+          >
             {[...categories, ...categories].map((category, index) => {
               const IconComponent = category.icon;
               return (
@@ -64,21 +71,6 @@ export default function ServiceCategoriesCarousel() {
           </Link>
         </div>
       </div>
-      
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes carousel {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(calc(-320px * ${categories.length}));
-          }
-        }
-        
-        .animate-carousel {
-          animation: carousel 80s linear infinite;
-        }
-      `}} />
     </section>
   );
 }

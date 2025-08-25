@@ -68,14 +68,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, userData: any) => {
+    // Input validation
+    if (!email || !email.includes('@')) {
+      const error = new Error('Please provide a valid email address');
+      toast.error(error.message);
+      return { error };
+    }
+    
+    if (!password || password.length < 6) {
+      const error = new Error('Password must be at least 6 characters long');
+      toast.error(error.message);
+      return { error };
+    }
+    
     const redirectUrl = `${window.location.origin}/`;
     
     const { error } = await supabase.auth.signUp({
-      email,
+      email: email.toLowerCase().trim(),
       password,
       options: {
         emailRedirectTo: redirectUrl,
-        data: userData
+        data: {
+          first_name: userData.first_name?.trim() || '',
+          last_name: userData.last_name?.trim() || '',
+          role: userData.role || 'client'
+        }
       }
     });
     
@@ -89,8 +106,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
+    // Input validation
+    if (!email || !email.includes('@')) {
+      const error = new Error('Please provide a valid email address');
+      toast.error(error.message);
+      return { error };
+    }
+    
+    if (!password) {
+      const error = new Error('Please provide a password');
+      toast.error(error.message);
+      return { error };
+    }
+    
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: email.toLowerCase().trim(),
       password
     });
     
@@ -115,9 +145,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const updateProfile = async (updates: any) => {
     if (!user) throw new Error('No user found');
     
+    // Sanitize and validate updates
+    const sanitizedUpdates: any = {};
+    const allowedFields = ['first_name', 'last_name', 'phone', 'bio', 'address', 'city', 'state', 'country', 'postal_code'];
+    
+    for (const [key, value] of Object.entries(updates)) {
+      if (allowedFields.includes(key) && value !== undefined) {
+        sanitizedUpdates[key] = typeof value === 'string' ? (value as string).trim() : value;
+      }
+    }
+    
     const { error } = await supabase
       .from('profiles')
-      .update(updates)
+      .update(sanitizedUpdates)
       .eq('id', user.id);
     
     if (error) {
