@@ -11,7 +11,8 @@ import {
   Settings, 
   HelpCircle, 
   Briefcase, 
-  MessageSquare
+  MessageSquare,
+  FileText
 } from "lucide-react";
 
 interface ProviderSidebarProps {
@@ -79,6 +80,13 @@ export default function ProviderSidebar({ activeTab, onTabChange }: ProviderSide
           label="Bookings"
           isActive={activeTab === "bookings"}
           onClick={() => handleTabClick("bookings")}
+        />
+        
+        <SidebarLink
+          icon={<FileText className="h-5 w-5" />}
+          label="Quotations"
+          isActive={activeTab === "quotations"}
+          onClick={() => handleTabClick("quotations")}
         />
         
         <SidebarLink
