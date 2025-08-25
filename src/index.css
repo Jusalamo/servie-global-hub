@@ -184,6 +184,8 @@
       rgba(51, 65, 85, 0.9) 50%, 
       rgba(71, 85, 105, 0.85) 100%
     );
+  }
+
 /* Animation keyframes for carousels */
 @keyframes carousel {
   0% {
