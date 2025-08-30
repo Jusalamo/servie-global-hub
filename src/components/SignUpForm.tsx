@@ -72,7 +72,20 @@ const SignUpForm = ({ selectedRole = "client" }) => {
   const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
     try {
-      // For development only - bypass actual authentication
+      // Create the user account
+      const { error } = await signUp(data.email, data.password, {
+        firstName: data.first_name,
+        lastName: data.last_name,
+        role: data.role,
+        businessName: data.business_name,
+        businessDescription: data.business_description,
+        phone: data.phone_number,
+      });
+
+      if (error) {
+        throw error;
+      }
+
       toast.success("Account created successfully!");
       
       // Direct user to the appropriate dashboard based on role

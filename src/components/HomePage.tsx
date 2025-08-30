@@ -5,8 +5,6 @@ import HowItWorks from './HowItWorks';
 import ServiceCategoriesCarousel from './ServiceCategoriesCarousel';
 import Testimonials from './Testimonials';
 import ProviderCTA from './ProviderCTA';
-import Footer from './Footer';
-import Header from './Header';
 
 export default function HomePage() {
   return (
@@ -14,7 +12,6 @@ export default function HomePage() {
       {/* Dynamic background effect */}
       <div className="home-background"></div>
       
-      <Header />
       <main className="flex-1">
         <Hero />
         <ServiceCategoriesCarousel />
@@ -22,7 +19,6 @@ export default function HomePage() {
         <Testimonials />
         <ProviderCTA />
       </main>
-      <Footer />
     </div>
   );
 }
