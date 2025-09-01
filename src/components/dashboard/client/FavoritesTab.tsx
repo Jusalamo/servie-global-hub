@@ -7,25 +7,27 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Star, Heart } from "lucide-react";
 
 interface FavoritesTabProps {
-  favoriteServices: any[];
+  services: any[];
 }
 
-export const FavoritesTab = ({ favoriteServices }: FavoritesTabProps) => {
+export const FavoritesTab = ({ services }: FavoritesTabProps) => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">My Favorites</h1>
         <div className="flex items-center gap-2">
-          <Input 
-            placeholder="Search favorites..." 
-            className="max-w-xs"
-            leftIcon={<Search className="h-4 w-4" />}
-          />
+          <div className="relative max-w-xs">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Search favorites..." 
+              className="pl-10"
+            />
+          </div>
         </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {favoriteServices.map((service) => (
+        {services?.map((service) => (
           <Card key={service.id} className="overflow-hidden">
             <div className="relative h-48">
               <img 

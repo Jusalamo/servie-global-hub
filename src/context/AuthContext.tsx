@@ -89,9 +89,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       options: {
         emailRedirectTo: redirectUrl,
         data: {
-          first_name: userData.first_name?.trim() || '',
-          last_name: userData.last_name?.trim() || '',
-          role: userData.role || 'client'
+          first_name: userData.firstName?.trim() || '',
+          last_name: userData.lastName?.trim() || '',
+          role: userData.role || 'client',
+          phone: userData.phone?.trim() || '',
+          business_description: userData.businessDescription?.trim() || '',
+          business_name: userData.businessName?.trim() || ''
         }
       }
     });

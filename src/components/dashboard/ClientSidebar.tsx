@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -14,10 +13,10 @@ import { toast } from "sonner";
 interface ClientSidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  clientUser: any;
+  user: any;
 }
 
-export const ClientSidebar = ({ activeTab, setActiveTab, clientUser }: ClientSidebarProps) => {
+export const ClientSidebar = ({ activeTab, setActiveTab, user }: ClientSidebarProps) => {
   const navigate = useNavigate();
   const [notificationCount, setNotificationCount] = useState(3);
   
@@ -41,14 +40,19 @@ export const ClientSidebar = ({ activeTab, setActiveTab, clientUser }: ClientSid
         <CardContent className="p-6">
           <div className="flex flex-col items-center space-y-4">
             <Avatar className="h-20 w-20">
-              <AvatarImage src={clientUser?.avatar || "/placeholder.svg"} alt={clientUser?.name || "User"} />
-              <AvatarFallback>{clientUser?.name?.charAt(0) || "U"}</AvatarFallback>
+              <AvatarImage src={user?.avatar_url || "/placeholder.svg"} alt={user?.first_name || "User"} />
+              <AvatarFallback>
+                {user?.first_name ? user.first_name.charAt(0) : 'U'}
+                {user?.last_name ? user.last_name.charAt(0) : ''}
+              </AvatarFallback>
             </Avatar>
             <div className="text-center space-y-1">
-              <h2 className="font-semibold text-lg">{clientUser?.name || "Guest User"}</h2>
-              <p className="text-sm text-muted-foreground">{clientUser?.location || "No location set"}</p>
+              <h2 className="font-semibold text-lg">
+                {user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'User' : 'Loading...'}
+              </h2>
+              <p className="text-sm text-muted-foreground">{user?.city || "No location set"}</p>
             </div>
-            <Button variant="outline" className="w-full" onClick={() => handleTabChange("profile")}>
+            <Button variant="outline" className="w-full" onClick={() => handleTabChange("settings")}>
               <User className="w-4 h-4 mr-2" />
               Edit Profile
             </Button>

@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { services, bookings, users } from "@/data/mockData";
+import { services, bookings } from "@/data/mockData";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { ClientSidebar } from "@/components/dashboard/ClientSidebar";
@@ -12,27 +12,32 @@ import { PlaceholderTab } from "@/components/dashboard/client/PlaceholderTab";
 import AIAssistant from "@/components/dashboard/AIAssistant";
 import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
 import { useAuth } from "@/context/AuthContext";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import Breadcrumb from "@/components/Breadcrumb";
 import MessagingSystem from "@/components/dashboard/MessagingSystem";
 import PaymentMethods from "@/components/dashboard/PaymentMethods";
 import ProfileSettings from "@/components/dashboard/ProfileSettings";
 import NotificationsSettings from "@/components/dashboard/NotificationsSettings";
 
-// Use the first client for demo purposes
-const clientUser = users.find(user => user.role === "client");
+// Get client bookings based on authenticated user
+const getClientBookings = (userId: string | undefined) => {
+  return userId ? bookings.filter(booking => booking.clientId === userId) : [];
+};
 
-// Get client bookings
-const clientBookings = bookings.filter(booking => booking.clientId === clientUser?.id);
-
-// Get favorite services
-const favoriteServices = clientUser?.favorites ? 
-  services.filter(service => clientUser.favorites?.includes(service.id)) : 
-  services.slice(0, 3); // Just show 3 random services if no favorites
+// Get favorite services - for now using first 3 services as default
+const getFavoriteServices = () => {
+  return services.slice(0, 3);
+};
 
 const ClientDashboard = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState("overview");
-  const { userRole } = useAuth();
+  const { user, userRole } = useAuth();
+  const { profile, isLoading: profileLoading } = useUserProfile();
+  
+  // Get user-specific data
+  const clientBookings = getClientBookings(user?.id);
+  const favoriteServices = getFavoriteServices();
   
   // Extract active tab from URL if present
   useEffect(() => {
@@ -65,19 +70,16 @@ const ClientDashboard = () => {
   const renderTabContent = () => {
     switch(activeTab) {
       case "overview":
-        return (
-          <OverviewTab 
-            clientUser={clientUser} 
-            clientBookings={clientBookings} 
-            services={services} 
-            favoriteServices={favoriteServices}
-            setActiveTab={setActiveTab}
-          />
-        );
+        return <OverviewTab 
+          user={profile} 
+          bookings={clientBookings} 
+          favoriteServices={favoriteServices} 
+          isLoading={profileLoading}
+        />;
       case "bookings":
-        return <BookingsTab clientBookings={clientBookings} services={services} />;
+        return <BookingsTab bookings={clientBookings} />;
       case "favorites":
-        return <FavoritesTab favoriteServices={favoriteServices} />;
+        return <FavoritesTab services={favoriteServices} />;
       case "messages":
         return <MessagingSystem userRole="client" />;
       case "payments":
@@ -106,7 +108,7 @@ const ClientDashboard = () => {
           <ClientSidebar 
             activeTab={activeTab} 
             setActiveTab={setActiveTab} 
-            clientUser={clientUser} 
+            user={profile} 
           />
           
           {/* Main Content Area */}

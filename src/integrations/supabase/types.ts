@@ -356,6 +356,7 @@ export type Database = {
           address: string | null
           avatar_url: string | null
           bio: string | null
+          business_name: string | null
           city: string | null
           country: string | null
           created_at: string | null
@@ -373,6 +374,7 @@ export type Database = {
           address?: string | null
           avatar_url?: string | null
           bio?: string | null
+          business_name?: string | null
           city?: string | null
           country?: string | null
           created_at?: string | null
@@ -390,6 +392,7 @@ export type Database = {
           address?: string | null
           avatar_url?: string | null
           bio?: string | null
+          business_name?: string | null
           city?: string | null
           country?: string | null
           created_at?: string | null
