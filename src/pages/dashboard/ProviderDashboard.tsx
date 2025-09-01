@@ -92,7 +92,7 @@ export default function ProviderDashboard() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="space-y-6">
       <DashboardBreadcrumb items={breadcrumbItems} userRole="provider" />
       <DashboardLayout sidebar={<ProviderSidebar activeTab={activeTab} onTabChange={handleTabChange} />}>
         {renderTabContent()}

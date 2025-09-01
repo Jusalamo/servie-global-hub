@@ -75,7 +75,7 @@ export default function SellerDashboard() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="space-y-6">
       <DashboardBreadcrumb items={breadcrumbItems} userRole="seller" />
       <DashboardLayout sidebar={<SellerSidebar activeTab={activeTab} onTabChange={handleTabChange} />}>
         {renderTabContent()}

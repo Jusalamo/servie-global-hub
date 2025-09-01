@@ -192,7 +192,7 @@
     transform: translateX(0);
   }
   100% {
-    transform: translateX(calc(-320px * var(--carousel-items)));
+    transform: translateX(-50%);
   }
 }
 
@@ -201,16 +201,16 @@
     transform: translateX(0);
   }
   100% {
-    transform: translateX(calc(-350px * var(--testimonial-items)));
+    transform: translateX(-50%);
   }
 }
 
 .animate-carousel {
-  animation: carousel var(--carousel-duration, 40s) linear infinite;
+  animation: carousel 40s linear infinite;
 }
 
 .animate-testimonials {
-  animation: testimonials var(--testimonials-duration, 30s) linear infinite;
+  animation: testimonials 30s linear infinite;
 }
 
 body {

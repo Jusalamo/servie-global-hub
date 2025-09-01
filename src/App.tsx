@@ -168,10 +168,26 @@ function App() {
                       <TermsConditions />
                     </ServieLayout>
                   } />
-                  <Route path="/dashboard/client" element={<ProtectedRoute role="client"><ClientDashboard /></ProtectedRoute>} />
-                  <Route path="/dashboard/provider" element={<ProtectedRoute role="provider"><ProviderDashboard /></ProtectedRoute>} />
-                  <Route path="/dashboard/seller" element={<ProtectedRoute role="seller"><SellerDashboard /></ProtectedRoute>} />
-                  <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
+                  <Route path="/dashboard/client" element={
+                    <ServieLayout>
+                      <ProtectedRoute role="client"><ClientDashboard /></ProtectedRoute>
+                    </ServieLayout>
+                  } />
+                  <Route path="/dashboard/provider" element={
+                    <ServieLayout>
+                      <ProtectedRoute role="provider"><ProviderDashboard /></ProtectedRoute>
+                    </ServieLayout>
+                  } />
+                  <Route path="/dashboard/seller" element={
+                    <ServieLayout>
+                      <ProtectedRoute role="seller"><SellerDashboard /></ProtectedRoute>
+                    </ServieLayout>
+                  } />
+                  <Route path="/dashboard" element={
+                    <ServieLayout>
+                      <ProtectedRoute><UserDashboard /></ProtectedRoute>
+                    </ServieLayout>
+                  } />
                   
                   {/* Footer routes */}
                   <Route path="/about" element={

@@ -150,9 +150,6 @@ const ProfileSettings = ({ userRole = 'client' }: ProfileSettingsProps) => {
     setSavingProfile(true);
 
     try {
-      // Simulate an API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
       // If there's a new profile image, upload it
       if (newProfileImage) {
         try {
@@ -160,23 +157,20 @@ const ProfileSettings = ({ userRole = 'client' }: ProfileSettingsProps) => {
           const fileExt = newProfileImage.name.split('.').pop();
           const filePath = `avatars/${userId}-${Date.now()}.${fileExt}`;
 
-          // This would normally upload to Supabase storage
-          // const { error } = await supabase.storage
-          //  .from('avatars')
-          //  .upload(filePath, newProfileImage);
+          const { error } = await supabase.storage
+            .from('avatars')
+            .upload(filePath, newProfileImage);
 
-          // if (error) throw error;
+          if (error) throw error;
           
           // Get the public URL
-          // const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+          const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
           
           // Update profile with new image URL
-          if (imagePreview) {
-            setProfile(prev => ({
-              ...prev,
-              profileImage: imagePreview
-            }));
-          }
+          setProfile(prev => ({
+            ...prev,
+            profileImage: data.publicUrl
+          }));
           
           setNewProfileImage(null);
           setImagePreview(null);
@@ -185,6 +179,25 @@ const ProfileSettings = ({ userRole = 'client' }: ProfileSettingsProps) => {
           toast.error("Failed to upload image. Your other profile changes were saved.");
         }
       }
+
+      // Update the user profile in the database
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          first_name: profile.firstName,
+          last_name: profile.lastName,
+          phone: profile.phone,
+          bio: profile.bio,
+          avatar_url: profile.profileImage,
+          address: profile.address.street,
+          city: profile.address.city,
+          state: profile.address.state,
+          postal_code: profile.address.zip,
+          country: profile.address.country
+        })
+        .eq('id', user?.id);
+
+      if (error) throw error;
 
       toast.success("Profile updated successfully!");
       setIsEditing(false);

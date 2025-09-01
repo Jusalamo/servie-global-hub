@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { productAPI } from "@/services/supabaseAPI";
+import { productAPI } from "@/services/productAPI";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 import { Pencil, Trash2, Plus, Eye } from "lucide-react";
 import AddProductForm from "./AddProductForm";
 
@@ -20,7 +21,7 @@ const ProductManagement = () => {
 
   const loadProducts = async () => {
     try {
-      const data = await productAPI.getMyProducts();
+      const data = await productAPI.getProducts();
       setProducts(data);
     } catch (error) {
       toast.error("Failed to load products");
@@ -29,6 +30,18 @@ const ProductManagement = () => {
       setLoading(false);
     }
   };
+
+  // Set up real-time subscription for orders
+  useRealtimeSubscription([
+    {
+      table: 'orders',
+      event: 'INSERT',
+      onReceive: (payload) => {
+        toast.success(`New order received!`);
+        // You could also reload products to update stock if needed
+      }
+    }
+  ]);
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this product?")) return;

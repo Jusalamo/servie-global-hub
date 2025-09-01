@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { serviceAPI } from "@/services/supabaseAPI";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 import { Pencil, Trash2, Plus, Eye } from "lucide-react";
 import AddServiceForm from "./AddServiceForm";
 
@@ -17,6 +18,17 @@ const ServiceManagement = () => {
   useEffect(() => {
     loadServices();
   }, []);
+
+  // Set up real-time subscription for bookings
+  useRealtimeSubscription([
+    {
+      table: 'bookings',
+      event: 'INSERT',
+      onReceive: (payload) => {
+        toast.success(`New booking received for ${payload.new.service_name || 'your service'}!`);
+      }
+    }
+  ]);
 
   const loadServices = async () => {
     try {

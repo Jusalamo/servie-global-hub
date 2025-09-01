@@ -2,8 +2,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { services, bookings } from "@/data/mockData";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { ClientSidebar } from "@/components/dashboard/ClientSidebar";
 import { OverviewTab } from "@/components/dashboard/client/OverviewTab";
 import { BookingsTab } from "@/components/dashboard/client/BookingsTab";
@@ -94,8 +92,7 @@ const ClientDashboard = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
+    <div className="min-h-screen flex flex-col bg-background text-foreground font-roboto">
       <Breadcrumb 
         additionalCrumbs={[
           { label: "Client Dashboard", href: "/dashboard/client" },
@@ -121,7 +118,6 @@ const ClientDashboard = () => {
           </div>
         </div>
       </main>
-      <Footer />
       
       {/* AI Assistant */}
       <AIAssistant />
