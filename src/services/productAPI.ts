@@ -3,306 +3,175 @@ import { supabase } from "@/integrations/supabase/client";
 export interface Product {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   price: number;
-  category: string;
   image_url?: string;
-  stock: number;
-  status: 'active' | 'inactive';
   seller_id: string;
+  category_id?: string;
+  status: 'active' | 'inactive';
+  stock_quantity?: number;
+  featured: boolean;
   created_at: string;
   updated_at: string;
 }
 
 export interface CreateProductData {
   name: string;
-  description: string;
+  description?: string;
   price: number;
-  category: string;
-  stock: number;
-  status: 'active' | 'inactive';
-}
-
-export interface ProductFilters {
-  category?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  search?: string;
-  sellerId?: string;
+  category_id?: string;
+  stock_quantity?: number;
+  featured?: boolean;
   status?: 'active' | 'inactive';
 }
 
-// Helper function to safely extract data from Json type
-function safeGetData(data: any): any {
-  return data && typeof data === 'object' ? data : {};
+export interface ProductFilters {
+  category_id?: string;
+  status?: string;
+  seller_id?: string;
 }
 
-class ProductAPI {
+export class ProductAPI {
   async createProduct(productData: CreateProductData, imageFile?: File): Promise<Product> {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
 
-      let imageUrl = null;
-      
-      // Handle image upload if provided (simplified)
-      if (imageFile) {
-        // For now, we'll skip the actual file upload and use a placeholder
-        imageUrl = 'https://via.placeholder.com/300x200';
-      }
+    let image_url = null;
 
-      // Store product as a notification with product data
-      const { data, error } = await supabase
-        .from('notifications')
-        .insert({
-          user_id: user.id,
-          title: 'Product Created',
-          message: `Product: ${productData.name}`,
-          type: 'system',
-          data: {
-            product_type: 'listing',
-            ...productData,
-            image_url: imageUrl,
-            seller_id: user.id
-          }
-        })
-        .select()
-        .single();
+    // Upload image if provided
+    if (imageFile) {
+      const fileExt = imageFile.name.split('.').pop();
+      const filePath = `products/${user.id}-${Date.now()}.${fileExt}`;
 
-      if (error) throw error;
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, imageFile);
 
-      // Transform to product format
-      const product: Product = {
-        id: data.id,
-        name: productData.name,
-        description: productData.description,
-        price: productData.price,
-        category: productData.category,
-        image_url: imageUrl || undefined,
-        stock: productData.stock,
-        status: productData.status,
-        seller_id: user.id,
-        created_at: data.created_at || new Date().toISOString(),
-        updated_at: data.created_at || new Date().toISOString()
-      };
+      if (uploadError) throw uploadError;
 
-      return product;
-    } catch (error) {
-      console.error('Error creating product:', error);
-      throw error;
+      const { data: urlData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      image_url = urlData.publicUrl;
     }
+
+    const { data, error } = await supabase
+      .from('products')
+      .insert({
+        ...productData,
+        seller_id: user.id,
+        image_url,
+        status: productData.status || 'active'
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 
   async getProducts(filters: ProductFilters = {}): Promise<Product[]> {
-    try {
-      let query = supabase
-        .from('notifications')
-        .select('*')
-        .eq('type', 'system')
-        .order('created_at', { ascending: false });
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    let query = supabase
+      .from('products')
+      .select('*')
+      .order('featured', { ascending: false })
+      .order('created_at', { ascending: false });
 
-      const { data, error } = await query;
-
-      if (error) throw error;
-
-      // Filter and transform notifications to products
-      let products: Product[] = (data || [])
-        .filter(notification => {
-          const notificationData = safeGetData(notification.data);
-          return notificationData?.product_type === 'listing';
-        })
-        .map(notification => {
-          const notificationData = safeGetData(notification.data);
-          return {
-            id: notification.id,
-            name: notificationData?.name || '',
-            description: notificationData?.description || '',
-            price: notificationData?.price || 0,
-            category: notificationData?.category || '',
-            image_url: notificationData?.image_url || undefined,
-            stock: notificationData?.stock || 0,
-            status: notificationData?.status || 'active',
-            seller_id: notificationData?.seller_id || notification.user_id || '',
-            created_at: notification.created_at || new Date().toISOString(),
-            updated_at: notification.created_at || new Date().toISOString()
-          };
-        });
-
-      // Apply filters
-      if (filters.category) {
-        products = products.filter(p => p.category === filters.category);
-      }
-      
-      if (filters.sellerId) {
-        products = products.filter(p => p.seller_id === filters.sellerId);
-      }
-      
-      if (filters.status) {
-        products = products.filter(p => p.status === filters.status);
-      }
-      
-      if (filters.minPrice !== undefined) {
-        products = products.filter(p => p.price >= filters.minPrice!);
-      }
-      
-      if (filters.maxPrice !== undefined) {
-        products = products.filter(p => p.price <= filters.maxPrice!);
-      }
-      
-      if (filters.search) {
-        const searchLower = filters.search.toLowerCase();
-        products = products.filter(p => 
-          p.name.toLowerCase().includes(searchLower) || 
-          p.description.toLowerCase().includes(searchLower)
-        );
-      }
-
-      return products;
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      return [];
+    // If seller_id is provided, filter by it
+    if (filters.seller_id) {
+      query = query.eq('seller_id', filters.seller_id);
+    } else if (user) {
+      // If no seller_id filter and user is authenticated, show user's products
+      query = query.eq('seller_id', user.id);
+    } else {
+      // Show active products for public view
+      query = query.eq('status', 'active');
     }
+
+    if (filters.category_id) {
+      query = query.eq('category_id', filters.category_id);
+    }
+
+    if (filters.status) {
+      query = query.eq('status', filters.status);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return data || [];
   }
 
   async getProductById(id: string): Promise<Product | null> {
-    try {
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('id', id)
-        .single();
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-      if (error) {
-        if (error.code === 'PGRST116') return null;
-        throw error;
-      }
-
-      const notificationData = safeGetData(data.data);
-      if (!notificationData?.product_type) return null;
-      
-      const product: Product = {
-        id: data.id,
-        name: notificationData?.name || '',
-        description: notificationData?.description || '',
-        price: notificationData?.price || 0,
-        category: notificationData?.category || '',
-        image_url: notificationData?.image_url || undefined,
-        stock: notificationData?.stock || 0,
-        status: notificationData?.status || 'active',
-        seller_id: notificationData?.seller_id || data.user_id || '',
-        created_at: data.created_at || new Date().toISOString(),
-        updated_at: data.created_at || new Date().toISOString()
-      };
-      
-      return product;
-    } catch (error) {
-      console.error('Error fetching product:', error);
-      return null;
+    if (error) {
+      if (error.code === 'PGRST116') return null;
+      throw error;
     }
+    return data;
   }
 
   async updateProduct(id: string, updates: Partial<CreateProductData>, imageFile?: File): Promise<Product> {
-    try {
+    const updateData: any = { ...updates };
+
+    // Upload new image if provided
+    if (imageFile) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      // Create update data object with proper typing
-      let updateData: any = { ...updates };
+      const fileExt = imageFile.name.split('.').pop();
+      const filePath = `products/${user.id}-${Date.now()}.${fileExt}`;
 
-      // Handle image upload if provided (simplified)
-      if (imageFile) {
-        updateData.image_url = 'https://via.placeholder.com/300x200';
-      }
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, imageFile);
 
-      const { data, error } = await supabase
-        .from('notifications')
-        .update({
-          data: { ...updateData, product_type: 'listing' }
-        })
-        .eq('id', id)
-        .eq('user_id', user.id) // Ensure user can only update their own products
-        .select()
-        .single();
+      if (uploadError) throw uploadError;
 
-      if (error) throw error;
+      const { data: urlData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
 
-      const notificationData = safeGetData(data.data);
-      const product: Product = {
-        id: data.id,
-        name: notificationData?.name || '',
-        description: notificationData?.description || '',
-        price: notificationData?.price || 0,
-        category: notificationData?.category || '',
-        image_url: notificationData?.image_url || undefined,
-        stock: notificationData?.stock || 0,
-        status: notificationData?.status || 'active',
-        seller_id: notificationData?.seller_id || data.user_id || '',
-        created_at: data.created_at || new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-
-      return product;
-    } catch (error) {
-      console.error('Error updating product:', error);
-      throw error;
+      updateData.image_url = urlData.publicUrl;
     }
+
+    const { data, error } = await supabase
+      .from('products')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 
   async deleteProduct(id: string): Promise<void> {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', id);
 
-      const { error } = await supabase
-        .from('notifications')
-        .delete()
-        .eq('id', id)
-        .eq('user_id', user.id); // Ensure user can only delete their own products
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error deleting product:', error);
-      throw error;
-    }
+    if (error) throw error;
   }
 
   async updateStock(id: string, newStock: number): Promise<Product> {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+    const { data, error } = await supabase
+      .from('products')
+      .update({ stock_quantity: newStock })
+      .eq('id', id)
+      .select()
+      .single();
 
-      const { data, error } = await supabase
-        .from('notifications')
-        .update({
-          data: { stock: newStock, product_type: 'listing' }
-        })
-        .eq('id', id)
-        .eq('user_id', user.id)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      const notificationData = safeGetData(data.data);
-      const product: Product = {
-        id: data.id,
-        name: notificationData?.name || '',
-        description: notificationData?.description || '',
-        price: notificationData?.price || 0,
-        category: notificationData?.category || '',
-        image_url: notificationData?.image_url || undefined,
-        stock: newStock,
-        status: notificationData?.status || 'active',
-        seller_id: notificationData?.seller_id || data.user_id || '',
-        created_at: data.created_at || new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-
-      return product;
-    } catch (error) {
-      console.error('Error updating stock:', error);
-      throw error;
-    }
+    if (error) throw error;
+    return data;
   }
 }
 

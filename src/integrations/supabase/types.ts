@@ -303,6 +303,7 @@ export type Database = {
       }
       products: {
         Row: {
+          category: string | null
           category_id: string | null
           created_at: string
           description: string | null
@@ -313,9 +314,11 @@ export type Database = {
           price: number
           seller_id: string
           status: string
+          stock: number | null
           updated_at: string
         }
         Insert: {
+          category?: string | null
           category_id?: string | null
           created_at?: string
           description?: string | null
@@ -326,9 +329,11 @@ export type Database = {
           price: number
           seller_id: string
           status?: string
+          stock?: number | null
           updated_at?: string
         }
         Update: {
+          category?: string | null
           category_id?: string | null
           created_at?: string
           description?: string | null
@@ -339,6 +344,7 @@ export type Database = {
           price?: number
           seller_id?: string
           status?: string
+          stock?: number | null
           updated_at?: string
         }
         Relationships: [

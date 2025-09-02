@@ -46,8 +46,11 @@ const AddProductForm = ({ product, onSuccess, onCancel }: AddProductFormProps) =
         description: formData.description,
         price: parseFloat(formData.price),
         stock_quantity: parseInt(formData.stock_quantity) || 0,
+        stock: parseInt(formData.stock_quantity) || 0,
         category_id: formData.category_id || null,
-        featured: formData.featured
+        category: formData.category_id || null,
+        featured: formData.featured,
+        status: 'active' as const
       };
 
       if (product?.id) {
