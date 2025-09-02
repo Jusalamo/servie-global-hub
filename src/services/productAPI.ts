@@ -8,8 +8,10 @@ export interface Product {
   image_url?: string;
   seller_id: string;
   category_id?: string;
-  status: 'active' | 'inactive';
+  category?: string;
+  status: string; // Changed from 'active' | 'inactive' to string to match DB
   stock_quantity?: number;
+  stock?: number; // Added to match DB schema
   featured: boolean;
   created_at: string;
   updated_at: string;
@@ -20,9 +22,11 @@ export interface CreateProductData {
   description?: string;
   price: number;
   category_id?: string;
+  category?: string;
   stock_quantity?: number;
+  stock?: number;
   featured?: boolean;
-  status?: 'active' | 'inactive';
+  status?: string; // Changed from 'active' | 'inactive' to string
 }
 
 export interface ProductFilters {
@@ -68,7 +72,7 @@ export class ProductAPI {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as Product; // Added type assertion
   }
 
   async getProducts(filters: ProductFilters = {}): Promise<Product[]> {
@@ -101,7 +105,7 @@ export class ProductAPI {
 
     const { data, error } = await query;
     if (error) throw error;
-    return data || [];
+    return (data || []) as Product[]; // Added type assertion
   }
 
   async getProductById(id: string): Promise<Product | null> {
@@ -115,7 +119,7 @@ export class ProductAPI {
       if (error.code === 'PGRST116') return null;
       throw error;
     }
-    return data;
+    return data as Product; // Added type assertion
   }
 
   async updateProduct(id: string, updates: Partial<CreateProductData>, imageFile?: File): Promise<Product> {
@@ -150,7 +154,7 @@ export class ProductAPI {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as Product; // Added type assertion
   }
 
   async deleteProduct(id: string): Promise<void> {
@@ -165,13 +169,13 @@ export class ProductAPI {
   async updateStock(id: string, newStock: number): Promise<Product> {
     const { data, error } = await supabase
       .from('products')
-      .update({ stock_quantity: newStock })
+      .update({ stock: newStock }) // Changed from stock_quantity to stock
       .eq('id', id)
       .select()
       .single();
 
     if (error) throw error;
-    return data;
+    return data as Product; // Added type assertion
   }
 }
 

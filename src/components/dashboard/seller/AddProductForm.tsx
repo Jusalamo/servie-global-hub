@@ -50,7 +50,7 @@ const AddProductForm = ({ product, onSuccess, onCancel }: AddProductFormProps) =
         category_id: formData.category_id || null,
         category: formData.category_id || null,
         featured: formData.featured,
-        status: 'active' as const
+        status: 'active'
       };
 
       if (product?.id) {
