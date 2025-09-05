@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { serviceAPI } from "@/services/supabaseAPI";
+import { serviceAPI } from "@/services/serviceAPI";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 import { Pencil, Trash2, Plus, Eye } from "lucide-react";
 import AddServiceForm from "./AddServiceForm";
@@ -56,10 +56,9 @@ const ServiceManagement = () => {
   };
 
   const handleToggleStatus = async (id: string, currentStatus: string) => {
-    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
     try {
-      await serviceAPI.updateService(id, { status: newStatus });
-      toast.success(`Service ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`);
+      await serviceAPI.toggleServiceStatus(id, currentStatus);
+      toast.success(`Service ${currentStatus === 'active' ? 'deactivated' : 'activated'} successfully`);
       loadServices();
     } catch (error) {
       toast.error("Failed to update service status");
