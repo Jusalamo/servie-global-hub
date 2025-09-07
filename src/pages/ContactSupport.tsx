@@ -1,7 +1,5 @@
 
 import { useState } from 'react';
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import Breadcrumb from "@/components/Breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,7 +46,6 @@ const ContactSupport = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
       <Breadcrumb additionalCrumbs={[{ label: t('Contact Support') }]} />
       
       <main className="flex-1 bg-background">
@@ -178,8 +175,6 @@ const ContactSupport = () => {
           </Card>
         </div>
       </main>
-      
-      <Footer />
     </div>
   );
 };

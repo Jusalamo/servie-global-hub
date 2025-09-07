@@ -3,15 +3,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Link } from "react-router-dom";
-import Header from "@/components/Header";
 import EnhancedFooter from "@/components/EnhancedFooter";
 
 const TermsConditions = () => {
   const [accepted, setAccepted] = useState(false);
   
   return (
-    <>
-      <Header />
+    <div className="min-h-screen flex flex-col">
       <div className="container max-w-4xl mx-auto py-12 px-4 md:px-6">
         <h1 className="text-3xl font-bold mb-6">Terms and Conditions</h1>
         <p className="text-muted-foreground mb-6">Last updated: April 15, 2025</p>
@@ -187,7 +185,7 @@ const TermsConditions = () => {
         </div>
       </div>
       <EnhancedFooter />
-    </>
+    </div>
   );
 };
 

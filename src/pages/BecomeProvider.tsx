@@ -1,8 +1,6 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Briefcase, Check, ArrowRight, Calendar, Star, Users, TrendingUp, MessageSquare } from 'lucide-react';
@@ -82,15 +80,13 @@ export default function BecomeProvider() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
-
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative bg-gradient-to-br from-purple-50 to-white py-20 dark:from-gray-900 dark:to-gray-800">
+        <section className="relative bg-gradient-to-br from-servie-50 to-background py-20">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div className="space-y-6">
-                <div className="inline-block bg-purple-100 dark:bg-purple-900/30 px-3 py-1 rounded-full text-sm font-medium text-purple-700 dark:text-purple-300">
+                <div className="inline-block bg-servie/10 px-3 py-1 rounded-full text-sm font-medium text-servie">
                   Service Providers
                 </div>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter">
@@ -223,8 +219,6 @@ export default function BecomeProvider() {
           </div>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 }

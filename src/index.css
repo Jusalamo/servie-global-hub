@@ -383,6 +383,22 @@ textarea:focus {
     font-size: 0.875rem !important;
     padding-left: 1rem !important;
     padding-right: 1rem !important;
+    min-height: 44px !important;
+    touch-action: manipulation;
+    word-wrap: break-word;
+    hyphens: auto;
+    text-align: center;
+    line-height: 1.2;
+  }
+  
+  /* Ensure text fits in buttons regardless of language */
+  button span,
+  .button span {
+    display: inline-block;
+    max-width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
   }
   
   input, select, textarea {
@@ -392,6 +408,14 @@ textarea:focus {
   .py-16 {
     padding-top: 3rem !important;
     padding-bottom: 3rem !important;
+  }
+  
+  /* Social login buttons mobile optimization */
+  .grid-cols-2 > button,
+  .grid-cols-2 > .button {
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
   }
 }
 

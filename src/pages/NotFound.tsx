@@ -1,8 +1,6 @@
 
 import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Home, ArrowLeft, HelpCircle } from "lucide-react";
 
@@ -18,12 +16,11 @@ const NotFound = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
       <main className="flex-1 flex items-center justify-center bg-background">
         <div className="text-center p-8 max-w-md">
           <div className="mb-8">
-            <h1 className="text-9xl font-bold text-purple-500 animate-pulse">404</h1>
-            <div className="h-2 bg-gradient-to-r from-purple-500 to-servie rounded-full my-6"></div>
+            <h1 className="text-9xl font-bold text-servie animate-pulse">404</h1>
+            <div className="h-2 bg-gradient-to-r from-servie to-servie-600 rounded-full my-6"></div>
           </div>
           
           <h2 className="text-2xl font-semibold mb-4">Page not found</h2>
@@ -57,7 +54,6 @@ const NotFound = () => {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

@@ -35,13 +35,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           // Fetch user profile to get role
           setTimeout(async () => {
             try {
-              const { data: profile } = await supabase
+              const { data: profile, error } = await supabase
                 .from('profiles')
                 .select('role')
                 .eq('id', session.user.id)
                 .single();
               
-              setUserRole(profile?.role || 'client');
+              if (error) {
+                console.error('Error fetching user role:', error);
+                // Try to create profile if it doesn't exist
+                const { error: insertError } = await supabase
+                  .from('profiles')
+                  .insert({
+                    id: session.user.id,
+                    role: 'client',
+                    first_name: session.user.user_metadata?.first_name || '',
+                    last_name: session.user.user_metadata?.last_name || ''
+                  });
+                
+                if (insertError) {
+                  console.error('Error creating profile:', insertError);
+                }
+                setUserRole('client');
+              } else {
+                setUserRole(profile?.role || 'client');
+              }
             } catch (error) {
               console.error('Error fetching user role:', error);
               setUserRole('client');
