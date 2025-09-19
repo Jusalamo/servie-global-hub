@@ -140,18 +140,19 @@ export default function SignUp() {
             >
               <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385h-3.047v-3.47h3.047v-2.641c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953h-1.514c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385c5.738-.9 10.126-5.864 10.126-11.854z"></path>
-            </svg>
-            Facebook
-          </button>
+              </svg>
+              Facebook
+            </button>
+          </div>
         </div>
-      </div>
         
-      <p className="mt-8 text-center text-sm text-muted-foreground">
-        Already have an account?{" "}
-        <Link to="/signin" className="font-medium text-servie hover:underline">
-          Sign in
-        </Link>
-      </p>
+        <p className="mt-8 text-center text-sm text-muted-foreground">
+          Already have an account?{" "}
+          <Link to="/signin" className="font-medium text-servie hover:underline">
+            Sign in
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }
