@@ -4,14 +4,16 @@
 -- Check if extension is already installed before creating
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Users table (extends Supabase auth users)
-CREATE TABLE IF NOT EXISTS users (
+-- Profiles table (extends Supabase auth users)
+CREATE TABLE IF NOT EXISTS profiles (
   id UUID PRIMARY KEY REFERENCES auth.users,
-  first_name TEXT NOT NULL,
-  last_name TEXT NOT NULL,
+  first_name TEXT,
+  last_name TEXT,
   avatar_url TEXT,
-  phone_number TEXT,
+  phone TEXT,
   role TEXT NOT NULL DEFAULT 'client' CHECK (role IN ('client', 'provider', 'seller', 'admin')),
+  business_name TEXT,
+  bio TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -19,7 +21,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- Service Providers
 CREATE TABLE IF NOT EXISTS providers (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID NOT NULL REFERENCES users(id),
+  user_id UUID NOT NULL REFERENCES auth.users,
   business_name TEXT NOT NULL,
   description TEXT,
   contact_email TEXT NOT NULL,
@@ -66,7 +68,7 @@ CREATE TABLE IF NOT EXISTS services (
 -- Bookings
 CREATE TABLE IF NOT EXISTS bookings (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  client_id UUID NOT NULL REFERENCES users(id),
+  client_id UUID NOT NULL REFERENCES auth.users,
   provider_id UUID NOT NULL REFERENCES providers(id),
   service_id UUID NOT NULL REFERENCES services(id),
   status TEXT NOT NULL CHECK (status IN ('pending', 'confirmed', 'completed', 'cancelled')),
@@ -118,7 +120,7 @@ CREATE TABLE IF NOT EXISTS products (
 -- Orders
 CREATE TABLE IF NOT EXISTS orders (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID NOT NULL REFERENCES users(id),
+  user_id UUID NOT NULL REFERENCES auth.users,
   status TEXT NOT NULL CHECK (status IN ('pending', 'processing', 'shipped', 'delivered', 'cancelled')),
   shipping_address JSONB NOT NULL,
   billing_address JSONB NOT NULL,
@@ -146,7 +148,7 @@ CREATE TABLE IF NOT EXISTS order_items (
 -- Reviews
 CREATE TABLE IF NOT EXISTS reviews (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID NOT NULL REFERENCES users(id),
+  user_id UUID NOT NULL REFERENCES auth.users,
   target_id UUID NOT NULL,
   target_type TEXT NOT NULL CHECK (target_type IN ('service', 'provider', 'product')),
   rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
@@ -177,7 +179,7 @@ CREATE TABLE IF NOT EXISTS messages (
 -- Notifications
 CREATE TABLE IF NOT EXISTS notifications (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID NOT NULL REFERENCES users(id),
+  user_id UUID NOT NULL REFERENCES auth.users,
   title TEXT NOT NULL,
   message TEXT NOT NULL,
   type TEXT NOT NULL CHECK (type IN ('booking', 'message', 'review', 'payment', 'system')),
@@ -204,7 +206,7 @@ CREATE INDEX IF NOT EXISTS idx_messages_recipient ON messages(recipient);
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
 
 -- Row Level Security Policies
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE providers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE services ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
@@ -224,11 +226,11 @@ CREATE POLICY "Public categories are viewable by everyone" ON categories FOR SEL
 CREATE POLICY "Public products are viewable by everyone" ON products FOR SELECT USING (true);
 CREATE POLICY "Public reviews are viewable by everyone" ON reviews FOR SELECT USING (true);
 
--- Users can read their own information
-CREATE POLICY "Users can read their own information" ON users FOR SELECT USING (auth.uid() = id);
+-- Profiles can be read by owner
+CREATE POLICY "Users can read their own information" ON profiles FOR SELECT USING (auth.uid() = id);
 
--- Users can update their own information
-CREATE POLICY "Users can update their own information" ON users FOR UPDATE USING (auth.uid() = id);
+-- Profiles can be updated by owner
+CREATE POLICY "Users can update their own information" ON profiles FOR UPDATE USING (auth.uid() = id);
 
 -- Bookings policies
 CREATE POLICY "Users can read their own bookings" ON bookings FOR SELECT USING (auth.uid() = client_id);
