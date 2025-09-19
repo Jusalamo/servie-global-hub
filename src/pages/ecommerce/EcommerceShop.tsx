@@ -1,8 +1,5 @@
 
-import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import ProductListing from "@/components/ecommerce/ProductListing";
 
 export default function EcommerceShop() {
@@ -12,15 +9,9 @@ export default function EcommerceShop() {
   const initialSearch = queryParams.get('search') || '';
   
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1">
-        <ProductListing 
-          initialCategory={initialCategory} 
-          initialSearch={initialSearch} 
-        />
-      </main>
-      <Footer />
-    </div>
+    <ProductListing 
+      initialCategory={initialCategory} 
+      initialSearch={initialSearch} 
+    />
   );
 }
