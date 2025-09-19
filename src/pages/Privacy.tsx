@@ -4,9 +4,8 @@ import { Link } from "react-router-dom";
 
 const Privacy = () => {
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-1">
-        <section className="bg-muted py-16">
+    <>
+      <section className="bg-muted py-16">
           <div className="container px-4 md:px-6">
             <div className="max-w-3xl mx-auto">
               <h1 className="text-3xl md:text-4xl font-bold mb-4">Privacy Policy</h1>
@@ -125,9 +124,8 @@ const Privacy = () => {
               </div>
             </div>
           </div>
-        </section>
-      </main>
-    </div>
+      </section>
+    </>
   );
 };
 

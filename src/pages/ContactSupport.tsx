@@ -45,10 +45,10 @@ const ContactSupport = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
       <Breadcrumb additionalCrumbs={[{ label: t('Contact Support') }]} />
       
-      <main className="flex-1 bg-background">
+      <div className="bg-background">
         <div className="responsive-container py-12">
           <h1 className="text-3xl font-bold text-center mb-2">{t('Contact Support')}</h1>
           <p className="text-muted-foreground text-center mb-10">
@@ -174,8 +174,8 @@ const ContactSupport = () => {
             </form>
           </Card>
         </div>
-      </main>
-    </div>
+      </div>
+    </>
   );
 };
 

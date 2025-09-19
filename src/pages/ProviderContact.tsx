@@ -4,8 +4,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -97,9 +95,7 @@ export default function ProviderContact() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1 py-10">
+    <div className="py-10">
         <div className="container max-w-4xl mx-auto px-4">
           <Button 
             variant="ghost" 
@@ -221,10 +217,8 @@ export default function ProviderContact() {
                 </form>
               </Form>
             </div>
-          </div>
         </div>
-      </main>
-      <Footer />
+      </div>
     </div>
   );
 }

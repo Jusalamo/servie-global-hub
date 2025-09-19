@@ -1,8 +1,6 @@
 
 import { useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { CheckCircle, Calendar, MapPin, Clock } from "lucide-react";
@@ -29,9 +27,7 @@ export default function BookingConfirmation() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1 container mx-auto py-12 px-4">
+    <div className="container mx-auto py-12 px-4">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">
@@ -154,10 +150,8 @@ export default function BookingConfirmation() {
             <p className="text-muted-foreground">
               If you have any questions, contact our support team.
             </p>
-          </div>
         </div>
-      </main>
-      <Footer />
+      </div>
     </div>
   );
 }

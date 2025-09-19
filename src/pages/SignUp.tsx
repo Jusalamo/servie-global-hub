@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"
 import { Link, useLocation, Navigate, useSearchParams } from "react-router-dom"
 import { Button } from "@/components/ui/button"
@@ -52,7 +51,7 @@ export default function SignUp() {
   }
 
   return (
-    <main className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-xl space-y-8">
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-bold tracking-tight">
@@ -146,7 +145,7 @@ export default function SignUp() {
           </button>
         </div>
       </div>
-      
+        
       <p className="mt-8 text-center text-sm text-muted-foreground">
         Already have an account?{" "}
         <Link to="/signin" className="font-medium text-servie hover:underline">
@@ -154,6 +153,5 @@ export default function SignUp() {
         </Link>
       </p>
     </div>
-  </main>
-  )
+  );
 }

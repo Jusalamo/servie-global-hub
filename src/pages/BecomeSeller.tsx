@@ -95,10 +95,9 @@ export default function BecomeSeller() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-1">
-        {/* Hero Section */}
-        <section className="relative bg-gradient-to-br from-servie-50 to-background py-20">
+    <>
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-br from-servie-50 to-background py-20">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div className="space-y-6">
@@ -217,8 +216,7 @@ export default function BecomeSeller() {
               </Button>
             </div>
           </div>
-        </section>
-      </main>
-    </div>
+      </section>
+    </>
   );
 }
