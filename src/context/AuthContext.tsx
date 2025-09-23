@@ -24,25 +24,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchUserRole = async (userId: string) => {
+  const fetchUserRole = async (userId: string, userMetadata?: any) => {
     try {
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('role')
+        .select('role, first_name, last_name')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
       
-      if (error) {
-        console.error('Error fetching user role:', error);
-        // Try to create profile if it doesn't exist
+      if (error || !profile) {
+        console.log('Creating new profile for user:', userId);
+        // Create profile with metadata from auth if available
+        const profileData = {
+          id: userId,
+          role: 'client',
+          first_name: userMetadata?.first_name || '',
+          last_name: userMetadata?.last_name || ''
+        };
+        
         const { error: insertError } = await supabase
           .from('profiles')
-          .insert({
-            id: userId,
-            role: 'client',
-            first_name: '',
-            last_name: ''
-          });
+          .insert(profileData);
         
         if (insertError) {
           console.error('Error creating profile:', insertError);
@@ -50,46 +52,69 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return 'client';
       }
       
-      return profile?.role || 'client';
+      return profile.role || 'client';
     } catch (error) {
-      console.error('Error fetching user role:', error);
+      console.error('Error with profile:', error);
       return 'client';
     }
   };
 
   useEffect(() => {
+    let mounted = true;
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return;
+        
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch user profile to get role
-          const role = await fetchUserRole(session.user.id);
-          setUserRole(role);
+          const role = await fetchUserRole(session.user.id, session.user.user_metadata);
+          if (mounted) {
+            setUserRole(role);
+            setIsLoading(false);
+          }
         } else {
-          setUserRole(null);
+          if (mounted) {
+            setUserRole(null);
+            setIsLoading(false);
+          }
         }
-        
-        setIsLoading(false);
       }
     );
 
     // Check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        const role = await fetchUserRole(session.user.id);
-        setUserRole(role);
+    const initAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!mounted) return;
+        
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          const role = await fetchUserRole(session.user.id, session.user.user_metadata);
+          if (mounted) {
+            setUserRole(role);
+          }
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
-      
-      setIsLoading(false);
-    });
+    };
 
-    return () => subscription.unsubscribe();
+    initAuth();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, userData: any) => {
@@ -134,31 +159,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
-    // Input validation
-    if (!email || !email.includes('@')) {
-      const error = new Error('Please provide a valid email address');
-      toast.error(error.message);
+    try {
+      // Input validation
+      if (!email || !email.includes('@')) {
+        const error = new Error('Please provide a valid email address');
+        return { error };
+      }
+      
+      if (!password) {
+        const error = new Error('Please provide a password');
+        return { error };
+      }
+      
+      setIsLoading(true);
+      
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.toLowerCase().trim(),
+        password
+      });
+      
+      return { error };
+    } catch (error) {
+      console.error('Sign in error:', error);
       return { error };
     }
-    
-    if (!password) {
-      const error = new Error('Please provide a password');
-      toast.error(error.message);
-      return { error };
-    }
-    
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email.toLowerCase().trim(),
-      password
-    });
-    
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success('Signed in successfully!');
-    }
-    
-    return { error };
   };
 
   const signOut = async () => {
