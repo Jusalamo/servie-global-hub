@@ -24,6 +24,39 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const fetchUserRole = async (userId: string) => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching user role:', error);
+        // Try to create profile if it doesn't exist
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            id: userId,
+            role: 'client',
+            first_name: '',
+            last_name: ''
+          });
+        
+        if (insertError) {
+          console.error('Error creating profile:', insertError);
+        }
+        return 'client';
+      }
+      
+      return profile?.role || 'client';
+    } catch (error) {
+      console.error('Error fetching user role:', error);
+      return 'client';
+    }
+  };
+
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -33,38 +66,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         if (session?.user) {
           // Fetch user profile to get role
-          setTimeout(async () => {
-            try {
-              const { data: profile, error } = await supabase
-                .from('profiles')
-                .select('role')
-                .eq('id', session.user.id)
-                .single();
-              
-              if (error) {
-                console.error('Error fetching user role:', error);
-                // Try to create profile if it doesn't exist
-                const { error: insertError } = await supabase
-                  .from('profiles')
-                  .insert({
-                    id: session.user.id,
-                    role: 'client',
-                    first_name: session.user.user_metadata?.first_name || '',
-                    last_name: session.user.user_metadata?.last_name || ''
-                  });
-                
-                if (insertError) {
-                  console.error('Error creating profile:', insertError);
-                }
-                setUserRole('client');
-              } else {
-                setUserRole(profile?.role || 'client');
-              }
-            } catch (error) {
-              console.error('Error fetching user role:', error);
-              setUserRole('client');
-            }
-          }, 0);
+          const role = await fetchUserRole(session.user.id);
+          setUserRole(role);
         } else {
           setUserRole(null);
         }
@@ -74,12 +77,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     );
 
     // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      if (!session) {
-        setIsLoading(false);
+      
+      if (session?.user) {
+        const role = await fetchUserRole(session.user.id);
+        setUserRole(role);
       }
+      
+      setIsLoading(false);
     });
 
     return () => subscription.unsubscribe();
