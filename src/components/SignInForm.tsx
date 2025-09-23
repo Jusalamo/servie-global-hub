@@ -37,7 +37,12 @@ export function SignInForm() {
 
     try {
       // Call signIn with email and password
-      await signIn(formData.email, formData.password);
+      const { error } = await signIn(formData.email, formData.password);
+      
+      if (error) {
+        toast.error(error.message || "Failed to sign in. Please check your credentials.");
+        return;
+      }
       
       toast.success("Successfully signed in!");
       
