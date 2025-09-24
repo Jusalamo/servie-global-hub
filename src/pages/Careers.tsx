@@ -1,8 +1,6 @@
 
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -213,10 +211,8 @@ const Careers = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1">
-        {!openApplicationModalOpen ? (
+    <div className="">
+      {!openApplicationModalOpen ? (
           <>
             <section className="bg-gradient-to-r from-servie to-purple-600 text-white py-16">
               <div className="container px-4 md:px-6">
@@ -628,8 +624,6 @@ const Careers = () => {
             </div>
           </section>
         )}
-      </main>
-      <Footer />
     </div>
   );
 };

@@ -20,8 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { services } from "@/data/mockData";
 import { toast } from "sonner";
 import { useLocalization } from "@/components/LangCurrencySelector";
@@ -50,16 +48,12 @@ const BookingPage = () => {
   
   if (!service || !selectedPackage) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1 container mx-auto py-16 px-4 text-center">
-          <h1 className="text-3xl font-bold mb-4">Service Not Found</h1>
-          <p className="mb-8">The service or package you are looking for doesn't exist.</p>
-          <Button asChild>
-            <Link to="/categories">Browse Services</Link>
-          </Button>
-        </main>
-        <Footer />
+      <div className="container mx-auto py-16 px-4 text-center">
+        <h1 className="text-3xl font-bold mb-4">Service Not Found</h1>
+        <p className="mb-8">The service or package you are looking for doesn't exist.</p>
+        <Button asChild>
+          <Link to="/categories">Browse Services</Link>
+        </Button>
       </div>
     );
   }
@@ -115,9 +109,7 @@ const BookingPage = () => {
   const total = selectedPackage.price + serviceFee;
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1 container mx-auto py-8 px-4">
+    <div className="container mx-auto py-8 px-4">
         <h1 className="text-2xl md:text-3xl font-bold mb-6">Book Your Service</h1>
         
         <div className="flex flex-col lg:flex-row gap-8">
@@ -314,8 +306,6 @@ const BookingPage = () => {
             </div>
           </div>
         </div>
-      </main>
-      <Footer />
     </div>
   );
 };

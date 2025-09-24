@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -111,9 +109,7 @@ export default function Checkout() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1 py-8">
+    <div className="py-8">
         <div className="container px-4">
           <div className="max-w-4xl mx-auto">
             {/* Checkout header */}
@@ -409,8 +405,6 @@ export default function Checkout() {
             </div>
           </div>
         </div>
-      </main>
-      <Footer />
     </div>
   );
 }

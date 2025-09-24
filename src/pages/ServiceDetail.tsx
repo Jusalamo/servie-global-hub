@@ -1,8 +1,6 @@
 
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -142,60 +140,47 @@ export default function ServiceDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1 py-8">
-          <div className="container px-4">
-            <div className="flex flex-col lg:flex-row gap-8">
-              <div className="w-full lg:w-2/3">
-                <Skeleton className="w-full aspect-video rounded-lg" />
-                <div className="flex gap-2 mt-4">
-                  {[1, 2, 3, 4].map((i) => (
-                    <Skeleton key={i} className="w-20 h-20 rounded" />
-                  ))}
-                </div>
-                <div className="mt-6 space-y-4">
-                  <Skeleton className="h-8 w-3/4" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-2/3" />
-                </div>
-              </div>
-              <div className="w-full lg:w-1/3">
-                <Skeleton className="h-64 w-full rounded-lg" />
+      <div className="py-8">
+        <div className="container px-4">
+          <div className="flex flex-col lg:flex-row gap-8">
+            <div className="w-full lg:w-2/3">
+              <Skeleton className="w-full aspect-video rounded-lg" />
+              <div className="flex gap-2 mt-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <Skeleton key={i} className="w-20 h-20 rounded" />
+                ))}
               </div>
             </div>
+            <div className="w-full lg:w-1/3 space-y-6">
+              <Skeleton className="h-10 w-3/4" />
+              <Skeleton className="h-6 w-1/4" />
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-10 w-1/3" />
+            </div>
           </div>
-        </main>
-        <Footer />
+        </div>
       </div>
     );
   }
 
   if (!service) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1 py-16">
-          <div className="container px-4 text-center">
-            <h1 className="text-2xl font-bold mb-4">Service Not Found</h1>
-            <p className="text-muted-foreground mb-6">
-              The service you're looking for doesn't exist or has been removed.
-            </p>
-            <Button asChild>
-              <Link to="/categories">Browse Services</Link>
-            </Button>
-          </div>
-        </main>
-        <Footer />
+      <div className="py-16">
+        <div className="container px-4 text-center">
+          <h1 className="text-2xl font-bold mb-4">Service Not Found</h1>
+          <p className="text-muted-foreground mb-6">
+            The service you're looking for doesn't exist or has been removed.
+          </p>
+          <Button asChild>
+            <Link to="/categories">Browse Services</Link>
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1 py-8">
+    <div className="py-8">
         <div className="container px-4">
           {/* Breadcrumb */}
           <div className="mb-6">
@@ -558,8 +543,6 @@ export default function ServiceDetail() {
             </div>
           </div>
         </div>
-      </main>
-      <Footer />
     </div>
   );
 }

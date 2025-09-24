@@ -1,8 +1,6 @@
 
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -179,53 +177,45 @@ export default function ProductDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1 py-8">
-          <div className="container px-4">
-            <div className="flex flex-col md:flex-row gap-8">
-              <div className="w-full md:w-2/5">
-                <Skeleton className="w-full aspect-square rounded-lg" />
-                <div className="flex gap-2 mt-4">
-                  {[1, 2, 3, 4].map((i) => (
-                    <Skeleton key={i} className="w-20 h-20 rounded" />
-                  ))}
-                </div>
+      <div className="py-8">
+        <div className="container px-4">
+          <div className="flex flex-col md:flex-row gap-8">
+            <div className="w-full md:w-2/5">
+              <Skeleton className="w-full aspect-square rounded-lg" />
+              <div className="flex gap-2 mt-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <Skeleton key={i} className="w-20 h-20 rounded" />
+                ))}
               </div>
-              <div className="w-full md:w-3/5 space-y-6">
-                <Skeleton className="h-10 w-3/4" />
-                <Skeleton className="h-6 w-1/4" />
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-10 w-1/3" />
-                <div className="flex gap-4">
-                  <Skeleton className="h-12 w-40" />
-                  <Skeleton className="h-12 w-40" />
-                </div>
+            </div>
+            <div className="w-full md:w-3/5 space-y-6">
+              <Skeleton className="h-10 w-3/4" />
+              <Skeleton className="h-6 w-1/4" />
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-10 w-1/3" />
+              <div className="flex gap-4">
+                <Skeleton className="h-12 w-40" />
+                <Skeleton className="h-12 w-40" />
               </div>
             </div>
           </div>
-        </main>
-        <Footer />
+        </div>
       </div>
     );
   }
 
   if (!product) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1 py-16">
-          <div className="container px-4 text-center">
-            <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
-            <p className="text-muted-foreground mb-6">
-              The product you're looking for doesn't exist or has been removed.
-            </p>
-            <Button asChild>
-              <Link to="/shop">Browse Products</Link>
-            </Button>
-          </div>
-        </main>
-        <Footer />
+      <div className="py-16">
+        <div className="container px-4 text-center">
+          <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
+          <p className="text-muted-foreground mb-6">
+            The product you're looking for doesn't exist or has been removed.
+          </p>
+          <Button asChild>
+            <Link to="/shop">Browse Products</Link>
+          </Button>
+        </div>
       </div>
     );
   }
@@ -234,9 +224,7 @@ export default function ProductDetail() {
     Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100) : null;
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1 py-8">
+    <div className="py-8">
         <div className="container px-4">
           {/* Breadcrumb */}
           <div className="mb-6">
@@ -596,8 +584,6 @@ export default function ProductDetail() {
             </Card>
           </div>
         </div>
-      </main>
-      <Footer />
     </div>
   );
 }

@@ -1,7 +1,5 @@
 
 import React, { useState } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -24,10 +22,8 @@ const FAQs = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1">
-        <section className="bg-servie/10 py-16">
+    <div className="">
+      <section className="bg-servie/10 py-16">
           <div className="container px-4 md:px-6">
             <div className="max-w-3xl mx-auto text-center">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">Frequently Asked Questions</h1>
@@ -209,8 +205,6 @@ const FAQs = () => {
             </div>
           </div>
         </section>
-      </main>
-      <Footer />
     </div>
   );
 };

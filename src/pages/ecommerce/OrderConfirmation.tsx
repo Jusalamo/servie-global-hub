@@ -1,8 +1,6 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -74,9 +72,7 @@ const OrderConfirmation = () => {
   const total = subtotal + shipping + tax;
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1 py-10 bg-gray-50">
+    <div className="py-10 bg-gray-50">
         <div className="container px-4 max-w-4xl mx-auto">
           {isLoading ? (
             <Card className="text-center py-12">
@@ -238,8 +234,6 @@ const OrderConfirmation = () => {
             </>
           )}
         </div>
-      </main>
-      <Footer />
     </div>
   );
 };

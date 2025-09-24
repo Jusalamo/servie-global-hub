@@ -1,7 +1,5 @@
 
 import { useNavigate, Link } from "react-router-dom";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -49,9 +47,7 @@ const Cart = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1 py-8">
+    <div className="py-8">
         <div className="container mx-auto px-4">
           <h1 className="text-3xl font-bold mb-6 flex items-center">
             <ShoppingCart className="mr-3 h-7 w-7" />
@@ -226,8 +222,6 @@ const Cart = () => {
             </div>
           )}
         </div>
-      </main>
-      <Footer />
     </div>
   );
 };
