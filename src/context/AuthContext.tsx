@@ -24,37 +24,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchUserRole = async (userId: string, userMetadata?: any) => {
+  const fetchUserRole = async (userId: string) => {
     try {
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('role, first_name, last_name')
-        .eq('id', userId)
+      // CRITICAL SECURITY: Fetch role from separate user_roles table to prevent privilege escalation
+      const { data: userRoleData, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
         .maybeSingle();
       
-      if (error || !profile) {
-        console.log('Creating new profile for user:', userId);
-        // Create profile with metadata from auth if available
-        const profileData = {
-          id: userId,
-          role: 'client',
-          first_name: userMetadata?.first_name || '',
-          last_name: userMetadata?.last_name || ''
-        };
-        
-        const { error: insertError } = await supabase
-          .from('profiles')
-          .insert(profileData);
-        
-        if (insertError) {
-          console.error('Error creating profile:', insertError);
-        }
-        return 'client';
+      if (error) {
+        console.error('Error fetching user role:', error);
+        return 'client'; // Default to client on error
       }
       
-      return profile.role || 'client';
+      return userRoleData?.role || 'client';
     } catch (error) {
-      console.error('Error with profile:', error);
+      console.error('Error with role fetch:', error);
       return 'client';
     }
   };
@@ -71,7 +57,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          const role = await fetchUserRole(session.user.id, session.user.user_metadata);
+          const role = await fetchUserRole(session.user.id);
           if (mounted) {
             setUserRole(role);
             setIsLoading(false);
@@ -95,7 +81,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          const role = await fetchUserRole(session.user.id, session.user.user_metadata);
+          const role = await fetchUserRole(session.user.id);
           if (mounted) {
             setUserRole(role);
           }

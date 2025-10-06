@@ -60,8 +60,8 @@ const OrderConfirmation = () => {
       localStorage.setItem("orders", JSON.stringify(orders));
       
       // Send notifications (simulated)
-      console.log("Order notifications would be sent to providers:", 
-        cartItems.map(item => item.providerId)
+      console.log("Order notifications would be sent for products:", 
+        cartItems.map(item => item.product_id)
       );
     }, 1500);
   }, [navigate, cartItems, clearCart, cartTotal]);

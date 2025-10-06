@@ -82,10 +82,10 @@ const Cart = () => {
                   {cartItems.map((item) => (
                     <div key={item.id} className="py-4">
                       <div className="flex items-start gap-4">
-                        <Link to={`/product/${item.id}`} className="shrink-0">
+                        <Link to={`/product/${item.product_id}`} className="shrink-0">
                           <img
-                            src={item.image}
-                            alt={item.name}
+                            src={item.product?.image_url || '/placeholder.svg'}
+                            alt={item.product?.name || 'Product'}
                             className="h-20 w-20 rounded-md object-cover"
                           />
                         </Link>
@@ -94,17 +94,17 @@ const Cart = () => {
                           <div className="flex justify-between">
                             <div>
                               <Link 
-                                to={`/product/${item.id}`}
+                                to={`/product/${item.product_id}`}
                                 className="font-medium hover:underline"
                               >
-                                {item.name}
+                                {item.product?.name || 'Product'}
                               </Link>
                               <div className="mt-1 text-sm text-muted-foreground">
-                                Sold by: {item.providerName}
+                                In stock: {item.product?.stock || 0}
                               </div>
                             </div>
                             <div className="font-medium">
-                              ${(item.price * item.quantity).toFixed(2)}
+                              ${((item.product?.price || 0) * item.quantity).toFixed(2)}
                             </div>
                           </div>
                           

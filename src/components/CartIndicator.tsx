@@ -35,7 +35,7 @@ export function CartIndicator() {
         <ShoppingCart className={`h-5 w-5 transition-transform group-hover:scale-110 ${isAnimating ? 'animate-bounce' : ''}`} />
         {cartCount > 0 && (
           <Badge 
-            className="absolute -top-2 -right-2 px-1.5 py-0.5 min-w-[1.25rem] min-h-[1.25rem] flex items-center justify-center bg-servie text-servie-foreground"
+            className="absolute -top-2 -right-2 px-1.5 py-0.5 min-w-[1.25rem] min-h-[1.25rem] flex items-center justify-center bg-servie text-white"
           >
             {cartCount}
           </Badge>

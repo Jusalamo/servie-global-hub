@@ -1,8 +1,7 @@
-
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "./AuthContext";
-import { toast } from "sonner";
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
 
 export interface CartItem {
   id: string;
@@ -17,44 +16,13 @@ export interface CartItem {
   };
 }
 
-interface CartContextType {
-  cartItems: CartItem[];
-  cartCount: number;
-  cartTotal: number;
-  isLoading: boolean;
-  addToCart: (productId: string, productName: string, quantity?: number) => Promise<void>;
-  removeFromCart: (cartItemId: string) => Promise<void>;
-  updateQuantity: (cartItemId: string, quantity: number) => Promise<void>;
-  clearCart: () => Promise<void>;
-  refreshCart: () => Promise<void>;
-}
-
-const CartContext = createContext<CartContextType>({
-  cartItems: [],
-  cartCount: 0,
-  cartTotal: 0,
-  isLoading: false,
-  addToCart: async () => {},
-  removeFromCart: async () => {},
-  updateQuantity: async () => {},
-  clearCart: async () => {},
-  refreshCart: async () => {},
-});
-
-export const useCart = () => useContext(CartContext);
-
-interface CartProviderProps {
-  children: React.ReactNode;
-}
-
-export const CartProvider = ({ children }: CartProviderProps) => {
+export const useCart = () => {
   const { user, isAuthenticated } = useAuth();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [cartCount, setCartCount] = useState(0);
-  const [cartTotal, setCartTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [cartCount, setCartCount] = useState(0);
 
-  // Fetch cart items from Supabase
+  // Fetch cart items
   const fetchCartItems = async () => {
     if (!user) {
       setCartItems([]);
@@ -75,19 +43,17 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       if (error) throw error;
 
       setCartItems(data || []);
-      const count = (data || []).reduce((sum, item) => sum + item.quantity, 0);
-      const total = (data || []).reduce((sum, item) => sum + ((item.product?.price || 0) * item.quantity), 0);
-      setCartCount(count);
-      setCartTotal(total);
+      setCartCount((data || []).reduce((sum, item) => sum + item.quantity, 0));
     } catch (error) {
       console.error('Error fetching cart:', error);
+      toast.error('Failed to load cart');
     } finally {
       setIsLoading(false);
     }
   };
 
   // Add item to cart
-  const addToCart = async (productId: string, productName: string, quantity: number = 1) => {
+  const addToCart = async (productId: string, quantity: number = 1) => {
     if (!isAuthenticated) {
       toast.error('Please sign in to add items to cart');
       return;
@@ -106,7 +72,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
 
       if (error) throw error;
 
-      toast.success(`${productName} added to cart`);
+      toast.success('Added to cart');
       await fetchCartItems();
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -210,21 +176,14 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     };
   }, [user?.id]);
 
-  return (
-    <CartContext.Provider
-      value={{
-        cartItems,
-        cartCount,
-        cartTotal,
-        isLoading,
-        addToCart,
-        removeFromCart,
-        updateQuantity,
-        clearCart,
-        refreshCart: fetchCartItems
-      }}
-    >
-      {children}
-    </CartContext.Provider>
-  );
+  return {
+    cartItems,
+    cartCount,
+    isLoading,
+    addToCart,
+    updateQuantity,
+    removeFromCart,
+    clearCart,
+    refreshCart: fetchCartItems
+  };
 };
