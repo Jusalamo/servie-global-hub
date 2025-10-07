@@ -15,6 +15,7 @@ import { ServieLayout } from "@/components/layout/ServieLayout";
 import Index from "@/pages/Index";
 import SignIn from "@/pages/SignIn";
 import SignUp from "@/pages/SignUp";
+import ConfirmEmail from "@/pages/ConfirmEmail";
 import ForgotPassword from "@/pages/ForgotPassword";
 import NotFound from "@/pages/NotFound";
 import BecomeProvider from "@/pages/BecomeProvider";
@@ -126,6 +127,11 @@ function App() {
                   <Route path="/signup" element={
                     <ServieLayout>
                       <SignUp />
+                    </ServieLayout>
+                  } />
+                  <Route path="/confirm-email" element={
+                    <ServieLayout>
+                      <ConfirmEmail />
                     </ServieLayout>
                   } />
                   <Route path="/forgot-password" element={

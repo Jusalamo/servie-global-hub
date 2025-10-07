@@ -4,16 +4,35 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+interface UserProfile {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  role: string;
+  phone: string | null;
+  bio: string | null;
+  business_name: string | null;
+  avatar_url: string | null;
+  city: string | null;
+  state: string | null;
+  country: string | null;
+  address: string | null;
+  whatsapp: string | null;
+  postal_code: string | null;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   userRole: string | null;
+  profile: UserProfile | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   signUp: (email: string, password: string, userData: any) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   updateProfile: (updates: any) => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,6 +41,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchUserRole = async (userId: string) => {
@@ -45,6 +65,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const { data: profileData, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
+      
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return null;
+      }
+      
+      return profileData;
+    } catch (error) {
+      console.error('Error with profile fetch:', error);
+      return null;
+    }
+  };
+
+  const refreshProfile = async () => {
+    if (!user?.id) return;
+    const profileData = await fetchUserProfile(user.id);
+    if (profileData) {
+      setProfile(profileData);
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
 
@@ -58,13 +106,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         if (session?.user) {
           const role = await fetchUserRole(session.user.id);
+          const profileData = await fetchUserProfile(session.user.id);
           if (mounted) {
             setUserRole(role);
+            setProfile(profileData);
             setIsLoading(false);
           }
         } else {
           if (mounted) {
             setUserRole(null);
+            setProfile(null);
             setIsLoading(false);
           }
         }
@@ -82,8 +133,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         if (session?.user) {
           const role = await fetchUserRole(session.user.id);
+          const profileData = await fetchUserProfile(session.user.id);
           if (mounted) {
             setUserRole(role);
+            setProfile(profileData);
           }
         }
       } catch (error) {
@@ -185,7 +238,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     
     // Sanitize and validate updates
     const sanitizedUpdates: any = {};
-    const allowedFields = ['first_name', 'last_name', 'phone', 'bio', 'address', 'city', 'state', 'country', 'postal_code'];
+    const allowedFields = ['first_name', 'last_name', 'phone', 'bio', 'address', 'city', 'state', 'country', 'postal_code', 'whatsapp', 'business_name', 'avatar_url'];
     
     for (const [key, value] of Object.entries(updates)) {
       if (allowedFields.includes(key) && value !== undefined) {
@@ -202,6 +255,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       toast.error('Failed to update profile');
       throw error;
     } else {
+      // Refresh profile data after successful update
+      await refreshProfile();
       toast.success('Profile updated successfully');
     }
   };
@@ -210,12 +265,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     user,
     session,
     userRole,
+    profile,
     isLoading,
     isAuthenticated: !!user,
     signUp,
     signIn,
     signOut,
-    updateProfile
+    updateProfile,
+    refreshProfile
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

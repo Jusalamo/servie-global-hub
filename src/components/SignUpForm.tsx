@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import {
@@ -86,19 +87,10 @@ const SignUpForm = ({ selectedRole = "client" }) => {
         throw error;
       }
 
-      toast.success("Account created successfully!");
+      toast.success("Account created successfully! Please check your email to confirm your account.");
       
-      // Direct user to the appropriate dashboard based on role
-      switch(data.role) {
-        case "provider":
-          navigate("/dashboard/provider?tab=overview", { replace: true });
-          break;
-        case "seller":
-          navigate("/dashboard/seller?tab=overview", { replace: true });
-          break;
-        default:
-          navigate("/dashboard/client", { replace: true });
-      }
+      // Redirect to email confirmation page
+      navigate("/confirm-email", { replace: true });
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message);
@@ -221,7 +213,7 @@ const SignUpForm = ({ selectedRole = "client" }) => {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="********" {...field} />
+                <PasswordInput placeholder="********" {...field} />
               </FormControl>
               <FormDescription>
                 Password must be at least 8 characters long.
@@ -238,7 +230,7 @@ const SignUpForm = ({ selectedRole = "client" }) => {
             <FormItem>
               <FormLabel>Confirm Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="********" {...field} />
+                <PasswordInput placeholder="********" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

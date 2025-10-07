@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from '@/context/AuthContext';
@@ -34,7 +35,12 @@ export function SignInForm() {
       const { error } = await signIn(formData.email, formData.password);
       
       if (error) {
-        toast.error(error.message || "Invalid email or password. Please try again.");
+        // Handle email not confirmed error
+        if (error.message?.includes('Email not confirmed')) {
+          toast.error('Please confirm your email address before signing in. Check your inbox for the confirmation link.');
+        } else {
+          toast.error(error.message || "Invalid email or password. Please try again.");
+        }
         return;
       }
       
@@ -70,10 +76,9 @@ export function SignInForm() {
             <a href="/forgot-password">Forgot password?</a>
           </Button>
         </div>
-        <Input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
           autoComplete="current-password"
           required
           value={formData.password}

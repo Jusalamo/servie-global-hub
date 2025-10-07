@@ -10,8 +10,6 @@ import { PlaceholderTab } from "@/components/dashboard/client/PlaceholderTab";
 import AIAssistant from "@/components/dashboard/AIAssistant";
 import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
 import { useAuth } from "@/context/AuthContext";
-import { useUserProfile } from "@/hooks/useUserProfile";
-import Breadcrumb from "@/components/Breadcrumb";
 import MessagingSystem from "@/components/dashboard/MessagingSystem";
 import PaymentMethods from "@/components/dashboard/PaymentMethods";
 import ProfileSettings from "@/components/dashboard/ProfileSettings";
@@ -30,8 +28,7 @@ const getFavoriteServices = () => {
 const ClientDashboard = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState("overview");
-  const { user, userRole } = useAuth();
-  const { profile, isLoading: profileLoading } = useUserProfile();
+  const { user, userRole, profile, isLoading: profileLoading } = useAuth();
   
   // Get user-specific data
   const clientBookings = getClientBookings(user?.id);
@@ -93,12 +90,6 @@ const ClientDashboard = () => {
   
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground font-roboto">
-      <Breadcrumb 
-        additionalCrumbs={[
-          { label: "Client Dashboard", href: "/dashboard/client" },
-          { label: activeTab.charAt(0).toUpperCase() + activeTab.slice(1) }
-        ]} 
-      />
       <main className="flex-1 container mx-auto py-8 px-4">
         <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8">
           {/* Sidebar Navigation */}
