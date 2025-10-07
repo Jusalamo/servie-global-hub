@@ -13,10 +13,10 @@ export default function DashboardLayout({ children, sidebar }: DashboardLayoutPr
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 flex">
+      <main className="flex-1 flex flex-col lg:flex-row">
         {sidebar}
-        <div className="flex-1 p-6 overflow-auto">
-          <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto">
+          <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
             {children}
           </div>
         </div>

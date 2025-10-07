@@ -25,7 +25,7 @@ export default function Hero() {
   };
 
   return (
-    <section id="hero-section" className="relative py-16 md:py-24 overflow-hidden">
+    <section id="hero-section" className="relative py-8 px-4 sm:py-12 md:py-16 lg:py-24 overflow-hidden">
       {/* Enhanced gradient background using servie color */}
       <div 
         className="absolute inset-0 -z-10 bg-gradient-to-br from-servie/20 via-servie/5 to-background/30 animate-gradient"
@@ -47,44 +47,44 @@ export default function Hero() {
         </svg>
       </div>
 
-      <div className="container px-4 md:px-6 relative">
-        <div className="max-w-4xl mx-auto text-center space-y-8 relative">
+      <div className="container px-4 sm:px-6 md:px-8 relative">
+        <div className="max-w-4xl mx-auto text-center space-y-4 sm:space-y-6 md:space-y-8 relative">
           {/* App logo/icon */}
-          <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-servie/10 to-servie/5 flex items-center justify-center mb-6 shadow-lg">
-            <ServieIcon className="w-8 h-8 text-servie" />
+          <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-servie/10 to-servie/5 flex items-center justify-center mb-4 sm:mb-6 shadow-lg">
+            <ServieIcon className="w-6 h-6 sm:w-8 sm:h-8 text-servie" />
           </div>
 
           {/* Main hero text */}
-          <div className="space-y-4">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight animate-fade-in bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent dark:from-white dark:to-gray-300">
+          <div className="space-y-3 sm:space-y-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight animate-fade-in bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent dark:from-white dark:to-gray-300 whitespace-normal break-words px-2">
               Find The Perfect Service Provider For Your Needs
             </h1>
-            <p className="text-xl text-muted-foreground md:text-2xl animate-fade-in max-w-3xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground animate-fade-in max-w-3xl mx-auto whitespace-normal px-2">
               Connect with top professionals and skilled service providers in your area
             </p>
           </div>
 
           {/* Enhanced Search Section */}
-          <div className="w-full max-w-2xl mx-auto animate-fade-in">
-            <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-gray-200/50 dark:border-gray-700/50">
+          <div className="w-full max-w-2xl mx-auto animate-fade-in px-2">
+            <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-xl border border-gray-200/50 dark:border-gray-700/50">
               <AnimatedSearchInput onSearch={handleSearch} />
             </div>
           </div>
 
           {/* CTA buttons - using consistent servie color */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
-            <Button asChild size="lg" className="bg-servie text-servie-foreground hover:bg-servie-600 shadow-lg hover:shadow-xl transition-all duration-300">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-fade-in px-2">
+            <Button asChild size="lg" className="bg-servie text-servie-foreground hover:bg-servie-600 shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto whitespace-normal">
               <Link to="/categories">Browse Services</Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="border-servie text-servie hover:bg-servie hover:text-servie-foreground shadow-lg hover:shadow-xl transition-all duration-300">
+            <Button asChild size="lg" variant="outline" className="border-servie text-servie hover:bg-servie hover:text-servie-foreground shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto whitespace-normal">
               <Link to="/shop">Shop Products</Link>
             </Button>
           </div>
 
           {/* Trusted by section */}
-          <div className="mt-16 animate-fade-in">
-            <p className="text-sm text-muted-foreground mb-6">Trusted by over 10,000+ customers</p>
-            <div className="flex flex-wrap justify-center gap-8 items-center">
+          <div className="mt-8 sm:mt-12 md:mt-16 animate-fade-in px-2">
+            <p className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6 whitespace-normal">Trusted by over 10,000+ customers</p>
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-8 items-center">
               {[
                 { name: "Alpha", icon: "🏢" },
                 { name: "Bravo", icon: "🚀" },
@@ -92,9 +92,10 @@ export default function Hero() {
                 { name: "Delta", icon: "🛠️" },
                 { name: "Echo", icon: "🔍" }
               ].map((company) => (
-                <div key={company.name} className="flex items-center text-xl font-semibold tracking-tight">
-                  <span className="mr-2 text-2xl">{company.icon}</span>
-                  {company.name} <span className="text-servie ml-1">Co.</span>
+                <div key={company.name} className="flex items-center text-sm sm:text-base md:text-lg lg:text-xl font-semibold tracking-tight whitespace-nowrap">
+                  <span className="mr-1 sm:mr-2 text-lg sm:text-xl md:text-2xl">{company.icon}</span>
+                  <span className="hidden sm:inline">{company.name}</span>
+                  <span className="hidden sm:inline text-servie ml-1">Co.</span>
                 </div>
               ))}
             </div>

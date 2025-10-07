@@ -85,10 +85,10 @@ const Header = () => {
             <div className="hidden md:flex items-center gap-2">
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                    <Globe className="h-4 w-4" />
-                    <span className="hidden sm:inline">{currentLanguage.name}</span>
-                    <ChevronDown className="h-4 w-4 opacity-50" />
+                  <Button variant="ghost" size="sm" className="flex items-center gap-1 whitespace-nowrap">
+                    <Globe className="h-4 w-4 flex-shrink-0" />
+                    <span className="hidden lg:inline truncate max-w-[80px]">{currentLanguage.name}</span>
+                    <ChevronDown className="h-4 w-4 opacity-50 flex-shrink-0" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-72 p-0 max-h-[400px] overflow-hidden" align="end">
@@ -102,30 +102,30 @@ const Header = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="sm" className="flex items-center gap-1 p-1">
-                      <div className="h-8 w-8 rounded-full bg-servie/10 text-servie flex items-center justify-center">
+                      <div className="h-8 w-8 rounded-full bg-servie/10 text-servie flex items-center justify-center flex-shrink-0">
                         <User size={16} />
                       </div>
-                      <ChevronDown size={16} className="text-gray-500 dark:text-gray-400" />
+                      <ChevronDown size={16} className="text-gray-500 dark:text-gray-400 flex-shrink-0" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
                     <DropdownMenuItem asChild>
-                      <Link to={getDashboardLink()} className="w-full cursor-pointer">Dashboard</Link>
+                      <Link to={getDashboardLink()} className="w-full cursor-pointer whitespace-normal">Dashboard</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/profile" className="w-full cursor-pointer">Profile</Link>
+                      <Link to="/profile" className="w-full cursor-pointer whitespace-normal">Profile</Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={signOut} className="cursor-pointer">
+                    <DropdownMenuItem onClick={signOut} className="cursor-pointer whitespace-normal">
                       Sign out
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
                 <div className="flex items-center gap-2">
-                  <Button variant="ghost" asChild size="sm">
+                  <Button variant="ghost" asChild size="sm" className="whitespace-nowrap">
                     <Link to="/sign-in">{translate('signIn')}</Link>
                   </Button>
-                  <Button className="bg-servie hover:bg-servie-600" asChild size="sm">
+                  <Button className="bg-servie hover:bg-servie-600 whitespace-nowrap" asChild size="sm">
                     <Link to="/sign-up">{translate('signUp')}</Link>
                   </Button>
                 </div>
@@ -147,12 +147,12 @@ const Header = () => {
         {isMobileMenuOpen && (
           <div className="md:hidden py-2 pb-3 space-y-1 animate-fade-in">
             <div className="px-3 py-2 flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Language</span>
+              <span className="text-sm font-medium whitespace-normal">Language</span>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="flex items-center gap-1">
-                    <Globe className="h-4 w-4" />
-                    {currentLanguage.name}
+                  <Button variant="outline" size="sm" className="flex items-center gap-1 whitespace-nowrap">
+                    <Globe className="h-4 w-4 flex-shrink-0" />
+                    <span className="truncate max-w-[100px]">{currentLanguage.name}</span>
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-72 p-0" align="end">
@@ -162,7 +162,7 @@ const Header = () => {
             </div>
             
             <div className="px-3 py-2 flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Theme</span>
+              <span className="text-sm font-medium whitespace-normal">Theme</span>
               <ThemeToggle />
             </div>
             
@@ -170,25 +170,25 @@ const Header = () => {
             
             {isAuthenticated ? (
               <>
-                <Link to={getDashboardLink()} className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
+                <Link to={getDashboardLink()} className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 whitespace-normal break-words">
                   Dashboard
                 </Link>
-                <Link to="/profile" className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
+                <Link to="/profile" className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 whitespace-normal break-words">
                   Profile
                 </Link>
                 <button
                   onClick={signOut}
-                  className="flex w-full items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="flex w-full items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 whitespace-normal break-words text-left"
                 >
                   Sign out
                 </button>
               </>
             ) : (
               <>
-                <Link to="/sign-in" className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
+                <Link to="/sign-in" className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 whitespace-normal break-words">
                   {translate('signIn')}
                 </Link>
-                <Link to="/sign-up" className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
+                <Link to="/sign-up" className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 whitespace-normal break-words">
                   {translate('signUp')}
                 </Link>
               </>

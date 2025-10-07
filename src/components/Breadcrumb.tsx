@@ -18,26 +18,26 @@ const Breadcrumb = ({ additionalCrumbs = [] }: BreadcrumbProps) => {
   ];
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-      <div className="container mx-auto py-2 px-4">
-        <nav className="flex items-center text-sm text-muted-foreground">
+    <div className="bg-background border-b border-border">
+      <div className="container mx-auto py-2 px-3 sm:px-4">
+        <nav className="flex items-center text-xs sm:text-sm text-muted-foreground overflow-x-auto">
           {allCrumbs.map((crumb, index) => {
             const isLast = index === allCrumbs.length - 1;
             
             return (
-              <div key={crumb.label + index} className="flex items-center">
+              <div key={crumb.label + index} className="flex items-center flex-shrink-0">
                 {index === 0 ? (
-                  <Home className="h-4 w-4 mr-1" />
+                  <Home className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
                 ) : (
-                  <ChevronRight className="h-3 w-3 mx-2 flex-shrink-0" />
+                  <ChevronRight className="h-3 w-3 mx-1 sm:mx-2 flex-shrink-0" />
                 )}
                 
                 {!isLast && crumb.href ? (
-                  <Link to={crumb.href} className="hover:text-servie transition-colors">
+                  <Link to={crumb.href} className="hover:text-primary transition-colors whitespace-nowrap truncate max-w-[150px] sm:max-w-none">
                     {crumb.label}
                   </Link>
                 ) : (
-                  <span className={isLast ? "font-medium text-foreground" : ""}>
+                  <span className={`whitespace-nowrap truncate max-w-[150px] sm:max-w-none ${isLast ? "font-medium text-foreground" : ""}`}>
                     {crumb.label}
                   </span>
                 )}
