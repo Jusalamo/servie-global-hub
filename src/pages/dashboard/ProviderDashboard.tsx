@@ -13,6 +13,7 @@ import PaymentMethods from "@/components/dashboard/PaymentMethods";
 import ProfileSettings from "@/components/dashboard/ProfileSettings";
 import NotificationsSettings from "@/components/dashboard/NotificationsSettings";
 import { QuotationsTab } from "@/components/dashboard/provider/QuotationsTab";
+import FinancialDocumentsTab from "@/components/dashboard/provider/FinancialDocumentsTab";
 import { useLocation } from "react-router-dom";
 import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
 
@@ -42,6 +43,7 @@ export default function ProviderDashboard() {
       case "services": return "Services";
       case "bookings": return "Bookings";
       case "quotations": return "Quotations";
+      case "documents": return "Financial Documents";
       case "availability": return "Availability";
       case "clients": return "Clients";
       case "reviews": return "Reviews";
@@ -65,6 +67,8 @@ export default function ProviderDashboard() {
         return <BookingsTab />;
       case "quotations":
         return <QuotationsTab />;
+      case "documents":
+        return <FinancialDocumentsTab />;
       case "availability":
         return <AvailabilityManager />;
       case "clients":
