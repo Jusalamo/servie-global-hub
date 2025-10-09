@@ -1,7 +1,8 @@
-
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import ProviderSidebar from "@/components/dashboard/ProviderSidebar";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { ProviderOverviewTab } from "@/components/dashboard/provider/OverviewTab";
 import ServiceManagement from "@/components/dashboard/provider/ServiceManagement";
 import BookingsTab from "@/components/dashboard/provider/BookingsTab";
@@ -12,7 +13,7 @@ import MessagingSystem from "@/components/dashboard/MessagingSystem";
 import PaymentMethods from "@/components/dashboard/PaymentMethods";
 import ProfileSettings from "@/components/dashboard/ProfileSettings";
 import NotificationsSettings from "@/components/dashboard/NotificationsSettings";
-import { QuotationsTab } from "@/components/dashboard/provider/QuotationsTab";
+
 import FinancialDocumentsTab from "@/components/dashboard/provider/FinancialDocumentsTab";
 import { useLocation } from "react-router-dom";
 import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
@@ -42,7 +43,6 @@ export default function ProviderDashboard() {
       case "overview": return "Overview";
       case "services": return "Services";
       case "bookings": return "Bookings";
-      case "quotations": return "Quotations";
       case "documents": return "Financial Documents";
       case "availability": return "Availability";
       case "clients": return "Clients";
@@ -65,8 +65,6 @@ export default function ProviderDashboard() {
         return <ServiceManagement />;
       case "bookings":
         return <BookingsTab />;
-      case "quotations":
-        return <QuotationsTab />;
       case "documents":
         return <FinancialDocumentsTab />;
       case "availability":
@@ -96,12 +94,16 @@ export default function ProviderDashboard() {
   ];
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <DashboardBreadcrumb items={breadcrumbItems} userRole="provider" />
-      <DashboardLayout sidebar={<ProviderSidebar activeTab={activeTab} onTabChange={handleTabChange} />}>
-        {renderTabContent()}
-      </DashboardLayout>
-    </div>
+    <>
+      <Header />
+      <div className="space-y-4 sm:space-y-6">
+        <DashboardBreadcrumb items={breadcrumbItems} userRole="provider" />
+        <DashboardLayout sidebar={<ProviderSidebar activeTab={activeTab} onTabChange={handleTabChange} />}>
+          {renderTabContent()}
+        </DashboardLayout>
+      </div>
+      <Footer />
+    </>
   );
 }
 

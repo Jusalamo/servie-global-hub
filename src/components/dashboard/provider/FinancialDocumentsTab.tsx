@@ -33,6 +33,7 @@ import {
   DOCUMENT_STATUS_LABELS,
 } from '@/types/financialDocuments';
 import { format } from 'date-fns';
+import CreateDocumentDialog from './CreateDocumentDialog';
 
 export default function FinancialDocumentsTab() {
   const { user } = useAuth();
@@ -43,7 +44,6 @@ export default function FinancialDocumentsTab() {
   const [filterType, setFilterType] = useState<DocumentType | 'all'>('all');
   const [filterStatus, setFilterStatus] = useState<DocumentStatus | 'all'>('all');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [selectedDocType, setSelectedDocType] = useState<DocumentType>('invoice');
 
   useEffect(() => {
     if (user) {
@@ -58,14 +58,14 @@ export default function FinancialDocumentsTab() {
   const fetchDocuments = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('financial_documents' as any)
+      const { data, error } = (await (supabase as any)
+        .from('financial_documents')
         .select('*')
         .eq('provider_id', user?.id)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })) as any;
 
       if (error) throw error;
-      setDocuments((data as any) || []);
+      setDocuments(data || []);
     } catch (error: any) {
       toast.error('Failed to load documents');
       console.error('Error fetching documents:', error);
@@ -117,10 +117,10 @@ export default function FinancialDocumentsTab() {
     if (!confirm('Are you sure you want to delete this document?')) return;
 
     try {
-      const { error } = await supabase
-        .from('financial_documents' as any)
+      const { error } = (await (supabase as any)
+        .from('financial_documents')
         .delete()
-        .eq('id', id);
+        .eq('id', id)) as any;
 
       if (error) throw error;
       toast.success('Document deleted successfully');
@@ -134,13 +134,13 @@ export default function FinancialDocumentsTab() {
   const handleDuplicate = async (doc: FinancialDocument) => {
     try {
       const { document_number, id, created_at, updated_at, ...docData } = doc;
-      const { error } = await supabase
-        .from('financial_documents' as any)
+      const { error } = (await (supabase as any)
+        .from('financial_documents')
         .insert({
           ...docData,
           title: `${doc.title} (Copy)`,
           status: 'draft' as DocumentStatus,
-        });
+        })) as any;
 
       if (error) throw error;
       toast.success('Document duplicated successfully');
@@ -352,6 +352,12 @@ export default function FinancialDocumentsTab() {
           ))
         )}
       </div>
+
+      <CreateDocumentDialog 
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        onSuccess={fetchDocuments}
+      />
     </div>
   );
 }

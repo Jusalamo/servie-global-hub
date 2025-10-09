@@ -84,13 +84,6 @@ export default function ProviderSidebar({ activeTab, onTabChange }: ProviderSide
         
         <SidebarLink
           icon={<FileText className="h-5 w-5" />}
-          label="Quotations"
-          isActive={activeTab === "quotations"}
-          onClick={() => handleTabClick("quotations")}
-        />
-        
-        <SidebarLink
-          icon={<FileText className="h-5 w-5" />}
           label="Financial Documents"
           isActive={activeTab === "documents"}
           onClick={() => handleTabClick("documents")}
