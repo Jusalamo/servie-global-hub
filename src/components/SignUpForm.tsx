@@ -87,10 +87,16 @@ const SignUpForm = ({ selectedRole = "client" }) => {
         throw error;
       }
 
-      toast.success("Account created successfully! Please check your email to confirm your account.");
+      toast.success("Account created successfully! Redirecting to your dashboard...");
       
-      // Redirect to email confirmation page
-      navigate("/confirm-email", { replace: true });
+      // Redirect based on role
+      const dashboardPath = data.role === 'provider' 
+        ? '/dashboard/provider?tab=overview'
+        : data.role === 'seller'
+        ? '/dashboard/seller?tab=overview'
+        : '/dashboard/client';
+      
+      navigate(dashboardPath, { replace: true });
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message);

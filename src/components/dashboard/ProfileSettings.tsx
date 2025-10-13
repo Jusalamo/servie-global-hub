@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -68,52 +68,79 @@ interface UserProfile {
   };
 }
 
-const defaultUserProfile: UserProfile = {
-  firstName: 'John',
-  lastName: 'Doe',
-  email: 'john.doe@example.com',
-  phone: '(555) 123-4567',
-  address: {
-    street: '123 Main St',
-    city: 'Anytown',
-    state: 'CA',
-    zip: '12345',
-    country: 'United States',
-  },
-  bio: 'I am a professional with experience in various fields including customer service, project management, and team leadership.',
-  profileImage: 'https://randomuser.me/api/portraits/men/32.jpg',
-  socialLinks: {
-    facebook: '',
-    twitter: '',
-    instagram: '',
-    linkedin: '',
-  },
-  professionalInfo: {
-    title: 'Service Provider',
-    company: 'Servie',
-    experience: '5 years',
-    skills: ['Customer Service', 'Project Management', 'Team Leadership'],
-    certifications: ['Certified Professional', 'Advanced Training'],
-  },
-  notificationPreferences: {
-    email: true,
-    push: true,
-    sms: false,
-  },
-  privacySettings: {
-    profileVisibility: 'public',
-    showEmail: false,
-    showPhone: false,
-  },
-};
-
 interface ProfileSettingsProps {
   userRole?: string; // 'provider', 'client', 'seller'
 }
 
 const ProfileSettings = ({ userRole = 'client' }: ProfileSettingsProps) => {
-  const { user } = useAuth();
-  const [profile, setProfile] = useState<UserProfile>(defaultUserProfile);
+  const { user, profile: authProfile } = useAuth();
+  const [profile, setProfile] = useState<UserProfile>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    address: {
+      street: '',
+      city: '',
+      state: '',
+      zip: '',
+      country: '',
+    },
+    bio: '',
+    profileImage: '',
+    socialLinks: {
+      facebook: '',
+      twitter: '',
+      instagram: '',
+      linkedin: '',
+    },
+    professionalInfo: {
+      title: '',
+      company: '',
+      experience: '',
+      skills: [],
+      certifications: [],
+    },
+    notificationPreferences: {
+      email: true,
+      push: true,
+      sms: false,
+    },
+    privacySettings: {
+      profileVisibility: 'public',
+      showEmail: false,
+      showPhone: false,
+    },
+  });
+
+  // Load user profile data from AuthContext
+  useEffect(() => {
+    if (authProfile && user) {
+      setProfile(prev => ({
+        ...prev,
+        firstName: authProfile.first_name || '',
+        lastName: authProfile.last_name || '',
+        email: user.email || '',
+        phone: authProfile.phone || '',
+        address: {
+          street: authProfile.address || '',
+          city: authProfile.city || '',
+          state: authProfile.state || '',
+          zip: authProfile.postal_code || '',
+          country: authProfile.country || '',
+        },
+        bio: authProfile.bio || '',
+        profileImage: authProfile.avatar_url || '',
+        professionalInfo: {
+          title: userRole === 'provider' ? 'Service Provider' : userRole === 'seller' ? 'Product Seller' : 'Client',
+          company: authProfile.business_name || '',
+          experience: '',
+          skills: [],
+          certifications: [],
+        },
+      }));
+    }
+  }, [authProfile, user, userRole]);
   const [isEditing, setIsEditing] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
