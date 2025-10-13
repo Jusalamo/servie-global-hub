@@ -185,6 +185,7 @@
       rgba(71, 85, 105, 0.85) 100%
     );
   }
+}
 
 /* Animation keyframes for carousels */
 @keyframes carousel {
@@ -443,7 +444,4 @@ textarea:focus {
 
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(135deg, hsl(var(--servie-600)) 0%, hsl(var(--primary)) 100%);
-}
-
-/* Close the @layer base block */
 }
