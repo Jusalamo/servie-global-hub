@@ -1,19 +1,29 @@
+import { memo } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Bell, Calendar, Clock, ChevronRight, Star } from "lucide-react";
+import { useBookings } from "@/hooks/useBookings";
+import { useFavorites } from "@/hooks/useFavorites";
+import { Skeleton } from "@/components/ui/skeleton";
 
-interface OverviewTabProps {
-  user: any;
-  bookings: any[];
-  favoriteServices: any[];
-  isLoading?: boolean;
-}
-
-export const OverviewTab = ({ user, bookings, favoriteServices, isLoading = false }: OverviewTabProps) => {
+export const OverviewTab = memo(() => {
+  const { bookings, isLoading: bookingsLoading } = useBookings('client');
+  const { favorites, isLoading: favoritesLoading } = useFavorites();
+  
+  const isLoading = bookingsLoading || favoritesLoading;
+  
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[1, 2, 3].map(i => <Skeleton key={i} className="h-24" />)}
+        </div>
+        <Skeleton className="h-64" />
+      </div>
+    );
   }
   
   return (
@@ -54,7 +64,7 @@ export const OverviewTab = ({ user, bookings, favoriteServices, isLoading = fals
             <CardDescription>Services you love</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{favoriteServices?.length || 0}</div>
+            <div className="text-2xl font-bold">{favorites?.length || 0}</div>
           </CardContent>
         </Card>
       </div>
@@ -82,8 +92,8 @@ export const OverviewTab = ({ user, bookings, favoriteServices, isLoading = fals
             </div>
           ) : (
             <div className="divide-y">
-              {bookings?.slice(0, 3).map((booking: any) => {
-                const service = { title: "Service #" + booking.id }; // Fallback since we don't have services here
+              {bookings?.slice(0, 3).map((booking) => {
+                const serviceTitle = booking.services?.title || 'Service';
                 return (
                   <div key={booking.id} className="p-6 flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -91,11 +101,11 @@ export const OverviewTab = ({ user, bookings, favoriteServices, isLoading = fals
                         <Calendar className="w-5 h-5" />
                       </div>
                       <div>
-                        <p className="font-medium">{service?.title}</p>
+                        <p className="font-medium">{serviceTitle}</p>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <span>{booking.date}</span>
+                          <span>{new Date(booking.booking_date).toLocaleDateString()}</span>
                           <Clock className="w-3 h-3" />
-                          <span>{booking.time}</span>
+                          <span>{booking.booking_time}</span>
                         </div>
                       </div>
                     </div>
@@ -126,33 +136,40 @@ export const OverviewTab = ({ user, bookings, favoriteServices, isLoading = fals
         </CardHeader>
         <CardContent className="p-0">
           <div className="divide-y">
-            {favoriteServices?.slice(0, 3).map((service: any) => (
-              <div key={service.id} className="p-6 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <img
-                    src={service.imageUrl}
-                    alt={service.title}
-                    className="w-10 h-10 rounded-md object-cover"
-                  />
-                  <div>
-                    <p className="font-medium">{service.title}</p>
-                    <div className="flex items-center gap-1 text-sm">
-                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                      <span>{service.rating?.toFixed(1)}</span>
-                      <span className="text-muted-foreground">({service.reviewCount})</span>
+            {favorites?.slice(0, 3).map((favorite) => {
+              const service = favorite.services;
+              const imageUrl = service?.service_images?.find(img => img.is_primary)?.url 
+                || service?.service_images?.[0]?.url;
+              
+              return (
+                <div key={favorite.id} className="p-6 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {imageUrl && (
+                      <img
+                        src={imageUrl}
+                        alt={service?.title}
+                        className="w-10 h-10 rounded-md object-cover"
+                      />
+                    )}
+                    <div>
+                      <p className="font-medium">{service?.title}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {service?.profiles?.business_name || 
+                         `${service?.profiles?.first_name} ${service?.profiles?.last_name}`}
+                      </p>
                     </div>
                   </div>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to={`/service/${service?.id}`}>
+                      View
+                    </Link>
+                  </Button>
                 </div>
-                <Button variant="outline" size="sm" asChild>
-                  <Link to={`/service/${service.id}`}>
-                    View
-                  </Link>
-                </Button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </CardContent>
       </Card>
     </div>
   );
-};
+});

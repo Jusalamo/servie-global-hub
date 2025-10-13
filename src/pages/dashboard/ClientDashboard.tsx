@@ -1,7 +1,6 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo, Suspense } from "react";
 import { useLocation } from "react-router-dom";
-import { services, bookings } from "@/data/mockData";
 import { ClientSidebar } from "@/components/dashboard/ClientSidebar";
 import { OverviewTab } from "@/components/dashboard/client/OverviewTab";
 import { BookingsTab } from "@/components/dashboard/client/BookingsTab";
@@ -14,25 +13,12 @@ import MessagingSystem from "@/components/dashboard/MessagingSystem";
 import PaymentMethods from "@/components/dashboard/PaymentMethods";
 import ProfileSettings from "@/components/dashboard/ProfileSettings";
 import NotificationsSettings from "@/components/dashboard/NotificationsSettings";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// Get client bookings based on authenticated user
-const getClientBookings = (userId: string | undefined) => {
-  return userId ? bookings.filter(booking => booking.clientId === userId) : [];
-};
-
-// Get favorite services - for now using first 3 services as default
-const getFavoriteServices = () => {
-  return services.slice(0, 3);
-};
-
-const ClientDashboard = () => {
+const ClientDashboard = memo(() => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState("overview");
-  const { user, userRole, profile, isLoading: profileLoading } = useAuth();
-  
-  // Get user-specific data
-  const clientBookings = getClientBookings(user?.id);
-  const favoriteServices = getFavoriteServices();
+  const { profile, isLoading: profileLoading } = useAuth();
   
   // Extract active tab from URL if present
   useEffect(() => {
@@ -63,26 +49,23 @@ const ClientDashboard = () => {
   };
   
   const renderTabContent = () => {
+    const LoadingFallback = () => <Skeleton className="h-64" />;
+    
     switch(activeTab) {
       case "overview":
-        return <OverviewTab 
-          user={profile} 
-          bookings={clientBookings} 
-          favoriteServices={favoriteServices} 
-          isLoading={profileLoading}
-        />;
+        return <Suspense fallback={<LoadingFallback />}><OverviewTab /></Suspense>;
       case "bookings":
-        return <BookingsTab bookings={clientBookings} />;
+        return <Suspense fallback={<LoadingFallback />}><BookingsTab /></Suspense>;
       case "favorites":
-        return <FavoritesTab services={favoriteServices} />;
+        return <Suspense fallback={<LoadingFallback />}><FavoritesTab /></Suspense>;
       case "messages":
-        return <MessagingSystem userRole="client" />;
+        return <Suspense fallback={<LoadingFallback />}><MessagingSystem userRole="client" /></Suspense>;
       case "payments":
-        return <PaymentMethods />;
+        return <Suspense fallback={<LoadingFallback />}><PaymentMethods /></Suspense>;
       case "settings":
-        return <ProfileSettings userRole="client" />;
+        return <Suspense fallback={<LoadingFallback />}><ProfileSettings userRole="client" /></Suspense>;
       case "notifications":
-        return <NotificationsSettings />;
+        return <Suspense fallback={<LoadingFallback />}><NotificationsSettings /></Suspense>;
       default:
         return <div>Tab not found</div>;
     }
@@ -114,6 +97,6 @@ const ClientDashboard = () => {
       <AIAssistant />
     </div>
   );
-};
+});
 
 export default ClientDashboard;

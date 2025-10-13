@@ -1,16 +1,20 @@
+import { memo } from "react";
 import { Link } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Calendar, Clock, Star } from "lucide-react";
+import { Search, Calendar, Clock } from "lucide-react";
+import { useBookings } from "@/hooks/useBookings";
+import { Skeleton } from "@/components/ui/skeleton";
 
-interface BookingsTabProps {
-  bookings: any[];
-}
-
-export const BookingsTab = ({ bookings }: BookingsTabProps) => {
+export const BookingsTab = memo(() => {
+  const { bookings, isLoading } = useBookings('client');
+  
+  if (isLoading) {
+    return <Skeleton className="h-96" />;
+  }
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -46,8 +50,9 @@ export const BookingsTab = ({ bookings }: BookingsTabProps) => {
               </div>
             ) : (
               bookings?.filter(booking => booking.status === 'confirmed' || booking.status === 'pending')
-                .map((booking: any) => {
-                  const service = { title: "Service #" + booking.id }; // Fallback
+                .map((booking) => {
+                  const serviceTitle = booking.services?.title || 'Service';
+                  const servicePrice = booking.services?.price || 0;
                   return (
                     <Card key={booking.id}>
                       <CardContent className="p-6">
@@ -57,13 +62,13 @@ export const BookingsTab = ({ bookings }: BookingsTabProps) => {
                               <Calendar className="w-8 h-8" />
                             </div>
                             <div>
-                              <h3 className="font-medium">{service?.title}</h3>
-                              <p className="text-sm text-muted-foreground">Booking #{booking.id}</p>
+                              <h3 className="font-medium">{serviceTitle}</h3>
+                              <p className="text-sm text-muted-foreground">Booking #{booking.id.slice(0, 8)}</p>
                               <div className="flex items-center mt-1 text-sm">
                                 <Calendar className="w-3 h-3 mr-1" />
-                                <span>{booking.date}</span>
+                                <span>{new Date(booking.booking_date).toLocaleDateString()}</span>
                                 <Clock className="w-3 h-3 ml-3 mr-1" />
-                                <span>{booking.time}</span>
+                                <span>{booking.booking_time}</span>
                               </div>
                             </div>
                           </div>
@@ -71,7 +76,7 @@ export const BookingsTab = ({ bookings }: BookingsTabProps) => {
                             <Badge variant={booking.status === "confirmed" ? "default" : "secondary"}>
                               {booking.status}
                             </Badge>
-                            <span className="font-bold">${booking.price || '0'}</span>
+                            <span className="font-bold">${servicePrice}</span>
                             <Button variant="outline" size="sm">View Details</Button>
                           </div>
                         </div>
@@ -92,8 +97,9 @@ export const BookingsTab = ({ bookings }: BookingsTabProps) => {
               </div>
             ) : (
               bookings?.filter(booking => booking.status === 'completed')
-                .map((booking: any) => {
-                  const service = { title: "Service #" + booking.id }; // Fallback
+                .map((booking) => {
+                  const serviceTitle = booking.services?.title || 'Service';
+                  const servicePrice = booking.services?.price || 0;
                   return (
                     <Card key={booking.id}>
                       <CardContent className="p-6">
@@ -103,13 +109,15 @@ export const BookingsTab = ({ bookings }: BookingsTabProps) => {
                               <Calendar className="w-8 h-8" />
                             </div>
                             <div>
-                              <h3 className="font-medium">{service?.title}</h3>
-                              <p className="text-sm text-muted-foreground">Completed on {booking.date}</p>
+                              <h3 className="font-medium">{serviceTitle}</h3>
+                              <p className="text-sm text-muted-foreground">
+                                Completed on {new Date(booking.booking_date).toLocaleDateString()}
+                              </p>
                             </div>
                           </div>
                           <div className="flex flex-col items-end gap-2">
                             <Badge variant="outline">Completed</Badge>
-                            <span className="font-bold">${booking.price || '0'}</span>
+                            <span className="font-bold">${servicePrice}</span>
                             <div className="flex gap-2">
                               <Button variant="outline" size="sm">Leave Review</Button>
                               <Button variant="outline" size="sm">Book Again</Button>
@@ -133,4 +141,4 @@ export const BookingsTab = ({ bookings }: BookingsTabProps) => {
       </Tabs>
     </div>
   );
-};
+});
