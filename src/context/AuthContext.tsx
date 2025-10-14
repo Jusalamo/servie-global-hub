@@ -230,7 +230,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (error) {
       toast.error('Error signing out');
     } else {
+      // Clear state immediately
+      setUser(null);
+      setSession(null);
+      setUserRole(null);
+      setProfile(null);
       toast.success('Signed out successfully');
+      // Redirect to home page
+      window.location.href = '/';
     }
   };
 

@@ -334,6 +334,36 @@ export type Database = {
         }
         Relationships: []
       }
+      monetization_config: {
+        Row: {
+          config_key: string
+          config_value: Json
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          config_key: string
+          config_value: Json
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          config_key?: string
+          config_value?: Json
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string | null
@@ -419,30 +449,110 @@ export type Database = {
       }
       orders: {
         Row: {
+          completed_by_buyer_at: string | null
           created_at: string
+          disbursement_eligible_at: string | null
           id: string
+          order_status: string | null
           status: string
           total: number
           updated_at: string
           user_id: string
         }
         Insert: {
+          completed_by_buyer_at?: string | null
           created_at?: string
+          disbursement_eligible_at?: string | null
           id?: string
+          order_status?: string | null
           status?: string
           total?: number
           updated_at?: string
           user_id: string
         }
         Update: {
+          completed_by_buyer_at?: string | null
           created_at?: string
+          disbursement_eligible_at?: string | null
           id?: string
+          order_status?: string | null
           status?: string
           total?: number
           updated_at?: string
           user_id?: string
         }
         Relationships: []
+      }
+      payment_transactions: {
+        Row: {
+          amount: number
+          client_fee: number | null
+          completed_at: string | null
+          created_at: string | null
+          currency: string
+          disbursement_date: string | null
+          gateway_transaction_id: string | null
+          id: string
+          metadata: Json | null
+          order_id: string | null
+          payment_gateway: string
+          payment_method: string | null
+          platform_commission: number | null
+          seller_id: string | null
+          seller_payout: number | null
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          client_fee?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          currency?: string
+          disbursement_date?: string | null
+          gateway_transaction_id?: string | null
+          id?: string
+          metadata?: Json | null
+          order_id?: string | null
+          payment_gateway: string
+          payment_method?: string | null
+          platform_commission?: number | null
+          seller_id?: string | null
+          seller_payout?: number | null
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          client_fee?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          currency?: string
+          disbursement_date?: string | null
+          gateway_transaction_id?: string | null
+          id?: string
+          metadata?: Json | null
+          order_id?: string | null
+          payment_gateway?: string
+          payment_method?: string | null
+          platform_commission?: number | null
+          seller_id?: string | null
+          seller_payout?: number | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       product_reviews: {
         Row: {
@@ -482,6 +592,38 @@ export type Database = {
           },
         ]
       }
+      product_views: {
+        Row: {
+          created_at: string | null
+          id: string
+          product_id: string
+          viewer_id: string | null
+          viewer_ip: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          product_id: string
+          viewer_id?: string | null
+          viewer_ip?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          product_id?: string
+          viewer_id?: string | null
+          viewer_ip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_views_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category: string | null
@@ -491,8 +633,12 @@ export type Database = {
           featured: boolean | null
           id: string
           image_url: string | null
+          latitude: number | null
+          longitude: number | null
           name: string
           price: number
+          product_city: string | null
+          product_country: string | null
           seller_id: string
           status: string
           stock: number | null
@@ -506,8 +652,12 @@ export type Database = {
           featured?: boolean | null
           id?: string
           image_url?: string | null
+          latitude?: number | null
+          longitude?: number | null
           name: string
           price: number
+          product_city?: string | null
+          product_country?: string | null
           seller_id: string
           status?: string
           stock?: number | null
@@ -521,8 +671,12 @@ export type Database = {
           featured?: boolean | null
           id?: string
           image_url?: string | null
+          latitude?: number | null
+          longitude?: number | null
           name?: string
           price?: number
+          product_city?: string | null
+          product_country?: string | null
           seller_id?: string
           status?: string
           stock?: number | null
@@ -794,6 +948,51 @@ export type Database = {
           },
         ]
       }
+      seller_subscriptions: {
+        Row: {
+          auto_renew: boolean | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          last_payment_date: string | null
+          next_billing_date: string | null
+          payment_method: string | null
+          seller_id: string
+          starts_at: string
+          status: string
+          tier: string
+          updated_at: string | null
+        }
+        Insert: {
+          auto_renew?: boolean | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          last_payment_date?: string | null
+          next_billing_date?: string | null
+          payment_method?: string | null
+          seller_id: string
+          starts_at?: string
+          status?: string
+          tier: string
+          updated_at?: string | null
+        }
+        Update: {
+          auto_renew?: boolean | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          last_payment_date?: string | null
+          next_billing_date?: string | null
+          payment_method?: string | null
+          seller_id?: string
+          starts_at?: string
+          status?: string
+          tier?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       service_categories: {
         Row: {
           created_at: string | null
@@ -863,10 +1062,14 @@ export type Database = {
           description: string
           featured: boolean | null
           id: string
+          latitude: number | null
           location: string | null
+          longitude: number | null
           price: number
           provider_id: string | null
           response_time: string | null
+          service_city: string | null
+          service_country: string | null
           title: string
           updated_at: string | null
         }
@@ -876,10 +1079,14 @@ export type Database = {
           description: string
           featured?: boolean | null
           id?: string
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
           price: number
           provider_id?: string | null
           response_time?: string | null
+          service_city?: string | null
+          service_country?: string | null
           title: string
           updated_at?: string | null
         }
@@ -889,10 +1096,14 @@ export type Database = {
           description?: string
           featured?: boolean | null
           id?: string
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
           price?: number
           provider_id?: string | null
           response_time?: string | null
+          service_city?: string | null
+          service_country?: string | null
           title?: string
           updated_at?: string | null
         }
