@@ -5,6 +5,7 @@ import HowItWorks from './HowItWorks';
 import ServiceCategoriesCarousel from './ServiceCategoriesCarousel';
 import Testimonials from './Testimonials';
 import ProviderCTA from './ProviderCTA';
+import AdCarousel from './ads/AdCarousel';
 
 export default function HomePage() {
   return (
@@ -15,6 +16,7 @@ export default function HomePage() {
       <main className="flex-1">
         <Hero />
         <ServiceCategoriesCarousel />
+        <AdCarousel />
         <HowItWorks />
         <Testimonials />
         <ProviderCTA />

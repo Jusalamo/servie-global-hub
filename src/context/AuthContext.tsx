@@ -98,27 +98,42 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         if (!mounted) return;
         
         setSession(session);
         setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          const role = await fetchUserRole(session.user.id);
-          const profileData = await fetchUserProfile(session.user.id);
-          if (mounted) {
-            setUserRole(role);
-            setProfile(profileData);
-            setIsLoading(false);
-          }
-        } else {
-          if (mounted) {
-            setUserRole(null);
-            setProfile(null);
-            setIsLoading(false);
-          }
+
+        if (!session?.user) {
+          setUserRole(null);
+          setProfile(null);
+          setIsLoading(false);
+          return;
         }
+
+        // Defer Supabase calls to avoid deadlocks in auth callback
+        setTimeout(() => {
+          if (!mounted || !session?.user) return;
+          
+          fetchUserRole(session.user.id)
+            .then((role) => {
+              if (mounted) setUserRole(role);
+            })
+            .catch((err) => {
+              console.error('Error fetching user role (deferred):', err);
+            });
+
+          fetchUserProfile(session.user.id)
+            .then((profileData) => {
+              if (mounted && profileData) setProfile(profileData);
+            })
+            .catch((err) => {
+              console.error('Error fetching profile (deferred):', err);
+            })
+            .finally(() => {
+              if (mounted) setIsLoading(false);
+            });
+        }, 0);
       }
     );
 

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import ServiceListing from "@/components/services/ServiceListing";
+import AdCarousel from "@/components/ads/AdCarousel";
 
 export default function ServiceCategoriesPage() {
   const location = useLocation();
@@ -10,9 +11,12 @@ export default function ServiceCategoriesPage() {
   const initialSearch = queryParams.get('search') || '';
   
   return (
-    <ServiceListing 
-      initialCategory={initialCategory} 
-      initialSearch={initialSearch} 
-    />
+    <>
+      <AdCarousel />
+      <ServiceListing 
+        initialCategory={initialCategory} 
+        initialSearch={initialSearch} 
+      />
+    </>
   );
 }
