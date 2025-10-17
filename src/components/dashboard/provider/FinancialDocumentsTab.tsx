@@ -151,6 +151,55 @@ export default function FinancialDocumentsTab() {
     }
   };
 
+  const handleDownload = async (doc: FinancialDocument) => {
+    try {
+      toast.loading('Generating document...');
+      const { data, error } = await supabase.functions.invoke('generate-document', {
+        body: { documentId: doc.id, format: 'html' }
+      });
+
+      if (error) throw error;
+
+      // Create a blob and download
+      const blob = new Blob([data], { type: 'text/html' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${doc.document_number}.html`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast.dismiss();
+      toast.success('Document downloaded successfully');
+    } catch (error: any) {
+      toast.dismiss();
+      toast.error('Failed to download document');
+      console.error('Error downloading document:', error);
+    }
+  };
+
+  const handleView = async (doc: FinancialDocument) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-document', {
+        body: { documentId: doc.id, format: 'html' }
+      });
+
+      if (error) throw error;
+
+      // Open in new window
+      const win = window.open('', '_blank');
+      if (win) {
+        win.document.write(data);
+        win.document.close();
+      }
+    } catch (error: any) {
+      toast.error('Failed to view document');
+      console.error('Error viewing document:', error);
+    }
+  };
+
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Header */}
@@ -318,13 +367,23 @@ export default function FinancialDocumentsTab() {
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <Button variant="outline" size="sm" title="View">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    title="View"
+                    onClick={() => handleView(doc)}
+                  >
                     <Eye className="h-4 w-4" />
                   </Button>
                   <Button variant="outline" size="sm" title="Edit">
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button variant="outline" size="sm" title="Download">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    title="Download"
+                    onClick={() => handleDownload(doc)}
+                  >
                     <Download className="h-4 w-4" />
                   </Button>
                   <Button variant="outline" size="sm" title="Send">

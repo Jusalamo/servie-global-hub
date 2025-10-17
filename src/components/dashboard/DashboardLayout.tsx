@@ -8,7 +8,7 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children, sidebar }: DashboardLayoutProps) {
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen">
+    <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] min-h-screen w-full">
       {sidebar}
       <div className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto">
         <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">

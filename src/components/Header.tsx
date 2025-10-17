@@ -82,13 +82,13 @@ const Header = () => {
             )}
 
             {/* For desktop view */}
-            <div className="hidden md:flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-2 flex-wrap">
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="ghost" size="sm" className="flex items-center gap-1 whitespace-nowrap">
+                  <Button variant="ghost" size="sm" className="flex items-center gap-1 px-2 min-w-0">
                     <Globe className="h-4 w-4 flex-shrink-0" />
-                    <span className="hidden lg:inline truncate max-w-[80px]">{currentLanguage.name}</span>
-                    <ChevronDown className="h-4 w-4 opacity-50 flex-shrink-0" />
+                    <span className="hidden xl:inline truncate max-w-[60px] text-xs">{currentLanguage.name}</span>
+                    <ChevronDown className="h-3 w-3 opacity-50 flex-shrink-0" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-72 p-0 max-h-[400px] overflow-hidden" align="end">
