@@ -213,18 +213,22 @@ const ProfileSettings = ({ userRole = 'client' }: ProfileSettingsProps) => {
         .update({
           first_name: profile.firstName,
           last_name: profile.lastName,
-          phone: profile.phone,
-          bio: profile.bio,
-          avatar_url: profile.profileImage,
-          address: profile.address.street,
-          city: profile.address.city,
-          state: profile.address.state,
-          postal_code: profile.address.zip,
-          country: profile.address.country
+          phone: profile.phone || null,
+          bio: profile.bio || null,
+          avatar_url: profile.profileImage || null,
+          address: profile.address.street || null,
+          city: profile.address.city || null,
+          state: profile.address.state || null,
+          postal_code: profile.address.zip || null,
+          country: profile.address.country || null,
+          whatsapp: profile.phone || null
         })
         .eq('id', user?.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Profile update error:', error);
+        throw error;
+      }
 
       toast.success("Profile updated successfully!");
       setIsEditing(false);

@@ -36,7 +36,7 @@ export class ServiceAPI {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data: service, error } = await supabase
+    const result: any = await supabase
       .from('services')
       .insert({
         ...serviceData,
@@ -45,12 +45,17 @@ export class ServiceAPI {
       .select('*')
       .single();
 
-    if (error) throw error;
-    return service;
+    if (result.error) throw result.error;
+    return result.data;
   }
 
   async getServices(filters: ServiceFilters = {}): Promise<Service[]> {
-    let query = supabase.from('services').select('*');
+    let query: any = supabase.from('services').select('*');
+
+    // For public view, show only active services
+    if (!filters.provider_id) {
+      query = query.eq('status', 'active');
+    }
 
     if (filters.category_id) {
       query = query.eq('category_id', filters.category_id);
@@ -64,10 +69,10 @@ export class ServiceAPI {
       query = query.eq('featured', filters.featured);
     }
 
-    const { data: services, error } = await query.order('created_at', { ascending: false });
+    const result = await query.order('created_at', { ascending: false });
 
-    if (error) throw error;
-    return services || [];
+    if (result.error) throw result.error;
+    return result.data || [];
   }
 
   async getMyServices(): Promise<Service[]> {
@@ -78,21 +83,21 @@ export class ServiceAPI {
   }
 
   async getServiceById(id: string): Promise<Service | null> {
-    const { data: service, error } = await supabase
+    const result: any = await supabase
       .from('services')
       .select('*')
       .eq('id', id)
-      .single();
+      .maybeSingle();
 
-    if (error) throw error;
-    return service;
+    if (result.error) throw result.error;
+    return result.data;
   }
 
   async updateService(id: string, updates: Partial<CreateServiceData>): Promise<Service> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { data: service, error } = await supabase
+    const result: any = await supabase
       .from('services')
       .update(updates)
       .eq('id', id)
@@ -100,21 +105,21 @@ export class ServiceAPI {
       .select('*')
       .single();
 
-    if (error) throw error;
-    return service;
+    if (result.error) throw result.error;
+    return result.data;
   }
 
   async deleteService(id: string): Promise<void> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { error } = await supabase
+    const result: any = await supabase
       .from('services')
       .delete()
       .eq('id', id)
       .eq('provider_id', user.id);
 
-    if (error) throw error;
+    if (result.error) throw result.error;
   }
 
   async toggleServiceStatus(id: string, status: string): Promise<Service> {

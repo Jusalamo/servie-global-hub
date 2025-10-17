@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { serviceAPI } from "@/services/serviceAPI";
+import { supabase } from "@/integrations/supabase/client";
+import { Upload } from "lucide-react";
 
 interface AddServiceFormProps {
   service?: any;
@@ -16,24 +18,83 @@ interface AddServiceFormProps {
 
 const AddServiceForm = ({ service, onSuccess, onCancel }: AddServiceFormProps) => {
   const [loading, setLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [formData, setFormData] = useState({
     title: service?.title || "",
     description: service?.description || "",
     price: service?.price || "",
     location: service?.location || "",
-    response_time: service?.response_time || ""
+    response_time: service?.response_time || "",
+    service_city: service?.service_city || "",
+    service_country: service?.service_country || ""
   });
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      toast.success("Image selected successfully");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      let imageUrl = service?.image_url || null;
+
+      // Upload image if selected
+      if (imageFile) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('User not authenticated');
+
+        const fileExt = imageFile.name.split('.').pop();
+        const filePath = `services/${user.id}-${Date.now()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(filePath, imageFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(filePath);
+
+        imageUrl = urlData.publicUrl;
+
+        // Save image URL to service_images table
+        if (service?.id) {
+          await supabase.from('service_images').insert({
+            service_id: service.id,
+            url: imageUrl,
+            is_primary: true
+          });
+        }
+      }
+
+      const serviceData = {
+        ...formData,
+        price: parseFloat(formData.price),
+        status: 'active'
+      };
+
       if (service) {
-        await serviceAPI.updateService(service.id, formData);
+        await serviceAPI.updateService(service.id, serviceData);
         toast.success("Service updated successfully");
       } else {
-        await serviceAPI.createService(formData);
+        const newService = await serviceAPI.createService(serviceData);
+        
+        // Save image for new service
+        if (imageUrl && newService.id) {
+          await supabase.from('service_images').insert({
+            service_id: newService.id,
+            url: imageUrl,
+            is_primary: true
+          });
+        }
+        
         toast.success("Service created successfully");
       }
       onSuccess();
@@ -113,6 +174,51 @@ const AddServiceForm = ({ service, onSuccess, onCancel }: AddServiceFormProps) =
                 value={formData.response_time}
                 onChange={(e) => handleInputChange("response_time", e.target.value)}
               />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="service_city">Service City</Label>
+                <Input
+                  id="service_city"
+                  value={formData.service_city}
+                  onChange={(e) => handleInputChange("service_city", e.target.value)}
+                  placeholder="e.g. Nairobi"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="service_country">Service Country</Label>
+                <Input
+                  id="service_country"
+                  value={formData.service_country}
+                  onChange={(e) => handleInputChange("service_country", e.target.value)}
+                  placeholder="e.g. Kenya"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="image">Service Image</Label>
+              <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6">
+                <div className="text-center">
+                  <Upload className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                  <div className="mt-4">
+                    <label htmlFor="image" className="cursor-pointer">
+                      <span className="mt-2 block text-sm font-medium">
+                        {imageFile ? imageFile.name : 'Choose an image'}
+                      </span>
+                      <input
+                        id="image"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="sr-only"
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <Button type="submit" disabled={loading} className="bg-servie hover:bg-servie-600">
