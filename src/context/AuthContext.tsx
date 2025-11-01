@@ -19,6 +19,15 @@ interface UserProfile {
   address: string | null;
   whatsapp: string | null;
   postal_code: string | null;
+  // KYC and Security fields
+  kyc_status?: string | null;
+  kyc_document_url?: string | null;
+  kyc_submitted_at?: string | null;
+  kyc_verified_at?: string | null;
+  two_fa_enabled?: boolean;
+  two_fa_verified_at?: string | null;
+  bank_account_verified?: boolean;
+  bank_account_verified_at?: string | null;
 }
 
 interface AuthContextType {

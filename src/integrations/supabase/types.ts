@@ -220,6 +220,68 @@ export type Database = {
         }
         Relationships: []
       }
+      escrow_transactions: {
+        Row: {
+          amount: number
+          buyer_id: string
+          created_at: string
+          currency: string
+          dispute_reason: string | null
+          escrow_status: string
+          funded_at: string | null
+          id: string
+          metadata: Json | null
+          order_id: string
+          refunded_at: string | null
+          release_date: string | null
+          released_at: string | null
+          seller_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          buyer_id: string
+          created_at?: string
+          currency?: string
+          dispute_reason?: string | null
+          escrow_status?: string
+          funded_at?: string | null
+          id?: string
+          metadata?: Json | null
+          order_id: string
+          refunded_at?: string | null
+          release_date?: string | null
+          released_at?: string | null
+          seller_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          buyer_id?: string
+          created_at?: string
+          currency?: string
+          dispute_reason?: string | null
+          escrow_status?: string
+          funded_at?: string | null
+          id?: string
+          metadata?: Json | null
+          order_id?: string
+          refunded_at?: string | null
+          release_date?: string | null
+          released_at?: string | null
+          seller_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "escrow_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       favorites: {
         Row: {
           client_id: string | null
@@ -297,6 +359,42 @@ export type Database = {
           transaction_date?: string
           type?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      idempotency_keys: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          idempotency_key: string
+          request_payload: Json
+          request_type: string
+          response_payload: Json | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          idempotency_key: string
+          request_payload: Json
+          request_type: string
+          response_payload?: Json | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          idempotency_key?: string
+          request_payload?: Json
+          request_type?: string
+          response_payload?: Json | null
+          status?: string
           user_id?: string
         }
         Relationships: []
@@ -405,6 +503,45 @@ export type Database = {
           },
         ]
       }
+      off_platform_violations: {
+        Row: {
+          action_taken: string | null
+          created_at: string
+          evidence: Json | null
+          id: string
+          reported_by: string | null
+          severity: string
+          status: string
+          updated_at: string
+          user_id: string
+          violation_type: string
+        }
+        Insert: {
+          action_taken?: string | null
+          created_at?: string
+          evidence?: Json | null
+          id?: string
+          reported_by?: string | null
+          severity?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          violation_type: string
+        }
+        Update: {
+          action_taken?: string | null
+          created_at?: string
+          evidence?: Json | null
+          id?: string
+          reported_by?: string | null
+          severity?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          violation_type?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string
@@ -482,6 +619,77 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      payment_splits: {
+        Row: {
+          created_at: string
+          currency: string
+          gross_amount: number
+          id: string
+          metadata: Json | null
+          order_id: string | null
+          platform_commission: number
+          platform_commission_rate: number
+          platform_paid_at: string | null
+          psp_fee: number
+          psp_fee_rate: number
+          psp_fixed_fee: number
+          seller_id: string
+          seller_paid_at: string | null
+          seller_payout: number
+          split_status: string
+          transaction_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          gross_amount: number
+          id?: string
+          metadata?: Json | null
+          order_id?: string | null
+          platform_commission: number
+          platform_commission_rate?: number
+          platform_paid_at?: string | null
+          psp_fee: number
+          psp_fee_rate?: number
+          psp_fixed_fee?: number
+          seller_id: string
+          seller_paid_at?: string | null
+          seller_payout: number
+          split_status?: string
+          transaction_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          gross_amount?: number
+          id?: string
+          metadata?: Json | null
+          order_id?: string | null
+          platform_commission?: number
+          platform_commission_rate?: number
+          platform_paid_at?: string | null
+          psp_fee?: number
+          psp_fee_rate?: number
+          psp_fixed_fee?: number
+          seller_id?: string
+          seller_paid_at?: string | null
+          seller_payout?: number
+          split_status?: string
+          transaction_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_splits_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payment_transactions: {
         Row: {
@@ -696,6 +904,8 @@ export type Database = {
         Row: {
           address: string | null
           avatar_url: string | null
+          bank_account_verified: boolean | null
+          bank_account_verified_at: string | null
           bio: string | null
           business_name: string | null
           city: string | null
@@ -703,6 +913,10 @@ export type Database = {
           created_at: string | null
           first_name: string | null
           id: string
+          kyc_document_url: string | null
+          kyc_status: string | null
+          kyc_submitted_at: string | null
+          kyc_verified_at: string | null
           last_name: string | null
           mfa_enabled: boolean | null
           mfa_secret: string | null
@@ -710,12 +924,16 @@ export type Database = {
           postal_code: string | null
           role: string
           state: string | null
+          two_fa_enabled: boolean | null
+          two_fa_verified_at: string | null
           updated_at: string | null
           whatsapp: string | null
         }
         Insert: {
           address?: string | null
           avatar_url?: string | null
+          bank_account_verified?: boolean | null
+          bank_account_verified_at?: string | null
           bio?: string | null
           business_name?: string | null
           city?: string | null
@@ -723,6 +941,10 @@ export type Database = {
           created_at?: string | null
           first_name?: string | null
           id: string
+          kyc_document_url?: string | null
+          kyc_status?: string | null
+          kyc_submitted_at?: string | null
+          kyc_verified_at?: string | null
           last_name?: string | null
           mfa_enabled?: boolean | null
           mfa_secret?: string | null
@@ -730,12 +952,16 @@ export type Database = {
           postal_code?: string | null
           role?: string
           state?: string | null
+          two_fa_enabled?: boolean | null
+          two_fa_verified_at?: string | null
           updated_at?: string | null
           whatsapp?: string | null
         }
         Update: {
           address?: string | null
           avatar_url?: string | null
+          bank_account_verified?: boolean | null
+          bank_account_verified_at?: string | null
           bio?: string | null
           business_name?: string | null
           city?: string | null
@@ -743,6 +969,10 @@ export type Database = {
           created_at?: string | null
           first_name?: string | null
           id?: string
+          kyc_document_url?: string | null
+          kyc_status?: string | null
+          kyc_submitted_at?: string | null
+          kyc_verified_at?: string | null
           last_name?: string | null
           mfa_enabled?: boolean | null
           mfa_secret?: string | null
@@ -750,6 +980,8 @@ export type Database = {
           postal_code?: string | null
           role?: string
           state?: string | null
+          two_fa_enabled?: boolean | null
+          two_fa_verified_at?: string | null
           updated_at?: string | null
           whatsapp?: string | null
         }
@@ -993,6 +1225,39 @@ export type Database = {
         }
         Relationships: []
       }
+      seller_wallets: {
+        Row: {
+          balance: number
+          commission_deposit: number
+          created_at: string
+          currency: string
+          id: string
+          last_deposit_at: string | null
+          seller_id: string
+          updated_at: string
+        }
+        Insert: {
+          balance?: number
+          commission_deposit?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          last_deposit_at?: string | null
+          seller_id: string
+          updated_at?: string
+        }
+        Update: {
+          balance?: number
+          commission_deposit?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          last_deposit_at?: string | null
+          seller_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       service_categories: {
         Row: {
           created_at: string | null
@@ -1150,18 +1415,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      generate_quote_number: {
-        Args: Record<PropertyKey, never>
-        Returns: string
+      calculate_payment_split: {
+        Args: {
+          p_gross_amount: number
+          p_platform_rate?: number
+          p_psp_fixed?: number
+          p_psp_rate?: number
+        }
+        Returns: {
+          platform_commission: number
+          psp_fee: number
+          seller_payout: number
+        }[]
       }
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      get_user_role: {
-        Args: { _user_id: string }
-        Returns: string
-      }
+      generate_quote_number: { Args: never; Returns: string }
+      get_current_user_role: { Args: never; Returns: string }
+      get_user_role: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

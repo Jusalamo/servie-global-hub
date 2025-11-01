@@ -12,7 +12,9 @@ import {
   HelpCircle, 
   MessageSquare, 
   TrendingUp, 
-  Store 
+  Store,
+  Shield,
+  Wallet
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -57,7 +59,7 @@ export default function SellerSidebar({ activeTab, onTabChange }: SellerSidebarP
       <Card className="mb-6">
         <CardContent className="p-4 flex flex-col items-center space-y-2">
           <Avatar className="h-16 w-16">
-            <AvatarImage src={user?.user_metadata?.avatar_url || "/placeholder.svg"} alt="Profile" />
+            <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
             <AvatarFallback>{user?.user_metadata?.first_name?.charAt(0) || 'S'}</AvatarFallback>
           </Avatar>
           <div className="text-center">
@@ -136,6 +138,20 @@ export default function SellerSidebar({ activeTab, onTabChange }: SellerSidebarP
           label="Payments"
           isActive={activeTab === "payments"}
           onClick={() => handleTabClick("payments")}
+        />
+        
+        <SidebarLink
+          icon={<Wallet className="h-5 w-5" />}
+          label="Wallet & Commission"
+          isActive={activeTab === "wallet"}
+          onClick={() => handleTabClick("wallet")}
+        />
+        
+        <SidebarLink
+          icon={<Shield className="h-5 w-5" />}
+          label="Security & KYC"
+          isActive={activeTab === "security"}
+          onClick={() => handleTabClick("security")}
         />
         
         <SidebarLink

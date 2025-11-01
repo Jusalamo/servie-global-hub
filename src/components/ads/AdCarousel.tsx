@@ -8,28 +8,27 @@ import {
 } from '@/components/ui/carousel';
 import { Card } from '@/components/ui/card';
 
-// Temporary mock ads (replace with Supabase data later)
-const mockAds = [
+const ads = [
   {
     id: 'ad-1',
     title: 'Trusted Local Pros Near You',
     description: 'Book vetted service providers across Africa.',
-    imageUrl: '/placeholder.svg',
-    linkUrl: '#',
+    imageUrl: 'https://images.unsplash.com/photo-1556740758-90de374c12ad?w=800&h=400&fit=crop',
+    linkUrl: '/services',
   },
   {
     id: 'ad-2',
     title: 'Sell Your Services on Servie',
     description: 'Join free. Upgrade anytime for more reach.',
-    imageUrl: '/placeholder.svg',
-    linkUrl: '#',
+    imageUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=400&fit=crop',
+    linkUrl: '/become-seller',
   },
   {
     id: 'ad-3',
     title: 'Shop Local, Support Communities',
     description: 'Discover products from nearby sellers.',
-    imageUrl: '/placeholder.svg',
-    linkUrl: '#',
+    imageUrl: 'https://images.unsplash.com/photo-1556740714-a8395b3bf30f?w=800&h=400&fit=crop',
+    linkUrl: '/shop',
   },
 ];
 
@@ -42,7 +41,7 @@ const AdCarousel: React.FC = () => {
           className="relative"
         >
           <CarouselContent>
-            {mockAds.map((ad) => (
+            {ads.map((ad) => (
               <CarouselItem key={ad.id} className="md:basis-1/2 lg:basis-1/3">
                 <a href={ad.linkUrl} aria-label={ad.title} className="block group">
                   <Card className="overflow-hidden border-foreground/10">

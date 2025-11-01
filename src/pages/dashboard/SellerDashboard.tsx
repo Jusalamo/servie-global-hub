@@ -10,6 +10,8 @@ import MessagingSystem from "@/components/dashboard/MessagingSystem";
 import PaymentMethods from "@/components/dashboard/PaymentMethods";
 import ProfileSettings from "@/components/dashboard/ProfileSettings";
 import NotificationsSettings from "@/components/dashboard/NotificationsSettings";
+import { KYCVerification } from "@/components/dashboard/KYCVerification";
+import { SellerWallet } from "@/components/dashboard/SellerWallet";
 import { useLocation } from "react-router-dom";
 import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
 
@@ -39,6 +41,8 @@ export default function SellerDashboard() {
       case "products": return "Products";
       case "orders": return "Orders";
       case "payments": return "Payments";
+      case "security": return "Security & KYC";
+      case "wallet": return "Wallet & Commission";
       case "messages": return "Messages";
       case "settings": return "Account Settings";
       case "notifications": return "Notifications";
@@ -58,6 +62,10 @@ export default function SellerDashboard() {
         return <OrdersTab />;
       case "payments":
         return <PaymentMethods />;
+      case "security":
+        return <KYCVerification />;
+      case "wallet":
+        return <SellerWallet />;
       case "messages":
         return <MessagingSystem userRole="seller" />;
       case "settings":
