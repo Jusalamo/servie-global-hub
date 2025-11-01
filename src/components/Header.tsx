@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Globe, ChevronDown, User } from 'lucide-react';
+import { Globe, ChevronDown, User } from 'lucide-react';
 import { Button } from './ui/button';
 import ServieIcon from './ServieIcon';
 import { useAuth } from '@/context/AuthContext';
@@ -8,6 +8,7 @@ import { useLocalization } from './LangCurrencySelector';
 import CartIndicator from './CartIndicator';
 import NotificationBell from './NotificationBell';
 import { ThemeToggle } from './ui/ThemeToggle';
+import { MobileNav } from './mobile/MobileNav';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +24,6 @@ import LangCurrencySelector from './LangCurrencySelector';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isAuthenticated, user, signOut, userRole } = useAuth();
   const { currentLanguage, translate } = useLocalization();
   const location = useLocation();
@@ -41,10 +41,6 @@ const Header = () => {
     };
   }, []);
 
-  // Close mobile menu when changing routes
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [location.pathname]);
 
   const getDashboardLink = () => {
     if (!userRole) return "/dashboard";
@@ -71,6 +67,9 @@ const Header = () => {
             </Link>
           </div>
 
+          {/* Mobile Navigation */}
+          <MobileNav />
+          
           {/* Right side buttons */}
           <div className="flex items-center gap-2">
             {/* Only show these when authenticated */}
@@ -131,70 +130,8 @@ const Header = () => {
                 </div>
               )}
             </div>
-            
-            {/* Mobile menu button */}
-            <button 
-              className="md:hidden p-2 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800" 
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label="Toggle menu"
-            >
-              {isMobileMenuOpen ? <X /> : <Menu />}
-            </button>
           </div>
         </div>
-        
-        {/* Mobile menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden py-2 pb-3 space-y-1 animate-fade-in">
-            <div className="px-3 py-2 flex items-center justify-between mb-2">
-              <span className="text-sm font-medium whitespace-normal">Language</span>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="flex items-center gap-1 whitespace-nowrap">
-                    <Globe className="h-4 w-4 flex-shrink-0" />
-                    <span className="truncate max-w-[100px]">{currentLanguage.name}</span>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-72 p-0" align="end">
-                  <LangCurrencySelector showCurrencies={false} />
-                </PopoverContent>
-              </Popover>
-            </div>
-            
-            <div className="px-3 py-2 flex items-center justify-between mb-2">
-              <span className="text-sm font-medium whitespace-normal">Theme</span>
-              <ThemeToggle />
-            </div>
-            
-            <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
-            
-            {isAuthenticated ? (
-              <>
-                <Link to={getDashboardLink()} className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 whitespace-normal break-words">
-                  Dashboard
-                </Link>
-                <Link to="/profile" className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 whitespace-normal break-words">
-                  Profile
-                </Link>
-                <button
-                  onClick={signOut}
-                  className="flex w-full items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 whitespace-normal break-words text-left"
-                >
-                  Sign out
-                </button>
-              </>
-            ) : (
-              <>
-                <Link to="/sign-in" className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 whitespace-normal break-words">
-                  {translate('signIn')}
-                </Link>
-                <Link to="/sign-up" className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 whitespace-normal break-words">
-                  {translate('signUp')}
-                </Link>
-              </>
-            )}
-          </div>
-        )}
       </div>
     </header>
   );
