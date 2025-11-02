@@ -21,11 +21,11 @@ const buttonVariants = cva(
         gradient: "bg-gradient-to-r from-servie via-primary to-servie-600 text-white hover:shadow-xl hover:-translate-y-1 shadow-lg",
       },
       size: {
-        default: "h-10 px-3 py-2 text-sm sm:px-4 sm:text-sm",
-        sm: "h-8 rounded-md px-2 text-xs sm:h-9 sm:px-3 sm:text-sm",
-        lg: "h-10 rounded-md px-4 text-sm sm:h-11 sm:px-8 sm:text-base",
-        xl: "h-11 rounded-lg px-6 text-base sm:h-12 sm:px-10 sm:text-lg",
-        icon: "h-10 w-10 min-w-10",
+        default: "h-11 min-h-[44px] px-3 py-2 text-sm sm:px-4 sm:text-sm",
+        sm: "h-10 min-h-[44px] rounded-md px-2 text-xs sm:h-10 sm:px-3 sm:text-sm",
+        lg: "h-12 min-h-[48px] rounded-md px-4 text-sm sm:h-12 sm:px-8 sm:text-base",
+        xl: "h-14 min-h-[56px] rounded-lg px-6 text-base sm:h-14 sm:px-10 sm:text-lg",
+        icon: "h-11 w-11 min-h-[44px] min-w-[44px]",
       },
     },
     defaultVariants: {

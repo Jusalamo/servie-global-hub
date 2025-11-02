@@ -56,6 +56,48 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_listing_usage: {
+        Row: {
+          created_at: string | null
+          id: string
+          product_id: string | null
+          tokens_used: number | null
+          usage_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          product_id?: string | null
+          tokens_used?: number | null
+          usage_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          product_id?: string | null
+          tokens_used?: number | null
+          usage_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_listing_usage_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_listing_usage_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           booking_date: string
@@ -586,35 +628,44 @@ export type Database = {
       }
       orders: {
         Row: {
+          carrier: string | null
           completed_by_buyer_at: string | null
           created_at: string
           disbursement_eligible_at: string | null
           id: string
           order_status: string | null
+          shipping_status: string | null
           status: string
           total: number
+          tracking_number: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          carrier?: string | null
           completed_by_buyer_at?: string | null
           created_at?: string
           disbursement_eligible_at?: string | null
           id?: string
           order_status?: string | null
+          shipping_status?: string | null
           status?: string
           total?: number
+          tracking_number?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          carrier?: string | null
           completed_by_buyer_at?: string | null
           created_at?: string
           disbursement_eligible_at?: string | null
           id?: string
           order_status?: string | null
+          shipping_status?: string | null
           status?: string
           total?: number
+          tracking_number?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -834,10 +885,16 @@ export type Database = {
       }
       products: {
         Row: {
+          ai_generated_description: string | null
+          ai_generated_title: string | null
+          ai_optimization_score: number | null
+          ai_suggested_category: string | null
           category: string | null
           category_id: string | null
           created_at: string
+          delivery_time: string | null
           description: string | null
+          dimensions: Json | null
           featured: boolean | null
           id: string
           image_url: string | null
@@ -847,16 +904,27 @@ export type Database = {
           price: number
           product_city: string | null
           product_country: string | null
+          return_policy: string | null
           seller_id: string
+          shipping_cost: number | null
+          shipping_policy: string | null
+          shipping_type: string | null
           status: string
           stock: number | null
           updated_at: string
+          weight: number | null
         }
         Insert: {
+          ai_generated_description?: string | null
+          ai_generated_title?: string | null
+          ai_optimization_score?: number | null
+          ai_suggested_category?: string | null
           category?: string | null
           category_id?: string | null
           created_at?: string
+          delivery_time?: string | null
           description?: string | null
+          dimensions?: Json | null
           featured?: boolean | null
           id?: string
           image_url?: string | null
@@ -866,16 +934,27 @@ export type Database = {
           price: number
           product_city?: string | null
           product_country?: string | null
+          return_policy?: string | null
           seller_id: string
+          shipping_cost?: number | null
+          shipping_policy?: string | null
+          shipping_type?: string | null
           status?: string
           stock?: number | null
           updated_at?: string
+          weight?: number | null
         }
         Update: {
+          ai_generated_description?: string | null
+          ai_generated_title?: string | null
+          ai_optimization_score?: number | null
+          ai_suggested_category?: string | null
           category?: string | null
           category_id?: string | null
           created_at?: string
+          delivery_time?: string | null
           description?: string | null
+          dimensions?: Json | null
           featured?: boolean | null
           id?: string
           image_url?: string | null
@@ -885,10 +964,15 @@ export type Database = {
           price?: number
           product_city?: string | null
           product_country?: string | null
+          return_policy?: string | null
           seller_id?: string
+          shipping_cost?: number | null
+          shipping_policy?: string | null
+          shipping_type?: string | null
           status?: string
           stock?: number | null
           updated_at?: string
+          weight?: number | null
         }
         Relationships: [
           {

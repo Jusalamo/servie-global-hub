@@ -175,13 +175,17 @@ const BookingModal = ({ isOpen, onClose, service }: BookingModalProps) => {
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4">
-            <Button variant="outline" onClick={onClose} className="flex-1">
+            <Button 
+              variant="outline" 
+              onClick={onClose} 
+              className="flex-1 min-h-[48px]"
+            >
               Cancel
             </Button>
             <Button 
               onClick={handleBooking} 
               disabled={!selectedDate || !selectedTime || loading}
-              className="flex-1 bg-servie hover:bg-servie-600"
+              className="flex-1 bg-servie hover:bg-servie-600 min-h-[48px]"
             >
               {loading ? "Creating Booking..." : "Confirm Booking"}
             </Button>

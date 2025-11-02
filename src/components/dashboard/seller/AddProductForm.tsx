@@ -23,7 +23,12 @@ const AddProductForm = ({ product, onSuccess, onCancel }: AddProductFormProps) =
     price: product?.price || '',
     stock_quantity: product?.stock_quantity || '',
     category_id: product?.category_id || '',
-    featured: product?.featured || false
+    featured: product?.featured || false,
+    shipping_type: product?.shipping_type || 'fixed',
+    shipping_cost: product?.shipping_cost || '',
+    shipping_policy: product?.shipping_policy || '',
+    return_policy: product?.return_policy || '',
+    delivery_time: product?.delivery_time || ''
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -50,7 +55,12 @@ const AddProductForm = ({ product, onSuccess, onCancel }: AddProductFormProps) =
         category_id: formData.category_id || null,
         category: formData.category_id || null,
         featured: formData.featured,
-        status: 'active'
+        status: 'active',
+        shipping_type: formData.shipping_type,
+        shipping_cost: formData.shipping_type === 'fixed' ? parseFloat(formData.shipping_cost) || 0 : 0,
+        shipping_policy: formData.shipping_policy,
+        return_policy: formData.return_policy,
+        delivery_time: formData.delivery_time
       };
 
       if (product?.id) {
@@ -182,6 +192,74 @@ const AddProductForm = ({ product, onSuccess, onCancel }: AddProductFormProps) =
                     </label>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            <div className="space-y-4 border-t pt-4">
+              <h3 className="text-lg font-semibold">Shipping & Logistics</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="shipping_type">Shipping Type</Label>
+                  <Select
+                    value={formData.shipping_type || 'fixed'}
+                    onValueChange={(value) => handleInputChange('shipping_type', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select shipping type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="free">Free Shipping</SelectItem>
+                      <SelectItem value="fixed">Fixed Shipping Cost</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {formData.shipping_type === 'fixed' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="shipping_cost">Shipping Cost</Label>
+                    <Input
+                      id="shipping_cost"
+                      type="number"
+                      step="0.01"
+                      value={formData.shipping_cost || ''}
+                      onChange={(e) => handleInputChange('shipping_cost', e.target.value)}
+                      placeholder="0.00"
+                    />
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="delivery_time">Estimated Delivery Time</Label>
+                  <Input
+                    id="delivery_time"
+                    value={formData.delivery_time || ''}
+                    onChange={(e) => handleInputChange('delivery_time', e.target.value)}
+                    placeholder="e.g., 3-5 business days"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="shipping_policy">Shipping Policy</Label>
+                <Textarea
+                  id="shipping_policy"
+                  value={formData.shipping_policy || ''}
+                  onChange={(e) => handleInputChange('shipping_policy', e.target.value)}
+                  placeholder="Describe your shipping policy..."
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="return_policy">Return Policy</Label>
+                <Textarea
+                  id="return_policy"
+                  value={formData.return_policy || ''}
+                  onChange={(e) => handleInputChange('return_policy', e.target.value)}
+                  placeholder="Describe your return and refund policy..."
+                  rows={3}
+                />
               </div>
             </div>
 

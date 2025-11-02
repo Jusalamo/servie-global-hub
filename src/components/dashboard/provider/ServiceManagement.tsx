@@ -8,6 +8,7 @@ import { serviceAPI } from "@/services/serviceAPI";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 import { Pencil, Trash2, Plus, Eye } from "lucide-react";
 import AddServiceForm from "./AddServiceForm";
+import { KYCEnforcementBanner } from "../KYCEnforcementBanner";
 
 const ServiceManagement = () => {
   const [services, setServices] = useState([]);
@@ -89,6 +90,8 @@ const ServiceManagement = () => {
 
   return (
     <div className="space-y-6">
+      <KYCEnforcementBanner />
+      
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Manage Services</h2>
         <Button onClick={() => setShowAddForm(true)} className="bg-servie hover:bg-servie-600">

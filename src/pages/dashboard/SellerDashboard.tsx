@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import SellerSidebar from "@/components/dashboard/SellerSidebar";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import SellerOverviewTab from "@/components/dashboard/seller/OverviewTab";
 import ProductManagement from "@/components/dashboard/seller/ProductManagement";
 import OrdersTab from "@/components/dashboard/seller/OrdersTab";
@@ -85,16 +83,12 @@ export default function SellerDashboard() {
   ];
 
   return (
-    <>
-      <Header />
-      <div className="space-y-4 sm:space-y-6">
-        <DashboardBreadcrumb items={breadcrumbItems} userRole="seller" />
-        <DashboardLayout sidebar={<SellerSidebar activeTab={activeTab} onTabChange={handleTabChange} />}>
-          {renderTabContent()}
-        </DashboardLayout>
-      </div>
-      <Footer />
-    </>
+    <div className="space-y-4 sm:space-y-6">
+      <DashboardBreadcrumb items={breadcrumbItems} userRole="seller" />
+      <DashboardLayout sidebar={<SellerSidebar activeTab={activeTab} onTabChange={handleTabChange} />}>
+        {renderTabContent()}
+      </DashboardLayout>
+    </div>
   );
 }
 

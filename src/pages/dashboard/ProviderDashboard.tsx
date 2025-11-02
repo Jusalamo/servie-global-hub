@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import ProviderSidebar from "@/components/dashboard/ProviderSidebar";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { ProviderOverviewTab } from "@/components/dashboard/provider/OverviewTab";
 import ServiceManagement from "@/components/dashboard/provider/ServiceManagement";
 import BookingsTab from "@/components/dashboard/provider/BookingsTab";
@@ -94,16 +92,12 @@ export default function ProviderDashboard() {
   ];
 
   return (
-    <>
-      <Header />
-      <div className="space-y-4 sm:space-y-6">
-        <DashboardBreadcrumb items={breadcrumbItems} userRole="provider" />
-        <DashboardLayout sidebar={<ProviderSidebar activeTab={activeTab} onTabChange={handleTabChange} />}>
-          {renderTabContent()}
-        </DashboardLayout>
-      </div>
-      <Footer />
-    </>
+    <div className="space-y-4 sm:space-y-6">
+      <DashboardBreadcrumb items={breadcrumbItems} userRole="provider" />
+      <DashboardLayout sidebar={<ProviderSidebar activeTab={activeTab} onTabChange={handleTabChange} />}>
+        {renderTabContent()}
+      </DashboardLayout>
+    </div>
   );
 }
 
