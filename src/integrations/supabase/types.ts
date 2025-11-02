@@ -360,6 +360,128 @@ export type Database = {
           },
         ]
       }
+      financial_documents: {
+        Row: {
+          amount_paid: number
+          balance_due: number
+          client_address: string | null
+          client_email: string | null
+          client_id: string | null
+          client_name: string
+          client_phone: string | null
+          created_at: string
+          currency: string
+          description: string | null
+          discount_amount: number
+          discount_percentage: number
+          document_number: string
+          document_type: string
+          due_date: string | null
+          id: string
+          issue_date: string
+          line_items: Json
+          notes: string | null
+          paid_at: string | null
+          payment_instructions: string | null
+          payment_method: string | null
+          provider_id: string
+          related_document_id: string | null
+          sent_at: string | null
+          status: string
+          subtotal: number
+          tax_amount: number
+          tax_percentage: number
+          terms_conditions: string | null
+          title: string
+          total_amount: number
+          updated_at: string
+          valid_until: string | null
+          viewed_at: string | null
+        }
+        Insert: {
+          amount_paid?: number
+          balance_due?: number
+          client_address?: string | null
+          client_email?: string | null
+          client_id?: string | null
+          client_name: string
+          client_phone?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          discount_amount?: number
+          discount_percentage?: number
+          document_number: string
+          document_type: string
+          due_date?: string | null
+          id?: string
+          issue_date?: string
+          line_items?: Json
+          notes?: string | null
+          paid_at?: string | null
+          payment_instructions?: string | null
+          payment_method?: string | null
+          provider_id: string
+          related_document_id?: string | null
+          sent_at?: string | null
+          status?: string
+          subtotal?: number
+          tax_amount?: number
+          tax_percentage?: number
+          terms_conditions?: string | null
+          title: string
+          total_amount?: number
+          updated_at?: string
+          valid_until?: string | null
+          viewed_at?: string | null
+        }
+        Update: {
+          amount_paid?: number
+          balance_due?: number
+          client_address?: string | null
+          client_email?: string | null
+          client_id?: string | null
+          client_name?: string
+          client_phone?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          discount_amount?: number
+          discount_percentage?: number
+          document_number?: string
+          document_type?: string
+          due_date?: string | null
+          id?: string
+          issue_date?: string
+          line_items?: Json
+          notes?: string | null
+          paid_at?: string | null
+          payment_instructions?: string | null
+          payment_method?: string | null
+          provider_id?: string
+          related_document_id?: string | null
+          sent_at?: string | null
+          status?: string
+          subtotal?: number
+          tax_amount?: number
+          tax_percentage?: number
+          terms_conditions?: string | null
+          title?: string
+          total_amount?: number
+          updated_at?: string
+          valid_until?: string | null
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_documents_related_document_id_fkey"
+            columns: ["related_document_id"]
+            isOneToOne: false
+            referencedRelation: "financial_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       financial_transactions: {
         Row: {
           amount: number
@@ -1419,6 +1541,7 @@ export type Database = {
           response_time: string | null
           service_city: string | null
           service_country: string | null
+          status: string
           title: string
           updated_at: string | null
         }
@@ -1436,6 +1559,7 @@ export type Database = {
           response_time?: string | null
           service_city?: string | null
           service_country?: string | null
+          status?: string
           title: string
           updated_at?: string | null
         }
@@ -1453,6 +1577,7 @@ export type Database = {
           response_time?: string | null
           service_city?: string | null
           service_country?: string | null
+          status?: string
           title?: string
           updated_at?: string | null
         }
@@ -1512,6 +1637,7 @@ export type Database = {
           seller_payout: number
         }[]
       }
+      generate_document_number: { Args: { doc_type: string }; Returns: string }
       generate_quote_number: { Args: never; Returns: string }
       get_current_user_role: { Args: never; Returns: string }
       get_user_role: { Args: { _user_id: string }; Returns: string }

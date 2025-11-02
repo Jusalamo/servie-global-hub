@@ -81,20 +81,10 @@ const AddServiceForm = ({ service, onSuccess, onCancel }: AddServiceFormProps) =
       };
 
       if (service) {
-        await serviceAPI.updateService(service.id, serviceData);
+        await serviceAPI.updateService(service.id, serviceData, imageFile || undefined);
         toast.success("Service updated successfully");
       } else {
-        const newService = await serviceAPI.createService(serviceData);
-        
-        // Save image for new service
-        if (imageUrl && newService.id) {
-          await supabase.from('service_images').insert({
-            service_id: newService.id,
-            url: imageUrl,
-            is_primary: true
-          });
-        }
-        
+        await serviceAPI.createService(serviceData, imageFile || undefined);
         toast.success("Service created successfully");
       }
       onSuccess();

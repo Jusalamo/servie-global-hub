@@ -32,20 +32,50 @@ export interface ServiceFilters {
 }
 
 export class ServiceAPI {
-  async createService(serviceData: CreateServiceData): Promise<Service> {
+  async createService(serviceData: CreateServiceData, imageFile?: File): Promise<Service> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
+
+    // Upload image if provided
+    let imageUrl: string | null = null;
+    if (imageFile) {
+      const fileExt = imageFile.name.split('.').pop();
+      const filePath = `services/${user.id}-${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, imageFile);
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      imageUrl = urlData.publicUrl;
+    }
 
     const result: any = await supabase
       .from('services')
       .insert({
         ...serviceData,
         provider_id: user.id,
+        status: serviceData.status || 'active'
       })
       .select('*')
       .single();
 
     if (result.error) throw result.error;
+
+    // If image was uploaded and service created, save to service_images table
+    if (imageUrl && result.data?.id) {
+      await supabase.from('service_images').insert({
+        service_id: result.data.id,
+        url: imageUrl,
+        is_primary: true
+      });
+    }
+
     return result.data;
   }
 
@@ -93,9 +123,34 @@ export class ServiceAPI {
     return result.data;
   }
 
-  async updateService(id: string, updates: Partial<CreateServiceData>): Promise<Service> {
+  async updateService(id: string, updates: Partial<CreateServiceData>, imageFile?: File): Promise<Service> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
+
+    // Upload image if provided
+    if (imageFile) {
+      const fileExt = imageFile.name.split('.').pop();
+      const filePath = `services/${user.id}-${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, imageFile);
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      const imageUrl = urlData.publicUrl;
+
+      // Update or insert service image
+      await supabase.from('service_images').upsert({
+        service_id: id,
+        url: imageUrl,
+        is_primary: true
+      });
+    }
 
     const result: any = await supabase
       .from('services')

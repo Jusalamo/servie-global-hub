@@ -134,7 +134,7 @@ export default function CreateDocumentDialog({
       const discountAmount = calculateDiscountAmount();
       const totalAmount = calculateTotal();
 
-      const { error } = (await (supabase as any).from('financial_documents').insert({
+      const { error } = await (supabase as any).from('financial_documents').insert({
         provider_id: user.id,
         client_name: formData.client_name,
         client_email: formData.client_email || null,
@@ -149,14 +149,18 @@ export default function CreateDocumentDialog({
         discount_percentage: formData.discount_percentage,
         discount_amount: discountAmount,
         total_amount: totalAmount,
+        amount_paid: 0,
         balance_due: totalAmount,
         line_items: lineItems,
         notes: formData.notes || null,
         terms_conditions: formData.terms_conditions || null,
         status: 'draft',
-      })) as any;
+      });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error:', error);
+        throw new Error(error.message || 'Failed to create document');
+      }
 
       toast.success(`${DOCUMENT_TYPE_LABELS[documentType]} created successfully`);
       onSuccess();
