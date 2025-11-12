@@ -73,6 +73,17 @@ const SignUpForm = ({ selectedRole = "client" }) => {
   const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
     try {
+      // Validate required fields
+      if (!data.email || !data.password) {
+        toast.error("Email and password are required");
+        return;
+      }
+
+      if (data.password !== data.confirmPassword) {
+        toast.error("Passwords do not match");
+        return;
+      }
+
       // Create the user account
       const { error } = await signUp(data.email, data.password, {
         firstName: data.first_name,
@@ -84,26 +95,33 @@ const SignUpForm = ({ selectedRole = "client" }) => {
       });
 
       if (error) {
+        // Provide user-friendly error messages
+        if (error.message.includes('already registered')) {
+          toast.error("This email is already registered. Please sign in instead.");
+        } else if (error.message.includes('Invalid email')) {
+          toast.error("Please enter a valid email address.");
+        } else if (error.message.includes('Password')) {
+          toast.error("Password must be at least 8 characters long.");
+        } else {
+          toast.error(error.message || "Unable to create account. Please try again.");
+        }
         throw error;
       }
 
-      toast.success("Account created successfully! Redirecting to your dashboard...");
+      toast.success("Account created successfully! Please check your email to verify your account.");
       
-      // Redirect based on role
-      const dashboardPath = data.role === 'provider' 
-        ? '/dashboard/provider?tab=overview'
-        : data.role === 'seller'
-        ? '/dashboard/seller?tab=overview'
-        : '/dashboard/client';
-      
-      navigate(dashboardPath, { replace: true });
+      // Small delay before redirect
+      setTimeout(() => {
+        const dashboardPath = data.role === 'provider' 
+          ? '/dashboard/provider?tab=overview'
+          : data.role === 'seller'
+          ? '/dashboard/seller?tab=overview'
+          : '/dashboard/client';
+        
+        navigate(dashboardPath, { replace: true });
+      }, 1500);
     } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("An unexpected error occurred. Please try again.");
-      }
-      console.error(error);
+      console.error('Sign up error:', error);
     } finally {
       setTimeout(() => setIsLoading(false), 300);
     }

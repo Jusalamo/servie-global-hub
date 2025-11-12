@@ -181,45 +181,53 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, userData: any) => {
-    // Input validation
-    if (!email || !email.includes('@')) {
-      const error = new Error('Please provide a valid email address');
-      toast.error(error.message);
-      return { error };
-    }
-    
-    if (!password || password.length < 6) {
-      const error = new Error('Password must be at least 6 characters long');
-      toast.error(error.message);
-      return { error };
-    }
-    
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error, data } = await supabase.auth.signUp({
-      email: email.toLowerCase().trim(),
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          first_name: userData.firstName?.trim() || '',
-          last_name: userData.lastName?.trim() || '',
-          role: userData.role || 'client',
-          phone: userData.phone?.trim() || '',
-          business_description: userData.businessDescription?.trim() || '',
-          business_name: userData.businessName?.trim() || ''
-        }
+    try {
+      // Input validation
+      if (!email || !email.includes('@')) {
+        const error = new Error('Please provide a valid email address');
+        return { error };
       }
-    });
-    
-    if (error) {
-      console.error('Sign up error:', error);
-      toast.error(error.message);
-    } else {
-      toast.success('Account created successfully! Please check your email to verify your account.');
+      
+      if (!password || password.length < 8) {
+        const error = new Error('Password must be at least 8 characters long');
+        return { error };
+      }
+
+      // Validate required fields for role
+      if (!userData.firstName || !userData.lastName) {
+        const error = new Error('First name and last name are required');
+        return { error };
+      }
+      
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { error, data } = await supabase.auth.signUp({
+        email: email.toLowerCase().trim(),
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            first_name: userData.firstName?.trim() || '',
+            last_name: userData.lastName?.trim() || '',
+            role: userData.role || 'client',
+            phone: userData.phone?.trim() || '',
+            business_description: userData.businessDescription?.trim() || '',
+            business_name: userData.businessName?.trim() || ''
+          }
+        }
+      });
+      
+      if (error) {
+        console.error('Sign up error:', error);
+        return { error };
+      }
+      
+      return { error: null, data };
+    } catch (err) {
+      console.error('Unexpected sign up error:', err);
+      const error = err instanceof Error ? err : new Error('An unexpected error occurred during sign up');
+      return { error };
     }
-    
-    return { error, data };
   };
 
   const signIn = async (email: string, password: string) => {

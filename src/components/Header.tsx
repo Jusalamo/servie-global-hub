@@ -66,12 +66,11 @@ const Header = () => {
               <span className="ml-2 text-xl font-bold text-servie">Servie</span>
             </Link>
           </div>
-
-          {/* Mobile Navigation */}
-          <MobileNav />
           
           {/* Right side buttons */}
           <div className="flex items-center gap-2">
+            {/* Mobile Navigation - shown on mobile only */}
+            <MobileNav />
             {/* Only show these when authenticated */}
             {isAuthenticated && (
               <>
