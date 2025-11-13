@@ -1033,6 +1033,7 @@ export type Database = {
           shipping_type: string | null
           status: string
           stock: number | null
+          stock_status: string | null
           updated_at: string
           weight: number | null
         }
@@ -1063,6 +1064,7 @@ export type Database = {
           shipping_type?: string | null
           status?: string
           stock?: number | null
+          stock_status?: string | null
           updated_at?: string
           weight?: number | null
         }
@@ -1093,6 +1095,7 @@ export type Database = {
           shipping_type?: string | null
           status?: string
           stock?: number | null
+          stock_status?: string | null
           updated_at?: string
           weight?: number | null
         }
@@ -1113,8 +1116,12 @@ export type Database = {
           bank_account_verified: boolean | null
           bank_account_verified_at: string | null
           bio: string | null
+          brand_color_accent: string | null
+          brand_color_primary: string | null
           business_name: string | null
           city: string | null
+          company_logo_url: string | null
+          company_name: string | null
           country: string | null
           created_at: string | null
           first_name: string | null
@@ -1141,8 +1148,12 @@ export type Database = {
           bank_account_verified?: boolean | null
           bank_account_verified_at?: string | null
           bio?: string | null
+          brand_color_accent?: string | null
+          brand_color_primary?: string | null
           business_name?: string | null
           city?: string | null
+          company_logo_url?: string | null
+          company_name?: string | null
           country?: string | null
           created_at?: string | null
           first_name?: string | null
@@ -1169,8 +1180,12 @@ export type Database = {
           bank_account_verified?: boolean | null
           bank_account_verified_at?: string | null
           bio?: string | null
+          brand_color_accent?: string | null
+          brand_color_primary?: string | null
           business_name?: string | null
           city?: string | null
+          company_logo_url?: string | null
+          company_name?: string | null
           country?: string | null
           created_at?: string | null
           first_name?: string | null
@@ -1491,6 +1506,36 @@ export type Database = {
         }
         Relationships: []
       }
+      service_categories_expanded: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          parent_category: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          parent_category?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          parent_category?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       service_images: {
         Row: {
           created_at: string | null
@@ -1528,6 +1573,7 @@ export type Database = {
       }
       services: {
         Row: {
+          category: string | null
           category_id: string | null
           created_at: string | null
           description: string
@@ -1542,10 +1588,13 @@ export type Database = {
           service_city: string | null
           service_country: string | null
           status: string
+          stock_quantity: number | null
+          stock_status: string | null
           title: string
           updated_at: string | null
         }
         Insert: {
+          category?: string | null
           category_id?: string | null
           created_at?: string | null
           description: string
@@ -1560,10 +1609,13 @@ export type Database = {
           service_city?: string | null
           service_country?: string | null
           status?: string
+          stock_quantity?: number | null
+          stock_status?: string | null
           title: string
           updated_at?: string | null
         }
         Update: {
+          category?: string | null
           category_id?: string | null
           created_at?: string | null
           description?: string
@@ -1578,6 +1630,8 @@ export type Database = {
           service_city?: string | null
           service_country?: string | null
           status?: string
+          stock_quantity?: number | null
+          stock_status?: string | null
           title?: string
           updated_at?: string | null
         }

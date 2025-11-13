@@ -14,6 +14,7 @@ import ReviewForm from "@/components/ecommerce/ReviewForm";
 import ReviewList from "@/components/ecommerce/ReviewList";
 import { type Product } from "@/components/ecommerce/ProductCard";
 import { useLocalization } from "@/components/LangCurrencySelector";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function ProductDetail() {
   const { productId } = useParams<{ productId: string }>();
@@ -28,42 +29,60 @@ export default function ProductDetail() {
   const { formatPrice, translate } = useLocalization();
   const navigate = useNavigate();
 
-  // Simulate fetching product data
+  // Fetch real product data from Supabase
   useEffect(() => {
     const fetchProduct = async () => {
-      // In a real app, this would be an API call
+      if (!productId) return;
+      
       setLoading(true);
       try {
-        // Simulating API call with timeout
-        await new Promise(resolve => setTimeout(resolve, 600));
+        const { data: productData, error: productError } = await supabase
+          .from('products')
+          .select(`
+            *,
+            profiles:seller_id (
+              first_name,
+              last_name,
+              business_name,
+              avatar_url
+            )
+          `)
+          .eq('id', productId)
+          .eq('status', 'active')
+          .single();
+
+        if (productError) throw productError;
         
-        // Use mock product data but ensure it has the required fields
-        const defaultProduct: Product = {
-          id: productId || "1",
-          name: "Premium Wireless Headphones",
-          description: "Enjoy premium sound quality with these wireless headphones. Features active noise cancellation, 30-hour battery life, and comfortable ear cushions for all-day listening.",
-          price: 249.99,
-          compareAtPrice: 299.99,
-          currency: "$",
-          images: [
-            "/products/headphones-1.jpg", 
-            "/products/headphones-2.jpg",
-            "/products/headphones-3.jpg",
-            "/products/headphones-4.jpg"
-          ].map(() => "/placeholder.svg"), // Using placeholder since real images might not exist
-          category: "Electronics",
-          providerId: "seller123",
-          providerName: "AudioTech",
-          providerAvatar: "/placeholder.svg",
-          rating: 4.8,
-          reviewCount: 124,
-          featured: true,
-          inStock: true,
-          createdAt: "2023-01-15T08:30:00.000Z"
-        };
-        
-        setProduct(defaultProduct);
-        setActiveImage(defaultProduct.images[0]);
+        if (productData) {
+          const profile = productData.profiles as any;
+          const sellerName = profile?.business_name || 
+            `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || 
+            'Unknown Seller';
+          
+          const images = productData.image_url ? [productData.image_url] : ['/placeholder.svg'];
+
+          const mappedProduct: Product = {
+            id: productData.id,
+            name: productData.name,
+            description: productData.description || '',
+            price: productData.price,
+            compareAtPrice: undefined,
+            currency: '$',
+            images,
+            category: productData.category || 'General',
+            providerId: productData.seller_id,
+            providerName: sellerName,
+            providerAvatar: profile?.avatar_url || '/placeholder.svg',
+            rating: 4.5,
+            reviewCount: 0,
+            featured: productData.featured || false,
+            inStock: productData.stock > 0,
+            createdAt: productData.created_at
+          };
+          
+          setProduct(mappedProduct);
+          setActiveImage(images[0]);
+        }
       } catch (error) {
         console.error("Error fetching product:", error);
         toast.error("Failed to load product details");

@@ -10,6 +10,7 @@ import ProfileSettings from "@/components/dashboard/ProfileSettings";
 import NotificationsSettings from "@/components/dashboard/NotificationsSettings";
 import { KYCVerification } from "@/components/dashboard/KYCVerification";
 import { SellerWallet } from "@/components/dashboard/SellerWallet";
+import InventoryManagement from "@/components/dashboard/InventoryManagement";
 import { useLocation } from "react-router-dom";
 import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
 
@@ -72,6 +73,8 @@ export default function SellerDashboard() {
         return <NotificationsSettings />;
       case "help":
         return <HelpSupportTab />;
+      case "inventory":
+        return <InventoryManagement userRole="seller" />;
       default:
         return <SellerOverviewTab />;
     }

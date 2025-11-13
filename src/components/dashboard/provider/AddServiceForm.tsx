@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,7 @@ interface AddServiceFormProps {
 const AddServiceForm = ({ service, onSuccess, onCancel }: AddServiceFormProps) => {
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [categories, setCategories] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     title: service?.title || "",
     description: service?.description || "",
@@ -26,8 +27,23 @@ const AddServiceForm = ({ service, onSuccess, onCancel }: AddServiceFormProps) =
     location: service?.location || "",
     response_time: service?.response_time || "",
     service_city: service?.service_city || "",
-    service_country: service?.service_country || ""
+    service_country: service?.service_country || "",
+    category: service?.category || "",
+    stock_quantity: service?.stock_quantity || "",
+    stock_status: service?.stock_status || "available"
   });
+
+  // Load categories on mount
+  useEffect(() => {
+    const loadCategories = async () => {
+      const { data } = await supabase
+        .from('service_categories_expanded')
+        .select('*')
+        .order('name');
+      if (data) setCategories(data);
+    };
+    loadCategories();
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -77,6 +93,7 @@ const AddServiceForm = ({ service, onSuccess, onCancel }: AddServiceFormProps) =
       const serviceData = {
         ...formData,
         price: parseFloat(formData.price),
+        stock_quantity: formData.stock_quantity ? parseInt(formData.stock_quantity) : null,
         status: 'active'
       };
 
@@ -164,6 +181,50 @@ const AddServiceForm = ({ service, onSuccess, onCancel }: AddServiceFormProps) =
                 value={formData.response_time}
                 onChange={(e) => handleInputChange("response_time", e.target.value)}
               />
+            </div>
+
+            <div>
+              <Label htmlFor="category">Category</Label>
+              <select
+                id="category"
+                value={formData.category}
+                onChange={(e) => handleInputChange("category", e.target.value)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              >
+                <option value="">Select a category</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.name}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <Label htmlFor="stock_quantity">Available Slots (optional)</Label>
+              <Input
+                id="stock_quantity"
+                type="number"
+                min="0"
+                value={formData.stock_quantity}
+                onChange={(e) => handleInputChange("stock_quantity", e.target.value)}
+                placeholder="Leave empty for unlimited"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="stock_status">Availability Status</Label>
+              <select
+                id="stock_status"
+                value={formData.stock_status}
+                onChange={(e) => handleInputChange("stock_status", e.target.value)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              >
+                <option value="available">Available</option>
+                <option value="low-stock">Low Availability</option>
+                <option value="out-of-stock">Fully Booked</option>
+                <option value="unavailable">Unavailable</option>
+              </select>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

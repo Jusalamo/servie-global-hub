@@ -11,6 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Service {
   id: string;
@@ -45,56 +46,69 @@ export default function ServiceDetail() {
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const { isAuthenticated } = useAuth();
 
-  // Simulate fetching service data
+  // Fetch real service data from Supabase
   useEffect(() => {
     const fetchService = async () => {
-      // In a real app, this would be an API call
+      if (!serviceId) return;
+      
       setLoading(true);
       try {
-        // Simulating API call with timeout
-        await new Promise(resolve => setTimeout(resolve, 600));
+        const { data: serviceData, error: serviceError } = await supabase
+          .from('services')
+          .select(`
+            *,
+            profiles:provider_id (
+              first_name,
+              last_name,
+              business_name,
+              avatar_url,
+              bio
+            ),
+            service_images (
+              url,
+              is_primary
+            )
+          `)
+          .eq('id', serviceId)
+          .single();
+
+        if (serviceError) throw serviceError;
         
-        // Mock service data
-        const mockService: Service = {
-          id: serviceId || "1",
-          title: "Professional Home Cleaning Service",
-          description: "Top-rated home cleaning service with eco-friendly products and professional cleaners.",
-          longDescription: `Our professional home cleaning service is designed to give you a spotless home without the stress. 
-          We use eco-friendly cleaning products that are safe for your family and pets, while still providing a deep clean that eliminates dust, allergens, and bacteria.
+        if (serviceData) {
+          const profile = serviceData.profiles as any;
+          const providerName = profile?.business_name || 
+            `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || 
+            'Unknown Provider';
           
-          Our experienced team of cleaners are background-checked, insured, and trained to deliver consistent results. We focus on the details that matter, from baseboards to ceiling fans.
+          const images = (serviceData.service_images as any[])
+            ?.sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0))
+            .map(img => img.url) || ['/placeholder.svg'];
+
+          const mappedService: Service = {
+            id: serviceData.id,
+            title: serviceData.title,
+            description: serviceData.description,
+            longDescription: serviceData.description,
+            price: serviceData.price,
+            priceType: 'fixed',
+            duration: serviceData.response_time || '1-2 hours',
+            category: serviceData.category || 'General Services',
+            providerId: serviceData.provider_id,
+            providerName,
+            providerAvatar: profile?.avatar_url || '/placeholder.svg',
+            providerRating: 4.5,
+            providerReviewCount: 0,
+            providerDescription: profile?.bio || '',
+            featured: serviceData.featured || false,
+            images,
+            rating: 4.5,
+            reviewCount: 0,
+            createdAt: serviceData.created_at
+          };
           
-          This standard cleaning service includes:
-          - Dusting and wiping all accessible surfaces
-          - Vacuuming all floors, carpets, and rugs
-          - Mopping hard floors
-          - Cleaning kitchen countertops, sink, and appliance exteriors
-          - Cleaning and disinfecting bathrooms
-          - Emptying trash and replacing liners`,
-          price: 120,
-          priceType: "fixed",
-          duration: "3-4 hours",
-          category: "home-services",
-          providerId: "provider123",
-          providerName: "CleanHome Professionals",
-          providerAvatar: "/placeholder.svg",
-          providerRating: 4.9,
-          providerReviewCount: 158,
-          providerDescription: "Professional cleaning service with 10+ years of experience. Specializing in residential cleaning with eco-friendly products.",
-          featured: true,
-          images: [
-            "/services/cleaning-1.jpg",
-            "/services/cleaning-2.jpg",
-            "/services/cleaning-3.jpg",
-            "/services/cleaning-4.jpg"
-          ].map(() => "/placeholder.svg"), // Using placeholder since real images might not exist
-          rating: 4.8,
-          reviewCount: 76,
-          createdAt: "2023-01-15T08:30:00.000Z"
-        };
-        
-        setService(mockService);
-        setActiveImage(mockService.images[0]);
+          setService(mappedService);
+          setActiveImage(images[0]);
+        }
       } catch (error) {
         console.error("Error fetching service:", error);
         toast.error("Failed to load service details");

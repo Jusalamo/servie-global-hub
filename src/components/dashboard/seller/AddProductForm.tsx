@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { productAPI } from "@/services/productAPI";
 import { ArrowLeft, Upload } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AddProductFormProps {
   product?: any;
@@ -17,11 +18,13 @@ interface AddProductFormProps {
 }
 
 const AddProductForm = ({ product, onSuccess, onCancel }: AddProductFormProps) => {
+  const [categories, setCategories] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     name: product?.name || '',
     description: product?.description || '',
     price: product?.price || '',
     stock_quantity: product?.stock_quantity || '',
+    stock_status: product?.stock_status || 'in-stock',
     category_id: product?.category_id || '',
     featured: product?.featured || false,
     shipping_type: product?.shipping_type || 'fixed',
@@ -32,6 +35,19 @@ const AddProductForm = ({ product, onSuccess, onCancel }: AddProductFormProps) =
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Load categories on mount
+  useEffect(() => {
+    const loadCategories = async () => {
+      const { data } = await supabase
+        .from('service_categories_expanded')
+        .select('*')
+        .eq('parent_category', 'Retail')
+        .order('name');
+      if (data) setCategories(data);
+    };
+    loadCategories();
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -143,21 +159,35 @@ const AddProductForm = ({ product, onSuccess, onCancel }: AddProductFormProps) =
 
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
-                <Select
+                <select
+                  id="category"
                   value={formData.category_id}
-                  onValueChange={(value) => handleInputChange('category_id', value)}
+                  onChange={(e) => handleInputChange('category_id', e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  required
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="electronics">Electronics</SelectItem>
-                    <SelectItem value="clothing">Clothing</SelectItem>
-                    <SelectItem value="home">Home & Garden</SelectItem>
-                    <SelectItem value="books">Books</SelectItem>
-                    <SelectItem value="sports">Sports & Outdoors</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <option value="">Select a category</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.name}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="stock_status">Stock Status</Label>
+                <select
+                  id="stock_status"
+                  value={formData.stock_status}
+                  onChange={(e) => handleInputChange('stock_status', e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="in-stock">In Stock</option>
+                  <option value="low-stock">Low Stock</option>
+                  <option value="out-of-stock">Out of Stock</option>
+                  <option value="unavailable">Unavailable</option>
+                </select>
               </div>
             </div>
 

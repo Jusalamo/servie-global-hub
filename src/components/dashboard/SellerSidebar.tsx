@@ -1,20 +1,17 @@
 
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { 
-  Package, 
-  ShoppingBag, 
-  BarChart2, 
-  Tag, 
-  Users, 
-  CreditCard, 
-  Settings, 
-  HelpCircle, 
-  MessageSquare, 
-  TrendingUp, 
-  Store,
-  Shield,
-  Wallet
+import {
+  LayoutDashboard,
+  ShoppingBag,
+  ShoppingCart,
+  MessageSquare,
+  CreditCard,
+  Settings,
+  User,
+  HelpCircle,
+  Wallet,
+  Package
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";

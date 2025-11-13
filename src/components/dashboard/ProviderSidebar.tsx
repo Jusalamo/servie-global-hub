@@ -1,18 +1,19 @@
 
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { 
-  Calendar, 
-  Users, 
-  ClipboardList, 
-  Star, 
-  CreditCard, 
-  BarChart2, 
-  Settings, 
-  HelpCircle, 
-  Briefcase, 
+import {
+  LayoutDashboard,
+  Briefcase,
+  CalendarDays,
+  Users,
   MessageSquare,
-  FileText
+  CreditCard,
+  Settings,
+  User,
+  Star,
+  Clock,
+  FileText,
+  Package
 } from "lucide-react";
 
 interface ProviderSidebarProps {

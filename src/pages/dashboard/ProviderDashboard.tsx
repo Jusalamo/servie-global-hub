@@ -12,8 +12,8 @@ import PaymentMethods from "@/components/dashboard/PaymentMethods";
 import ProfileSettings from "@/components/dashboard/ProfileSettings";
 import NotificationsSettings from "@/components/dashboard/NotificationsSettings";
 
-import FinancialDocumentsTab from "@/components/dashboard/provider/FinancialDocumentsTab";
-import { useLocation } from "react-router-dom";
+import InventoryManagement from "@/components/dashboard/InventoryManagement";
+import BookingsCalendarTab from "@/components/dashboard/provider/BookingsCalendarTab";
 import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
 
 export default function ProviderDashboard() {
