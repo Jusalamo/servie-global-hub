@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import ProviderSidebar from "@/components/dashboard/ProviderSidebar";
 import { ProviderOverviewTab } from "@/components/dashboard/provider/OverviewTab";
@@ -11,7 +12,7 @@ import MessagingSystem from "@/components/dashboard/MessagingSystem";
 import PaymentMethods from "@/components/dashboard/PaymentMethods";
 import ProfileSettings from "@/components/dashboard/ProfileSettings";
 import NotificationsSettings from "@/components/dashboard/NotificationsSettings";
-
+import FinancialDocumentsTab from "@/components/dashboard/provider/FinancialDocumentsTab";
 import InventoryManagement from "@/components/dashboard/InventoryManagement";
 import BookingsCalendarTab from "@/components/dashboard/provider/BookingsCalendarTab";
 import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";

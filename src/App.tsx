@@ -47,6 +47,7 @@ import Shipping from "@/pages/Shipping";
 import Privacy from "@/pages/Privacy";
 import Sitemap from "@/pages/Sitemap";
 import ProviderContact from "@/pages/ProviderContact";
+import { SellerStorefront } from "@/components/seller/SellerStorefront";
 import "./i18n";
 
 const queryClient = new QueryClient({
@@ -87,6 +88,11 @@ function App() {
                   <Route path="/shop" element={
                     <ServieLayout>
                       <EcommerceShop />
+                    </ServieLayout>
+                  } />
+                  <Route path="/shop/:sellerSlug" element={
+                    <ServieLayout>
+                      <SellerStorefront />
                     </ServieLayout>
                   } />
                   <Route path="/product/:productId" element={

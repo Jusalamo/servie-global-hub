@@ -1020,6 +1020,7 @@ export type Database = {
           featured: boolean | null
           id: string
           image_url: string | null
+          images: string[] | null
           latitude: number | null
           longitude: number | null
           name: string
@@ -1035,6 +1036,7 @@ export type Database = {
           stock: number | null
           stock_status: string | null
           updated_at: string
+          video_url: string | null
           weight: number | null
         }
         Insert: {
@@ -1051,6 +1053,7 @@ export type Database = {
           featured?: boolean | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
           latitude?: number | null
           longitude?: number | null
           name: string
@@ -1066,6 +1069,7 @@ export type Database = {
           stock?: number | null
           stock_status?: string | null
           updated_at?: string
+          video_url?: string | null
           weight?: number | null
         }
         Update: {
@@ -1082,6 +1086,7 @@ export type Database = {
           featured?: boolean | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
           latitude?: number | null
           longitude?: number | null
           name?: string
@@ -1097,6 +1102,7 @@ export type Database = {
           stock?: number | null
           stock_status?: string | null
           updated_at?: string
+          video_url?: string | null
           weight?: number | null
         }
         Relationships: [
@@ -1136,6 +1142,9 @@ export type Database = {
           phone: string | null
           postal_code: string | null
           role: string
+          seller_slug: string | null
+          shop_description: string | null
+          shop_logo_url: string | null
           state: string | null
           two_fa_enabled: boolean | null
           two_fa_verified_at: string | null
@@ -1168,6 +1177,9 @@ export type Database = {
           phone?: string | null
           postal_code?: string | null
           role?: string
+          seller_slug?: string | null
+          shop_description?: string | null
+          shop_logo_url?: string | null
           state?: string | null
           two_fa_enabled?: boolean | null
           two_fa_verified_at?: string | null
@@ -1200,6 +1212,9 @@ export type Database = {
           phone?: string | null
           postal_code?: string | null
           role?: string
+          seller_slug?: string | null
+          shop_description?: string | null
+          shop_logo_url?: string | null
           state?: string | null
           two_fa_enabled?: boolean | null
           two_fa_verified_at?: string | null
@@ -1693,6 +1708,7 @@ export type Database = {
       }
       generate_document_number: { Args: { doc_type: string }; Returns: string }
       generate_quote_number: { Args: never; Returns: string }
+      generate_seller_slug: { Args: { user_id: string }; Returns: string }
       get_current_user_role: { Args: never; Returns: string }
       get_user_role: { Args: { _user_id: string }; Returns: string }
       has_role: {

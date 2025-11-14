@@ -4,6 +4,7 @@ import SellerSidebar from "@/components/dashboard/SellerSidebar";
 import SellerOverviewTab from "@/components/dashboard/seller/OverviewTab";
 import ProductManagement from "@/components/dashboard/seller/ProductManagement";
 import OrdersTab from "@/components/dashboard/seller/OrdersTab";
+import ShopSettings from "@/components/dashboard/seller/ShopSettings";
 import MessagingSystem from "@/components/dashboard/MessagingSystem";
 import PaymentMethods from "@/components/dashboard/PaymentMethods";
 import ProfileSettings from "@/components/dashboard/ProfileSettings";
@@ -38,6 +39,7 @@ export default function SellerDashboard() {
     switch (activeTab) {
       case "overview": return "Overview";
       case "products": return "Products";
+      case "shop": return "My Shop";
       case "orders": return "Orders";
       case "payments": return "Payments";
       case "security": return "Security & KYC";
@@ -57,6 +59,8 @@ export default function SellerDashboard() {
         return <SellerOverviewTab />;
       case "products":
         return <ProductManagement />;
+      case "shop":
+        return <ShopSettings />;
       case "orders":
         return <OrdersTab />;
       case "payments":
