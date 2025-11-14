@@ -13,7 +13,10 @@ import {
   Star,
   Clock,
   FileText,
-  Package
+  Package,
+  BarChart2,
+  Calendar,
+  HelpCircle
 } from "lucide-react";
 
 interface ProviderSidebarProps {
@@ -77,7 +80,7 @@ export default function ProviderSidebar({ activeTab, onTabChange }: ProviderSide
         />
         
         <SidebarLink
-          icon={<ClipboardList className="h-5 w-5" />}
+          icon={<Calendar className="h-5 w-5" />}
           label="Bookings"
           isActive={activeTab === "bookings"}
           onClick={() => handleTabClick("bookings")}

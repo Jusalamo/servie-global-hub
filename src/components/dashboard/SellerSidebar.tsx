@@ -11,7 +11,13 @@ import {
   User,
   HelpCircle,
   Wallet,
-  Package
+  Package,
+  BarChart2,
+  Tag,
+  TrendingUp,
+  Store,
+  Users,
+  Shield
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -111,9 +117,9 @@ export default function SellerSidebar({ activeTab, onTabChange }: SellerSidebarP
         
         <SidebarLink
           icon={<Store className="h-5 w-5" />}
-          label="Store Settings"
-          isActive={activeTab === "store"}
-          onClick={() => handleTabClick("store")}
+          label="My Shop"
+          isActive={activeTab === "shop"}
+          onClick={() => handleTabClick("shop")}
         />
         
         <SidebarLink
