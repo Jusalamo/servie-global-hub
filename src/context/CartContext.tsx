@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./AuthContext";
@@ -59,6 +58,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     if (!user) {
       setCartItems([]);
       setCartCount(0);
+      setCartTotal(0); // Added: Ensure total is zeroed out on sign-out
       setIsLoading(false);
       return;
     }
@@ -67,16 +67,21 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       const { data, error } = await supabase
         .from('cart_items')
         .select(`
-          *,
-          product:products(*)
+          id,
+          product_id,
+          quantity,
+          product:products(id, name, price, image_url, stock)
         `)
         .eq('user_id', user.id);
 
       if (error) throw error;
 
-      setCartItems(data || []);
-      const count = (data || []).reduce((sum, item) => sum + item.quantity, 0);
-      const total = (data || []).reduce((sum, item) => sum + ((item.product?.price || 0) * item.quantity), 0);
+      const loadedItems = data as CartItem[] || [];
+      setCartItems(loadedItems);
+      
+      const count = loadedItems.reduce((sum, item) => sum + item.quantity, 0);
+      const total = loadedItems.reduce((sum, item) => sum + ((item.product?.price || 0) * item.quantity), 0);
+      
       setCartCount(count);
       setCartTotal(total);
     } catch (error) {
@@ -86,25 +91,44 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     }
   };
 
-  // Add item to cart
+  // ⭐️ CORRECTED addToCart FUNCTION ⭐️
   const addToCart = async (productId: string, productName: string, quantity: number = 1) => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !user) {
       toast.error('Please sign in to add items to cart');
       return;
     }
 
     try {
-      const { error } = await supabase
-        .from('cart_items')
-        .upsert({
-          user_id: user!.id,
-          product_id: productId,
-          quantity
-        }, {
-          onConflict: 'user_id,product_id'
-        });
+      // 1. Check if the item already exists in the cart
+      const existingCartItem = cartItems.find(item => item.product_id === productId);
 
-      if (error) throw error;
+      if (existingCartItem) {
+        // 2. If it exists, UPDATE the quantity by INCREMENTING it
+        const newQuantity = existingCartItem.quantity + quantity;
+
+        const { error: updateError } = await supabase
+          .from('cart_items')
+          .update({ 
+            quantity: newQuantity, 
+            updated_at: new Date().toISOString() // Good practice for tracking changes
+          })
+          .eq('id', existingCartItem.id)
+          .eq('user_id', user.id);
+
+        if (updateError) throw updateError;
+        
+      } else {
+        // 3. If it does NOT exist, INSERT a new item
+        const { error: insertError } = await supabase
+          .from('cart_items')
+          .insert({
+            user_id: user.id,
+            product_id: productId,
+            quantity: quantity,
+          });
+
+        if (insertError) throw insertError;
+      }
 
       toast.success(`${productName} added to cart`);
       await fetchCartItems();
@@ -170,6 +194,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
 
       setCartItems([]);
       setCartCount(0);
+      setCartTotal(0); // Added: Clear total on clearCart
       toast.success('Cart cleared');
     } catch (error) {
       console.error('Error clearing cart:', error);
@@ -182,10 +207,12 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     if (!user) {
       setCartItems([]);
       setCartCount(0);
+      setCartTotal(0);
       setIsLoading(false);
       return;
     }
 
+    // Initial fetch
     fetchCartItems();
 
     // Subscribe to real-time cart changes
@@ -197,10 +224,13 @@ export const CartProvider = ({ children }: CartProviderProps) => {
           event: '*',
           schema: 'public',
           table: 'cart_items',
-          filter: `user_id=eq.${user.id}`
+          // Note: The filter user_id=eq.${user.id} only works if you have RLS enabled
+          // and a policy that allows users to see their own cart items.
+          filter: `user_id=eq.${user.id}` 
         },
+        // We re-fetch the entire cart upon any change to update all calculated values (count/total)
         () => {
-          fetchCartItems();
+          fetchCartItems(); 
         }
       )
       .subscribe();
@@ -208,7 +238,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user?.id]);
+  }, [user?.id]); // Depend on user ID
 
   return (
     <CartContext.Provider
