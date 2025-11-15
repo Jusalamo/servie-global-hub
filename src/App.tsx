@@ -181,24 +181,16 @@ function App() {
                     </ServieLayout>
                   } />
                   <Route path="/dashboard/client" element={
-                    <ServieLayout>
-                      <ProtectedRoute role="client"><ClientDashboard /></ProtectedRoute>
-                    </ServieLayout>
+                    <ProtectedRoute role="client"><ClientDashboard /></ProtectedRoute>
                   } />
                   <Route path="/dashboard/provider" element={
-                    <ServieLayout>
-                      <ProtectedRoute role="provider"><ProviderDashboard /></ProtectedRoute>
-                    </ServieLayout>
+                    <ProtectedRoute role="provider"><ProviderDashboard /></ProtectedRoute>
                   } />
                   <Route path="/dashboard/seller" element={
-                    <ServieLayout>
-                      <ProtectedRoute role="seller"><SellerDashboard /></ProtectedRoute>
-                    </ServieLayout>
+                    <ProtectedRoute role="seller"><SellerDashboard /></ProtectedRoute>
                   } />
                   <Route path="/dashboard" element={
-                    <ServieLayout>
-                      <ProtectedRoute><UserDashboard /></ProtectedRoute>
-                    </ServieLayout>
+                    <ProtectedRoute><UserDashboard /></ProtectedRoute>
                   } />
                   
                   {/* Footer routes */}

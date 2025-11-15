@@ -14,6 +14,7 @@ import { SellerWallet } from "@/components/dashboard/SellerWallet";
 import InventoryManagement from "@/components/dashboard/InventoryManagement";
 import { useLocation } from "react-router-dom";
 import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
+import { HelpSupportTab } from "@/components/dashboard/shared/HelpSupportTab";
 
 export default function SellerDashboard() {
   const location = useLocation();
@@ -98,42 +99,3 @@ export default function SellerDashboard() {
     </div>
   );
 }
-
-// Help & Support Tab component
-const HelpSupportTab = () => {
-  return (
-    <div className="space-y-4 sm:space-y-6">
-      <h2 className="text-xl sm:text-2xl font-bold whitespace-normal break-words">Help & Support</h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-        <div className="border rounded-lg p-4 sm:p-6">
-          <h3 className="text-base sm:text-lg font-semibold mb-3 whitespace-normal break-words">Frequently Asked Questions</h3>
-          <div className="space-y-3 sm:space-y-4">
-            <div className="space-y-2">
-              <h4 className="text-sm sm:text-base font-medium whitespace-normal break-words">How do I manage my product inventory?</h4>
-              <p className="text-xs sm:text-sm text-muted-foreground whitespace-normal">
-                Navigate to the Products tab where you can add, edit, and manage 
-                your product listings including stock quantities and pricing.
-              </p>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-medium">How do I process orders?</h4>
-              <p className="text-sm text-muted-foreground">
-                Check the Orders tab to view pending orders, update their status, 
-                and manage fulfillment.
-              </p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="border rounded-lg p-4 sm:p-6">
-          <h3 className="text-base sm:text-lg font-semibold mb-3 whitespace-normal break-words">Contact Support</h3>
-          <p className="text-xs sm:text-sm text-muted-foreground mb-4 whitespace-normal">
-            Need help with your seller account? Our team is here to assist you.
-          </p>
-          <button className="text-servie text-sm font-medium">Contact Us</button>
-        </div>
-      </div>
-    </div>
-  );
-};
