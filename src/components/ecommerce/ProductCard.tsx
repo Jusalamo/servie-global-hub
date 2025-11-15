@@ -21,6 +21,7 @@ export interface Product {
   providerName: string;
   providerAvatar: string;
   providerId: string;
+  providerSlug?: string;
   description: string;
   featured?: boolean;
   inStock?: boolean;
@@ -196,14 +197,20 @@ export function ProductCard({ product, showAddToCart = true }: ProductCardProps)
         </div>
         
         <div className="mt-2">
-          <div className="flex items-center gap-2">
+          <Link 
+            to={product.providerSlug ? `/shop/${product.providerSlug}` : `/shop/seller-${product.providerId}`}
+            className="flex items-center gap-2 hover:underline"
+            onClick={(e) => e.stopPropagation()}
+          >
             <img
               src={product.providerAvatar || '/placeholder.svg'}
               alt={product.providerName}
               className="w-5 h-5 rounded-full"
             />
-            <span className="text-xs text-muted-foreground">{product.providerName}</span>
-          </div>
+            <span className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+              {product.providerName}
+            </span>
+          </Link>
         </div>
         
         <p className="mt-2 text-sm line-clamp-2 text-muted-foreground">
