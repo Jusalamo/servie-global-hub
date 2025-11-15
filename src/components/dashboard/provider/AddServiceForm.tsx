@@ -39,8 +39,20 @@ const AddServiceForm = ({ service, onSuccess, onCancel }: AddServiceFormProps) =
       const { data } = await supabase
         .from('service_categories_expanded')
         .select('*')
-        .order('name');
-      if (data) setCategories(data);
+        .order('parent_category', { ascending: true })
+        .order('name', { ascending: true });
+      
+      if (data) {
+        setCategories(data);
+      } else {
+        // Fallback categories if database query fails
+        setCategories([
+          { id: '1', name: 'Web Development', parent_category: 'Digital Services' },
+          { id: '2', name: 'Cleaning', parent_category: 'Home Services' },
+          { id: '3', name: 'Tutoring', parent_category: 'Education' },
+          { id: '4', name: 'Handyman', parent_category: 'Home Services' },
+        ]);
+      }
     };
     loadCategories();
   }, []);
@@ -184,18 +196,31 @@ const AddServiceForm = ({ service, onSuccess, onCancel }: AddServiceFormProps) =
             </div>
 
             <div>
-              <Label htmlFor="category">Category</Label>
+              <Label htmlFor="category">Category *</Label>
               <select
                 id="category"
                 value={formData.category}
                 onChange={(e) => handleInputChange("category", e.target.value)}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                required
               >
                 <option value="">Select a category</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.name}>
-                    {cat.name}
-                  </option>
+                {categories.reduce((acc: any[], cat) => {
+                  const parentCategory = cat.parent_category || 'Other';
+                  if (!acc.find(g => g.parent === parentCategory)) {
+                    acc.push({ parent: parentCategory, categories: [] });
+                  }
+                  const group = acc.find(g => g.parent === parentCategory);
+                  group.categories.push(cat);
+                  return acc;
+                }, []).map(group => (
+                  <optgroup key={group.parent} label={group.parent}>
+                    {group.categories.map((cat: any) => (
+                      <option key={cat.id} value={cat.name}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </div>

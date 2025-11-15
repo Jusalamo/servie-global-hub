@@ -30,42 +30,10 @@ import { Badge } from "@/components/ui/badge";
 import { ProductCard, type Product } from "./ProductCard";
 import { useLocalization } from "@/components/LangCurrencySelector";
 import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
 
-// Mock categories
-const categories = [
-  { name: "Electronics", count: 42 },
-  { name: "Clothing", count: 38 },
-  { name: "Home & Kitchen", count: 24 },
-  { name: "Beauty", count: 18 },
-  { name: "Sports", count: 15 },
-  { name: "Books", count: 12 },
-  { name: "Toys", count: 9 },
-  { name: "Automotive", count: 7 },
-];
-
-// Mock products data (replace with API call in production)
-const mockProducts: Product[] = Array.from({ length: 20 }, (_, i) => ({
-  id: `product-${i + 1}`,
-  name: `Product ${i + 1}`,
-  description: `This is a description for Product ${i + 1}. It includes all the important details about the features and benefits of this amazing product.`,
-  price: Math.floor(Math.random() * 90000 + 999) / 100,
-  compareAtPrice: Math.random() > 0.6 ? Math.floor(Math.random() * 100000 + 1999) / 100 : undefined,
-  rating: Math.floor(Math.random() * 40 + 10) / 10,
-  reviewCount: Math.floor(Math.random() * 500),
-  category: categories[Math.floor(Math.random() * categories.length)].name,
-  images: [
-    "/placeholder.svg",
-    "/placeholder.svg",
-    "/placeholder.svg"
-  ],
-  providerName: `Seller ${Math.floor(Math.random() * 10) + 1}`,
-  providerAvatar: "/placeholder.svg",
-  providerId: `seller-${Math.floor(Math.random() * 10) + 1}`,
-  inStock: Math.random() > 0.1,
-  featured: Math.random() > 0.8,
-  createdAt: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
-  currency: "$"
-}));
+// Import supabase for fetching real data
+import { supabase } from "@/integrations/supabase/client";
 
 const sortOptions = [
   { label: "Newest", value: "newest" },
@@ -84,12 +52,13 @@ export default function ProductListing({
   initialCategory = "all",
   initialSearch = ""
 }: ProductListingProps) {
-  const [products, setProducts] = useState<Product[]>(mockProducts);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(mockProducts);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     initialCategory !== "all" ? [initialCategory] : []
   );
+  const [categories, setCategories] = useState<{ name: string; count: number }[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [showFiltersOnMobile, setShowFiltersOnMobile] = useState(false);
@@ -98,17 +67,83 @@ export default function ProductListing({
 
   const { translate, formatPrice } = useLocalization();
   
-  // Simulate loading state
+  // Fetch real products from Supabase
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 600);
-    return () => clearTimeout(timer);
+    const fetchProducts = async () => {
+      setIsLoading(true);
+      try {
+        // Fetch products with seller profile info
+        const { data: productsData, error } = await supabase
+          .from('products')
+          .select(`
+            *,
+            profiles!products_seller_id_fkey (
+              id,
+              business_name,
+              first_name,
+              last_name,
+              avatar_url,
+              seller_slug
+            )
+          `)
+          .eq('status', 'active')
+          .order('featured', { ascending: false })
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        // Transform data to match Product interface
+        const transformedProducts: Product[] = (productsData || []).map((product: any) => ({
+          id: product.id,
+          name: product.name,
+          description: product.description || '',
+          price: product.price,
+          compareAtPrice: undefined,
+          rating: 4.5, // TODO: Calculate from reviews
+          reviewCount: 0, // TODO: Count from reviews
+          category: product.category || 'Uncategorized',
+          images: product.images && product.images.length > 0 ? product.images : [product.image_url || '/placeholder.svg'],
+          providerName: product.profiles?.business_name || 
+                       `${product.profiles?.first_name || ''} ${product.profiles?.last_name || ''}`.trim() || 
+                       'Seller',
+          providerAvatar: product.profiles?.avatar_url || '/placeholder.svg',
+          providerId: product.seller_id,
+          providerSlug: product.profiles?.seller_slug,
+          inStock: product.stock > 0,
+          featured: product.featured || false,
+          createdAt: product.created_at,
+          currency: "$"
+        }));
+
+        setProducts(transformedProducts);
+        
+        // Calculate categories with counts
+        const categoryMap = new Map<string, number>();
+        transformedProducts.forEach(p => {
+          const cat = p.category || 'Uncategorized';
+          categoryMap.set(cat, (categoryMap.get(cat) || 0) + 1);
+        });
+        
+        const categoryList = Array.from(categoryMap.entries())
+          .map(([name, count]) => ({ name, count }))
+          .sort((a, b) => b.count - a.count);
+        
+        setCategories(categoryList);
+        
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        toast.error('Failed to load products');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
   }, []);
 
   // Apply filters and sorting whenever filter criteria change
   useEffect(() => {
-    let results = [...mockProducts];
+    let results = [...products];
     
     // Apply category filter
     if (selectedCategories.length > 0) {
@@ -185,7 +220,7 @@ export default function ProductListing({
   };
 
   // Calculate price range from available products
-  const maxPrice = Math.max(...mockProducts.map(p => p.price));
+  const maxPrice = products.length > 0 ? Math.max(...products.map(p => p.price)) : 1000;
   
   return (
     <div className="container px-4 py-8 mx-auto">

@@ -44,7 +44,8 @@ export default function ProductDetail() {
               first_name,
               last_name,
               business_name,
-              avatar_url
+              avatar_url,
+              seller_slug
             )
           `)
           .eq('id', productId)
@@ -73,6 +74,7 @@ export default function ProductDetail() {
             providerId: productData.seller_id,
             providerName: sellerName,
             providerAvatar: profile?.avatar_url || '/placeholder.svg',
+            providerSlug: (productData.profiles as any)?.seller_slug,
             rating: 4.5,
             reviewCount: 0,
             featured: productData.featured || false,
@@ -326,6 +328,30 @@ export default function ProductDetail() {
               </div>
 
               <p className="text-muted-foreground">{product.description}</p>
+
+              {/* Seller Info */}
+              <Card className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={product.providerAvatar || '/placeholder.svg'}
+                      alt={product.providerName}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Sold by</p>
+                      <p className="font-semibold">{product.providerName}</p>
+                    </div>
+                  </div>
+                  <Link
+                    to={product.providerSlug ? `/shop/${product.providerSlug}` : `/shop/seller-${product.providerId}`}
+                  >
+                    <Button variant="outline" size="sm">
+                      Visit Store
+                    </Button>
+                  </Link>
+                </div>
+              </Card>
 
               <div>
                 <div className="flex items-center mb-4">
