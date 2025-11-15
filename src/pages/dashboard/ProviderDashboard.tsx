@@ -16,6 +16,7 @@ import FinancialDocumentsTab from "@/components/dashboard/provider/FinancialDocu
 import InventoryManagement from "@/components/dashboard/InventoryManagement";
 import BookingsCalendarTab from "@/components/dashboard/provider/BookingsCalendarTab";
 import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
+import { HelpSupportTab } from "@/components/dashboard/shared/HelpSupportTab";
 
 export default function ProviderDashboard() {
   const location = useLocation();
@@ -82,6 +83,8 @@ export default function ProviderDashboard() {
         return <NotificationsSettings />;
       case "help":
         return <HelpSupportTab />;
+      case "inventory":
+        return <InventoryManagement userRole="provider" />;
       default:
         return <ProviderOverviewTab />;
     }
@@ -101,121 +104,6 @@ export default function ProviderDashboard() {
     </div>
   );
 }
-
-// Help & Support Tab component
-const HelpSupportTab = () => {
-  return (
-    <div className="space-y-4 sm:space-y-6">
-      <h2 className="text-xl sm:text-2xl font-bold whitespace-normal break-words">Help & Support</h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-        <div className="border rounded-lg p-4 sm:p-6">
-          <h3 className="text-base sm:text-lg font-semibold mb-3 whitespace-normal break-words">Frequently Asked Questions</h3>
-          <div className="space-y-3 sm:space-y-4">
-            <div className="space-y-2">
-              <h4 className="text-sm sm:text-base font-medium whitespace-normal break-words">How do I get paid for my services?</h4>
-              <p className="text-xs sm:text-sm text-muted-foreground whitespace-normal">
-                Payments are processed through our secure platform and deposited 
-                to your connected bank account within 2-3 business days.
-              </p>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-medium">How do I handle cancellations?</h4>
-              <p className="text-sm text-muted-foreground">
-                You can set your own cancellation policy. Navigate to Settings {'=>'} 
-                Services {'=>'} Policies to configure cancellation terms.
-              </p>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-medium">How do I promote my services?</h4>
-              <p className="text-sm text-muted-foreground">
-                Use our built-in promotion tools, share your service links on social
-                media, and maintain high ratings to increase visibility.
-              </p>
-            </div>
-            <button className="text-servie text-sm font-medium mt-2">View all FAQs</button>
-          </div>
-        </div>
-        
-        <div className="border rounded-lg p-6">
-          <h3 className="text-lg font-semibold mb-3">Contact Support</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Our support team is available 24/7 to help you with any issues or questions.
-          </p>
-          <div className="space-y-4">
-            <div className="flex items-start gap-3">
-              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                <MessageIcon className="h-5 w-5" />
-              </div>
-              <div>
-                <h4 className="font-medium">Live Chat</h4>
-                <p className="text-sm text-muted-foreground">
-                  Available 24/7 for immediate assistance
-                </p>
-                <button className="text-servie text-sm font-medium mt-1">Start Chat</button>
-              </div>
-            </div>
-            
-            <div className="flex items-start gap-3">
-              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                <MailIcon className="h-5 w-5" />
-              </div>
-              <div>
-                <h4 className="font-medium">Email Support</h4>
-                <p className="text-sm text-muted-foreground">
-                  Send us a message and we'll respond within 24 hours
-                </p>
-                <button className="text-servie text-sm font-medium mt-1">Email Us</button>
-              </div>
-            </div>
-            
-            <div className="flex items-start gap-3">
-              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                <PhoneIcon className="h-5 w-5" />
-              </div>
-              <div>
-                <h4 className="font-medium">Phone Support</h4>
-                <p className="text-sm text-muted-foreground">
-                  Call us at (555) 123-4567, Mon-Fri 9am-5pm
-                </p>
-                <button className="text-servie text-sm font-medium mt-1">Call Now</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="border rounded-lg p-6 md:col-span-2">
-          <h3 className="text-lg font-semibold mb-3">Provider Resources</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 border rounded-lg">
-              <h4 className="font-medium mb-2">Provider Handbook</h4>
-              <p className="text-sm text-muted-foreground mb-3">
-                A comprehensive guide to successfully running your business on our platform.
-              </p>
-              <button className="text-servie text-sm font-medium">Download PDF</button>
-            </div>
-            
-            <div className="p-4 border rounded-lg">
-              <h4 className="font-medium mb-2">Video Tutorials</h4>
-              <p className="text-sm text-muted-foreground mb-3">
-                Step-by-step video guides on how to use all platform features.
-              </p>
-              <button className="text-servie text-sm font-medium">Watch Videos</button>
-            </div>
-            
-            <div className="p-4 border rounded-lg">
-              <h4 className="font-medium mb-2">Provider Community</h4>
-              <p className="text-sm text-muted-foreground mb-3">
-                Connect with other providers to share tips and experiences.
-              </p>
-              <button className="text-servie text-sm font-medium">Join Community</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 // Icon components
 const MessageIcon = (props: React.SVGProps<SVGSVGElement>) => (
