@@ -1,14 +1,12 @@
-
-import { useNavigate } from "react-router-dom";
+import { memo, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
   ShoppingBag,
-  ShoppingCart,
   MessageSquare,
   CreditCard,
   Settings,
-  User,
   HelpCircle,
   Wallet,
   Package,
@@ -17,7 +15,8 @@ import {
   TrendingUp,
   Store,
   Users,
-  Shield
+  Shield,
+  ExternalLink
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -35,7 +34,7 @@ interface SellerSidebarProps {
   onTabChange: (tab: string) => void;
 }
 
-const SidebarLink = ({ icon, label, isActive, onClick }: SidebarLinkProps) => {
+const SidebarLink = memo(({ icon, label, isActive, onClick }: SidebarLinkProps) => {
   return (
     <Button
       variant="ghost"
@@ -46,31 +45,60 @@ const SidebarLink = ({ icon, label, isActive, onClick }: SidebarLinkProps) => {
       <span className="ml-2">{label}</span>
     </Button>
   );
-};
+});
 
-export default function SellerSidebar({ activeTab, onTabChange }: SellerSidebarProps) {
-  const navigate = useNavigate();
-  const { user } = useAuth();
+SidebarLink.displayName = 'SidebarLink';
+
+const SellerSidebar = memo(({ activeTab, onTabChange }: SellerSidebarProps) => {
+  const { profile } = useAuth();
+
+  const menuItems = useMemo(() => [
+    { id: "overview", label: "Overview", icon: <BarChart2 className="h-5 w-5" /> },
+    { id: "orders", label: "Orders", icon: <ShoppingBag className="h-5 w-5" /> },
+    { id: "products", label: "Products", icon: <Package className="h-5 w-5" /> },
+    { id: "inventory", label: "Inventory", icon: <Tag className="h-5 w-5" /> },
+    { id: "analytics", label: "Analytics", icon: <TrendingUp className="h-5 w-5" /> },
+    { id: "shop", label: "My Shop", icon: <Store className="h-5 w-5" /> },
+    { id: "customers", label: "Customers", icon: <Users className="h-5 w-5" /> },
+    { id: "messages", label: "Messages", icon: <MessageSquare className="h-5 w-5" /> },
+    { id: "payments", label: "Payments", icon: <CreditCard className="h-5 w-5" /> },
+    { id: "wallet", label: "Wallet & Commission", icon: <Wallet className="h-5 w-5" /> },
+    { id: "security", label: "Security & KYC", icon: <Shield className="h-5 w-5" /> },
+    { id: "settings", label: "Settings", icon: <Settings className="h-5 w-5" /> },
+    { id: "help", label: "Help", icon: <HelpCircle className="h-5 w-5" /> },
+  ], []);
   
-  const handleTabClick = (tabName: string) => {
-    onTabChange(tabName);
-  };
+  const displayName = profile?.first_name 
+    ? `${profile.first_name} ${profile.last_name || ''}`.trim()
+    : profile?.business_name || 'Seller';
+
+  const shopUrl = profile?.seller_slug ? `/shop/${profile.seller_slug}` : null;
 
   return (
-    <div className="w-64 border-r h-full py-6 px-3 hidden md:block">
+    <div className="w-full py-6 px-3">
       {/* User Profile Card */}
       <Card className="mb-6">
         <CardContent className="p-4 flex flex-col items-center space-y-2">
           <Avatar className="h-16 w-16">
-            <AvatarImage src={user?.user_metadata?.avatar_url} alt="Profile" />
-            <AvatarFallback>{user?.user_metadata?.first_name?.charAt(0) || 'S'}</AvatarFallback>
+            <AvatarImage src={profile?.avatar_url || ''} alt="Profile" />
+            <AvatarFallback className="bg-servie text-white">
+              {displayName.charAt(0).toUpperCase()}
+            </AvatarFallback>
           </Avatar>
           <div className="text-center">
-            <h3 className="font-semibold">
-              {user?.user_metadata?.first_name} {user?.user_metadata?.last_name || 'Seller'}
-            </h3>
+            <h3 className="font-semibold">{displayName}</h3>
             <p className="text-sm text-muted-foreground">Seller Account</p>
           </div>
+          
+          {/* View My Shop Link */}
+          {shopUrl && (
+            <Link to={shopUrl} className="w-full">
+              <Button variant="outline" size="sm" className="w-full mt-2">
+                <ExternalLink className="h-4 w-4 mr-2" />
+                View My Shop
+              </Button>
+            </Link>
+          )}
         </CardContent>
       </Card>
 
@@ -80,97 +108,20 @@ export default function SellerSidebar({ activeTab, onTabChange }: SellerSidebarP
       </div>
 
       <div className="space-y-1">
-        <SidebarLink
-          icon={<BarChart2 className="h-5 w-5" />}
-          label="Overview"
-          isActive={activeTab === "overview"}
-          onClick={() => handleTabClick("overview")}
-        />
-        
-        <SidebarLink
-          icon={<ShoppingBag className="h-5 w-5" />}
-          label="Orders"
-          isActive={activeTab === "orders"}
-          onClick={() => handleTabClick("orders")}
-        />
-        
-        <SidebarLink
-          icon={<Package className="h-5 w-5" />}
-          label="Products"
-          isActive={activeTab === "products"}
-          onClick={() => handleTabClick("products")}
-        />
-        
-        <SidebarLink
-          icon={<Tag className="h-5 w-5" />}
-          label="Inventory"
-          isActive={activeTab === "inventory"}
-          onClick={() => handleTabClick("inventory")}
-        />
-        
-        <SidebarLink
-          icon={<TrendingUp className="h-5 w-5" />}
-          label="Analytics"
-          isActive={activeTab === "analytics"}
-          onClick={() => handleTabClick("analytics")}
-        />
-        
-        <SidebarLink
-          icon={<Store className="h-5 w-5" />}
-          label="My Shop"
-          isActive={activeTab === "shop"}
-          onClick={() => handleTabClick("shop")}
-        />
-        
-        <SidebarLink
-          icon={<Users className="h-5 w-5" />}
-          label="Customers"
-          isActive={activeTab === "customers"}
-          onClick={() => handleTabClick("customers")}
-        />
-        
-        <SidebarLink
-          icon={<MessageSquare className="h-5 w-5" />}
-          label="Messages"
-          isActive={activeTab === "messages"}
-          onClick={() => handleTabClick("messages")}
-        />
-        
-        <SidebarLink
-          icon={<CreditCard className="h-5 w-5" />}
-          label="Payments"
-          isActive={activeTab === "payments"}
-          onClick={() => handleTabClick("payments")}
-        />
-        
-        <SidebarLink
-          icon={<Wallet className="h-5 w-5" />}
-          label="Wallet & Commission"
-          isActive={activeTab === "wallet"}
-          onClick={() => handleTabClick("wallet")}
-        />
-        
-        <SidebarLink
-          icon={<Shield className="h-5 w-5" />}
-          label="Security & KYC"
-          isActive={activeTab === "security"}
-          onClick={() => handleTabClick("security")}
-        />
-        
-        <SidebarLink
-          icon={<Settings className="h-5 w-5" />}
-          label="Settings"
-          isActive={activeTab === "settings"}
-          onClick={() => handleTabClick("settings")}
-        />
-        
-        <SidebarLink
-          icon={<HelpCircle className="h-5 w-5" />}
-          label="Help"
-          isActive={activeTab === "help"}
-          onClick={() => handleTabClick("help")}
-        />
+        {menuItems.map((item) => (
+          <SidebarLink
+            key={item.id}
+            icon={item.icon}
+            label={item.label}
+            isActive={activeTab === item.id}
+            onClick={() => onTabChange(item.id)}
+          />
+        ))}
       </div>
     </div>
   );
-}
+});
+
+SellerSidebar.displayName = 'SellerSidebar';
+
+export default SellerSidebar;
