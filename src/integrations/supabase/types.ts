@@ -1744,22 +1744,6 @@ export type Database = {
           seller_id: string | null
           updated_at: string | null
         }
-        Insert: {
-          created_at?: string | null
-          email?: string | null
-          id?: string | null
-          role?: Database["public"]["Enums"]["app_role"] | null
-          seller_id?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          email?: string | null
-          id?: string | null
-          role?: Database["public"]["Enums"]["app_role"] | null
-          seller_id?: string | null
-          updated_at?: string | null
-        }
         Relationships: []
       }
     }

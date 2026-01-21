@@ -92,7 +92,7 @@ export default function ForgotPassword() {
           <div className="mt-8 space-y-6 text-center">
             <div className="bg-muted/50 p-4 rounded-lg">
               <p className="text-sm">
-                If an account with the email <strong>{email}</strong> exists in our system, you will receive a password reset link shortly.
+                If an account exists with that email address, you will receive a password reset link shortly.
               </p>
               <p className="text-sm mt-2">
                 Please also check your spam folder if you don't see the email.
@@ -105,7 +105,7 @@ export default function ForgotPassword() {
               className="mx-auto mt-4"
               onClick={() => setIsSubmitted(false)}
             >
-              Try a different email
+              Try again
             </Button>
           </div>
         )}
