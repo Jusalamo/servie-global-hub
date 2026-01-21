@@ -4,29 +4,32 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 interface UserProfile {
-  id: string;
-  first_name: string | null;
-  last_name: string | null;
-  role: string;
-  phone: string | null;
-  bio: string | null;
-  business_name: string | null;
-  avatar_url: string | null;
-  city: string | null;
-  state: string | null;
-  country: string | null;
-  address: string | null;
-  whatsapp: string | null;
-  postal_code: string | null;
-  // KYC and Security fields
-  kyc_status?: string | null;
-  kyc_document_url?: string | null;
-  kyc_submitted_at?: string | null;
-  kyc_verified_at?: string | null;
-  two_fa_enabled?: boolean;
-  two_fa_verified_at?: string | null;
-  bank_account_verified?: boolean;
-  bank_account_verified_at?: string | null;
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  role: string;
+  phone: string | null;
+  bio: string | null;
+  business_name: string | null;
+  avatar_url: string | null;
+  city: string | null;
+  state: string | null;
+  country: string | null;
+  address: string | null;
+  whatsapp: string | null;
+  postal_code: string | null;
+  seller_slug: string | null;
+  shop_description: string | null;
+  shop_logo_url: string | null;
+  // KYC and Security fields
+  kyc_status?: string | null;
+  kyc_document_url?: string | null;
+  kyc_submitted_at?: string | null;
+  kyc_verified_at?: string | null;
+  two_fa_enabled?: boolean;
+  two_fa_verified_at?: string | null;
+  bank_account_verified?: boolean;
+  bank_account_verified_at?: string | null;
 }
 
 interface AuthContextType {

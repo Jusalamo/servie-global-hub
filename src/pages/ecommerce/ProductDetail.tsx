@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -8,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Heart, Star, ChevronLeft, Share, MessageSquare, Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import ReviewForm from "@/components/ecommerce/ReviewForm";
@@ -16,18 +16,21 @@ import { type Product } from "@/components/ecommerce/ProductCard";
 import { useLocalization } from "@/components/LangCurrencySelector";
 import { supabase } from "@/integrations/supabase/client";
 
-export default function ProductDetail() {
+const ProductDetail = memo(() => {
   const { productId } = useParams<{ productId: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState<string>("");
   const [isFavorite, setIsFavorite] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  const [isInCart, setIsInCart] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const { isAuthenticated } = useAuth();
+  const { addToCart, cartItems } = useCart();
   const { formatPrice, translate } = useLocalization();
   const navigate = useNavigate();
+
+  // Check if product is already in cart
+  const isInCart = cartItems.some(item => item.product_id === productId);
 
   // Fetch real product data from Supabase
   useEffect(() => {
@@ -39,7 +42,7 @@ export default function ProductDetail() {
         const { data: productData, error: productError } = await supabase
           .from('products')
           .select(`
-            *,
+            id, name, description, price, image_url, images, stock, category, featured, seller_id, created_at,
             profiles:seller_id (
               first_name,
               last_name,
@@ -60,7 +63,11 @@ export default function ProductDetail() {
             `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || 
             'Unknown Seller';
           
-          const images = productData.image_url ? [productData.image_url] : ['/placeholder.svg'];
+          const images = productData.images?.length 
+            ? productData.images 
+            : productData.image_url 
+              ? [productData.image_url] 
+              : ['/placeholder.svg'];
 
           const mappedProduct: Product = {
             id: productData.id,
@@ -74,11 +81,11 @@ export default function ProductDetail() {
             providerId: productData.seller_id,
             providerName: sellerName,
             providerAvatar: profile?.avatar_url || '/placeholder.svg',
-            providerSlug: (productData.profiles as any)?.seller_slug,
+            providerSlug: profile?.seller_slug,
             rating: 4.5,
             reviewCount: 0,
             featured: productData.featured || false,
-            inStock: productData.stock > 0,
+            inStock: (productData.stock || 0) > 0,
             createdAt: productData.created_at
           };
           
@@ -93,10 +100,6 @@ export default function ProductDetail() {
       }
     };
 
-    // Check if product is in cart
-    const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
-    setIsInCart(cartItems.some((item: any) => item.id === productId));
-
     if (productId) {
       fetchProduct();
     }
@@ -109,78 +112,30 @@ export default function ProductDetail() {
     });
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = useCallback(async () => {
     if (!product) return;
     
     setIsAddingToCart(true);
     
-    // Simulate adding to cart
-    setTimeout(() => {
-      const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
-      
-      // Check if product is already in cart
-      const existingItemIndex = cartItems.findIndex((item: any) => item.id === product.id);
-      
-      if (existingItemIndex >= 0) {
-        // Increment quantity
-        cartItems[existingItemIndex].quantity += quantity;
-        toast.success(`Added ${quantity} ${quantity === 1 ? 'unit' : 'units'} of ${product.name} to cart`);
-      } else {
-        // Add new item
-        cartItems.push({
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          image: product.images[0] || '/placeholder.svg',
-          quantity: quantity,
-          providerId: product.providerId,
-          providerName: product.providerName
-        });
-        toast.success(`Added ${product.name} to cart`);
-      }
-      
-      localStorage.setItem('cartItems', JSON.stringify(cartItems));
-      setIsInCart(true);
+    try {
+      await addToCart(product.id, product.name, quantity);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    } finally {
       setIsAddingToCart(false);
-      
-      // Update cart count in UI - dispatch custom event
-      window.dispatchEvent(new CustomEvent('cart-updated'));
-    }, 600);
-  };
+    }
+  }, [product, quantity, addToCart]);
 
-  const handleBuyNow = () => {
+  const handleBuyNow = useCallback(async () => {
     if (!product) return;
     
-    // Add to cart first
-    const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
-    
-    // Check if product is already in cart
-    const existingItemIndex = cartItems.findIndex((item: any) => item.id === product.id);
-    
-    if (existingItemIndex >= 0) {
-      // Update quantity
-      cartItems[existingItemIndex].quantity = quantity;
-    } else {
-      // Add new item
-      cartItems.push({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.images[0] || '/placeholder.svg',
-        quantity: quantity,
-        providerId: product.providerId,
-        providerName: product.providerName
-      });
+    try {
+      await addToCart(product.id, product.name, quantity);
+      navigate('/checkout');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
     }
-    
-    localStorage.setItem('cartItems', JSON.stringify(cartItems));
-    
-    // Update cart count in UI - dispatch custom event
-    window.dispatchEvent(new CustomEvent('cart-updated'));
-    
-    // Navigate to checkout
-    navigate('/checkout');
-  };
+  }, [product, quantity, addToCart, navigate]);
 
   const handleToggleFavorite = () => {
     if (!isAuthenticated) {
@@ -631,4 +586,8 @@ export default function ProductDetail() {
         </div>
     </div>
   );
-}
+});
+
+ProductDetail.displayName = 'ProductDetail';
+
+export default ProductDetail;
