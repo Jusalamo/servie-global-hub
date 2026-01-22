@@ -32,12 +32,22 @@ const formSchema = z.object({
   }),
   role: z.enum(["client", "provider", "seller"]).default("client"),
   // Additional fields for provider/seller
-  business_name: z.string().optional(),
+	business_name: z.string().optional(),
   business_description: z.string().optional(),
   phone_number: z.string().optional(),
 }).refine(data => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],
+}).superRefine((data, ctx) => {
+  // Enforce required business fields for seller/provider to prevent incomplete accounts
+  // and to ensure seller slug generation has a stable source.
+  if ((data.role === "seller" || data.role === "provider") && !data.business_name?.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["business_name"],
+      message: data.role === "seller" ? "Shop name is required" : "Business name is required",
+    });
+  }
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -84,15 +94,16 @@ const SignUpForm = ({ selectedRole = "client" }) => {
         return;
       }
 
-      // Create the user account
-      const { error } = await signUp(data.email, data.password, {
-        firstName: data.first_name,
-        lastName: data.last_name,
-        role: data.role,
-        businessName: data.business_name,
-        businessDescription: data.business_description,
-        phone_number: data.phone_number, // ⬅️ FIXED KEY NAME: Sending phone_number to align with form/AuthContext
-      });
+		// Create the user account
+		const { error } = await signUp(data.email, data.password, {
+			// send snake_case keys (matches DB trigger expectations)
+			first_name: data.first_name,
+			last_name: data.last_name,
+			role: data.role,
+			business_name: data.business_name,
+			business_description: data.business_description,
+			phone_number: data.phone_number,
+		});
 
       if (error) {
         // Provide user-friendly error messages
@@ -108,18 +119,9 @@ const SignUpForm = ({ selectedRole = "client" }) => {
         throw error;
       }
 
-      toast.success("Account created successfully! Please check your email to verify your account.");
-      
-      // Small delay before redirect
-      setTimeout(() => {
-        const dashboardPath = data.role === 'provider' 
-          ? '/dashboard/provider?tab=overview'
-          : data.role === 'seller'
-          ? '/dashboard/seller?tab=overview'
-          : '/dashboard/client';
-        
-        navigate(dashboardPath, { replace: true });
-      }, 1500);
+		toast.success("Account created! Please verify your email to continue.");
+		// Send user to the email confirmation instructions page.
+		navigate("/confirm-email", { replace: true });
     } catch (error) {
       console.error('Sign up error:', error);
     } finally {

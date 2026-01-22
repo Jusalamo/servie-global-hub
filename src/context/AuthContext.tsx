@@ -201,7 +201,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return { error };
       }
       
-      const redirectUrl = `${window.location.origin}/`;
+			// Redirect back into the app after email verification.
+			// This route should handle auth callback tokens and redirect users to the right dashboard.
+			const redirectUrl = `${window.location.origin}/auth/callback`;
       
       // ⭐️ FIX APPLIED HERE: Map the camelCase keys received from the form
       // to the snake_case keys your PostgreSQL trigger expects.
@@ -211,12 +213,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         options: {
           emailRedirectTo: redirectUrl,
           data: {
-            first_name: userData.firstName?.trim() || '', // Changed to userData.firstName
-            last_name: userData.lastName?.trim() || '',   // Changed to userData.lastName
-            role: userData.role || 'client',
-            phone: userData.phone_number?.trim() || '',  // ⬅️ CRITICAL FIX: Changed to userData.phone_number
-            business_description: userData.businessDescription?.trim() || '',
-            business_name: userData.businessName?.trim() || ''
+						first_name: (userData.first_name ?? userData.firstName)?.trim?.() || '',
+						last_name: (userData.last_name ?? userData.lastName)?.trim?.() || '',
+						role: userData.role || 'client',
+						phone: (userData.phone ?? userData.phone_number)?.trim?.() || '',
+						business_description: (userData.business_description ?? userData.businessDescription)?.trim?.() || '',
+						business_name: (userData.business_name ?? userData.businessName)?.trim?.() || ''
           }
         }
       });

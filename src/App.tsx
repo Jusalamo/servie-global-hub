@@ -16,6 +16,7 @@ import Index from "@/pages/Index";
 import SignIn from "@/pages/SignIn";
 import SignUp from "@/pages/SignUp";
 import ConfirmEmail from "@/pages/ConfirmEmail";
+import AuthCallback from "@/pages/AuthCallback";
 import ForgotPassword from "@/pages/ForgotPassword";
 import NotFound from "@/pages/NotFound";
 import BecomeProvider from "@/pages/BecomeProvider";
@@ -71,7 +72,7 @@ function App() {
                 <ScrollToPage />
                 <Routes>
                   <Route path="/" element={
-                    <ServieLayout showBackground={true}>
+                    <ServieLayout showBackground={false}>
                       <Index />
                     </ServieLayout>
                   } />
@@ -138,6 +139,11 @@ function App() {
                   <Route path="/confirm-email" element={
                     <ServieLayout>
                       <ConfirmEmail />
+                    </ServieLayout>
+                  } />
+                  <Route path="/auth/callback" element={
+                    <ServieLayout>
+                      <AuthCallback />
                     </ServieLayout>
                   } />
                   <Route path="/forgot-password" element={
