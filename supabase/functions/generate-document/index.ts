@@ -9,10 +9,99 @@ const corsHeaders = {
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const VALID_FORMATS = new Set(['html', 'pdf']);
 
+const FUNCTION_NAME = 'generate-document';
+const RATE_LIMIT_WINDOW_SECONDS = 60;
+const RATE_LIMIT_MAX_REQUESTS = 20;
+
+function getClientIp(req: Request): string | null {
+  // Common headers set by proxies/CDNs
+  const xff = req.headers.get('x-forwarded-for');
+  if (xff) return xff.split(',')[0]?.trim() || null;
+  return req.headers.get('cf-connecting-ip') || req.headers.get('x-real-ip');
+}
+
+async function enforceRateLimit(
+  supabaseClient: any,
+  userId: string,
+): Promise<{ allowed: true } | { allowed: false; retryAfterSeconds: number }> {
+  const now = Date.now();
+  const windowMs = RATE_LIMIT_WINDOW_SECONDS * 1000;
+  const windowStartIso = new Date(Math.floor(now / windowMs) * windowMs).toISOString();
+
+  const { data: existing, error: readError } = await supabaseClient
+    .from('edge_rate_limits')
+    .select('request_count')
+    .eq('user_id', userId)
+    .eq('function_name', FUNCTION_NAME)
+    .eq('window_start', windowStartIso)
+    .maybeSingle();
+
+  if (readError) throw readError;
+
+  if (!existing) {
+    const { error: insertError } = await supabaseClient
+      .from('edge_rate_limits')
+      .insert({
+        user_id: userId,
+        function_name: FUNCTION_NAME,
+        window_start: windowStartIso,
+        request_count: 1,
+        last_request_at: new Date().toISOString(),
+      });
+    if (insertError) throw insertError;
+    return { allowed: true };
+  }
+
+  const currentCount = Number(existing.request_count || 0);
+  if (currentCount >= RATE_LIMIT_MAX_REQUESTS) {
+    const elapsedSeconds = Math.floor((now - Date.parse(windowStartIso)) / 1000);
+    return { allowed: false, retryAfterSeconds: Math.max(1, RATE_LIMIT_WINDOW_SECONDS - elapsedSeconds) };
+  }
+
+  const { error: updateError } = await supabaseClient
+    .from('edge_rate_limits')
+    .update({
+      request_count: currentCount + 1,
+      last_request_at: new Date().toISOString(),
+    })
+    .eq('user_id', userId)
+    .eq('function_name', FUNCTION_NAME)
+    .eq('window_start', windowStartIso);
+
+  if (updateError) throw updateError;
+  return { allowed: true };
+}
+
+async function logRequest(
+  supabaseClient: any,
+  userId: string,
+  req: Request,
+  statusCode: number,
+  durationMs: number,
+  metadata: Record<string, unknown> = {},
+) {
+  try {
+    await supabaseClient.from('edge_request_logs').insert({
+      user_id: userId,
+      function_name: FUNCTION_NAME,
+      method: req.method,
+      status_code: statusCode,
+      ip: getClientIp(req),
+      user_agent: req.headers.get('user-agent'),
+      duration_ms: Math.max(0, Math.floor(durationMs)),
+      metadata,
+    });
+  } catch {
+    // Never fail the main request because logging failed
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  const startedAt = Date.now();
 
   try {
     const supabaseClient = createClient(
@@ -25,8 +114,6 @@ serve(async (req) => {
       }
     );
 
-    const authHeader = req.headers.get('Authorization') || '';
-
     // Validate auth (verify_jwt=false in config; validate here)
     const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims();
     if (claimsError || !claimsData?.claims?.sub) {
@@ -36,32 +123,74 @@ serve(async (req) => {
       );
     }
 
+    const userId = String(claimsData.claims.sub);
+
+    // Rate limit
+    try {
+      const rl = await enforceRateLimit(supabaseClient, userId);
+      if (!rl.allowed) {
+        await logRequest(supabaseClient, userId, req, 429, Date.now() - startedAt, {
+          reason: 'rate_limited',
+          retry_after_seconds: rl.retryAfterSeconds,
+        });
+        return new Response(
+          JSON.stringify({ error: 'Too many requests' }),
+          {
+            status: 429,
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+              'Retry-After': String(rl.retryAfterSeconds),
+            },
+          }
+        );
+      }
+    } catch (e) {
+      // If rate limiting fails (e.g. RLS misconfig), fail closed for safety.
+      await logRequest(supabaseClient, userId, req, 500, Date.now() - startedAt, {
+        reason: 'rate_limit_error',
+      });
+      return new Response(
+        JSON.stringify({ error: 'Internal error' }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
     // Parse + validate body
     let body: any = {};
     try {
       body = await req.json();
     } catch {
-      return new Response(
+      const res = new Response(
         JSON.stringify({ error: 'Invalid request' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+      await logRequest(supabaseClient, userId, req, 400, Date.now() - startedAt, { reason: 'invalid_json' });
+      return res;
     }
 
     const documentId = String(body?.documentId || '');
     const format = String(body?.format || 'html');
 
     if (!UUID_REGEX.test(documentId)) {
-      return new Response(
+      const res = new Response(
         JSON.stringify({ error: 'Invalid request' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+      await logRequest(supabaseClient, userId, req, 400, Date.now() - startedAt, { reason: 'invalid_document_id' });
+      return res;
     }
 
     if (!VALID_FORMATS.has(format)) {
-      return new Response(
+      const res = new Response(
         JSON.stringify({ error: 'Invalid format' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+      await logRequest(supabaseClient, userId, req, 400, Date.now() - startedAt, { reason: 'invalid_format' });
+      return res;
     }
 
     // Fetch document from database
@@ -73,10 +202,12 @@ serve(async (req) => {
 
     if (fetchError || !document) {
       // Generic response prevents enumeration and avoids leaking DB details
-      return new Response(
+      const res = new Response(
         JSON.stringify({ error: 'Not found' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+      await logRequest(supabaseClient, userId, req, 404, Date.now() - startedAt, { reason: 'not_found' });
+      return res;
     }
 
     // Generate HTML based on document type
@@ -86,22 +217,32 @@ serve(async (req) => {
     // For now, we return HTML
     if (format === 'pdf') {
       // TODO: Integrate PDF generation library (e.g., puppeteer-core)
-      return new Response(
+      const res = new Response(
         JSON.stringify({ error: 'PDF generation coming soon. Use HTML format for now.' }),
         {
           status: 501,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );
+      await logRequest(supabaseClient, userId, req, 501, Date.now() - startedAt, { reason: 'pdf_not_implemented' });
+      return res;
     }
 
-    return new Response(html, {
+    const res = new Response(html, {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'text/html' },
     });
 
+    await logRequest(supabaseClient, userId, req, 200, Date.now() - startedAt, {
+      document_id: documentId,
+      format,
+    });
+
+    return res;
+
   } catch (error) {
     console.error('Error generating document:', error);
+    // best-effort logging: we may not have a supabase client / user id in this catch
     return new Response(
       JSON.stringify({ error: 'Internal error' }),
       {
