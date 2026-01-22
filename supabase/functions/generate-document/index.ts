@@ -6,6 +6,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const VALID_FORMATS = new Set(['html', 'pdf']);
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -22,10 +25,43 @@ serve(async (req) => {
       }
     );
 
-    const { documentId, format = 'html' } = await req.json();
+    const authHeader = req.headers.get('Authorization') || '';
 
-    if (!documentId) {
-      throw new Error('Document ID is required');
+    // Validate auth (verify_jwt=false in config; validate here)
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims();
+    if (claimsError || !claimsData?.claims?.sub) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Parse + validate body
+    let body: any = {};
+    try {
+      body = await req.json();
+    } catch {
+      return new Response(
+        JSON.stringify({ error: 'Invalid request' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const documentId = String(body?.documentId || '');
+    const format = String(body?.format || 'html');
+
+    if (!UUID_REGEX.test(documentId)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid request' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!VALID_FORMATS.has(format)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Fetch document from database
@@ -36,7 +72,11 @@ serve(async (req) => {
       .single();
 
     if (fetchError || !document) {
-      throw new Error('Document not found');
+      // Generic response prevents enumeration and avoids leaking DB details
+      return new Response(
+        JSON.stringify({ error: 'Not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Generate HTML based on document type
@@ -63,7 +103,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error generating document:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: 'Internal error' }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
