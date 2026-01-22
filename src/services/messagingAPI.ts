@@ -36,6 +36,21 @@ function safeGetData(data: any): any {
   return data && typeof data === 'object' ? data : {};
 }
 
+async function fetchDirectoryProfiles(userIds: string[]) {
+  if (userIds.length === 0) return new Map<string, any>();
+  const { data, error } = await supabase
+    .from('user_directory')
+    .select('id, first_name, last_name, avatar_url, role, business_name, seller_slug')
+    .in('id', Array.from(new Set(userIds)));
+
+  if (error) {
+    console.error('Error fetching user directory profiles:', error);
+    return new Map<string, any>();
+  }
+
+  return new Map((data || []).map((p: any) => [p.id, p]));
+}
+
 class MessagingAPI {
   private getConversationId(userId1: string, userId2: string): string {
     // Create consistent conversation ID regardless of participant order
@@ -104,31 +119,36 @@ class MessagingAPI {
       // Get messages from notifications table
       const { data, error } = await supabase
         .from('notifications')
-        .select(`
-          *,
-          profiles!notifications_user_id_fkey(first_name, last_name, avatar_url)
-        `)
+        .select('*')
         .eq('type', 'message')
         .order('created_at', { ascending: true })
         .limit(limit);
 
       if (error) throw error;
 
+      const notificationList = data || [];
+      const senderIds = notificationList
+        .map((n: any) => safeGetData(n.data)?.sender_id)
+        .filter(Boolean);
+      const directoryMap = await fetchDirectoryProfiles(senderIds);
+
       // Transform notifications to messages
-      const messages: Message[] = (data || []).map(notification => {
+      const messages: Message[] = notificationList.map(notification => {
         const notificationData = safeGetData(notification.data);
+        const senderId = notificationData?.sender_id || '';
+        const senderProfile = senderId ? directoryMap.get(senderId) : undefined;
         return {
           id: notification.id,
-          sender_id: notificationData?.sender_id || '',
+          sender_id: senderId,
           receiver_id: notificationData?.receiver_id || notification.user_id || '',
           content: notification.message,
           is_read: notification.is_read || false,
           created_at: notification.created_at || new Date().toISOString(),
-          sender_profile: notification.profiles ? {
-            first_name: notification.profiles.first_name || '',
-            last_name: notification.profiles.last_name || '',
-            avatar_url: notification.profiles.avatar_url || undefined
-          } : undefined
+          sender_profile: senderProfile ? {
+            first_name: senderProfile.first_name || '',
+            last_name: senderProfile.last_name || '',
+            avatar_url: senderProfile.avatar_url || undefined,
+          } : undefined,
         };
       });
 
@@ -147,10 +167,7 @@ class MessagingAPI {
       // Get message notifications for this user
       const { data, error } = await supabase
         .from('notifications')
-        .select(`
-          *,
-          profiles!notifications_user_id_fkey(id, first_name, last_name, avatar_url)
-        `)
+        .select('*')
         .eq('type', 'message')
         .order('created_at', { ascending: false });
 
@@ -158,6 +175,7 @@ class MessagingAPI {
 
       // Group by conversation and create conversation objects
       const conversationMap = new Map<string, Conversation>();
+      const otherUserIds: string[] = [];
       
       (data || []).forEach(notification => {
         const notificationData = safeGetData(notification.data);
@@ -168,6 +186,8 @@ class MessagingAPI {
         
         const conversationId = this.getConversationId(senderId, receiverId);
         const otherUserId = senderId === user.id ? receiverId : senderId;
+
+        otherUserIds.push(otherUserId);
         
         if (!conversationMap.has(conversationId)) {
           conversationMap.set(conversationId, {
@@ -177,18 +197,27 @@ class MessagingAPI {
             last_message: notification.message,
             last_message_at: notification.created_at || new Date().toISOString(),
             created_at: notification.created_at || new Date().toISOString(),
-            other_participant: notification.profiles ? {
-              id: notification.profiles.id,
-              first_name: notification.profiles.first_name || '',
-              last_name: notification.profiles.last_name || '',
-              avatar_url: notification.profiles.avatar_url || undefined
-            } : undefined,
+            other_participant: undefined,
             unread_count: 0
           });
         }
       });
 
-      return Array.from(conversationMap.values());
+      const directoryMap = await fetchDirectoryProfiles(otherUserIds);
+      return Array.from(conversationMap.values()).map((c) => {
+        const p = directoryMap.get(c.participant_2);
+        return {
+          ...c,
+          other_participant: p
+            ? {
+                id: p.id,
+                first_name: p.first_name || '',
+                last_name: p.last_name || '',
+                avatar_url: p.avatar_url || undefined,
+              }
+            : undefined,
+        };
+      });
     } catch (error) {
       console.error('Error fetching conversations:', error);
       return [];
@@ -220,8 +249,8 @@ class MessagingAPI {
       if (!user) throw new Error('User not authenticated');
 
       const { data, error } = await supabase
-        .from('profiles')
-        .select('id, first_name, last_name, avatar_url, role')
+        .from('user_directory')
+        .select('id, first_name, last_name, avatar_url, role, business_name, seller_slug')
         .neq('id', user.id) // Exclude current user
         .or(`first_name.ilike.%${query}%,last_name.ilike.%${query}%`)
         .limit(10);

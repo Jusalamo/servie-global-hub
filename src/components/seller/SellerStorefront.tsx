@@ -44,9 +44,9 @@ export const SellerStorefront = memo(() => {
     try {
       setLoading(true);
 
-      // Query profiles table directly with only needed columns for performance
+      // Query sanitized public profiles table (prevents exposing sensitive profile fields)
       const { data: sellerData, error: sellerError } = await supabase
-        .from('profiles')
+        .from('public_profiles')
         .select('id, business_name, first_name, last_name, shop_description, shop_logo_url, avatar_url, seller_slug')
         .eq('seller_slug', sellerSlug)
         .eq('role', 'seller')

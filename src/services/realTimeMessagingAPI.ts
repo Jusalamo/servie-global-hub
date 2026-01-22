@@ -125,7 +125,7 @@ export class RealTimeMessagingAPI {
 
         // Get other participant's profile
         const { data: otherProfile } = await supabase
-          .from('profiles')
+          .from('user_directory')
           .select('id, first_name, last_name, avatar_url, role')
           .eq('id', otherParticipantId)
           .single();
@@ -165,7 +165,7 @@ export class RealTimeMessagingAPI {
 
   async searchUsers(query: string): Promise<any[]> {
     const { data: users, error } = await supabase
-      .from('profiles')
+      .from('user_directory')
       .select('id, first_name, last_name, avatar_url, role')
       .or(`first_name.ilike.%${query}%,last_name.ilike.%${query}%`)
       .limit(10);
