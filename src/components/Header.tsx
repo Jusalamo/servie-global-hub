@@ -107,12 +107,8 @@ const Header = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem asChild>
-                      <Link to={getDashboardLink()} className="w-full cursor-pointer whitespace-normal">Dashboard</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/profile" className="w-full cursor-pointer whitespace-normal">Profile</Link>
-                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild><Link to={getDashboardLink()} className="w-full cursor-pointer whitespace-normal">Dashboard</Link></DropdownMenuItem>
+                    <DropdownMenuItem asChild><Link to="/profile" className="w-full cursor-pointer whitespace-normal">Profile</Link></DropdownMenuItem>
                     <DropdownMenuItem onClick={signOut} className="cursor-pointer whitespace-normal">
                       Sign out
                     </DropdownMenuItem>
@@ -120,12 +116,8 @@ const Header = () => {
                 </DropdownMenu>
               ) : (
                 <div className="flex items-center gap-2">
-                  <Button variant="ghost" asChild size="sm" className="whitespace-nowrap">
-                    <Link to="/sign-in">{translate('signIn')}</Link>
-                  </Button>
-                  <Button className="bg-servie hover:bg-servie-600 whitespace-nowrap" asChild size="sm">
-                    <Link to="/sign-up">{translate('signUp')}</Link>
-                  </Button>
+                  <Button variant="ghost" asChild size="sm" className="whitespace-nowrap"><Link to="/sign-in">{translate('signIn')}</Link></Button>
+                  <Button className="bg-servie hover:bg-servie-600 whitespace-nowrap" asChild size="sm"><Link to="/sign-up">{translate('signUp')}</Link></Button>
                 </div>
               )}
             </div>
