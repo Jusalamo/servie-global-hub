@@ -1223,6 +1223,66 @@ export type Database = {
         }
         Relationships: []
       }
+      public_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          brand_color_accent: string | null
+          brand_color_primary: string | null
+          business_name: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          role: string
+          seller_slug: string | null
+          shop_description: string | null
+          shop_logo_url: string | null
+          state: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          brand_color_accent?: string | null
+          brand_color_primary?: string | null
+          business_name?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          role: string
+          seller_slug?: string | null
+          shop_description?: string | null
+          shop_logo_url?: string | null
+          state?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          brand_color_accent?: string | null
+          brand_color_primary?: string | null
+          business_name?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          role?: string
+          seller_slug?: string | null
+          shop_description?: string | null
+          shop_logo_url?: string | null
+          state?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       quotation_items: {
         Row: {
           created_at: string
@@ -1711,6 +1771,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_directory: {
+        Row: {
+          avatar_url: string | null
+          business_name: string | null
+          created_at: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          role: string
+          seller_slug: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          business_name?: string | null
+          created_at?: string
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          role: string
+          seller_slug?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          business_name?: string | null
+          created_at?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          role?: string
+          seller_slug?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

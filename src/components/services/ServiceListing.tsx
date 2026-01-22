@@ -43,7 +43,8 @@ export default function ServiceListing({ initialCategory = 'all', initialSearch 
         const servicesWithDetails = await Promise.all(
           filteredData.map(async (service: any) => {
             const profileRes: any = await supabase
-              .from('profiles')
+              // Use sanitized public profiles table to avoid exposing sensitive fields
+              .from('public_profiles')
               .select('first_name, last_name, business_name, avatar_url')
               .eq('id', service.provider_id)
               .maybeSingle();
