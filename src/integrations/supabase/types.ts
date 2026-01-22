@@ -262,6 +262,126 @@ export type Database = {
         }
         Relationships: []
       }
+      edge_function_rate_limits: {
+        Row: {
+          function_name: string
+          last_request_at: string
+          request_count: number
+          user_id: string
+          window_start: string
+        }
+        Insert: {
+          function_name: string
+          last_request_at?: string
+          request_count?: number
+          user_id: string
+          window_start: string
+        }
+        Update: {
+          function_name?: string
+          last_request_at?: string
+          request_count?: number
+          user_id?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      edge_function_request_logs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          function_name: string
+          id: string
+          request_metadata: Json
+          status_code: number
+          success: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          function_name: string
+          id?: string
+          request_metadata?: Json
+          status_code: number
+          success?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          function_name?: string
+          id?: string
+          request_metadata?: Json
+          status_code?: number
+          success?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
+      edge_rate_limits: {
+        Row: {
+          function_name: string
+          last_request_at: string
+          request_count: number
+          user_id: string
+          window_start: string
+        }
+        Insert: {
+          function_name: string
+          last_request_at?: string
+          request_count?: number
+          user_id: string
+          window_start: string
+        }
+        Update: {
+          function_name?: string
+          last_request_at?: string
+          request_count?: number
+          user_id?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      edge_request_logs: {
+        Row: {
+          created_at: string
+          duration_ms: number | null
+          function_name: string
+          id: string
+          ip: string | null
+          metadata: Json
+          method: string
+          status_code: number
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number | null
+          function_name: string
+          id?: string
+          ip?: string | null
+          metadata?: Json
+          method: string
+          status_code: number
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number | null
+          function_name?: string
+          id?: string
+          ip?: string | null
+          metadata?: Json
+          method?: string
+          status_code?: number
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       escrow_transactions: {
         Row: {
           amount: number
