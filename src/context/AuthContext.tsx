@@ -182,59 +182,65 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  const signUp = async (email: string, password: string, userData: any) => {
-    try {
-      // Input validation
-      if (!email || !email.includes('@')) {
-        const error = new Error('Please provide a valid email address');
-        return { error };
-      }
-      
-      if (!password || password.length < 8) {
-        const error = new Error('Password must be at least 8 characters long');
-        return { error };
-      }
+  const signUp = async (email: string, password: string, userData: any) => {
+    try {
+      // Input validation
+      if (!email || !email.includes('@')) {
+        const error = new Error('Please provide a valid email address');
+        return { error };
+      }
+      
+      if (!password || password.length < 8) {
+        const error = new Error('Password must be at least 8 characters long');
+        return { error };
+      }
 
-      // Validate required fields for role
-      if (!userData.firstName || !userData.lastName) {
-        const error = new Error('First name and last name are required');
-        return { error };
-      }
-      
-			// Redirect back into the app after email verification.
-			// This route should handle auth callback tokens and redirect users to the right dashboard.
-			const redirectUrl = `${window.location.origin}/auth/callback`;
-      
-      // ⭐️ FIX APPLIED HERE: Map the camelCase keys received from the form
-      // to the snake_case keys your PostgreSQL trigger expects.
-      const { error, data } = await supabase.auth.signUp({
-        email: email.toLowerCase().trim(),
-        password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-						first_name: (userData.first_name ?? userData.firstName)?.trim?.() || '',
-						last_name: (userData.last_name ?? userData.lastName)?.trim?.() || '',
-						role: userData.role || 'client',
-						phone: (userData.phone ?? userData.phone_number)?.trim?.() || '',
-						business_description: (userData.business_description ?? userData.businessDescription)?.trim?.() || '',
-						business_name: (userData.business_name ?? userData.businessName)?.trim?.() || ''
-          }
-        }
-      });
-      
-      if (error) {
-        console.error('Sign up error:', error);
-        return { error };
-      }
-      
-      return { error: null, data };
-    } catch (err) {
-      console.error('Unexpected sign up error:', err);
-      const error = err instanceof Error ? err : new Error('An unexpected error occurred during sign up');
-      return { error };
-    }
-  };
+      // Validate required fields for role
+      const firstName = userData.first_name || userData.firstName || '';
+      const lastName = userData.last_name || userData.lastName || '';
+      
+      if (!firstName || !lastName) {
+        const error = new Error('First name and last name are required');
+        return { error };
+      }
+      
+      // Redirect back into the app after email verification.
+      const redirectUrl = `${window.location.origin}/auth/callback`;
+      
+      // Normalize all field names to snake_case for the DB trigger
+      const role = userData.role || 'client';
+      const phone = userData.phone || userData.phone_number || '';
+      const businessName = userData.business_name || userData.businessName || '';
+      const businessDescription = userData.business_description || userData.businessDescription || '';
+      
+      const { error, data } = await supabase.auth.signUp({
+        email: email.toLowerCase().trim(),
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            first_name: firstName.trim(),
+            last_name: lastName.trim(),
+            role: role,
+            phone: phone.trim(),
+            business_description: businessDescription.trim(),
+            business_name: businessName.trim()
+          }
+        }
+      });
+      
+      if (error) {
+        console.error('Sign up error:', error);
+        return { error };
+      }
+      
+      return { error: null, data };
+    } catch (err) {
+      console.error('Unexpected sign up error:', err);
+      const error = err instanceof Error ? err : new Error('An unexpected error occurred during sign up');
+      return { error };
+    }
+  };
 
   const signIn = async (email: string, password: string) => {
     try {

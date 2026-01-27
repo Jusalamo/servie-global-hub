@@ -72,12 +72,12 @@ export default function ProductListing({
     const fetchProducts = async () => {
       setIsLoading(true);
       try {
-        // Fetch products with seller profile info
+        // Fetch products - use public_profiles for seller info (no RLS restrictions)
         const { data: productsData, error } = await supabase
           .from('products')
           .select(`
             *,
-            profiles!products_seller_id_fkey (
+            public_profiles!products_seller_id_fkey (
               id,
               business_name,
               first_name,
@@ -90,7 +90,60 @@ export default function ProductListing({
           .order('featured', { ascending: false })
           .order('created_at', { ascending: false });
 
-        if (error) throw error;
+        // If join fails, try without join
+        if (error) {
+          console.warn('Products query with join failed, fetching products only:', error.message);
+          const { data: basicProducts, error: basicError } = await supabase
+            .from('products')
+            .select('*')
+            .eq('status', 'active')
+            .order('featured', { ascending: false })
+            .order('created_at', { ascending: false });
+          
+          if (basicError) {
+            console.error('Error fetching products:', basicError);
+            // Don't show error toast - just show empty state
+            setProducts([]);
+            setCategories([]);
+            return;
+          }
+
+          // Transform basic products without seller info
+          const transformedProducts: Product[] = (basicProducts || []).map((product: any) => ({
+            id: product.id,
+            name: product.name,
+            description: product.description || '',
+            price: product.price,
+            compareAtPrice: undefined,
+            rating: 4.5,
+            reviewCount: 0,
+            category: product.category || 'Uncategorized',
+            images: product.images && product.images.length > 0 ? product.images : [product.image_url || '/placeholder.svg'],
+            providerName: 'Seller',
+            providerAvatar: '/placeholder.svg',
+            providerId: product.seller_id,
+            providerSlug: undefined,
+            inStock: product.stock > 0,
+            featured: product.featured || false,
+            createdAt: product.created_at,
+            currency: "$"
+          }));
+
+          setProducts(transformedProducts);
+          
+          const categoryMap = new Map<string, number>();
+          transformedProducts.forEach(p => {
+            const cat = p.category || 'Uncategorized';
+            categoryMap.set(cat, (categoryMap.get(cat) || 0) + 1);
+          });
+          
+          const categoryList = Array.from(categoryMap.entries())
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count);
+          
+          setCategories(categoryList);
+          return;
+        }
 
         // Transform data to match Product interface
         const transformedProducts: Product[] = (productsData || []).map((product: any) => ({
@@ -99,16 +152,16 @@ export default function ProductListing({
           description: product.description || '',
           price: product.price,
           compareAtPrice: undefined,
-          rating: 4.5, // TODO: Calculate from reviews
-          reviewCount: 0, // TODO: Count from reviews
+          rating: 4.5,
+          reviewCount: 0,
           category: product.category || 'Uncategorized',
           images: product.images && product.images.length > 0 ? product.images : [product.image_url || '/placeholder.svg'],
-          providerName: product.profiles?.business_name || 
-                       `${product.profiles?.first_name || ''} ${product.profiles?.last_name || ''}`.trim() || 
+          providerName: product.public_profiles?.business_name || 
+                       `${product.public_profiles?.first_name || ''} ${product.public_profiles?.last_name || ''}`.trim() || 
                        'Seller',
-          providerAvatar: product.profiles?.avatar_url || '/placeholder.svg',
+          providerAvatar: product.public_profiles?.avatar_url || '/placeholder.svg',
           providerId: product.seller_id,
-          providerSlug: product.profiles?.seller_slug,
+          providerSlug: product.public_profiles?.seller_slug,
           inStock: product.stock > 0,
           featured: product.featured || false,
           createdAt: product.created_at,
@@ -132,7 +185,9 @@ export default function ProductListing({
         
       } catch (error) {
         console.error('Error fetching products:', error);
-        toast.error('Failed to load products');
+        // Don't show error toast for empty products - just show empty state
+        setProducts([]);
+        setCategories([]);
       } finally {
         setIsLoading(false);
       }

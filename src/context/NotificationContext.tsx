@@ -30,26 +30,52 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const [unreadCount, setUnreadCount] = useState(0);
   const [isRealtimeEnabled, setIsRealtimeEnabled] = useState(false);
 
-  // Initialize notifications from localStorage on mount
+  // Fetch notifications from database on mount when authenticated
   useEffect(() => {
-    const savedNotifications = localStorage.getItem("notifications");
-    if (savedNotifications) {
-      try {
-        setNotifications(JSON.parse(savedNotifications));
-      } catch (error) {
-        console.error("Failed to parse notifications from localStorage", error);
-        localStorage.removeItem("notifications");
+    const fetchNotifications = async () => {
+      if (!isAuthenticated || !user?.id) {
+        // Clear notifications when user logs out
+        setNotifications([]);
+        return;
       }
-    }
-  }, []);
+      
+      try {
+        const { data, error } = await supabase
+          .from('notifications')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(50);
+          
+        if (error) {
+          console.error('Error fetching notifications:', error);
+          return;
+        }
+        
+        if (data) {
+          const formattedNotifications: Notification[] = data.map((n: any) => ({
+            id: n.id,
+            title: n.title,
+            message: n.message,
+            type: n.type as Notification['type'],
+            isRead: n.is_read,
+            createdAt: n.created_at,
+            relatedId: n.data?.related_id
+          }));
+          setNotifications(formattedNotifications);
+        }
+      } catch (error) {
+        console.error('Failed to fetch notifications', error);
+      }
+    };
+
+    fetchNotifications();
+  }, [isAuthenticated, user?.id]);
 
   // Update unreadCount when notifications change
   useEffect(() => {
     const count = notifications.filter(n => !n.isRead).length;
     setUnreadCount(count);
-    
-    // Update localStorage
-    localStorage.setItem("notifications", JSON.stringify(notifications));
   }, [notifications]);
 
   // Setup realtime subscription to notifications table if authenticated

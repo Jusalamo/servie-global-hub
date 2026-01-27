@@ -80,54 +80,56 @@ const SignUpForm = ({ selectedRole = "client" }) => {
     },
   });
 
-  const onSubmit = async (data: FormValues) => {
-    setIsLoading(true);
-    try {
-      // Validate required fields
-      if (!data.email || !data.password) {
-        toast.error("Email and password are required");
-        return;
-      }
+  const onSubmit = async (data: FormValues) => {
+    setIsLoading(true);
+    try {
+      // Validate required fields
+      if (!data.email || !data.password) {
+        toast.error("Email and password are required");
+        return;
+      }
 
-      if (data.password !== data.confirmPassword) {
-        toast.error("Passwords do not match");
-        return;
-      }
+      if (data.password !== data.confirmPassword) {
+        toast.error("Passwords do not match");
+        return;
+      }
 
-		// Create the user account
-		const { error } = await signUp(data.email, data.password, {
-			// send snake_case keys (matches DB trigger expectations)
-			first_name: data.first_name,
-			last_name: data.last_name,
-			role: data.role,
-			business_name: data.business_name,
-			business_description: data.business_description,
-			phone_number: data.phone_number,
-		});
+      // Create the user account - pass snake_case keys matching DB trigger expectations
+      const { error } = await signUp(data.email, data.password, {
+        first_name: data.first_name,
+        last_name: data.last_name,
+        role: data.role,
+        business_name: data.business_name || '',
+        business_description: data.business_description || '',
+        phone: data.phone_number || '',
+      });
 
-      if (error) {
-        // Provide user-friendly error messages
-        if (error.message.includes('already registered')) {
-          toast.error("This email is already registered. Please sign in instead.");
-        } else if (error.message.includes('Invalid email')) {
-          toast.error("Please enter a valid email address.");
-        } else if (error.message.includes('Password')) {
-          toast.error("Password must be at least 8 characters long.");
-        } else {
-          toast.error(error.message || "Unable to create account. Please try again.");
-        }
-        throw error;
-      }
+      if (error) {
+        // Provide user-friendly error messages
+        if (error.message.includes('already registered')) {
+          toast.error("This email is already registered. Please sign in instead.");
+        } else if (error.message.includes('Invalid email')) {
+          toast.error("Please enter a valid email address.");
+        } else if (error.message.includes('Password')) {
+          toast.error("Password must be at least 8 characters long.");
+        } else if (error.message.includes('Database') || error.message.includes('saving')) {
+          toast.error("Account creation failed. Please try again.");
+          console.error('Database error during signup:', error);
+        } else {
+          toast.error(error.message || "Unable to create account. Please try again.");
+        }
+        throw error;
+      }
 
-		toast.success("Account created! Please verify your email to continue.");
-		// Send user to the email confirmation instructions page.
-		navigate("/confirm-email", { replace: true });
-    } catch (error) {
-      console.error('Sign up error:', error);
-    } finally {
-      setTimeout(() => setIsLoading(false), 300);
-    }
-  };
+      toast.success("Account created! Please verify your email to continue.");
+      // Send user to the email confirmation instructions page.
+      navigate("/confirm-email", { replace: true });
+    } catch (error) {
+      console.error('Sign up error:', error);
+    } finally {
+      setTimeout(() => setIsLoading(false), 300);
+    }
+  };
 
   const showBusinessFields = typedSelectedRole === "provider" || typedSelectedRole === "seller";
 
