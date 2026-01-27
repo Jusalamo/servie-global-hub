@@ -1,87 +1,101 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Star, MessageSquare, Flag, ThumbsUp, Calendar } from 'lucide-react';
+import { Star, MessageSquare, Calendar } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
 
-// Mock data for reviews
-const mockReviews = [
-  {
-    id: 'rev1',
-    client: {
-      name: 'Sarah Johnson',
-      avatar: 'https://randomuser.me/api/portraits/women/32.jpg'
-    },
-    service: 'Home Cleaning',
-    date: '2023-05-10',
-    rating: 5,
-    text: 'Excellent service! My house has never looked so clean. Professional, punctual, and detail-oriented. Will definitely book again.',
-    response: null,
-    reported: false
-  },
-  {
-    id: 'rev2',
-    client: {
-      name: 'Michael Chen',
-      avatar: 'https://randomuser.me/api/portraits/men/45.jpg'
-    },
-    service: 'Carpet Cleaning',
-    date: '2023-05-05',
-    rating: 4,
-    text: 'Good service overall. Did a great job with my carpets. Only giving 4 stars because they were slightly late.',
-    response: 'Thank you for your feedback! We apologize for being late and will ensure better punctuality in the future.',
-    reported: false
-  },
-  {
-    id: 'rev3',
-    client: {
-      name: 'Emma Rodriguez',
-      avatar: 'https://randomuser.me/api/portraits/women/22.jpg'
-    },
-    service: 'Window Cleaning',
-    date: '2023-04-28',
-    rating: 3,
-    text: 'The service was okay. Windows are clean but there are some streaks left. Could improve on attention to detail.',
-    response: null,
-    reported: false
-  },
-  {
-    id: 'rev4',
-    client: {
-      name: 'James Wilson',
-      avatar: 'https://randomuser.me/api/portraits/men/33.jpg'
-    },
-    service: 'Deep Cleaning',
-    date: '2023-04-20',
-    rating: 5,
-    text: 'Absolutely fantastic! They went above and beyond with my deep cleaning request. Every corner of the house is spotless.',
-    response: 'Thank you so much for your kind words! We\'re thrilled you\'re satisfied with our service.',
-    reported: false
-  },
-  {
-    id: 'rev5',
-    client: {
-      name: 'Olivia Parker',
-      avatar: 'https://randomuser.me/api/portraits/women/65.jpg'
-    },
-    service: 'Move-out Cleaning',
-    date: '2023-04-15',
-    rating: 5,
-    text: 'Helped me get my full deposit back! The apartment was immaculate after they finished.',
-    response: null,
-    reported: false
-  }
-];
+interface Review {
+  id: string;
+  client_id: string;
+  client_name: string;
+  client_avatar: string | null;
+  service_title: string;
+  created_at: string;
+  rating: number;
+  comment: string | null;
+  provider_response: string | null;
+}
 
 export default function ReviewsTab() {
-  const [reviews, setReviews] = useState(mockReviews);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [replyText, setReplyText] = useState('');
   const [activeReviewId, setActiveReviewId] = useState<string | null>(null);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      if (!user?.id) return;
+      
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('reviews')
+          .select(`
+            id,
+            client_id,
+            rating,
+            comment,
+            provider_response,
+            created_at,
+            services (
+              title
+            )
+          `)
+          .eq('provider_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        // Fetch client names from public_profiles
+        const clientIds = [...new Set((data || []).map((r: any) => r.client_id).filter(Boolean))];
+        
+        let clientProfiles: any[] = [];
+        if (clientIds.length > 0) {
+          const { data: profiles } = await supabase
+            .from('public_profiles')
+            .select('id, first_name, last_name, avatar_url')
+            .in('id', clientIds);
+          clientProfiles = profiles || [];
+        }
+
+        const formattedReviews: Review[] = (data || []).map((review: any) => {
+          const clientProfile = clientProfiles.find(p => p.id === review.client_id);
+          return {
+            id: review.id,
+            client_id: review.client_id,
+            client_name: clientProfile 
+              ? `${clientProfile.first_name || ''} ${clientProfile.last_name || ''}`.trim() || 'Anonymous'
+              : 'Anonymous',
+            client_avatar: clientProfile?.avatar_url || null,
+            service_title: review.services?.title || 'Service',
+            created_at: review.created_at,
+            rating: review.rating,
+            comment: review.comment,
+            provider_response: review.provider_response
+          };
+        });
+
+        setReviews(formattedReviews);
+      } catch (error) {
+        console.error('Error fetching reviews:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, [user?.id]);
 
   // Calculate average rating
-  const averageRating = reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length;
+  const averageRating = reviews.length > 0 
+    ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length 
+    : 0;
   
   // Rating distribution
   const ratingDistribution = {
@@ -92,26 +106,28 @@ export default function ReviewsTab() {
     1: reviews.filter(r => r.rating === 1).length
   };
 
-  const handleReplySubmit = (reviewId: string) => {
-    setReviews(
-      reviews.map(review => 
-        review.id === reviewId 
-          ? { ...review, response: replyText } 
-          : review
-      )
-    );
-    setReplyText('');
-    setActiveReviewId(null);
-  };
+  const handleReplySubmit = async (reviewId: string) => {
+    try {
+      const { error } = await supabase
+        .from('reviews')
+        .update({ provider_response: replyText })
+        .eq('id', reviewId)
+        .eq('provider_id', user?.id);
 
-  const handleReportReview = (reviewId: string) => {
-    setReviews(
-      reviews.map(review => 
+      if (error) throw error;
+
+      setReviews(reviews.map(review => 
         review.id === reviewId 
-          ? { ...review, reported: true } 
+          ? { ...review, provider_response: replyText } 
           : review
-      )
-    );
+      ));
+      setReplyText('');
+      setActiveReviewId(null);
+      toast.success('Response submitted successfully');
+    } catch (error) {
+      console.error('Error submitting response:', error);
+      toast.error('Failed to submit response');
+    }
   };
 
   // Render stars for rating
@@ -125,8 +141,22 @@ export default function ReviewsTab() {
   };
 
   // Filtered reviews
-  const unansweredReviews = reviews.filter(review => !review.response);
-  const answeredReviews = reviews.filter(review => review.response);
+  const unansweredReviews = reviews.filter(review => !review.provider_response);
+  const answeredReviews = reviews.filter(review => review.provider_response);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[1, 2, 3].map(i => <Skeleton key={i} className="h-32" />)}
+        </div>
+        <div className="space-y-4">
+          {[1, 2].map(i => <Skeleton key={i} className="h-40" />)}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -139,184 +169,162 @@ export default function ReviewsTab() {
         </div>
       </div>
 
-      {/* Overview Card */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Overall Rating</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center">
-              <div className="text-3xl font-bold mr-2">{averageRating.toFixed(1)}</div>
-              <div className="flex">{renderStars(Math.round(averageRating))}</div>
-            </div>
-            <p className="text-sm text-muted-foreground mt-2">
-              From {reviews.length} reviews
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Rating Distribution</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {[5, 4, 3, 2, 1].map(stars => (
-              <div key={stars} className="flex items-center mb-1">
-                <div className="w-12 flex">
-                  {stars} <Star className="h-3 w-3 ml-1 text-yellow-400 fill-yellow-400" />
-                </div>
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div 
-                    className="bg-servie h-2 rounded-full" 
-                    style={{ 
-                      width: `${(ratingDistribution[stars as keyof typeof ratingDistribution] / reviews.length) * 100}%` 
-                    }}
-                  />
-                </div>
-                <div className="w-8 text-right text-xs text-muted-foreground">
-                  {ratingDistribution[stars as keyof typeof ratingDistribution]}
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Review Insights</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="flex justify-between">
-              <span>Total Reviews</span>
-              <span className="font-bold">{reviews.length}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Unanswered Reviews</span>
-              <span className="font-bold">{unansweredReviews.length}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Response Rate</span>
-              <span className="font-bold">{Math.round((answeredReviews.length / reviews.length) * 100)}%</span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Reviews Tabs */}
-      <Tabs defaultValue="all">
-        <div className="flex justify-between items-center mb-4">
-          <TabsList>
-            <TabsTrigger value="all">All Reviews ({reviews.length})</TabsTrigger>
-            <TabsTrigger value="unanswered">Unanswered ({unansweredReviews.length})</TabsTrigger>
-            <TabsTrigger value="positive">5 Star ({ratingDistribution[5]})</TabsTrigger>
-          </TabsList>
+      {reviews.length === 0 ? (
+        <div className="text-center py-12 border rounded-lg">
+          <Star className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+          <h3 className="text-lg font-medium mb-2">No reviews yet</h3>
+          <p className="text-muted-foreground">
+            Complete bookings to receive reviews from your clients.
+          </p>
         </div>
+      ) : (
+        <>
+          {/* Overview Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Overall Rating</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center">
+                  <div className="text-3xl font-bold mr-2">{averageRating.toFixed(1)}</div>
+                  <div className="flex">{renderStars(Math.round(averageRating))}</div>
+                </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  From {reviews.length} reviews
+                </p>
+              </CardContent>
+            </Card>
 
-        <TabsContent value="all" className="space-y-4">
-          {reviews.map(review => (
-            <ReviewCard 
-              key={review.id}
-              review={review}
-              onReply={() => setActiveReviewId(review.id)}
-              onReportReview={() => handleReportReview(review.id)}
-              isReplying={activeReviewId === review.id}
-              replyText={replyText}
-              setReplyText={setReplyText}
-              onSubmitReply={() => handleReplySubmit(review.id)}
-            />
-          ))}
-        </TabsContent>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Rating Distribution</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {[5, 4, 3, 2, 1].map(stars => (
+                  <div key={stars} className="flex items-center mb-1">
+                    <div className="w-12 flex text-sm">
+                      {stars} <Star className="h-3 w-3 ml-1 text-yellow-400 fill-yellow-400" />
+                    </div>
+                    <div className="flex-1 bg-muted rounded-full h-2">
+                      <div 
+                        className="bg-primary h-2 rounded-full" 
+                        style={{ 
+                          width: reviews.length > 0 
+                            ? `${(ratingDistribution[stars as keyof typeof ratingDistribution] / reviews.length) * 100}%`
+                            : '0%'
+                        }}
+                      />
+                    </div>
+                    <div className="w-8 text-right text-xs text-muted-foreground">
+                      {ratingDistribution[stars as keyof typeof ratingDistribution]}
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
 
-        <TabsContent value="unanswered" className="space-y-4">
-          {unansweredReviews.length > 0 ? (
-            unansweredReviews.map(review => (
-              <ReviewCard 
-                key={review.id}
-                review={review}
-                onReply={() => setActiveReviewId(review.id)}
-                onReportReview={() => handleReportReview(review.id)}
-                isReplying={activeReviewId === review.id}
-                replyText={replyText}
-                setReplyText={setReplyText}
-                onSubmitReply={() => handleReplySubmit(review.id)}
-              />
-            ))
-          ) : (
-            <div className="text-center py-12 border rounded-lg">
-              <p className="text-muted-foreground">No unanswered reviews</p>
-            </div>
-          )}
-        </TabsContent>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Review Insights</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>Total Reviews</span>
+                  <span className="font-bold">{reviews.length}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Unanswered</span>
+                  <span className="font-bold">{unansweredReviews.length}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Response Rate</span>
+                  <span className="font-bold">
+                    {reviews.length > 0 ? Math.round((answeredReviews.length / reviews.length) * 100) : 0}%
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-        <TabsContent value="positive" className="space-y-4">
-          {ratingDistribution[5] > 0 ? (
-            reviews.filter(r => r.rating === 5).map(review => (
-              <ReviewCard 
-                key={review.id}
-                review={review}
-                onReply={() => setActiveReviewId(review.id)}
-                onReportReview={() => handleReportReview(review.id)}
-                isReplying={activeReviewId === review.id}
-                replyText={replyText}
-                setReplyText={setReplyText}
-                onSubmitReply={() => handleReplySubmit(review.id)}
-              />
-            ))
-          ) : (
-            <div className="text-center py-12 border rounded-lg">
-              <p className="text-muted-foreground">No 5-star reviews yet</p>
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+          {/* Reviews Tabs */}
+          <Tabs defaultValue="all">
+            <TabsList>
+              <TabsTrigger value="all">All ({reviews.length})</TabsTrigger>
+              <TabsTrigger value="unanswered">Unanswered ({unansweredReviews.length})</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="all" className="space-y-4 mt-4">
+              {reviews.map(review => (
+                <ReviewCard 
+                  key={review.id}
+                  review={review}
+                  onReply={() => setActiveReviewId(review.id)}
+                  isReplying={activeReviewId === review.id}
+                  replyText={replyText}
+                  setReplyText={setReplyText}
+                  onSubmitReply={() => handleReplySubmit(review.id)}
+                  onCancelReply={() => { setActiveReviewId(null); setReplyText(''); }}
+                />
+              ))}
+            </TabsContent>
+
+            <TabsContent value="unanswered" className="space-y-4 mt-4">
+              {unansweredReviews.length > 0 ? (
+                unansweredReviews.map(review => (
+                  <ReviewCard 
+                    key={review.id}
+                    review={review}
+                    onReply={() => setActiveReviewId(review.id)}
+                    isReplying={activeReviewId === review.id}
+                    replyText={replyText}
+                    setReplyText={setReplyText}
+                    onSubmitReply={() => handleReplySubmit(review.id)}
+                    onCancelReply={() => { setActiveReviewId(null); setReplyText(''); }}
+                  />
+                ))
+              ) : (
+                <div className="text-center py-12 border rounded-lg">
+                  <p className="text-muted-foreground">All reviews have been responded to!</p>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        </>
+      )}
     </div>
   );
-}
-
-interface Review {
-  id: string;
-  client: {
-    name: string;
-    avatar: string;
-  };
-  service: string;
-  date: string;
-  rating: number;
-  text: string;
-  response: string | null;
-  reported: boolean;
 }
 
 interface ReviewCardProps {
   review: Review;
   onReply: () => void;
-  onReportReview: () => void;
   isReplying: boolean;
   replyText: string;
   setReplyText: (text: string) => void;
   onSubmitReply: () => void;
+  onCancelReply: () => void;
 }
 
 function ReviewCard({
   review,
   onReply,
-  onReportReview,
   isReplying,
   replyText,
   setReplyText,
-  onSubmitReply
+  onSubmitReply,
+  onCancelReply
 }: ReviewCardProps) {
   return (
     <div className="border rounded-lg p-4">
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3">
           <Avatar>
-            <AvatarImage src={review.client.avatar} alt={review.client.name} />
-            <AvatarFallback>{review.client.name.charAt(0)}</AvatarFallback>
+            <AvatarImage src={review.client_avatar || undefined} />
+            <AvatarFallback>{review.client_name.charAt(0)}</AvatarFallback>
           </Avatar>
           <div>
-            <h3 className="font-medium">{review.client.name}</h3>
+            <h3 className="font-medium">{review.client_name}</h3>
             <div className="flex items-center gap-2 mt-1">
               <div className="flex">
                 {Array(5).fill(0).map((_, i) => (
@@ -331,59 +339,44 @@ function ReviewCard({
         </div>
         <div className="flex items-center text-sm text-muted-foreground">
           <Calendar className="h-3.5 w-3.5 mr-1" />
-          {new Date(review.date).toLocaleDateString()}
+          {new Date(review.created_at).toLocaleDateString()}
         </div>
       </div>
 
       <div className="mt-3">
-        <p className="text-sm font-medium mb-1">Service: {review.service}</p>
-        <p className="text-sm">{review.text}</p>
+        <p className="text-sm font-medium mb-1">Service: {review.service_title}</p>
+        {review.comment && <p className="text-sm">{review.comment}</p>}
       </div>
 
-      {review.response && (
+      {review.provider_response && (
         <div className="mt-4 bg-muted/40 p-3 rounded-lg">
           <div className="flex items-center gap-2 mb-2">
-            <Avatar className="h-6 w-6">
-              <AvatarFallback>Y</AvatarFallback>
-            </Avatar>
             <div className="text-sm font-medium">Your Response</div>
           </div>
-          <p className="text-sm">{review.response}</p>
+          <p className="text-sm">{review.provider_response}</p>
         </div>
       )}
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        {!review.response && !isReplying && (
-          <Button variant="outline" size="sm" onClick={onReply} className="flex items-center">
+      {!review.provider_response && !isReplying && (
+        <div className="mt-4">
+          <Button variant="outline" size="sm" onClick={onReply}>
             <MessageSquare className="mr-1 h-4 w-4" />
             Reply
           </Button>
-        )}
-        
-        {!review.reported && (
-          <Button variant="outline" size="sm" onClick={onReportReview}>
-            <Flag className="mr-1 h-4 w-4" />
-            Report
-          </Button>
-        )}
-
-        <Button variant="outline" size="sm">
-          <ThumbsUp className="mr-1 h-4 w-4" />
-          Thank
-        </Button>
-      </div>
+        </div>
+      )}
 
       {isReplying && (
         <div className="mt-4">
           <textarea
-            className="w-full p-3 border rounded-lg min-h-[100px]"
+            className="w-full p-3 border rounded-lg min-h-[100px] text-sm"
             placeholder="Type your response here..."
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
           />
           <div className="flex justify-end gap-2 mt-2">
-            <Button variant="outline" onClick={() => setReplyText('')}>Cancel</Button>
-            <Button onClick={onSubmitReply} disabled={!replyText.trim()}>Submit Reply</Button>
+            <Button variant="outline" size="sm" onClick={onCancelReply}>Cancel</Button>
+            <Button size="sm" onClick={onSubmitReply} disabled={!replyText.trim()}>Submit Reply</Button>
           </div>
         </div>
       )}
