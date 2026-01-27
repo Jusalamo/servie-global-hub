@@ -6,6 +6,17 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Security: HTML escaping to prevent XSS attacks
+function escapeHtml(unsafe: string | null | undefined): string {
+  if (unsafe == null) return '';
+  return String(unsafe)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const VALID_FORMATS = new Set(['html', 'pdf']);
 
@@ -13,8 +24,14 @@ const FUNCTION_NAME = 'generate-document';
 const RATE_LIMIT_WINDOW_SECONDS = 60;
 const RATE_LIMIT_MAX_REQUESTS = 20;
 
+// CSP header to prevent inline script execution as defense-in-depth
+const HTML_SECURITY_HEADERS = {
+  'Content-Type': 'text/html; charset=utf-8',
+  'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:;",
+  'X-Content-Type-Options': 'nosniff',
+};
+
 function getClientIp(req: Request): string | null {
-  // Common headers set by proxies/CDNs
   const xff = req.headers.get('x-forwarded-for');
   if (xff) return xff.split(',')[0]?.trim() || null;
   return req.headers.get('cf-connecting-ip') || req.headers.get('x-real-ip');
@@ -146,7 +163,6 @@ serve(async (req) => {
         );
       }
     } catch (e) {
-      // If rate limiting fails (e.g. RLS misconfig), fail closed for safety.
       await logRequest(supabaseClient, userId, req, 500, Date.now() - startedAt, {
         reason: 'rate_limit_error',
       });
@@ -201,7 +217,6 @@ serve(async (req) => {
       .single();
 
     if (fetchError || !document) {
-      // Generic response prevents enumeration and avoids leaking DB details
       const res = new Response(
         JSON.stringify({ error: 'Not found' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -214,9 +229,7 @@ serve(async (req) => {
     const html = generateDocumentHTML(document);
 
     // For PDF generation, you would integrate a PDF library here
-    // For now, we return HTML
     if (format === 'pdf') {
-      // TODO: Integrate PDF generation library (e.g., puppeteer-core)
       const res = new Response(
         JSON.stringify({ error: 'PDF generation coming soon. Use HTML format for now.' }),
         {
@@ -230,7 +243,7 @@ serve(async (req) => {
 
     const res = new Response(html, {
       status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'text/html' },
+      headers: { ...corsHeaders, ...HTML_SECURITY_HEADERS },
     });
 
     await logRequest(supabaseClient, userId, req, 200, Date.now() - startedAt, {
@@ -242,7 +255,6 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error generating document:', error);
-    // best-effort logging: we may not have a supabase client / user id in this catch
     return new Response(
       JSON.stringify({ error: 'Internal error' }),
       {
@@ -282,12 +294,21 @@ function generateDocumentHTML(document: any): string {
 }
 
 function generateInvoiceTemplate(doc: any, company: any, formatDate: Function): string {
+  // Escape all user-controlled content to prevent XSS
+  const safeDocNumber = escapeHtml(doc.document_number);
+  const safeClientName = escapeHtml(doc.client_name);
+  const safeClientEmail = escapeHtml(doc.client_email);
+  const safeCurrency = escapeHtml(doc.currency);
+  const safeCompanyName = escapeHtml(company.name);
+  const safeCompanyAddress = escapeHtml(company.address);
+  const safeCompanyEmail = escapeHtml(company.email);
+
   return `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Invoice ${doc.document_number}</title>
+  <title>Invoice ${safeDocNumber}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; padding: 40px; }
@@ -304,31 +325,31 @@ function generateInvoiceTemplate(doc: any, company: any, formatDate: Function): 
 <body>
   <div class="header">
     <h1>INVOICE</h1>
-    <p>#${doc.document_number}</p>
+    <p>#${safeDocNumber}</p>
   </div>
   <div class="info-section">
-    <div><strong>${company.name}</strong><br>${company.address}<br>${company.email}</div>
-    <div><strong>Bill To:</strong><br>${doc.client_name}<br>${doc.client_email || ''}</div>
-    <div><strong>Date:</strong> ${formatDate(doc.issue_date)}<br>${doc.due_date ? `<strong>Due:</strong> ${formatDate(doc.due_date)}` : ''}</div>
+    <div><strong>${safeCompanyName}</strong><br>${safeCompanyAddress}<br>${safeCompanyEmail}</div>
+    <div><strong>Bill To:</strong><br>${safeClientName}<br>${safeClientEmail}</div>
+    <div><strong>Date:</strong> ${escapeHtml(formatDate(doc.issue_date))}<br>${doc.due_date ? `<strong>Due:</strong> ${escapeHtml(formatDate(doc.due_date))}` : ''}</div>
   </div>
   <table>
     <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
     <tbody>
-      ${doc.line_items.map((item: any) => `
+      ${(doc.line_items || []).map((item: any) => `
         <tr>
-          <td><strong>${item.item_name}</strong><br><small>${item.description || ''}</small></td>
-          <td>${item.quantity}</td>
-          <td>${doc.currency} ${Number(item.unit_price).toFixed(2)}</td>
-          <td>${doc.currency} ${Number(item.total_price).toFixed(2)}</td>
+          <td><strong>${escapeHtml(item.item_name)}</strong><br><small>${escapeHtml(item.description)}</small></td>
+          <td>${escapeHtml(String(item.quantity))}</td>
+          <td>${safeCurrency} ${Number(item.unit_price).toFixed(2)}</td>
+          <td>${safeCurrency} ${Number(item.total_price).toFixed(2)}</td>
         </tr>
       `).join('')}
     </tbody>
   </table>
   <div class="totals">
-    <p>Subtotal: ${doc.currency} ${Number(doc.subtotal).toFixed(2)}</p>
-    ${doc.discount_amount > 0 ? `<p>Discount: -${doc.currency} ${Number(doc.discount_amount).toFixed(2)}</p>` : ''}
-    ${doc.tax_amount > 0 ? `<p>Tax: ${doc.currency} ${Number(doc.tax_amount).toFixed(2)}</p>` : ''}
-    <p class="total">TOTAL: ${doc.currency} ${Number(doc.total_amount).toFixed(2)}</p>
+    <p>Subtotal: ${safeCurrency} ${Number(doc.subtotal).toFixed(2)}</p>
+    ${doc.discount_amount > 0 ? `<p>Discount: -${safeCurrency} ${Number(doc.discount_amount).toFixed(2)}</p>` : ''}
+    ${doc.tax_amount > 0 ? `<p>Tax: ${safeCurrency} ${Number(doc.tax_amount).toFixed(2)}</p>` : ''}
+    <p class="total">TOTAL: ${safeCurrency} ${Number(doc.total_amount).toFixed(2)}</p>
   </div>
 </body>
 </html>
@@ -336,12 +357,18 @@ function generateInvoiceTemplate(doc: any, company: any, formatDate: Function): 
 }
 
 function generateReceiptTemplate(doc: any, company: any, formatDate: Function): string {
+  // Escape all user-controlled content to prevent XSS
+  const safeDocNumber = escapeHtml(doc.document_number);
+  const safeClientName = escapeHtml(doc.client_name);
+  const safeTitle = escapeHtml(doc.title);
+  const safeCurrency = escapeHtml(doc.currency);
+
   return `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Receipt ${doc.document_number}</title>
+  <title>Receipt ${safeDocNumber}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Arial, sans-serif; padding: 40px; max-width: 700px; margin: 0 auto; }
@@ -354,15 +381,15 @@ function generateReceiptTemplate(doc: any, company: any, formatDate: Function): 
 <body>
   <div class="header">
     <h1>RECEIPT</h1>
-    <p>#${doc.document_number}</p>
+    <p>#${safeDocNumber}</p>
   </div>
   <div class="details">
-    <p><strong>Date:</strong> ${formatDate(doc.issue_date)}</p>
-    <p><strong>Received From:</strong> ${doc.client_name}</p>
-    <p><strong>For:</strong> ${doc.title}</p>
+    <p><strong>Date:</strong> ${escapeHtml(formatDate(doc.issue_date))}</p>
+    <p><strong>Received From:</strong> ${safeClientName}</p>
+    <p><strong>For:</strong> ${safeTitle}</p>
   </div>
   <div class="paid">
-    PAID: ${doc.currency} ${Number(doc.total_amount).toFixed(2)}
+    PAID: ${safeCurrency} ${Number(doc.total_amount).toFixed(2)}
   </div>
 </body>
 </html>
@@ -370,6 +397,11 @@ function generateReceiptTemplate(doc: any, company: any, formatDate: Function): 
 }
 
 function generatePayoutTemplate(doc: any, company: any, formatDate: Function): string {
+  // Escape all user-controlled content to prevent XSS
+  const safeDocNumber = escapeHtml(doc.document_number);
+  const safeClientName = escapeHtml(doc.client_name);
+  const safeCurrency = escapeHtml(doc.currency);
+  
   const gross = Number(doc.total_amount);
   const commission = gross * 0.05;
   const net = gross - commission;
@@ -379,7 +411,7 @@ function generatePayoutTemplate(doc: any, company: any, formatDate: Function): s
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Payout ${doc.document_number}</title>
+  <title>Payout ${safeDocNumber}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Arial, sans-serif; padding: 40px; }
@@ -392,14 +424,14 @@ function generatePayoutTemplate(doc: any, company: any, formatDate: Function): s
 <body>
   <div class="header">
     <h1>PAYOUT STATEMENT</h1>
-    <p>#${doc.document_number}</p>
+    <p>#${safeDocNumber}</p>
   </div>
-  <p><strong>Seller:</strong> ${doc.client_name}</p>
-  <p><strong>Date:</strong> ${formatDate(doc.issue_date)}</p>
+  <p><strong>Seller:</strong> ${safeClientName}</p>
+  <p><strong>Date:</strong> ${escapeHtml(formatDate(doc.issue_date))}</p>
   <table>
-    <tr><td>Gross Sales</td><td style="text-align:right">${doc.currency} ${gross.toFixed(2)}</td></tr>
-    <tr><td>Platform Commission (5%)</td><td style="text-align:right; color:#ef4444">-${doc.currency} ${commission.toFixed(2)}</td></tr>
-    <tr class="highlight"><td>NET PAYOUT</td><td style="text-align:right">${doc.currency} ${net.toFixed(2)}</td></tr>
+    <tr><td>Gross Sales</td><td style="text-align:right">${safeCurrency} ${gross.toFixed(2)}</td></tr>
+    <tr><td>Platform Commission (5%)</td><td style="text-align:right; color:#ef4444">-${safeCurrency} ${commission.toFixed(2)}</td></tr>
+    <tr class="highlight"><td>NET PAYOUT</td><td style="text-align:right">${safeCurrency} ${net.toFixed(2)}</td></tr>
   </table>
 </body>
 </html>
