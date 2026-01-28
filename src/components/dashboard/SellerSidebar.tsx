@@ -57,13 +57,10 @@ const SellerSidebar = memo(({ activeTab, onTabChange }: SellerSidebarProps) => {
     { id: "orders", label: "Orders", icon: <ShoppingBag className="h-5 w-5" /> },
     { id: "products", label: "Products", icon: <Package className="h-5 w-5" /> },
     { id: "inventory", label: "Inventory", icon: <Tag className="h-5 w-5" /> },
-    { id: "analytics", label: "Analytics", icon: <TrendingUp className="h-5 w-5" /> },
     { id: "shop", label: "My Shop", icon: <Store className="h-5 w-5" /> },
-    { id: "customers", label: "Customers", icon: <Users className="h-5 w-5" /> },
     { id: "messages", label: "Messages", icon: <MessageSquare className="h-5 w-5" /> },
     { id: "payments", label: "Payments", icon: <CreditCard className="h-5 w-5" /> },
     { id: "wallet", label: "Wallet & Commission", icon: <Wallet className="h-5 w-5" /> },
-    { id: "security", label: "Security & KYC", icon: <Shield className="h-5 w-5" /> },
     { id: "settings", label: "Settings", icon: <Settings className="h-5 w-5" /> },
     { id: "help", label: "Help", icon: <HelpCircle className="h-5 w-5" /> },
   ], []);

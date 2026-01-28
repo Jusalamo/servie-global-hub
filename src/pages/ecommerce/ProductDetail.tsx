@@ -286,7 +286,7 @@ const ProductDetail = memo(() => {
 
               {/* Seller Info */}
               <Card className="p-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-3">
                   <div className="flex items-center gap-3">
                     <img
                       src={product.providerAvatar || '/placeholder.svg'}
@@ -298,13 +298,19 @@ const ProductDetail = memo(() => {
                       <p className="font-semibold">{product.providerName}</p>
                     </div>
                   </div>
-                  <Link
-                    to={product.providerSlug ? `/shop/${product.providerSlug}` : `/shop/seller-${product.providerId}`}
-                  >
-                    <Button variant="outline" size="sm">
-                      Visit Store
+                  <div className="flex gap-2 flex-wrap">
+                    <Link
+                      to={product.providerSlug ? `/shop/${product.providerSlug}` : `/shop/seller-${product.providerId}`}
+                    >
+                      <Button variant="outline" size="sm">
+                        Visit Store
+                      </Button>
+                    </Link>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <MessageSquare className="h-4 w-4" />
+                      Contact Seller
                     </Button>
-                  </Link>
+                  </div>
                 </div>
               </Card>
 

@@ -55,13 +55,11 @@ const ProviderSidebar = memo(({ activeTab, onTabChange }: ProviderSidebarProps) 
     { id: "overview", label: "Overview", icon: <LayoutDashboard className="h-5 w-5" /> },
     { id: "services", label: "My Services", icon: <Briefcase className="h-5 w-5" /> },
     { id: "bookings", label: "Bookings", icon: <Calendar className="h-5 w-5" /> },
-    { id: "calendar", label: "Calendar", icon: <CalendarDays className="h-5 w-5" /> },
     { id: "documents", label: "Financial Documents", icon: <FileText className="h-5 w-5" /> },
     { id: "clients", label: "Clients", icon: <Users className="h-5 w-5" /> },
     { id: "reviews", label: "Reviews", icon: <Star className="h-5 w-5" /> },
     { id: "payments", label: "Payments", icon: <CreditCard className="h-5 w-5" /> },
     { id: "messages", label: "Messages", icon: <MessageSquare className="h-5 w-5" /> },
-    { id: "security", label: "Security & KYC", icon: <Shield className="h-5 w-5" /> },
     { id: "settings", label: "Settings", icon: <Settings className="h-5 w-5" /> },
     { id: "help", label: "Help", icon: <HelpCircle className="h-5 w-5" /> },
   ], []);

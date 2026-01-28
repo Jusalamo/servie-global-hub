@@ -45,10 +45,8 @@ export const ClientSidebar = memo(({ activeTab, setActiveTab }: ClientSidebarPro
     { id: "bookings", label: "My Bookings", icon: <CalendarDays className="h-5 w-5" /> },
     { id: "orders", label: "My Orders", icon: <ShoppingBag className="h-5 w-5" /> },
     { id: "favorites", label: "Favorites", icon: <Heart className="h-5 w-5" /> },
-    { id: "reviews", label: "My Reviews", icon: <Star className="h-5 w-5" /> },
     { id: "messages", label: "Messages", icon: <MessageSquare className="h-5 w-5" /> },
     { id: "payments", label: "Payments", icon: <CreditCard className="h-5 w-5" /> },
-    { id: "security", label: "Security", icon: <Shield className="h-5 w-5" /> },
     { id: "settings", label: "Settings", icon: <Settings className="h-5 w-5" /> },
     { id: "help", label: "Help", icon: <HelpCircle className="h-5 w-5" /> },
   ], []);
