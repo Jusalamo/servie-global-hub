@@ -9,11 +9,9 @@ import MessagingSystem from "@/components/dashboard/MessagingSystem";
 import PaymentMethods from "@/components/dashboard/PaymentMethods";
 import ProfileSettings from "@/components/dashboard/ProfileSettings";
 import NotificationsSettings from "@/components/dashboard/NotificationsSettings";
-import { KYCVerification } from "@/components/dashboard/KYCVerification";
 import { SellerWallet } from "@/components/dashboard/SellerWallet";
 import InventoryManagement from "@/components/dashboard/InventoryManagement";
 import { useLocation } from "react-router-dom";
-import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
 import { HelpSupportTab } from "@/components/dashboard/shared/HelpSupportTab";
 
 export default function SellerDashboard() {
@@ -43,7 +41,6 @@ export default function SellerDashboard() {
       case "shop": return "My Shop";
       case "orders": return "Orders";
       case "payments": return "Payments";
-      case "security": return "Security & KYC";
       case "wallet": return "Wallet & Commission";
       case "messages": return "Messages";
       case "settings": return "Account Settings";
@@ -66,8 +63,6 @@ export default function SellerDashboard() {
         return <OrdersTab />;
       case "payments":
         return <PaymentMethods />;
-      case "security":
-        return <KYCVerification />;
       case "wallet":
         return <SellerWallet />;
       case "messages":
@@ -85,17 +80,9 @@ export default function SellerDashboard() {
     }
   };
 
-  // Create breadcrumb items
-  const breadcrumbItems = [
-    { label: getBreadcrumbLabel() }
-  ];
-
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <DashboardBreadcrumb items={breadcrumbItems} userRole="seller" />
-      <DashboardLayout sidebar={<SellerSidebar activeTab={activeTab} onTabChange={handleTabChange} />}>
-        {renderTabContent()}
-      </DashboardLayout>
-    </div>
+    <DashboardLayout sidebar={<SellerSidebar activeTab={activeTab} onTabChange={handleTabChange} />}>
+      {renderTabContent()}
+    </DashboardLayout>
   );
 }

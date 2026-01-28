@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
@@ -10,7 +9,6 @@ import MessagingSystem from "@/components/dashboard/MessagingSystem";
 import PaymentMethods from "@/components/dashboard/PaymentMethods";
 import ProfileSettings from "@/components/dashboard/ProfileSettings";
 import NotificationsSettings from "@/components/dashboard/NotificationsSettings";
-import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
 import { useAuth } from "@/context/AuthContext";
 import { HelpSupportTab } from "@/components/dashboard/shared/HelpSupportTab";
 
@@ -31,20 +29,6 @@ export default function ClientDashboard() {
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-  };
-
-  const getBreadcrumbLabel = () => {
-    switch(activeTab) {
-      case "overview": return "Overview";
-      case "bookings": return "Bookings";
-      case "favorites": return "Favorites";
-      case "messages": return "Messages";
-      case "payments": return "Payment Methods";
-      case "settings": return "Account Settings";
-      case "notifications": return "Notifications";
-      case "help": return "Help & Support";
-      default: return "Overview";
-    }
   };
   
   const renderTabContent = () => {
@@ -69,17 +53,10 @@ export default function ClientDashboard() {
         return <OverviewTab />;
     }
   };
-
-  const breadcrumbItems = [
-    { label: getBreadcrumbLabel() }
-  ];
   
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <DashboardBreadcrumb items={breadcrumbItems} userRole="client" />
-      <DashboardLayout sidebar={<ClientSidebar activeTab={activeTab} setActiveTab={handleTabChange} user={profile} />}>
-        {renderTabContent()}
-      </DashboardLayout>
-    </div>
+    <DashboardLayout sidebar={<ClientSidebar activeTab={activeTab} setActiveTab={handleTabChange} user={profile} />}>
+      {renderTabContent()}
+    </DashboardLayout>
   );
 }

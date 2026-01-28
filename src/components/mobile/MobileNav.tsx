@@ -1,11 +1,12 @@
 import { useState, memo } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, Home, User, Bell, LayoutDashboard, LogIn, LogOut, UserPlus } from 'lucide-react';
+import { Menu, Home, User, LayoutDashboard, LogIn, LogOut, UserPlus, Store, Briefcase, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAuth } from '@/context/AuthContext';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { Separator } from '@/components/ui/separator';
 
 export const MobileNav = memo(() => {
   const [open, setOpen] = useState(false);
@@ -25,15 +26,6 @@ export const MobileNav = memo(() => {
     await signOut();
   };
 
-  const navItems = [
-    { label: 'Home', href: '/', icon: Home },
-    ...(isAuthenticated ? [
-      { label: 'Dashboard', href: getDashboardLink(), icon: LayoutDashboard },
-      { label: 'Notifications', href: '/notifications', icon: Bell },
-      { label: 'Profile', href: '/profile', icon: User }
-    ] : [])
-  ];
-
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
@@ -42,25 +34,63 @@ export const MobileNav = memo(() => {
           <span className="sr-only">Open menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-[300px] sm:w-[350px] p-0">
+      <SheetContent side="right" className="w-[280px] p-0">
         <ScrollArea className="h-full">
           <div className="flex flex-col h-full">
-            <div className="p-6 border-b">
-              <h2 className="text-servie font-bold text-xl">Menu</h2>
+            <div className="p-5 border-b">
+              <h2 className="text-servie font-bold text-lg">Menu</h2>
             </div>
             
-            <nav className="flex flex-col gap-2 p-4">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors min-h-[44px]"
-                >
-                  <item.icon className="h-5 w-5 flex-shrink-0" />
-                  <span className="font-medium">{item.label}</span>
-                </Link>
-              ))}
+            <nav className="flex flex-col p-3 space-y-1">
+              <Link
+                to="/"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors min-h-[44px]"
+              >
+                <Home className="h-5 w-5 flex-shrink-0" />
+                <span className="font-medium">Home</span>
+              </Link>
+
+              <Link
+                to="/categories"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors min-h-[44px]"
+              >
+                <Briefcase className="h-5 w-5 flex-shrink-0" />
+                <span className="font-medium">Services</span>
+              </Link>
+
+              <Link
+                to="/shop"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors min-h-[44px]"
+              >
+                <Store className="h-5 w-5 flex-shrink-0" />
+                <span className="font-medium">Shop</span>
+              </Link>
+
+              <Link
+                to="/cart"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors min-h-[44px]"
+              >
+                <ShoppingCart className="h-5 w-5 flex-shrink-0" />
+                <span className="font-medium">Cart</span>
+              </Link>
+              
+              {isAuthenticated && (
+                <>
+                  <Separator className="my-2" />
+                  <Link
+                    to={getDashboardLink()}
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors min-h-[44px]"
+                  >
+                    <LayoutDashboard className="h-5 w-5 flex-shrink-0" />
+                    <span className="font-medium">Dashboard</span>
+                  </Link>
+                </>
+              )}
             </nav>
             
             <div className="mt-auto border-t p-4 space-y-2">

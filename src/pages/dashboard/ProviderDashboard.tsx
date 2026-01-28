@@ -14,8 +14,6 @@ import ProfileSettings from "@/components/dashboard/ProfileSettings";
 import NotificationsSettings from "@/components/dashboard/NotificationsSettings";
 import FinancialDocumentsTab from "@/components/dashboard/provider/FinancialDocumentsTab";
 import InventoryManagement from "@/components/dashboard/InventoryManagement";
-import BookingsCalendarTab from "@/components/dashboard/provider/BookingsCalendarTab";
-import DashboardBreadcrumb from "@/components/dashboard/DashboardBreadcrumb";
 import { HelpSupportTab } from "@/components/dashboard/shared/HelpSupportTab";
 
 export default function ProviderDashboard() {
@@ -90,18 +88,10 @@ export default function ProviderDashboard() {
     }
   };
 
-  // Create breadcrumb items
-  const breadcrumbItems = [
-    { label: getBreadcrumbLabel() }
-  ];
-
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <DashboardBreadcrumb items={breadcrumbItems} userRole="provider" />
-      <DashboardLayout sidebar={<ProviderSidebar activeTab={activeTab} onTabChange={handleTabChange} />}>
-        {renderTabContent()}
-      </DashboardLayout>
-    </div>
+    <DashboardLayout sidebar={<ProviderSidebar activeTab={activeTab} onTabChange={handleTabChange} />}>
+      {renderTabContent()}
+    </DashboardLayout>
   );
 }
 
