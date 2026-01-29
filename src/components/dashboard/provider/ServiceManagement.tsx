@@ -90,7 +90,7 @@ const ServiceManagement = () => {
 
   return (
     <div className="space-y-6">
-      <KYCEnforcementBanner />
+      {/* KYC Banner removed - no verification requirement for managing services */}
       
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Manage Services</h2>

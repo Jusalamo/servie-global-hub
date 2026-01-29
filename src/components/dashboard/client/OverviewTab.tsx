@@ -3,10 +3,11 @@ import { Link } from "react-router-dom";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Calendar, Clock, ChevronRight, Star } from "lucide-react";
+import { Bell, Calendar, Clock, ChevronRight, Star, Heart } from "lucide-react";
 import { useBookings } from "@/hooks/useBookings";
 import { useFavorites } from "@/hooks/useFavorites";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CompactStatsGrid } from "@/components/dashboard/CompactStatsGrid";
 
 export const OverviewTab = memo(() => {
   const { bookings, isLoading: bookingsLoading } = useBookings('client');
@@ -18,56 +19,57 @@ export const OverviewTab = memo(() => {
     return (
       <div className="space-y-6">
         <Skeleton className="h-8 w-48" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[1, 2, 3].map(i => <Skeleton key={i} className="h-24" />)}
+        <div className="grid grid-cols-2 gap-3">
+          {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-20" />)}
         </div>
         <Skeleton className="h-64" />
       </div>
     );
   }
+
+  // Stats for compact grid
+  const activeBookings = bookings?.filter(b => b.status === "confirmed" || b.status === "pending").length || 0;
+  const completedBookings = bookings?.filter(b => b.status === "completed").length || 0;
+  
+  const statsData = [
+    {
+      title: 'Total Bookings',
+      value: bookings?.length || 0,
+      description: 'Services booked',
+      icon: <Calendar className="h-4 w-4" />,
+    },
+    {
+      title: 'Active',
+      value: activeBookings,
+      description: 'Ongoing',
+      icon: <Clock className="h-4 w-4" />,
+    },
+    {
+      title: 'Completed',
+      value: completedBookings,
+      description: 'Finished',
+      icon: <Star className="h-4 w-4" />,
+    },
+    {
+      title: 'Favorites',
+      value: favorites?.length || 0,
+      description: 'Saved services',
+      icon: <Heart className="h-4 w-4" />,
+    },
+  ];
   
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+        <h1 className="text-2xl font-bold">Dashboard</h1>
         <Button variant="outline" size="sm">
           <Bell className="w-4 h-4 mr-2" />
           Notifications
         </Button>
       </div>
       
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
-            <CardDescription>{bookings?.length || 0} services booked</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{bookings?.length || 0}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Active Bookings</CardTitle>
-            <CardDescription>Currently ongoing</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {bookings?.filter(b => b.status === "confirmed" || b.status === "pending").length || 0}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Favorite Services</CardTitle>
-            <CardDescription>Services you love</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{favorites?.length || 0}</div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Compact Stats Grid - optimized for mobile */}
+      <CompactStatsGrid stats={statsData} />
       
       {/* Recent Bookings */}
       <Card>

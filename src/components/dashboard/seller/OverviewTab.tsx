@@ -8,6 +8,7 @@ import {
 import { Package, ShoppingCart, DollarSign, Users } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSellerStats } from "@/hooks/useSellerStats";
+import { CompactStatsGrid } from "@/components/dashboard/CompactStatsGrid";
 
 export default function OverviewTab() {
   const { stats, isLoading } = useSellerStats();
@@ -15,73 +16,41 @@ export default function OverviewTab() {
   if (isLoading) {
     return <Skeleton className="h-96" />;
   }
+
+  // Stats for compact grid
+  const statsData = [
+    {
+      title: 'Total Revenue',
+      value: `$${stats.totalRevenue}`,
+      description: 'Total revenue',
+      icon: <DollarSign className="h-4 w-4" />,
+    },
+    {
+      title: 'Total Orders',
+      value: stats.totalOrders,
+      description: 'Lifetime orders',
+      icon: <ShoppingCart className="h-4 w-4" />,
+    },
+    {
+      title: 'Avg. Order Value',
+      value: `$${stats.averageOrderValue}`,
+      description: 'Per order',
+      icon: <Package className="h-4 w-4" />,
+    },
+    {
+      title: 'Total Customers',
+      value: stats.totalCustomers,
+      description: 'Unique buyers',
+      icon: <Users className="h-4 w-4" />,
+    },
+  ];
   
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <h2 className="text-2xl font-bold">Seller Dashboard Overview</h2>
       
-      {/* Key metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Revenue
-            </CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${stats.totalRevenue}</div>
-            <p className="text-xs text-muted-foreground">
-              Total revenue
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Orders
-            </CardTitle>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalOrders}</div>
-            <p className="text-xs text-muted-foreground">
-              Lifetime orders
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Avg. Order Value
-            </CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${stats.averageOrderValue}</div>
-            <p className="text-xs text-muted-foreground">
-              Per order
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Customers
-            </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalCustomers}</div>
-            <p className="text-xs text-muted-foreground">
-              Unique buyers
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Compact Stats Grid - optimized for mobile */}
+      <CompactStatsGrid stats={statsData} />
       
       {stats.totalOrders === 0 ? (
         <Card>
@@ -92,7 +61,7 @@ export default function OverviewTab() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-center py-12">
+            <div className="text-center py-8">
               <p className="text-muted-foreground mb-4">
                 You haven't made any sales yet. Add products and start selling to see your dashboard analytics!
               </p>
