@@ -10,11 +10,12 @@ import { useProviderStats } from "@/hooks/useProviderStats";
 import { useBookings } from "@/hooks/useBookings";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { CompactStatsGrid } from "@/components/dashboard/CompactStatsGrid";
 
 export function ProviderOverviewTab() {
   const [view, setView] = useState<"day" | "week" | "month">("week");
   const { stats, isLoading: statsLoading } = useProviderStats();
-  const { bookings, isLoading: bookingsLoading } = useBookings();
+  const { bookings, isLoading: bookingsLoading } = useBookings('provider');
   const { profile } = useAuth();
   const [recentMessages, setRecentMessages] = useState<any[]>([]);
 
@@ -35,7 +36,6 @@ export function ProviderOverviewTab() {
     fetchMessages();
   }, [profile?.id]);
 
-  // Format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('en-US', {
@@ -52,61 +52,38 @@ export function ProviderOverviewTab() {
 
   const upcomingBookings = bookings.filter(b => b.status === 'pending' || b.status === 'confirmed');
 
+  // Stats for compact grid
+  const statsData = [
+    {
+      title: 'Total Earnings',
+      value: `$${stats.totalEarnings.toFixed(2)}`,
+      description: 'Total earnings',
+      icon: <DollarSign className="h-4 w-4" />,
+    },
+    {
+      title: 'Total Bookings',
+      value: stats.totalBookings,
+      description: 'Lifetime bookings',
+      icon: <Calendar className="h-4 w-4" />,
+    },
+    {
+      title: 'Completion Rate',
+      value: `${stats.completionRate}%`,
+      description: 'Success rate',
+      icon: <Clock className="h-4 w-4" />,
+    },
+    {
+      title: 'Rating',
+      value: stats.rating || 'N/A',
+      description: 'Out of 5 stars',
+      icon: <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />,
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Earnings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center">
-              <DollarSign className="h-4 w-4 text-muted-foreground mr-1" />
-              <div className="text-2xl font-bold">${stats.totalEarnings.toFixed(2)}</div>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Total earnings</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Bookings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center">
-              <Calendar className="h-4 w-4 text-muted-foreground mr-1" />
-              <div className="text-2xl font-bold">{stats.totalBookings}</div>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Lifetime bookings</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Completion Rate</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center">
-              <Clock className="h-4 w-4 text-muted-foreground mr-1" />
-              <div className="text-2xl font-bold">{stats.completionRate}%</div>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Success rate</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Rating</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center">
-              <Star className="h-4 w-4 text-yellow-500 mr-1 fill-yellow-500" />
-              <div className="text-2xl font-bold">{stats.rating || 'N/A'}</div>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Out of 5 stars</p>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Compact Stats Grid */}
+      <CompactStatsGrid stats={statsData} />
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="col-span-1">

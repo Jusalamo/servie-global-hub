@@ -1,15 +1,13 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { bookingAPI, availabilityAPI } from "@/services/supabaseAPI";
 import { useAuth } from "@/context/AuthContext";
-import { CalendarDays, Clock, MapPin } from "lucide-react";
+import { CalendarDays, MapPin } from "lucide-react";
+import { PopoverDateTimePicker } from "@/components/booking/PopoverDateTimePicker";
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -22,7 +20,7 @@ const BookingModal = ({ isOpen, onClose, service }: BookingModalProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTime, setSelectedTime] = useState("");
   const [notes, setNotes] = useState("");
-  const [availableSlots, setAvailableSlots] = useState([]);
+  const [availableSlots, setAvailableSlots] = useState<Array<{ id: string; start_time: string; end_time: string }>>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -37,9 +35,16 @@ const BookingModal = ({ isOpen, onClose, service }: BookingModalProps) => {
     try {
       const dateStr = selectedDate.toISOString().split('T')[0];
       const slots = await availabilityAPI.getAvailability(service.id, dateStr);
-      setAvailableSlots(slots);
+      // Transform slots to expected format
+      const formattedSlots = (slots || []).map((slot: any, index: number) => ({
+        id: slot.id || String(index),
+        start_time: slot.start_time || slot.time || '',
+        end_time: slot.end_time || '',
+      })).filter((slot: any) => slot.start_time);
+      setAvailableSlots(formattedSlots);
     } catch (error) {
       console.error("Failed to load available slots:", error);
+      setAvailableSlots([]);
     }
   };
 
@@ -80,7 +85,7 @@ const BookingModal = ({ isOpen, onClose, service }: BookingModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CalendarDays className="w-5 h-5" />
@@ -88,12 +93,12 @@ const BookingModal = ({ isOpen, onClose, service }: BookingModalProps) => {
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-5 py-2">
           {/* Service Info */}
           <div className="bg-muted/50 p-4 rounded-lg">
             <h3 className="font-semibold">{service?.title}</h3>
-            <p className="text-sm text-muted-foreground mt-1">{service?.description}</p>
-            <div className="flex items-center gap-4 mt-2 text-sm">
+            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{service?.description}</p>
+            <div className="flex flex-wrap items-center gap-4 mt-2 text-sm">
               <span className="font-medium">Price: ${service?.price}</span>
               <span className="flex items-center gap-1">
                 <MapPin className="w-4 h-4" />
@@ -102,61 +107,30 @@ const BookingModal = ({ isOpen, onClose, service }: BookingModalProps) => {
             </div>
           </div>
 
-          {/* Date Selection */}
-          <div>
-            <Label className="text-base font-medium">Select Date</Label>
-            <div className="mt-2">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                disabled={(date) => date < new Date()}
-                className="rounded-md border"
-              />
-            </div>
+          {/* Date & Time Selection with Popover Pickers */}
+          <div className="space-y-3">
+            <Label className="text-base font-medium">Select Date & Time</Label>
+            <PopoverDateTimePicker
+              selectedDate={selectedDate}
+              selectedTime={selectedTime}
+              onDateChange={setSelectedDate}
+              onTimeChange={setSelectedTime}
+              availableSlots={availableSlots}
+              minDate={new Date()}
+            />
           </div>
 
-          {/* Time Selection */}
-          {selectedDate && (
-            <div>
-              <Label className="text-base font-medium flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                Select Time
-              </Label>
-              <div className="mt-2">
-                {availableSlots.length === 0 ? (
-                  <p className="text-muted-foreground text-sm">
-                    No available slots for this date. Please choose another date.
-                  </p>
-                ) : (
-                  <Select value={selectedTime} onValueChange={setSelectedTime}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose a time slot" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableSlots.map((slot: any) => (
-                        <SelectItem key={slot.id} value={slot.start_time}>
-                          {slot.start_time} - {slot.end_time}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
-            </div>
-          )}
-
           {/* Notes */}
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="notes" className="text-base font-medium">
               Additional Notes (Optional)
             </Label>
             <Textarea
               id="notes"
-              placeholder="Any special requirements or notes for the service provider..."
+              placeholder="Any special requirements..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="mt-2"
+              rows={3}
             />
           </div>
 
@@ -168,13 +142,13 @@ const BookingModal = ({ isOpen, onClose, service }: BookingModalProps) => {
                 <div>Service: {service?.title}</div>
                 <div>Date: {selectedDate.toLocaleDateString()}</div>
                 <div>Time: {selectedTime}</div>
-                <div>Price: ${service?.price}</div>
+                <div className="font-semibold">Price: ${service?.price}</div>
               </div>
             </div>
           )}
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-3 pt-2">
             <Button 
               variant="outline" 
               onClick={onClose} 
@@ -187,7 +161,7 @@ const BookingModal = ({ isOpen, onClose, service }: BookingModalProps) => {
               disabled={!selectedDate || !selectedTime || loading}
               className="flex-1 bg-servie hover:bg-servie-600 min-h-[48px]"
             >
-              {loading ? "Creating Booking..." : "Confirm Booking"}
+              {loading ? "Creating..." : "Confirm Booking"}
             </Button>
           </div>
         </div>

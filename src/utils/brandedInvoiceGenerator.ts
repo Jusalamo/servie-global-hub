@@ -37,11 +37,35 @@ export async function generateBrandedInvoicePDF(data: BrandedInvoiceData): Promi
   const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
   
   // Use brand colors if provided, otherwise use defaults
-  const primaryColor = rgb(0.2, 0.4, 0.8);
+  let primaryColor = rgb(0.2, 0.4, 0.8);
+  
+  // Parse brand color if provided (hex format like #ea384c)
+  if (data.brand_color_primary) {
+    const hex = data.brand_color_primary.replace('#', '');
+    if (hex.length === 6) {
+      primaryColor = rgb(
+        parseInt(hex.substring(0, 2), 16) / 255,
+        parseInt(hex.substring(2, 4), 16) / 255,
+        parseInt(hex.substring(4, 6), 16) / 255
+      );
+    }
+  }
+  
   const textColor = rgb(0.2, 0.2, 0.2);
   const lightGray = rgb(0.9, 0.9, 0.9);
   
   let yPosition = height - 50;
+  
+  // If company logo URL is provided, add logo placeholder text (actual image embedding would require additional library)
+  if (data.company_logo_url) {
+    page.drawText('[LOGO]', {
+      x: 50,
+      y: yPosition + 10,
+      size: 10,
+      font: font,
+      color: textColor
+    });
+  }
   
   // Header - Company Name/Logo & Invoice Title
   const companyName = data.company_name || data.seller_name;

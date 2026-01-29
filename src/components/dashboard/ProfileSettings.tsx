@@ -28,6 +28,7 @@ import { Upload, Camera, Check, X, Loader2, Facebook, Instagram, Twitter, Linked
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { LocalizationSettings } from './LocalizationSettings';
 
 interface UserProfile {
   firstName: string;
@@ -287,12 +288,13 @@ const ProfileSettings = ({ userRole = 'client' }: ProfileSettingsProps) => {
   return (
     <div className="space-y-6">
       <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full md:w-auto md:inline-grid grid-cols-3 md:grid-cols-4 h-auto">
-          <TabsTrigger value="general" className="px-4 py-2">General</TabsTrigger>
-          <TabsTrigger value="address" className="px-4 py-2">Address</TabsTrigger>
-          <TabsTrigger value="privacy" className="px-4 py-2">Privacy</TabsTrigger>
+        <TabsList className="grid w-full md:w-auto md:inline-grid grid-cols-4 md:grid-cols-5 h-auto">
+          <TabsTrigger value="general" className="px-3 py-2 text-xs sm:text-sm">General</TabsTrigger>
+          <TabsTrigger value="address" className="px-3 py-2 text-xs sm:text-sm">Address</TabsTrigger>
+          <TabsTrigger value="localization" className="px-3 py-2 text-xs sm:text-sm">Language</TabsTrigger>
+          <TabsTrigger value="privacy" className="px-3 py-2 text-xs sm:text-sm">Privacy</TabsTrigger>
           {(userRole === 'provider' || userRole === 'seller') && (
-            <TabsTrigger value="professional" className="px-4 py-2">Professional</TabsTrigger>
+            <TabsTrigger value="professional" className="px-3 py-2 text-xs sm:text-sm">Professional</TabsTrigger>
           )}
         </TabsList>
 
@@ -509,6 +511,11 @@ const ProfileSettings = ({ userRole = 'client' }: ProfileSettingsProps) => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Localization Tab - Language & Currency */}
+          <TabsContent value="localization" className="space-y-6">
+            <LocalizationSettings />
           </TabsContent>
 
           <TabsContent value="address" className="space-y-6">
