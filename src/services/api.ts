@@ -4,6 +4,9 @@
 import { supabase } from "@/integrations/supabase/client";
 import * as DBTypes from "@/types/database";
 
+// SECURITY: Explicit column selection to prevent exposing sensitive fields like mfa_secret
+const SAFE_PROFILE_COLUMNS = 'id, first_name, last_name, role, phone, bio, business_name, avatar_url, city, state, country, address, whatsapp, postal_code, seller_slug, shop_description, shop_logo_url, created_at, updated_at';
+
 // Error handling helper
 const handleError = (error: any, message: string) => {
   console.error(`API Error - ${message}:`, error);
@@ -81,7 +84,7 @@ export const userApi = {
       
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select(SAFE_PROFILE_COLUMNS)
         .eq('id', user.id)
         .single();
       
