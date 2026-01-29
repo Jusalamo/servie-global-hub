@@ -5,6 +5,9 @@ import { toast } from 'sonner';
  * Utility functions for authentication and profile management
  */
 
+// SECURITY: Explicit column selection to prevent exposing sensitive fields like mfa_secret
+const SAFE_PROFILE_COLUMNS = 'id, first_name, last_name, role, phone, bio, business_name, avatar_url, city, state, country, address, whatsapp, postal_code, seller_slug, shop_description, shop_logo_url, kyc_status, kyc_document_url, kyc_submitted_at, kyc_verified_at, two_fa_enabled, two_fa_verified_at, bank_account_verified, bank_account_verified_at, created_at, updated_at';
+
 export const profileUtils = {
   /**
    * Fetch user profile with error handling
@@ -13,7 +16,7 @@ export const profileUtils = {
     try {
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select(SAFE_PROFILE_COLUMNS)
         .eq('id', userId)
         .maybeSingle();
       

@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
+// SECURITY: Explicit column selection to prevent exposing sensitive fields like mfa_secret
+const SAFE_PROFILE_COLUMNS = 'id, first_name, last_name, role, phone, bio, business_name, avatar_url, city, state, country, address, whatsapp, postal_code, seller_slug, shop_description, shop_logo_url, created_at, updated_at';
+
 interface UserProfile {
   id: string;
   first_name: string | null;
@@ -37,7 +40,7 @@ export const useUserProfile = () => {
       try {
         const { data, error: fetchError } = await supabase
           .from('profiles')
-          .select('*')
+          .select(SAFE_PROFILE_COLUMNS)
           .eq('id', user.id)
           .single();
 
