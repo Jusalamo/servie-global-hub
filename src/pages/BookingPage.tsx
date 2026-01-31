@@ -1,33 +1,29 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useSearchParams, Link, useNavigate } from "react-router-dom";
-import { Calendar as CalendarIcon, Clock, ChevronDown, CreditCard, Check } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, CreditCard, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { services } from "@/data/mockData";
+import { PopoverDateTimePicker } from "@/components/booking/PopoverDateTimePicker";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useLocalization } from "@/components/LangCurrencySelector";
+import { useAuth } from "@/context/AuthContext";
 
-const timeSlots = [
-  "09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", 
-  "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM"
-];
+interface Service {
+  id: string;
+  title: string;
+  description: string | null;
+  price: number;
+  category: string | null;
+  location: string | null;
+  response_time: string | null;
+  provider_id: string;
+  service_images?: { url: string; is_primary: boolean }[];
+}
 
 const BookingPage = () => {
   const { serviceId } = useParams<{ serviceId: string }>();
@@ -35,22 +31,64 @@ const BookingPage = () => {
   const packageId = searchParams.get("package") || "";
   const navigate = useNavigate();
   const { formatPrice } = useLocalization();
+  const { user, isAuthenticated } = useAuth();
   
+  const [service, setService] = useState<Service | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [time, setTime] = useState<string | undefined>(undefined);
   const [notes, setNotes] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("credit_card");
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Find the service and package based on URL parameters
-  const service = services.find(s => s.id === serviceId);
-  const selectedPackage = service?.packages.find(p => p.id === packageId) || service?.packages[0];
+  // Fetch service from Supabase
+  useEffect(() => {
+    const fetchService = async () => {
+      if (!serviceId) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('services')
+          .select(`
+            id,
+            title,
+            description,
+            price,
+            category,
+            location,
+            response_time,
+            provider_id,
+            service_images (url, is_primary)
+          `)
+          .eq('id', serviceId)
+          .single();
+
+        if (error) throw error;
+        setService(data);
+      } catch (error) {
+        console.error('Error fetching service:', error);
+        toast.error('Failed to load service details');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchService();
+  }, [serviceId]);
   
-  if (!service || !selectedPackage) {
+  if (isLoading) {
     return (
-      <div className="container mx-auto py-16 px-4 text-center">
-        <h1 className="text-3xl font-bold mb-4">Service Not Found</h1>
-        <p className="mb-8">The service or package you are looking for doesn't exist.</p>
+      <div className="container max-w-[1200px] mx-auto py-16 px-4 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+  
+  if (!service) {
+    return (
+      <div className="container max-w-[1200px] mx-auto py-16 px-4 text-center">
+        <h1 className="text-2xl md:text-3xl font-bold mb-4">Service Not Found</h1>
+        <p className="mb-8 text-muted-foreground">The service you are looking for doesn't exist.</p>
         <Button asChild>
           <Link to="/categories">Browse Services</Link>
         </Button>
@@ -58,7 +96,13 @@ const BookingPage = () => {
     );
   }
   
-  const handleBooking = () => {
+  const handleBooking = async () => {
+    if (!isAuthenticated || !user) {
+      toast.error("Please sign in to book a service");
+      navigate("/sign-in");
+      return;
+    }
+    
     if (!date || !time) {
       toast.error("Please select a date and time for your booking");
       return;
@@ -66,246 +110,218 @@ const BookingPage = () => {
     
     setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      // Store booking in local storage for demo purposes
-      const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
-      const newBooking = {
-        id: `booking-${Date.now()}`,
-        serviceId: service.id,
-        serviceName: service.title,
-        packageName: selectedPackage.name,
-        price: selectedPackage.price,
-        date: format(date, "yyyy-MM-dd"),
-        time,
-        notes,
-        paymentMethod,
-        status: 'confirmed',
-        createdAt: new Date().toISOString()
-      };
-      
-      bookings.push(newBooking);
-      localStorage.setItem('bookings', JSON.stringify(bookings));
+    try {
+      // Create booking in Supabase
+      const { data: booking, error } = await supabase
+        .from('bookings')
+        .insert({
+          service_id: service.id,
+          client_id: user.id,
+          booking_date: format(date, "yyyy-MM-dd"),
+          booking_time: time,
+          notes: notes || null,
+          payment_method: paymentMethod,
+          payment_status: 'pending',
+          status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
       
       toast.success("Booking Successful!", {
-        description: "Your service has been booked successfully. You'll receive a confirmation email shortly.",
+        description: "Your service has been booked. You'll receive a confirmation shortly.",
       });
-      
-      setIsSubmitting(false);
       
       // Redirect to confirmation page
       navigate("/booking-confirmation", { 
         state: { 
-          booking: newBooking,
-          service,
-          selectedPackage
+          booking: {
+            ...booking,
+            serviceName: service.title,
+            price: service.price,
+          },
+          service
         } 
       });
-    }, 1500);
+    } catch (error) {
+      console.error('Booking error:', error);
+      toast.error("Failed to create booking. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Calculate service fee and total
-  const serviceFee = selectedPackage.price * 0.07;
-  const total = selectedPackage.price + serviceFee;
+  const serviceFee = service.price * 0.07;
+  const total = service.price + serviceFee;
+  
+  // Get primary image
+  const primaryImage = service.service_images?.find(img => img.is_primary)?.url 
+    || service.service_images?.[0]?.url 
+    || '/placeholder.svg';
 
   return (
-    <div className="container mx-auto py-8 px-4">
-        <h1 className="text-2xl md:text-3xl font-bold mb-6">Book Your Service</h1>
+    <div className="container max-w-[1200px] mx-auto py-6 md:py-8 px-4">
+      <h1 className="text-xl md:text-2xl font-bold mb-6">Book Your Service</h1>
+      
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Main Booking Form */}
+        <div className="flex-1 space-y-4 md:space-y-6">
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg">Select Date & Time</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Choose your preferred date and time *</Label>
+                <PopoverDateTimePicker
+                  selectedDate={date}
+                  selectedTime={time || ''}
+                  onDateChange={setDate}
+                  onTimeChange={setTime}
+                  minDate={new Date()}
+                />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg">Additional Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <Label>Notes for Service Provider</Label>
+                <Textarea
+                  placeholder="Add any specific requirements or questions here..."
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="min-h-[100px] resize-none"
+                />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg">Payment Method</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div
+                className={`flex items-center p-3 md:p-4 border rounded-lg cursor-pointer transition-colors ${
+                  paymentMethod === "credit_card" ? "border-primary bg-primary/5" : "hover:bg-muted/50"
+                }`}
+                onClick={() => setPaymentMethod("credit_card")}
+              >
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-sm md:text-base">Credit Card</h4>
+                  <p className="text-xs md:text-sm text-muted-foreground truncate">Pay securely with your credit card</p>
+                </div>
+                <CreditCard className="h-5 w-5 text-muted-foreground flex-shrink-0 ml-2" />
+                {paymentMethod === "credit_card" && (
+                  <Check className="h-5 w-5 text-primary ml-2 flex-shrink-0" />
+                )}
+              </div>
+              
+              <div
+                className={`flex items-center p-3 md:p-4 border rounded-lg cursor-pointer transition-colors ${
+                  paymentMethod === "mobile_money" ? "border-primary bg-primary/5" : "hover:bg-muted/50"
+                }`}
+                onClick={() => setPaymentMethod("mobile_money")}
+              >
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-sm md:text-base">Mobile Money</h4>
+                  <p className="text-xs md:text-sm text-muted-foreground truncate">Pay with M-Pesa or other mobile money</p>
+                </div>
+                <svg className="h-5 w-5 text-muted-foreground flex-shrink-0 ml-2" viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M17 15.5a1.5 1.5 0 0 1 0 3h-2.5a1.5 1.5 0 0 1 0-3zm0 1h-2.5a.5.5 0 1 0 0 1h2.5a.5.5 0 1 0 0-1z" />
+                  <path fill="currentColor" d="M7 16.25c0-.14.11-.25.25-.25h1.5c.14 0 .25.11.25.25v1.5c0 .14-.11.25-.25.25h-1.5C7.11 18 7 17.89 7 17.75zm3 0c0-.14.11-.25.25-.25h1.5c.14 0 .25.11.25.25v1.5c0 .14-.11.25-.25.25h-1.5c-.14 0-.25-.11-.25-.25z" />
+                  <path fill="currentColor" fillRule="evenodd" d="M7 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm0 1h10a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" clipRule="evenodd" />
+                </svg>
+                {paymentMethod === "mobile_money" && (
+                  <Check className="h-5 w-5 text-primary ml-2 flex-shrink-0" />
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
         
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Main Booking Form */}
-          <div className="flex-1">
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle>Select Date & Time</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <label className="font-medium">Date</label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal"
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {date ? format(date, "PPP") : "Select a date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={date}
-                        onSelect={setDate}
-                        initialFocus
-                        disabled={(date) => date < new Date()}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="font-medium">Time</label>
-                  <Select onValueChange={setTime}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a time slot" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {timeSlots.map((slot) => (
-                        <SelectItem key={slot} value={slot}>
-                          {slot}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle>Additional Information</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <label className="font-medium">Notes for Service Provider</label>
-                  <Textarea
-                    placeholder="Add any specific requirements or questions here..."
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    className="min-h-[120px]"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-            
+        {/* Booking Summary - Sticky on desktop */}
+        <div className="w-full lg:w-80">
+          <div className="lg:sticky lg:top-24">
             <Card>
-              <CardHeader>
-                <CardTitle>Payment Method</CardTitle>
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg">Booking Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div
-                    className={`flex items-center p-4 border rounded-lg cursor-pointer ${
-                      paymentMethod === "credit_card" ? "border-servie bg-muted/30" : ""
-                    }`}
-                    onClick={() => setPaymentMethod("credit_card")}
-                  >
-                    <div className="flex-1">
-                      <h4 className="font-medium">Credit Card</h4>
-                      <p className="text-sm text-muted-foreground">Pay securely with your credit card</p>
-                    </div>
-                    <CreditCard className="h-5 w-5 text-muted-foreground" />
-                    {paymentMethod === "credit_card" && (
-                      <Check className="h-5 w-5 text-servie ml-2" />
-                    )}
-                  </div>
-                  
-                  <div
-                    className={`flex items-center p-4 border rounded-lg cursor-pointer ${
-                      paymentMethod === "mobile_money" ? "border-servie bg-muted/30" : ""
-                    }`}
-                    onClick={() => setPaymentMethod("mobile_money")}
-                  >
-                    <div className="flex-1">
-                      <h4 className="font-medium">Mobile Money</h4>
-                      <p className="text-sm text-muted-foreground">Pay with M-Pesa or other mobile money services</p>
-                    </div>
-                    <svg className="h-5 w-5 text-muted-foreground" viewBox="0 0 24 24">
-                      <path fill="currentColor" d="M17 15.5a1.5 1.5 0 0 1 0 3h-2.5a1.5 1.5 0 0 1 0-3zm0 1h-2.5a.5.5 0 1 0 0 1h2.5a.5.5 0 1 0 0-1z" />
-                      <path fill="currentColor" d="M7 16.25c0-.14.11-.25.25-.25h1.5c.14 0 .25.11.25.25v1.5c0 .14-.11.25-.25.25h-1.5C7.11 18 7 17.89 7 17.75zm3 0c0-.14.11-.25.25-.25h1.5c.14 0 .25.11.25.25v1.5c0 .14-.11.25-.25.25h-1.5c-.14 0-.25-.11-.25-.25z" />
-                      <path fill="currentColor" fillRule="evenodd" d="M7 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm0 1h10a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" clipRule="evenodd" />
-                      <path fill="currentColor" d="M12 4.5a1.5 1.5 0 1 1 0 3a1.5 1.5 0 0 1 0-3M12 9a3 3 0 1 0 0-6a3 3 0 0 0 0 6" />
-                    </svg>
-                    {paymentMethod === "mobile_money" && (
-                      <Check className="h-5 w-5 text-servie ml-2" />
-                    )}
+                <div className="flex gap-3">
+                  <img
+                    src={primaryImage}
+                    alt={service.title}
+                    className="w-16 h-16 object-cover rounded-md flex-shrink-0"
+                  />
+                  <div className="min-w-0">
+                    <h4 className="font-medium text-sm line-clamp-2">{service.title}</h4>
+                    <p className="text-xs text-muted-foreground">{service.category}</p>
                   </div>
                 </div>
+                
+                <div className="space-y-2 text-sm">
+                  {date && time && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Appointment:</span>
+                      <span className="font-medium text-right">{format(date, "MMM d, yyyy")} at {time}</span>
+                    </div>
+                  )}
+                  {service.location && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Location:</span>
+                      <span>{service.location}</span>
+                    </div>
+                  )}
+                </div>
+                
+                <Separator />
+                
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>Service price</span>
+                    <span>{formatPrice(service.price)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Service fee</span>
+                    <span>{formatPrice(serviceFee)}</span>
+                  </div>
+                </div>
+                
+                <Separator />
+                
+                <div className="flex justify-between font-bold">
+                  <span>Total</span>
+                  <span>{formatPrice(total)}</span>
+                </div>
               </CardContent>
+              <CardFooter className="pt-0">
+                <Button 
+                  className="w-full h-11" 
+                  onClick={handleBooking}
+                  disabled={isSubmitting || !date || !time}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    "Confirm & Pay"
+                  )}
+                </Button>
+              </CardFooter>
             </Card>
           </div>
-          
-          {/* Booking Summary */}
-          <div className="w-full lg:w-80">
-            <div className="sticky top-24">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Booking Summary</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex gap-4">
-                    <img
-                      src={service.imageUrl}
-                      alt={service.title}
-                      className="w-20 h-20 object-cover rounded-md"
-                    />
-                    <div>
-                      <h4 className="font-medium">{service.title}</h4>
-                      <p className="text-sm text-muted-foreground">{service.category}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>Package:</span>
-                      <span className="font-medium">{selectedPackage.name}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 mr-1" />
-                        <span>Delivery time:</span>
-                      </div>
-                      <span>{selectedPackage.delivery}</span>
-                    </div>
-                    {date && time && (
-                      <div className="flex justify-between">
-                        <span>Appointment:</span>
-                        <span>{format(date, "MMM d, yyyy")} at {time}</span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>Package price</span>
-                      <span>{formatPrice(selectedPackage.price)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Service fee</span>
-                      <span>{formatPrice(serviceFee)}</span>
-                    </div>
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div className="flex justify-between font-bold">
-                    <span>Total</span>
-                    <span>{formatPrice(total)}</span>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    className="w-full bg-servie hover:bg-servie-600" 
-                    onClick={handleBooking}
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <span className="mr-2">Processing...</span>
-                        <span className="animate-spin">⏳</span>
-                      </>
-                    ) : (
-                      "Confirm & Pay"
-                    )}
-                  </Button>
-                </CardFooter>
-              </Card>
-            </div>
-          </div>
         </div>
+      </div>
     </div>
   );
 };

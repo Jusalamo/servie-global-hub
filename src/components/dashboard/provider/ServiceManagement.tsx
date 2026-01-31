@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +7,6 @@ import { serviceAPI } from "@/services/serviceAPI";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 import { Pencil, Trash2, Plus, Eye } from "lucide-react";
 import AddServiceForm from "./AddServiceForm";
-import { KYCEnforcementBanner } from "../KYCEnforcementBanner";
 
 const ServiceManagement = () => {
   const [services, setServices] = useState([]);
