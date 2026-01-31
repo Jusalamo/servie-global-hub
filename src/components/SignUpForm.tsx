@@ -86,48 +86,63 @@ const SignUpForm = ({ selectedRole = "client" }) => {
       // Validate required fields
       if (!data.email || !data.password) {
         toast.error("Email and password are required");
+        setIsLoading(false);
         return;
       }
 
       if (data.password !== data.confirmPassword) {
         toast.error("Passwords do not match");
+        setIsLoading(false);
+        return;
+      }
+
+      // Seller/Provider require business name
+      if ((data.role === 'seller' || data.role === 'provider') && !data.business_name?.trim()) {
+        toast.error(data.role === 'seller' ? 'Shop name is required' : 'Business name is required');
+        setIsLoading(false);
         return;
       }
 
       // Create the user account - pass snake_case keys matching DB trigger expectations
       const { error } = await signUp(data.email, data.password, {
-        first_name: data.first_name,
-        last_name: data.last_name,
+        first_name: data.first_name.trim(),
+        last_name: data.last_name.trim(),
         role: data.role,
-        business_name: data.business_name || '',
-        business_description: data.business_description || '',
-        phone: data.phone_number || '',
+        business_name: data.business_name?.trim() || '',
+        business_description: data.business_description?.trim() || '',
+        phone: data.phone_number?.trim() || '',
       });
 
       if (error) {
-        // Provide user-friendly error messages
-        if (error.message.includes('already registered')) {
+        // Provide user-friendly error messages based on common issues
+        const errorMessage = error.message?.toLowerCase() || '';
+        
+        if (errorMessage.includes('already registered') || errorMessage.includes('already exists')) {
           toast.error("This email is already registered. Please sign in instead.");
-        } else if (error.message.includes('Invalid email')) {
+        } else if (errorMessage.includes('invalid email')) {
           toast.error("Please enter a valid email address.");
-        } else if (error.message.includes('Password')) {
+        } else if (errorMessage.includes('password')) {
           toast.error("Password must be at least 8 characters long.");
-        } else if (error.message.includes('Database') || error.message.includes('saving')) {
-          toast.error("Account creation failed. Please try again.");
+        } else if (errorMessage.includes('database') || errorMessage.includes('saving') || errorMessage.includes('constraint')) {
+          toast.error("Account creation failed. Please check your information and try again.");
           console.error('Database error during signup:', error);
+        } else if (errorMessage.includes('rate limit')) {
+          toast.error("Too many attempts. Please wait a moment and try again.");
         } else {
           toast.error(error.message || "Unable to create account. Please try again.");
         }
-        throw error;
+        setIsLoading(false);
+        return;
       }
 
-      toast.success("Account created! Please verify your email to continue.");
+      toast.success("Account created! Please check your email to verify your account.");
       // Send user to the email confirmation instructions page.
       navigate("/confirm-email", { replace: true });
     } catch (error) {
       console.error('Sign up error:', error);
+      toast.error("An unexpected error occurred. Please try again.");
     } finally {
-      setTimeout(() => setIsLoading(false), 300);
+      setIsLoading(false);
     }
   };
 
