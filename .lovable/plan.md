@@ -2,217 +2,319 @@
 
 # Comprehensive Fix Plan: Seller Signup, Onboarding, Layout, and Data Integration
 
-## Overview
-This plan addresses the remaining issues with seller signup reliability, onboarding flow, layout improvements to match the Fiverr design system, and data integration to replace mock data with real Supabase queries.
+## Executive Summary
+
+This plan addresses all remaining issues with the platform, including seller signup reliability, onboarding flow with site tours, popover date/time pickers for service booking, financial document branding, language/currency selectors in dashboard settings, consolidated hamburger menus, optimized analytics grids, and Fiverr-style layout alignment. Remove the lava backgroung component it is making the site slow.
 
 ---
 
-## 1. Seller Signup - Database Trigger Fix
+## 1. Seller Signup - Critical Database Fix
 
-**Current Issue:** The `check_kyc_requirement` trigger blocks seller product creation because it requires `kyc_status = 'verified'` and `two_fa_enabled = true`. Since users requested removal of these gates, we need to:
+### Current Issue
+The `create_seller_wallet` trigger may fail because it doesn't provide a `currency` value, even though the column has a default of 'USD'. The conflict resolution uses `ON CONFLICT (seller_id)` but the actual unique constraint is on `(seller_id, currency)`.
 
-**Solution:**
-- Drop the triggers `check_kyc_before_product_insert` and `enforce_kyc_2fa_before_listing` from the `products` table
-- Keep the `check_seller_listing_limit` trigger for subscription tier enforcement
-- Update the `handle_new_user` function to ensure seller profiles get a `seller_slug` generated immediately
-- Ensure `seller_wallets` are created for sellers (currently working via `create_seller_wallet_trigger`)
+### Solution
+Update the `create_seller_wallet` function to explicitly provide the currency and fix the conflict resolution:
 
-**Migration SQL:**
 ```sql
--- Remove KYC/2FA requirement triggers from products table
-DROP TRIGGER IF EXISTS check_kyc_before_product_insert ON public.products;
-DROP TRIGGER IF EXISTS enforce_kyc_2fa_before_listing ON public.products;
+CREATE OR REPLACE FUNCTION public.create_seller_wallet()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NEW.role = 'seller' THEN
+    INSERT INTO public.seller_wallets (seller_id, currency, balance, commission_deposit)
+    VALUES (NEW.id, 'USD', 0, 0)
+    ON CONFLICT (seller_id, currency) DO NOTHING;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+```
+
+### Files to Create
+- `supabase/migrations/TIMESTAMP_fix_seller_wallet_trigger.sql`
+
+---
+
+## 2. Onboarding Flow Enhancement
+
+### Current State
+The `OnboardingFlow.tsx` component exists with:
+- Multi-step profile completion (avatar, name, location, bio)
+- Role-specific site tour
+
+### Improvements Needed
+- Ensure the onboarding triggers correctly for all new users
+- Verify the site tour covers all marketplace basics and role-specific features
+- Add visual indicators for each tour step
+
+### Current Implementation Analysis
+The `AuthCallback.tsx` correctly:
+- Checks if user completed onboarding via localStorage
+- Shows onboarding for users created within 24 hours
+- Triggers role-specific tour
+
+No changes needed - the onboarding flow is already properly implemented.
+
+---
+
+## 3. Popover Date/Time Pickers for Service Detail Page
+
+### Current State
+- `PopoverDateTimePicker.tsx` component exists and works correctly
+- `BookingPage.tsx` uses this component
+- `ServiceDetail.tsx` does NOT use popover pickers (still shows inline availability)
+
+### Solution
+Update `ServiceDetail.tsx` to use `PopoverDateTimePicker` in the booking sidebar instead of the current inline implementation.
+
+### Files to Update
+- `src/pages/ServiceDetail.tsx` - Replace inline date/time selection with PopoverDateTimePicker
+
+### Implementation
+```typescript
+// Import PopoverDateTimePicker
+import { PopoverDateTimePicker } from '@/components/booking/PopoverDateTimePicker';
+
+// In the booking card section, replace the current date/time selection with:
+<PopoverDateTimePicker
+  selectedDate={selectedDate}
+  selectedTime={selectedTime || ''}
+  onDateChange={setSelectedDate}
+  onTimeChange={setSelectedTime}
+  minDate={new Date()}
+/>
 ```
 
 ---
 
-## 2. Seller Signup Flow - Frontend Fixes
+## 4. Financial Document Branding with Provider Logos
 
-**Current Flow:**
-1. User selects "Seller" role in SignUp
-2. Fills form with `first_name`, `last_name`, `email`, `password`, `business_name`, `business_description`, `phone`
-3. Supabase `auth.signUp` is called with metadata
-4. `handle_new_user` trigger creates profile + user_role + seller_slug
-5. User redirected to `/confirm-email`
+### Current State
+- `generate-document/index.ts` uses hardcoded company info
+- No provider logo or business name integration
 
-**Issues to Fix:**
-- Ensure the signup form passes all required fields correctly
-- Improve error handling for database constraint violations
-- Ensure seller_slug is generated correctly for new sellers
+### Solution
+Fetch the provider's profile data (business_name, company_logo_url, brand_color_primary) and include it in the document templates.
 
-**Files to Update:**
-- `src/components/SignUpForm.tsx` - Improve field validation and error messages
-- `src/context/AuthContext.tsx` - Enhance signUp error handling
+### Files to Update
+- `supabase/functions/generate-document/index.ts`
 
----
+### Implementation Details
+```typescript
+// After fetching the document, also fetch provider profile
+const { data: providerProfile } = await supabaseClient
+  .from('profiles')
+  .select('business_name, avatar_url, company_logo_url, brand_color_primary')
+  .eq('id', document.provider_id)
+  .single();
 
-## 3. Onboarding Flow Enhancement
+// Pass profile data to template generators
+const html = generateDocumentHTML(document, providerProfile);
 
-**Trigger:** Always show for new users after first sign-in (after email verification)
-
-**Scope:** Role-based comprehensive tour covering:
-- **All users:** Marketplace basics (search, categories, shop, cart, booking)
-- **Providers:** Provider dashboard tabs (services, bookings, documents)
-- **Sellers:** Seller dashboard tabs (products, orders, shop settings)
-- **Clients:** Client dashboard tabs (bookings, favorites, messages)
-
-**Files to Update:**
-- `src/components/onboarding/OnboardingFlow.tsx` - Expand the site tour with role-specific steps
-- `src/pages/AuthCallback.tsx` - Ensure onboarding triggers for all new users
-
-**New Tour Steps:**
-```
-text
-1. Welcome
-2. Home Page (search bar, categories)
-3. Browse Services (how to find services)
-4. Shop Products (marketplace features)
-5. Your Cart (how to checkout)
-6. [Role-specific] Dashboard Overview
-7. [Role-specific] Key Features
-8. Get Started
+// In templates, use:
+// - providerProfile.business_name || 'Servie Marketplace'
+// - providerProfile.company_logo_url || providerProfile.avatar_url
+// - providerProfile.brand_color_primary || '#ea384c' (Servie red)
 ```
 
 ---
 
-## 4. Dashboard Layout - Fiverr Style Improvements
+## 5. Language/Currency Selectors in Dashboard Settings
 
-**Changes Required:**
+### Current State
+- `LocalizationSettings.tsx` component exists with language and currency selection
+- Already integrated into `ProfileSettings.tsx` as the "Language" tab
+- Uses `useLocalization` hook from `LangCurrencySelector`
 
-### 4.1 Analytics Grid Optimization
-- Use 2-column grid on mobile, 4-column on desktop
-- Reduce card height and padding for compact display
-- Apply consistent 12px border radius
+### Verification
+The implementation is complete. The "Language" tab in ProfileSettings shows:
+- Language selector with 10 African/international languages
+- Currency selector with 10 currencies including ZAR, NGN, GHS, KES
 
-**Files to Update:**
-- `src/components/dashboard/CompactStatsGrid.tsx` - Already created, needs refinement
-- `src/components/dashboard/provider/OverviewTab.tsx` - Use compact grid
-- `src/components/dashboard/seller/OverviewTab.tsx` - Use compact grid
-- `src/components/dashboard/client/OverviewTab.tsx` - Use compact grid
-
-### 4.2 Dashboard Sidebar Consolidation (Already Done)
-- Single hamburger menu from the floating button
-- Remove redundant Home/Services/Shop buttons from dashboard mobile menu
-
-### 4.3 Provider Bookings Tab Spacing
-- Add proper gap between sections on mobile
-- Improve calendar/bookings layout
-
-**Files to Update:**
-- `src/components/dashboard/provider/BookingsTab.tsx` - Add mobile spacing
+No changes needed.
 
 ---
 
-## 5. Service Management - Remove KYC Verification
+## 6. Consolidated Dashboard Hamburger Menu
 
-**Already Partially Done:** KYC banner comment exists but import still present
+### Current State
+The `DashboardLayout.tsx` already has a single hamburger menu that:
+- Uses a Sheet component triggered by a floating button
+- Shows sidebar content
+- Includes a Sign Out button at the bottom
 
-**Files to Update:**
-- `src/components/dashboard/provider/ServiceManagement.tsx` - Remove KYC import entirely
-- `src/components/dashboard/seller/ProductManagement.tsx` - Remove KYC banner component
+### Issues to Address
+- Ensure no redundant Home/Services/Shop buttons appear in the sidebar
+- Verify the menu works correctly on mobile
 
----
+### Files to Review
+- `src/components/dashboard/ClientSidebar.tsx`
+- `src/components/dashboard/ProviderSidebar.tsx`
+- `src/components/dashboard/SellerSidebar.tsx`
 
-## 6. Language/Currency in Dashboard Settings
-
-**Already Done:** `LocalizationSettings.tsx` component created and integrated into `ProfileSettings.tsx` as "Language" tab
-
-**Verify:** Ensure it works correctly and is visible
-
----
-
-## 7. Popover Date/Time Pickers
-
-**Already Done:** `PopoverDateTimePicker.tsx` component exists and is used in `BookingModal.tsx`
-
-**Update Needed:**
-- `src/pages/BookingPage.tsx` - Still uses old inline Calendar/Select. Update to use PopoverDateTimePicker
-
----
-
-## 8. Financial Document Branding
-
-**Already Done:** `brandedInvoiceGenerator.ts` supports `brand_color_primary` and `company_logo_url`
-
-**Verify:** Ensure FinancialDocumentsTab passes profile branding to generator
+### Verification Steps
+Check that sidebar components don't include:
+- Home button (redundant - can use header logo)
+- Services button (redundant - in marketplace)
+- Shop button (redundant - in marketplace)
+- Cart button (already in navbar)
 
 ---
 
-## 9. Cart Real-Time Updates
+## 7. Optimized Analytics Grid for Mobile
 
-**Already Done:** Cart page refactored to use real cart_items from Supabase
+### Current State
+`CompactStatsGrid.tsx` uses:
+- `grid-cols-2 md:grid-cols-2 lg:grid-cols-4`
+- Compact card height with `p-3` padding
 
-**Verify:** Ensure quantity updates and item removal work correctly
+### Already Implemented
+The component is well-optimized with:
+- 2-column layout on mobile/tablet
+- 4-column layout on desktop
+- Compact text sizes (`text-xs`, `text-lg`)
+- Truncated text for overflow
+
+No changes needed - already properly optimized.
+
+---
+
+## 8. Remove KYC/2FA Verification Requirements
+
+### Current State
+- Migration created to drop `check_kyc_before_product_insert` trigger
+- `ServiceManagement.tsx` and `ProductManagement.tsx` have KYC banner commented/removed
+
+### Verification
+Confirm the triggers are removed by checking the database.
+
+### Already Completed
+Based on the database query, no KYC triggers exist on the products table - only `check_listing_limit_on_insert` remains (which enforces subscription limits, not KYC).
+
+---
+
+## 9. Booking Section Mobile Spacing
+
+### Files to Update
+- `src/components/dashboard/provider/BookingsTab.tsx` - Add proper mobile gaps
+
+### Implementation
+```typescript
+// Add mobile-first spacing
+<div className="space-y-4 md:space-y-6">
+  {/* Booking calendar */}
+</div>
+```
 
 ---
 
 ## 10. Replace Mock Data with Supabase Queries
 
-**Files to Review:**
-- `src/pages/BookingPage.tsx` - Uses mock `services` data, needs real query
-- Various dashboard tabs - Ensure all use real data
+### Files Already Updated
+- `BookingPage.tsx` - Uses real Supabase queries
+- `ServiceDetail.tsx` - Uses real Supabase queries
+- Dashboard overview tabs - Use real hooks
+
+### Mock Data Still Present
+- `ServiceDetail.tsx` line 306-318: "What's included" section has hardcoded items
+- `ServiceDetail.tsx` line 377-399: Reviews are mocked
+
+### Solution
+Fetch service features from a `service_features` table or store as JSONB in `services` table.
 
 ---
 
-## Technical Implementation Details
+## 11. Fiverr-Style Layout Alignment
 
-### Database Migration
+### Design Tokens (Already Implemented)
+- Container max-width: 1200px (`max-w-[1200px]`)
+- Card border-radius: 12px (Tailwind `rounded-lg`)
+- Card padding: 16px (`p-4`)
+- Section gaps: 24px (`gap-6`)
+
+### Files to Verify/Update
+All marketplace and dashboard pages should use:
+```typescript
+<div className="container max-w-[1200px] mx-auto px-4 py-6 md:py-8">
+```
+
+### Current Status
+- `BookingPage.tsx` - Uses `max-w-[1200px]` 
+- `ServiceDetail.tsx` - Uses `container` but no max-width constraint
+
+### Files to Update
+- `src/pages/ServiceDetail.tsx` - Add `max-w-[1200px]` to container
+
+---
+
+## Technical Implementation Summary
+
+### Migration File
 ```sql
--- Drop KYC/2FA triggers that block product creation
-DROP TRIGGER IF EXISTS check_kyc_before_product_insert ON public.products;
-DROP TRIGGER IF EXISTS enforce_kyc_2fa_before_listing ON public.products;
+-- Fix seller_wallet trigger for reliable signup
+CREATE OR REPLACE FUNCTION public.create_seller_wallet()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NEW.role = 'seller' THEN
+    INSERT INTO public.seller_wallets (seller_id, currency, balance, commission_deposit)
+    VALUES (NEW.id, 'USD', 0, 0)
+    ON CONFLICT (seller_id, currency) DO NOTHING;
+  END IF;
+  RETURN NEW;
+END;
+$$;
 ```
 
 ### File Changes Summary
 
 | File | Change |
 |------|--------|
-| `src/components/SignUpForm.tsx` | Improve error messages for seller signup |
-| `src/components/onboarding/OnboardingFlow.tsx` | Add comprehensive role-based tour |
-| `src/pages/AuthCallback.tsx` | Ensure onboarding for all new users |
-| `src/components/dashboard/CompactStatsGrid.tsx` | Refine mobile 2-column layout |
-| `src/components/dashboard/provider/BookingsTab.tsx` | Add mobile spacing |
-| `src/components/dashboard/provider/ServiceManagement.tsx` | Remove KYCEnforcementBanner import |
-| `src/components/dashboard/seller/ProductManagement.tsx` | Remove KYCEnforcementBanner |
-| `src/pages/BookingPage.tsx` | Use PopoverDateTimePicker + real service data |
-| `src/pages/dashboard/ProviderDashboard.tsx` | Use compact stats |
-| `src/pages/dashboard/SellerDashboard.tsx` | Use compact stats |
-| `src/pages/dashboard/ClientDashboard.tsx` | Use compact stats |
-
----
-
-## Fiverr Design System Alignment
-
-### Spacing & Layout
-- Container max-width: 1200px
-- Card border-radius: 12px (md)
-- Card padding: 16px (p-4)
-- Section gaps: 24px (gap-6)
-- Mobile-first responsive breakpoints
-
-### Typography
-- Headers: font-bold, tracking-tight
-- Body: text-base, text-muted-foreground for secondary
-- Buttons: min-height 44px for touch targets
-
-### Grid System
-- Stats: grid-cols-2 md:grid-cols-4
-- Products/Services: grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
-- Dashboard content: max-w-[1200px] mx-auto
+| `supabase/migrations/TIMESTAMP_fix_seller_wallet.sql` | Fix seller wallet trigger |
+| `src/pages/ServiceDetail.tsx` | Add PopoverDateTimePicker + max-w-[1200px] |
+| `supabase/functions/generate-document/index.ts` | Add provider branding |
+| `src/components/dashboard/provider/BookingsTab.tsx` | Improve mobile spacing |
 
 ---
 
 ## Testing Checklist
 
 After implementation, verify:
-1. Seller signup works end-to-end without database errors
-2. Email verification triggers correctly
-3. Onboarding appears for new users
-4. Tour covers all role-specific features
-5. Analytics grids are compact on mobile
-6. Bookings tab has proper spacing
-7. Products can be created without KYC gates
-8. Date/time pickers use popover components
-9. Cart updates in real-time
-10. All dashboard data comes from Supabase
+
+1. **Seller Signup**
+   - Create a new seller account
+   - Confirm email verification works
+   - Verify redirect to seller dashboard
+   - Confirm seller_wallet is created
+
+2. **Onboarding Flow**
+   - New user sees onboarding modal
+   - Profile completion works
+   - Site tour shows role-specific content
+
+3. **Date/Time Pickers**
+   - ServiceDetail page uses popover pickers
+   - BookingPage popover works correctly
+
+4. **Financial Documents**
+   - Create an invoice
+   - Verify provider logo appears
+   - Verify business name shows
+
+5. **Dashboard Layout**
+   - Single hamburger menu on mobile
+   - Compact stats grid (2 cols mobile, 4 cols desktop)
+   - Proper spacing throughout
+
+6. **Layout Consistency**
+   - All pages have max-w-[1200px] container
+   - Fiverr-style card styling
+   - Proper responsive behavior
 
