@@ -179,11 +179,11 @@ export default function BookingsTab() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="space-y-4 md:space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Manage Your Bookings</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-xl md:text-2xl font-bold tracking-tight">Manage Your Bookings</h2>
+          <p className="text-sm md:text-base text-muted-foreground">
             View and manage all your client appointments
           </p>
         </div>

@@ -27,7 +27,7 @@ const RATE_LIMIT_MAX_REQUESTS = 20;
 // CSP header to prevent inline script execution as defense-in-depth
 const HTML_SECURITY_HEADERS = {
   'Content-Type': 'text/html; charset=utf-8',
-  'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:;",
+  'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data: https:;",
   'X-Content-Type-Options': 'nosniff',
 };
 
@@ -111,6 +111,15 @@ async function logRequest(
   } catch {
     // Never fail the main request because logging failed
   }
+}
+
+interface ProviderProfile {
+  business_name: string | null;
+  avatar_url: string | null;
+  company_logo_url: string | null;
+  brand_color_primary: string | null;
+  first_name: string | null;
+  last_name: string | null;
 }
 
 serve(async (req) => {
@@ -225,8 +234,19 @@ serve(async (req) => {
       return res;
     }
 
+    // Fetch provider profile for branding
+    let providerProfile: ProviderProfile | null = null;
+    if (document.provider_id) {
+      const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('business_name, avatar_url, company_logo_url, brand_color_primary, first_name, last_name')
+        .eq('id', document.provider_id)
+        .single();
+      providerProfile = profile;
+    }
+
     // Generate HTML based on document type
-    const html = generateDocumentHTML(document);
+    const html = generateDocumentHTML(document, providerProfile);
 
     // For PDF generation, you would integrate a PDF library here
     if (format === 'pdf') {
@@ -265,9 +285,18 @@ serve(async (req) => {
   }
 });
 
-function generateDocumentHTML(document: any): string {
+function generateDocumentHTML(document: any, providerProfile: ProviderProfile | null): string {
+  // Use provider branding or fallback to defaults
+  const brandColor = providerProfile?.brand_color_primary || '#ea384c'; // Servie red
+  const companyName = providerProfile?.business_name || 
+    (providerProfile?.first_name ? `${providerProfile.first_name} ${providerProfile.last_name || ''}`.trim() : null) ||
+    'Servie Marketplace';
+  const logoUrl = providerProfile?.company_logo_url || providerProfile?.avatar_url || null;
+
   const companyInfo = {
-    name: 'Servie Marketplace',
+    name: companyName,
+    logo: logoUrl,
+    brandColor: brandColor,
     address: 'Africa',
     phone: '+000 000 0000',
     email: 'support@servie.com'
@@ -293,7 +322,16 @@ function generateDocumentHTML(document: any): string {
   }
 }
 
-function generateInvoiceTemplate(doc: any, company: any, formatDate: Function): string {
+interface CompanyInfo {
+  name: string;
+  logo: string | null;
+  brandColor: string;
+  address: string;
+  phone: string;
+  email: string;
+}
+
+function generateInvoiceTemplate(doc: any, company: CompanyInfo, formatDate: Function): string {
   // Escape all user-controlled content to prevent XSS
   const safeDocNumber = escapeHtml(doc.document_number);
   const safeClientName = escapeHtml(doc.client_name);
@@ -302,6 +340,12 @@ function generateInvoiceTemplate(doc: any, company: any, formatDate: Function): 
   const safeCompanyName = escapeHtml(company.name);
   const safeCompanyAddress = escapeHtml(company.address);
   const safeCompanyEmail = escapeHtml(company.email);
+  const safeBrandColor = escapeHtml(company.brandColor);
+  const safeLogoUrl = company.logo ? escapeHtml(company.logo) : null;
+
+  const logoHtml = safeLogoUrl 
+    ? `<img src="${safeLogoUrl}" alt="${safeCompanyName}" style="max-height: 60px; max-width: 200px; object-fit: contain;" />`
+    : `<h2 style="color: ${safeBrandColor}; margin: 0;">${safeCompanyName}</h2>`;
 
   return `
 <!DOCTYPE html>
@@ -312,20 +356,27 @@ function generateInvoiceTemplate(doc: any, company: any, formatDate: Function): 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; padding: 40px; }
-    .header { text-align: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 3px solid #6366f1; }
-    .header h1 { color: #6366f1; font-size: 32px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 3px solid ${safeBrandColor}; }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .header-right { text-align: right; }
+    .header h1 { color: ${safeBrandColor}; font-size: 28px; margin: 0; }
     .info-section { display: flex; justify-content: space-between; margin: 30px 0; }
     table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-    th { background: #6366f1; color: white; padding: 12px; text-align: left; }
+    th { background: ${safeBrandColor}; color: white; padding: 12px; text-align: left; }
     td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
     .totals { text-align: right; margin-top: 20px; }
-    .total { font-size: 20px; font-weight: bold; }
+    .total { font-size: 20px; font-weight: bold; color: ${safeBrandColor}; }
   </style>
 </head>
 <body>
   <div class="header">
-    <h1>INVOICE</h1>
-    <p>#${safeDocNumber}</p>
+    <div class="header-left">
+      ${logoHtml}
+    </div>
+    <div class="header-right">
+      <h1>INVOICE</h1>
+      <p>#${safeDocNumber}</p>
+    </div>
   </div>
   <div class="info-section">
     <div><strong>${safeCompanyName}</strong><br>${safeCompanyAddress}<br>${safeCompanyEmail}</div>
@@ -356,12 +407,19 @@ function generateInvoiceTemplate(doc: any, company: any, formatDate: Function): 
   `;
 }
 
-function generateReceiptTemplate(doc: any, company: any, formatDate: Function): string {
+function generateReceiptTemplate(doc: any, company: CompanyInfo, formatDate: Function): string {
   // Escape all user-controlled content to prevent XSS
   const safeDocNumber = escapeHtml(doc.document_number);
   const safeClientName = escapeHtml(doc.client_name);
   const safeTitle = escapeHtml(doc.title);
   const safeCurrency = escapeHtml(doc.currency);
+  const safeCompanyName = escapeHtml(company.name);
+  const safeBrandColor = escapeHtml(company.brandColor);
+  const safeLogoUrl = company.logo ? escapeHtml(company.logo) : null;
+
+  const logoHtml = safeLogoUrl 
+    ? `<img src="${safeLogoUrl}" alt="${safeCompanyName}" style="max-height: 50px; max-width: 150px; object-fit: contain; margin-bottom: 10px;" />`
+    : '';
 
   return `
 <!DOCTYPE html>
@@ -372,7 +430,7 @@ function generateReceiptTemplate(doc: any, company: any, formatDate: Function): 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Arial, sans-serif; padding: 40px; max-width: 700px; margin: 0 auto; }
-    .header { text-align: center; margin-bottom: 30px; padding: 20px; background: #8b5cf6; color: white; border-radius: 10px; }
+    .header { text-align: center; margin-bottom: 30px; padding: 20px; background: ${safeBrandColor}; color: white; border-radius: 10px; }
     .paid { text-align: center; font-size: 32px; font-weight: bold; background: #10b981; color: white; padding: 30px; margin: 20px 0; border-radius: 10px; }
     .details { margin: 20px 0; padding: 20px; background: #f9fafb; border-radius: 8px; }
     .details p { padding: 8px 0; border-bottom: 1px solid #e5e7eb; }
@@ -380,8 +438,10 @@ function generateReceiptTemplate(doc: any, company: any, formatDate: Function): 
 </head>
 <body>
   <div class="header">
+    ${logoHtml}
     <h1>RECEIPT</h1>
     <p>#${safeDocNumber}</p>
+    <p style="font-size: 14px; margin-top: 8px;">${safeCompanyName}</p>
   </div>
   <div class="details">
     <p><strong>Date:</strong> ${escapeHtml(formatDate(doc.issue_date))}</p>
@@ -396,15 +456,23 @@ function generateReceiptTemplate(doc: any, company: any, formatDate: Function): 
   `;
 }
 
-function generatePayoutTemplate(doc: any, company: any, formatDate: Function): string {
+function generatePayoutTemplate(doc: any, company: CompanyInfo, formatDate: Function): string {
   // Escape all user-controlled content to prevent XSS
   const safeDocNumber = escapeHtml(doc.document_number);
   const safeClientName = escapeHtml(doc.client_name);
   const safeCurrency = escapeHtml(doc.currency);
+  const safeCompanyName = escapeHtml(company.name);
+  const safeBrandColor = escapeHtml(company.brandColor);
+  const safeLogoUrl = company.logo ? escapeHtml(company.logo) : null;
   
   const gross = Number(doc.total_amount);
-  const commission = gross * 0.05;
-  const net = gross - commission;
+  const platformFee = gross * 0.09; // 9% platform fee
+  const pspFee = (gross * 0.039) + 0.30; // 3.9% + $0.30 PSP fee
+  const net = gross - platformFee - pspFee;
+
+  const logoHtml = safeLogoUrl 
+    ? `<img src="${safeLogoUrl}" alt="${safeCompanyName}" style="max-height: 50px; max-width: 150px; object-fit: contain;" />`
+    : '';
   
   return `
 <!DOCTYPE html>
@@ -415,22 +483,27 @@ function generatePayoutTemplate(doc: any, company: any, formatDate: Function): s
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Arial, sans-serif; padding: 40px; }
-    .header { text-align: center; color: #10b981; margin-bottom: 40px; }
+    .header { text-align: center; color: ${safeBrandColor}; margin-bottom: 40px; }
+    .logo { margin-bottom: 16px; }
     table { width: 100%; margin: 30px 0; }
     td { padding: 15px; border-bottom: 1px solid #e5e7eb; font-size: 16px; }
     .highlight { background: #dcfce7; font-weight: bold; font-size: 20px; }
+    .fee { color: #ef4444; }
   </style>
 </head>
 <body>
   <div class="header">
+    <div class="logo">${logoHtml}</div>
     <h1>PAYOUT STATEMENT</h1>
     <p>#${safeDocNumber}</p>
+    <p style="font-size: 14px; margin-top: 8px;">${safeCompanyName}</p>
   </div>
   <p><strong>Seller:</strong> ${safeClientName}</p>
   <p><strong>Date:</strong> ${escapeHtml(formatDate(doc.issue_date))}</p>
   <table>
     <tr><td>Gross Sales</td><td style="text-align:right">${safeCurrency} ${gross.toFixed(2)}</td></tr>
-    <tr><td>Platform Commission (5%)</td><td style="text-align:right; color:#ef4444">-${safeCurrency} ${commission.toFixed(2)}</td></tr>
+    <tr><td>Platform Fee (9%)</td><td class="fee" style="text-align:right">-${safeCurrency} ${platformFee.toFixed(2)}</td></tr>
+    <tr><td>Payment Processing (3.9% + $0.30)</td><td class="fee" style="text-align:right">-${safeCurrency} ${pspFee.toFixed(2)}</td></tr>
     <tr class="highlight"><td>NET PAYOUT</td><td style="text-align:right">${safeCurrency} ${net.toFixed(2)}</td></tr>
   </table>
 </body>

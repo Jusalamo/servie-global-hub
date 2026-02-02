@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Clock, MapPin, Heart, Star, ChevronLeft, Share, CheckCircle } from "lucide-react";
+import { Clock, MapPin, Heart, Star, ChevronLeft, CheckCircle, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import { supabase } from "@/integrations/supabase/client";
+import { PopoverDateTimePicker } from "@/components/booking/PopoverDateTimePicker";
 
 interface Service {
   id: string;
@@ -122,12 +122,6 @@ export default function ServiceDetail() {
     }
   }, [serviceId]);
 
-  // Mock available times
-  const availableTimes = [
-    "9:00 AM", "10:00 AM", "11:00 AM", 
-    "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM"
-  ];
-
   const handleBookNow = () => {
     if (!selectedDate || !selectedTime) {
       toast.error("Please select a date and time");
@@ -195,7 +189,7 @@ export default function ServiceDetail() {
 
   return (
     <div className="py-8">
-        <div className="container px-4">
+      <div className="container max-w-[1200px] mx-auto px-4">
           {/* Breadcrumb */}
           <div className="mb-6">
             <Link to="/categories" className="flex items-center text-sm text-muted-foreground hover:text-foreground">
@@ -489,48 +483,20 @@ export default function ServiceDetail() {
                       </span>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-6">
                     <div>
-                      <h3 className="font-medium mb-2">Select Date</h3>
-                      <div className="grid grid-cols-3 gap-2">
-                        {[0, 1, 2, 3, 4, 5].map((dayOffset) => {
-                          const date = new Date();
-                          date.setDate(date.getDate() + dayOffset);
-                          return (
-                            <Button
-                              key={dayOffset}
-                              variant={selectedDate && selectedDate.getDate() === date.getDate() ? "default" : "outline"}
-                              className="flex flex-col h-auto py-2"
-                              onClick={() => setSelectedDate(date)}
-                            >
-                              <span className="text-xs">
-                                {date.toLocaleDateString("en-US", { weekday: "short" })}
-                              </span>
-                              <span className="text-lg">{date.getDate()}</span>
-                            </Button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h3 className="font-medium mb-2">Select Time</h3>
-                      <div className="grid grid-cols-3 gap-2">
-                        {availableTimes.map((time) => (
-                          <Button
-                            key={time}
-                            variant={selectedTime === time ? "default" : "outline"}
-                            className="text-sm"
-                            onClick={() => setSelectedTime(time)}
-                          >
-                            {time}
-                          </Button>
-                        ))}
-                      </div>
+                      <h3 className="font-medium mb-3">Select Date & Time</h3>
+                      <PopoverDateTimePicker
+                        selectedDate={selectedDate || undefined}
+                        selectedTime={selectedTime || ''}
+                        onDateChange={(date) => setSelectedDate(date || null)}
+                        onTimeChange={setSelectedTime}
+                        minDate={new Date()}
+                      />
                     </div>
                     
                     <Button 
-                      className="w-full bg-servie hover:bg-servie-600 mt-4" 
+                      className="w-full bg-servie hover:bg-servie-600" 
                       size="lg"
                       onClick={handleBookNow}
                     >
