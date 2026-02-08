@@ -233,14 +233,14 @@ const SignUpForm = ({ selectedRole = "client" }) => {
                     {typedSelectedRole === "provider" ? "Business Description" : "Shop Description"}
                   </FormLabel>
                   <FormControl>
-                    <Textarea 
-                      placeholder={
-                        typedSelectedRole === "provider" 
-                          ? "Tell us about your services..." 
-                          : "Describe your shop and products..."
-                      }
-                      {...field}
-                    />
+                    <Textarea
+                      placeholder={
+                        typedSelectedRole === "provider"
+                          ? "Tell us about your services..."
+                          : "Describe your shop and products..."
+                      }
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
