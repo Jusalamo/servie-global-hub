@@ -24,7 +24,7 @@ export default function ConfirmEmail() {
             <ol className="list-decimal list-inside space-y-2 ml-2">
               <li>Check your email inbox (and spam folder)</li>
               <li>Click the confirmation link in the email</li>
-              <li>You'll be redirected to sign in</li>
+              <li>You'll be signed in automatically</li>
             </ol>
             <p className="text-xs pt-2">
               The confirmation link will expire in 24 hours. If you don't receive 
@@ -35,7 +35,7 @@ export default function ConfirmEmail() {
           
           <div className="space-y-3">
             <Button asChild className="w-full" variant="outline">
-              <Link to="/signin">
+              <Link to="/sign-in">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Sign In
               </Link>
@@ -43,7 +43,7 @@ export default function ConfirmEmail() {
             
             <p className="text-center text-xs text-muted-foreground">
               Didn't receive the email?{" "}
-              <Link to="/signup" className="text-primary hover:underline">
+              <Link to="/sign-up" className="text-primary hover:underline">
                 Try signing up again
               </Link>
             </p>

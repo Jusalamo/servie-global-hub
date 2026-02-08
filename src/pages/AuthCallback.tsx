@@ -28,11 +28,27 @@ export default function AuthCallback() {
         }
 
         // Fetch role from user_roles (source of truth).
-        const { data: roleRow } = await supabase
+        let { data: roleRow } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", session.user.id)
           .maybeSingle();
+
+        // FALLBACK: If user_roles row is missing, attempt to create it from user metadata
+        if (!roleRow) {
+          const metaRole = session.user.user_metadata?.role;
+          const validRoles = ['client', 'provider', 'seller'];
+          const roleToInsert = validRoles.includes(metaRole) ? metaRole : 'client';
+          
+          // Insert the missing role
+          const { error: insertError } = await supabase
+            .from("user_roles")
+            .insert({ user_id: session.user.id, role: roleToInsert });
+          
+          if (!insertError) {
+            roleRow = { role: roleToInsert };
+          }
+        }
 
         if (cancelled) return;
 

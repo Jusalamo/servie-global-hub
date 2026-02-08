@@ -99,7 +99,7 @@ export default function SignIn() {
       
       <p className="mt-4 sm:mt-8 text-center text-xs sm:text-sm text-muted-foreground whitespace-normal">
         Don't have an account yet?{" "}
-        <Link to="/signup" className="font-medium text-servie hover:underline whitespace-nowrap">
+        <Link to="/sign-up" className="font-medium text-servie hover:underline whitespace-nowrap">
           Sign up
         </Link>
       </p>

@@ -111,12 +111,6 @@ export function SignInForm() {
         )}
       </Button>
       
-      <div className="text-sm text-center text-gray-500">
-        <p>
-          For testing, use any email. Add "provider" or "seller" to the email 
-          to access those dashboards (e.g., user.provider@example.com)
-        </p>
-      </div>
     </form>
   );
 }

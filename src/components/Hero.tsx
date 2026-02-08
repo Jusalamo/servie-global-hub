@@ -25,28 +25,7 @@ export default function Hero() {
   };
 
   return (
-    <section id="hero-section" className="relative py-8 px-4 sm:py-12 md:py-16 lg:py-24 overflow-hidden">
-      {/* Enhanced gradient background using servie color */}
-      <div 
-        className="absolute inset-0 -z-10 bg-gradient-to-br from-servie/20 via-servie/5 to-background/30 animate-gradient"
-        style={{
-          backgroundSize: "400% 400%",
-          animation: "gradientAnimation 20s ease infinite"
-        }}
-      />
-      
-      {/* Background pattern */}
-      <div className="absolute inset-0 -z-10 opacity-3">
-        <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-          <defs>
-            <pattern id="dotted-pattern" width="20" height="20" patternUnits="userSpaceOnUse">
-              <circle cx="2" cy="2" r="1" fill="currentColor" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#dotted-pattern)" />
-        </svg>
-      </div>
-
+    <section id="hero-section" className="relative py-8 px-4 sm:py-12 md:py-16 lg:py-24 overflow-hidden bg-background">
       <div className="container px-4 sm:px-6 md:px-8 relative">
         <div className="max-w-4xl mx-auto text-center space-y-4 sm:space-y-6 md:space-y-8 relative">
           {/* App logo/icon */}
