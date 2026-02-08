@@ -69,11 +69,6 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Roboto', system-ui, -apple-system, sans-serif;
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
-  }
-  
-  .dark body {
-    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--background)) 50%, hsl(var(--muted)) 100%);
   }
   
   /* Enhanced light mode with beautiful gradients and shadows */
@@ -111,27 +106,6 @@
       inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
   }
 
-  /* Hero section with enhanced gradients */
-  #hero-section {
-    isolation: isolate;
-    background: linear-gradient(135deg, 
-      rgba(248, 250, 252, 0.9) 0%, 
-      rgba(241, 245, 249, 0.8) 25%,
-      rgba(234, 240, 248, 0.7) 50%,
-      rgba(226, 232, 240, 0.6) 75%,
-      rgba(203, 213, 225, 0.5) 100%
-    );
-  }
-
-  .dark #hero-section {
-    background: linear-gradient(135deg, 
-      rgba(15, 23, 42, 0.9) 0%, 
-      rgba(30, 41, 59, 0.8) 25%,
-      rgba(51, 65, 85, 0.7) 50%,
-      rgba(71, 85, 105, 0.6) 75%,
-      rgba(100, 116, 139, 0.5) 100%
-    );
-  }
 
   /* Enhanced buttons with beautiful gradients */
   .btn-gradient {
@@ -279,56 +253,6 @@ body {
   animation: slideInUp 0.6s ease-out;
 }
 
-/* Enhanced gradient animation */
-@keyframes gradientAnimation {
-  0% {
-    background-position: 0% 50%;
-    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-  }
-  25% {
-    background-position: 50% 100%;
-    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
-  }
-  50% {
-    background-position: 100% 50%;
-    border-radius: 50% 50% 20% 80% / 25% 80% 20% 75%;
-  }
-  75% {
-    background-position: 50% 0%;
-    border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%;
-  }
-  100% {
-    background-position: 0% 50%;
-    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-  }
-}
-
-.animate-gradient {
-  animation: gradientAnimation 25s ease infinite;
-  background-size: 400% 400%;
-}
-
-/* Static subtle background for Servie - optimized for performance */
-.home-background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  opacity: 0.04;
-  background: 
-    radial-gradient(circle at 20% 30%, hsl(var(--servie) / 0.2) 0%, transparent 40%),
-    radial-gradient(circle at 80% 70%, hsl(var(--primary) / 0.15) 0%, transparent 40%);
-  pointer-events: none;
-}
-
-.dark .home-background {
-  opacity: 0.06;
-  background: 
-    radial-gradient(circle at 25% 25%, hsl(var(--servie) / 0.25) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, hsl(var(--primary) / 0.2) 0%, transparent 50%);
-}
 
 /* Consistent button styling */
 .bg-servie {

@@ -148,7 +148,7 @@ export default function SignUp() {
         
         <p className="mt-4 sm:mt-8 text-center text-xs sm:text-sm text-muted-foreground whitespace-normal">
           Already have an account?{" "}
-          <Link to="/signin" className="font-medium text-servie hover:underline whitespace-nowrap">
+          <Link to="/sign-in" className="font-medium text-servie hover:underline whitespace-nowrap">
             Sign in
           </Link>
         </p>
