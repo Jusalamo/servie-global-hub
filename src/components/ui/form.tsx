@@ -104,21 +104,31 @@ FormLabel.displayName = "FormLabel"
 const FormControl = React.forwardRef<
   React.ElementRef<typeof Slot>,
   React.ComponentPropsWithoutRef<typeof Slot>
->(({ ...props }, ref) => {
+>(({ children, ...props }, ref) => {
   const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
+
+  // Radix Slot requires exactly one React element child.
+  // In some cases (formatting/whitespace), JSX can produce extra text nodes.
+  // We defensively strip empty text nodes and keep the first element to avoid runtime crashes.
+  const normalizedChildren = React.Children.toArray(children).filter((child) => {
+    if (typeof child === "string") return child.trim().length > 0
+    return child != null
+  })
+
+  const onlyChild = normalizedChildren.length > 0 ? normalizedChildren[0] : null
 
   return (
     <Slot
       ref={ref}
       id={formItemId}
       aria-describedby={
-        !error
-          ? `${formDescriptionId}`
-          : `${formDescriptionId} ${formMessageId}`
+        !error ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`
       }
       aria-invalid={!!error}
       {...props}
-    />
+    >
+      {onlyChild}
+    </Slot>
   )
 })
 FormControl.displayName = "FormControl"
