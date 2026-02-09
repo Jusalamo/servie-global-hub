@@ -1,20 +1,13 @@
 
 import { Link, Navigate, useLocation } from "react-router-dom"
-import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { useAuth } from "@/context/AuthContext"
 import SignInForm from "@/components/SignInForm"
-import UserRoleSelector from "@/components/auth/UserRoleSelector"
-import { useState } from "react"
-
-type UserRole = "client" | "provider" | "seller"
 
 export default function SignIn() {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/dashboard";
-  const [selectedRole, setSelectedRole] = useState<UserRole>("client");
-  const [showRoleSelector, setShowRoleSelector] = useState(false);
 
   // Redirect if already authenticated
   if (isAuthenticated) {
@@ -32,33 +25,6 @@ export default function SignIn() {
             Sign in to access your account
           </p>
         </div>
-        
-        {/* Role Selection Toggle */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 bg-muted/50 p-3 sm:p-4 rounded-lg">
-          <span className="text-xs sm:text-sm font-medium whitespace-normal break-words max-w-full">Account Type: {selectedRole}</span>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setShowRoleSelector(!showRoleSelector)}
-            className="whitespace-normal min-w-fit"
-          >
-            Change Role
-          </Button>
-        </div>
-
-        {/* Role Selector */}
-        {showRoleSelector && (
-          <div className="animate-fade-in">
-            <UserRoleSelector 
-              selectedRole={selectedRole} 
-              onChange={(role) => {
-                setSelectedRole(role);
-                setShowRoleSelector(false);
-              }}
-            />
-          </div>
-        )}
         
         <SignInForm />
         
