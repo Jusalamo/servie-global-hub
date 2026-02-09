@@ -1,21 +1,30 @@
 
 import { useEffect } from "react";
-import { useAuthRedirect } from "@/hooks/useAuthRedirect";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 import { Loader2 } from "lucide-react";
 
 const UserDashboard = () => {
-  const { isLoading } = useAuthRedirect();
-  
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-servie" />
-        <p className="mt-4 text-muted-foreground">Setting up your dashboard...</p>
-      </div>
-    );
-  }
-  
-  // This component should not be rendered if auth redirect is working properly
+  const { userRole, isLoading, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    if (!isAuthenticated) {
+      navigate('/sign-in', { replace: true });
+      return;
+    }
+
+    if (userRole) {
+      const path =
+        userRole === 'provider' ? '/dashboard/provider?tab=overview' :
+        userRole === 'seller' ? '/dashboard/seller?tab=overview' :
+        '/dashboard/client';
+      navigate(path, { replace: true });
+    }
+  }, [userRole, isLoading, isAuthenticated, navigate]);
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center">
       <Loader2 className="h-10 w-10 animate-spin text-servie" />
