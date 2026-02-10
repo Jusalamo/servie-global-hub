@@ -3,10 +3,12 @@ import { Link, Navigate, useLocation } from "react-router-dom"
 import { Separator } from "@/components/ui/separator"
 import { useAuth } from "@/context/AuthContext"
 import SignInForm from "@/components/SignInForm"
+import { useTranslation } from 'react-i18next'
 
 export default function SignIn() {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
+  const { t } = useTranslation();
   const from = location.state?.from?.pathname || "/dashboard";
 
   // Redirect if already authenticated
@@ -19,10 +21,10 @@ export default function SignIn() {
       <div className="w-full max-w-md space-y-4 sm:space-y-8">
         <div className="text-center">
           <h2 className="mt-2 text-2xl sm:mt-6 sm:text-3xl font-bold tracking-tight whitespace-normal break-words">
-            Welcome back
+            {t('welcome_back', 'Welcome back')}
           </h2>
           <p className="mt-2 text-sm sm:text-base text-muted-foreground whitespace-normal">
-            Sign in to access your account
+            {t('sign_in_subtitle', 'Sign in to access your account')}
           </p>
         </div>
         
@@ -35,7 +37,7 @@ export default function SignIn() {
             </div>
             <div className="relative flex justify-center text-xs sm:text-sm">
               <span className="px-2 bg-background text-muted-foreground whitespace-normal">
-                Or continue with
+                {t('or_continue_with', 'Or continue with')}
               </span>
             </div>
           </div>
@@ -64,9 +66,9 @@ export default function SignIn() {
       </div>
       
       <p className="mt-4 sm:mt-8 text-center text-xs sm:text-sm text-muted-foreground whitespace-normal">
-        Don't have an account yet?{" "}
+        {t('no_account', "Don't have an account yet?")}{" "}
         <Link to="/sign-up" className="font-medium text-servie hover:underline whitespace-nowrap">
-          Sign up
+          {t('signUp', 'Sign up')}
         </Link>
       </p>
     </div>

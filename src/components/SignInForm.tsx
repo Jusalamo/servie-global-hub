@@ -5,13 +5,13 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from '@/context/AuthContext';
-import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function SignInForm() {
   const { signIn } = useAuth();
-  const { isLoading: authLoading } = useAuthRedirect();
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -58,7 +58,7 @@ export function SignInForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{t('email_label', 'Email')}</Label>
         <Input
           id="email"
           name="email"
@@ -71,9 +71,9 @@ export function SignInForm() {
       </div>
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{t('password_label', 'Password')}</Label>
           <Button variant="link" className="p-0" asChild>
-            <a href="/forgot-password">Forgot password?</a>
+            <a href="/forgot-password">{t('forgot_password', 'Forgot password?')}</a>
           </Button>
         </div>
         <PasswordInput
@@ -94,20 +94,20 @@ export function SignInForm() {
             setFormData({...formData, rememberMe: checked === true})
           }
         />
-        <Label htmlFor="rememberMe">Remember me</Label>
+        <Label htmlFor="rememberMe">{t('remember_me', 'Remember me')}</Label>
       </div>
       <Button
         type="submit"
         className="w-full bg-servie hover:bg-servie-600"
-        disabled={isLoading || authLoading}
+        disabled={isLoading}
       >
-        {(isLoading || authLoading) ? (
+        {isLoading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            {isLoading ? 'Signing in...' : 'Redirecting...'}
+            {t('signing_in', 'Signing in...')}
           </>
         ) : (
-          "Sign in"
+          t('signIn', 'Sign in')
         )}
       </Button>
       

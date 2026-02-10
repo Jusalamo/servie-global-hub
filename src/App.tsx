@@ -72,7 +72,7 @@ function App() {
                 <ScrollToPage />
                 <Routes>
                   <Route path="/" element={
-                    <ServieLayout showBackground={false}>
+                    <ServieLayout showBackground={false} showFooter={true}>
                       <Index />
                     </ServieLayout>
                   } />
@@ -231,7 +231,7 @@ function App() {
                     </ServieLayout>
                   } />
                   <Route path="/faqs" element={
-                    <ServieLayout>
+                    <ServieLayout showFooter={true}>
                       <FAQs />
                     </ServieLayout>
                   } />

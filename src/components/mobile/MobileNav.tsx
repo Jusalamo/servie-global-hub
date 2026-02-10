@@ -1,6 +1,7 @@
 import { useState, memo } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, Home, User, LayoutDashboard, LogIn, LogOut, UserPlus, Store, Briefcase, ShoppingCart } from 'lucide-react';
+import { Menu, Home, LayoutDashboard, LogIn, LogOut, UserPlus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -11,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 export const MobileNav = memo(() => {
   const [open, setOpen] = useState(false);
   const { isAuthenticated, userRole, signOut } = useAuth();
+  const { t } = useTranslation();
 
   const getDashboardLink = () => {
     if (!userRole) return "/dashboard";
@@ -38,7 +40,7 @@ export const MobileNav = memo(() => {
         <ScrollArea className="h-full">
           <div className="flex flex-col h-full">
             <div className="p-5 border-b">
-              <h2 className="text-servie font-bold text-lg">Menu</h2>
+              <h2 className="text-servie font-bold text-lg">{t('menu', 'Menu')}</h2>
             </div>
             
             <nav className="flex flex-col p-3 space-y-1">
@@ -48,34 +50,7 @@ export const MobileNav = memo(() => {
                 className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors min-h-[44px]"
               >
                 <Home className="h-5 w-5 flex-shrink-0" />
-                <span className="font-medium">Home</span>
-              </Link>
-
-              <Link
-                to="/categories"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors min-h-[44px]"
-              >
-                <Briefcase className="h-5 w-5 flex-shrink-0" />
-                <span className="font-medium">Services</span>
-              </Link>
-
-              <Link
-                to="/shop"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors min-h-[44px]"
-              >
-                <Store className="h-5 w-5 flex-shrink-0" />
-                <span className="font-medium">Shop</span>
-              </Link>
-
-              <Link
-                to="/cart"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors min-h-[44px]"
-              >
-                <ShoppingCart className="h-5 w-5 flex-shrink-0" />
-                <span className="font-medium">Cart</span>
+                <span className="font-medium">{t('Home', 'Home')}</span>
               </Link>
               
               {isAuthenticated && (
@@ -87,7 +62,7 @@ export const MobileNav = memo(() => {
                     className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors min-h-[44px]"
                   >
                     <LayoutDashboard className="h-5 w-5 flex-shrink-0" />
-                    <span className="font-medium">Dashboard</span>
+                    <span className="font-medium">{t('dashboard', 'Dashboard')}</span>
                   </Link>
                 </>
               )}
@@ -96,7 +71,7 @@ export const MobileNav = memo(() => {
             <div className="mt-auto border-t p-4 space-y-2">
               {/* Theme Toggle */}
               <div className="flex items-center justify-between px-4 py-3 rounded-lg hover:bg-muted min-h-[44px]">
-                <span className="text-sm font-medium">Theme</span>
+                <span className="text-sm font-medium">{t('theme', 'Theme')}</span>
                 <ThemeToggle />
               </div>
 
@@ -108,7 +83,7 @@ export const MobileNav = memo(() => {
                   onClick={handleSignOut}
                 >
                   <LogOut className="h-5 w-5" />
-                  <span className="font-medium">Sign Out</span>
+                  <span className="font-medium">{t('sign_out', 'Sign Out')}</span>
                 </Button>
               ) : (
                 <div className="space-y-2">
@@ -118,7 +93,7 @@ export const MobileNav = memo(() => {
                     className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors min-h-[44px]"
                   >
                     <LogIn className="h-5 w-5" />
-                    <span className="font-medium">Sign In</span>
+                    <span className="font-medium">{t('signIn', 'Sign In')}</span>
                   </Link>
                   <Link
                     to="/sign-up"
@@ -126,7 +101,7 @@ export const MobileNav = memo(() => {
                     className="flex items-center gap-3 px-4 py-3 rounded-lg bg-servie text-white hover:bg-servie-600 transition-colors min-h-[44px]"
                   >
                     <UserPlus className="h-5 w-5" />
-                    <span className="font-medium">Sign Up</span>
+                    <span className="font-medium">{t('signUp', 'Sign Up')}</span>
                   </Link>
                 </div>
               )}

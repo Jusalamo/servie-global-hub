@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import ServieIcon from "@/components/ServieIcon";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { toast } from "sonner";
 import AnimatedSearchInput from "./AnimatedSearchInput";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 export default function Hero() {
   const [subscribeEmail, setSubscribeEmail] = useState("");
   const navigate = useNavigate();
+  const { t } = useTranslation();
   
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,10 +38,10 @@ export default function Hero() {
           {/* Main hero text */}
           <div className="space-y-3 sm:space-y-4">
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight animate-fade-in bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent dark:from-white dark:to-gray-300 whitespace-normal break-words px-2">
-              Find The Perfect Service Provider For Your Needs
+              {t('hero_title', 'Find The Perfect Service Provider For Your Needs')}
             </h1>
             <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground animate-fade-in max-w-3xl mx-auto whitespace-normal px-2">
-              Connect with top professionals and skilled service providers in your area
+              {t('hero_subtitle', 'Connect with top professionals and skilled service providers in your area')}
             </p>
           </div>
 
@@ -53,16 +55,16 @@ export default function Hero() {
           {/* CTA buttons - using consistent servie color */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-fade-in px-2">
             <Button asChild size="lg" className="bg-servie text-servie-foreground hover:bg-servie-600 shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto whitespace-normal">
-              <Link to="/categories">Browse Services</Link>
+              <Link to="/categories">{t('browse_services', 'Browse Services')}</Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="border-servie text-servie hover:bg-servie hover:text-servie-foreground shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto whitespace-normal">
-              <Link to="/shop">Shop Products</Link>
+              <Link to="/shop">{t('shop_products', 'Shop Products')}</Link>
             </Button>
           </div>
 
           {/* Trusted by section */}
           <div className="mt-8 sm:mt-12 md:mt-16 animate-fade-in px-2">
-            <p className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6 whitespace-normal">Trusted by over 10,000+ customers</p>
+            <p className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6 whitespace-normal">{t('trusted_by', 'Trusted by over 10,000+ customers')}</p>
             <div className="flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-8 items-center">
               {[
                 { name: "Alpha", icon: "🏢" },
