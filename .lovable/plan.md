@@ -1,40 +1,70 @@
 
 
-## Fix: Sign-in should redirect to the correct role-specific dashboard
+## Plan: Fix 4 Issues
 
-### Problem
-When a seller (or any role) signs in, they aren't reliably redirected to their role-specific dashboard. Two root causes:
+### 1. Sign-in button stuck in "Redirecting..." state after failed login
 
-1. **The Sign-In page has a misleading "role selector"** that does absolutely nothing -- it's never sent to the backend. Users think they need to pick "seller" to get to the seller dashboard, but the system already knows their role from the `user_roles` table.
+**Root cause:** In `SignInForm.tsx`, the button is disabled when `authLoading` is true (line 102). `authLoading` comes from `useAuthRedirect`, which returns `isLoading: true` when `isAuthenticated && user && !userRole`. After a failed sign-in, `setIsLoading(false)` runs correctly in the `finally` block, BUT the `useAuthRedirect` hook's `isLoading` can get stuck as `true` if there's a brief authenticated state before the error is processed, or if `hasRedirected.current` was set but sign-in actually failed.
 
-2. **Race condition in redirect logic**: After sign-in succeeds, `SignIn.tsx` redirects to `/dashboard`, but the `useAuthRedirect` hook may not have fetched the role yet, causing the user to see a loading spinner or land on the wrong page.
+**Fix:**
+- In `SignInForm.tsx`, only use the local `isLoading` state for the button disabled/text state -- remove `authLoading` from the button logic entirely
+- The redirect will still happen automatically via the `useAuthRedirect` hook when sign-in succeeds, but a failed sign-in won't lock the button
 
-### Solution
+**File:** `src/components/SignInForm.tsx`
 
-**1. Remove the fake role selector from Sign-In page** (`src/pages/SignIn.tsx`)
-- Delete the `UserRoleSelector` component and "Change Role" button from the sign-in form
-- Users sign in with email + password only -- the system routes them based on their actual role in the database
+---
 
-**2. Fix the redirect after sign-in** (`src/hooks/useAuthRedirect.ts`)
-- Add a retry/wait mechanism: when `userRole` is null but user is authenticated, wait briefly for role to load before giving up
-- This handles the timing gap between `signIn` completing and `fetchUserRole` resolving
+### 2. Remove "Services" and "Shop" links from navbar
 
-**3. Make `ProtectedRoute` on `/dashboard` do role-based redirect** (`src/components/ProtectedRoute.tsx`)
-- When accessing `/dashboard` (no specific role), redirect to the user's role-specific dashboard based on `userRole` from AuthContext
-- This is a safety net so even if `useAuthRedirect` doesn't fire, the user still lands correctly
+These links are redundant since both sections are already on the home page.
 
-### Files to change
+**Changes:**
+- **Header.tsx**: Remove the desktop nav section (lines 72-79) with the Services and Shop buttons
+- **MobileNav.tsx**: Remove the Services, Shop, and Cart links (lines 54-79) from the mobile menu. Keep Home, Dashboard (authenticated), Sign in/up, Sign out
 
-| File | Change |
-|------|--------|
-| `src/pages/SignIn.tsx` | Remove role selector UI, keep simple email/password sign-in |
-| `src/hooks/useAuthRedirect.ts` | Add retry logic when role is loading; ensure redirect fires reliably |
-| `src/pages/dashboard/UserDashboard.tsx` | Add direct role-based redirect as fallback |
+**Files:** `src/components/Header.tsx`, `src/components/mobile/MobileNav.tsx`
 
-### Technical Details
+---
 
-In `useAuthRedirect.ts`, the current code checks `if (isAuthenticated && user && userRole)` but `userRole` is loaded asynchronously via `setTimeout(..., 0)` in AuthContext. The fix adds a polling interval that retries for up to 3 seconds, ensuring the role has time to load before redirecting.
+### 3. Footer only on Home page and FAQs page
 
-In `UserDashboard.tsx`, add a `useEffect` that watches `userRole` and navigates as soon as it's available, as a second safety net.
+Currently `ServieLayout` always renders `<Footer />`. We need to make it conditional.
 
-The sign-in page will become simpler and less confusing -- users just enter credentials and the system handles routing automatically.
+**Changes:**
+- Add a `showFooter` prop to `ServieLayout` (default `false`)
+- Only pass `showFooter={true}` on the `/` (Home) and `/faqs` (FAQs) routes in `App.tsx`
+- All other routes keep the default (no footer)
+
+**Files:** `src/components/layout/ServieLayout.tsx`, `src/App.tsx`
+
+---
+
+### 4. Language selector changes entire site language
+
+Currently the `LocalizationProvider` stores the language but never calls `i18n.changeLanguage()`. Only 3 pages use `useTranslation()` from react-i18next, while most pages use hardcoded English text.
+
+**Changes:**
+- In `LangCurrencySelector.tsx`'s `LocalizationProvider`, call `i18n.changeLanguage(lang)` whenever `setLanguage` is called, syncing the localization context with the i18n system
+- Add many more translation keys to `src/i18n.ts` covering: Hero section, Header/Footer text, Sign In/Up page text, common UI labels (Welcome back, Email, Password, Remember me, etc.)
+- Update key components to use `useTranslation()` with `t()` instead of hardcoded strings:
+  - `Header.tsx` (Dashboard, Sign out)
+  - `Footer.tsx` (all section headings and links)
+  - `SignInForm.tsx` (form labels, button text)
+  - `SignIn.tsx` (Welcome back, sign in text)
+  - `Hero.tsx` (hero title, subtitle, CTA)
+  - `MobileNav.tsx` (menu items)
+- Store selected language in localStorage so it persists across refreshes
+
+**Files:** `src/components/LangCurrencySelector.tsx`, `src/i18n.ts`, `src/components/Header.tsx`, `src/components/Footer.tsx`, `src/components/SignInForm.tsx`, `src/pages/SignIn.tsx`, `src/components/Hero.tsx`, `src/components/mobile/MobileNav.tsx`
+
+---
+
+## Technical Summary
+
+| Issue | File(s) | Change |
+|-------|---------|--------|
+| Button stuck after failed sign-in | `SignInForm.tsx` | Remove `authLoading` from button disabled/label logic |
+| Remove Services/Shop from navbar | `Header.tsx`, `MobileNav.tsx` | Delete nav links |
+| Footer only on Home + FAQs | `ServieLayout.tsx`, `App.tsx` | Add `showFooter` prop, pass only on `/` and `/faqs` |
+| Language selector changes site language | `LangCurrencySelector.tsx`, `i18n.ts`, 6+ components | Sync i18n, add translations, use `t()` in components |
+
