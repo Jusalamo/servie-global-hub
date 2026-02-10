@@ -4,11 +4,11 @@ import { ChevronDown, User } from 'lucide-react';
 import { Button } from './ui/button';
 import ServieIcon from './ServieIcon';
 import { useAuth } from '@/context/AuthContext';
-import { useLocalization } from './LangCurrencySelector';
 import CartIndicator from './CartIndicator';
 import NotificationBell from './NotificationBell';
 import { ThemeToggle } from './ui/ThemeToggle';
 import { MobileNav } from './mobile/MobileNav';
+import { useTranslation } from 'react-i18next';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +19,7 @@ import {
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const { isAuthenticated, signOut, userRole } = useAuth();
-  const { translate } = useLocalization();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -68,16 +68,6 @@ const Header = () => {
               </>
             )}
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-1">
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/categories">Services</Link>
-              </Button>
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/shop">Shop</Link>
-              </Button>
-            </nav>
-
             {/* For desktop view */}
             <div className="hidden md:flex items-center gap-2">
               <ThemeToggle />
@@ -94,20 +84,20 @@ const Header = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
                     <DropdownMenuItem asChild>
-                      <Link to={getDashboardLink()} className="w-full cursor-pointer">Dashboard</Link>
+                     <Link to={getDashboardLink()} className="w-full cursor-pointer">{t('dashboard', 'Dashboard')}</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={signOut} className="cursor-pointer">
-                      Sign out
+                      {t('sign_out', 'Sign out')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
                 <div className="flex items-center gap-2">
                   <Button variant="ghost" asChild size="sm">
-                    <Link to="/sign-in">{translate('signIn')}</Link>
+                    <Link to="/sign-in">{t('signIn', 'Sign in')}</Link>
                   </Button>
                   <Button className="bg-servie hover:bg-servie-600" asChild size="sm">
-                    <Link to="/sign-up">{translate('signUp')}</Link>
+                    <Link to="/sign-up">{t('signUp', 'Sign up')}</Link>
                   </Button>
                 </div>
               )}

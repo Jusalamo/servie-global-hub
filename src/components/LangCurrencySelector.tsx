@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import i18n from '@/i18n';
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -54,8 +55,14 @@ const currencies: Currency[] = [
 ];
 
 export const LocalizationProvider = ({ children }: { children: React.ReactNode }) => {
-  const [language, setLanguage] = useState("en");
+  const [language, setLanguageState] = useState(() => localStorage.getItem('i18nLanguage') || 'en');
   const [currency, setCurrency] = useState("USD");
+
+  const setLanguage = (lang: string) => {
+    setLanguageState(lang);
+    localStorage.setItem('i18nLanguage', lang);
+    i18n.changeLanguage(lang);
+  };
 
   const currentLanguage = languages.find(lang => lang.code === language) || languages[0];
   const currentCurrency = currencies.find(curr => curr.code === currency) || currencies[0];
